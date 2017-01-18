@@ -17,12 +17,20 @@
 
 package org.springframework.data.gemfire.config.annotation;
 
+import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeMap;
+
 import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.query.Index;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -48,22 +56,28 @@ import org.springframework.util.StringUtils;
  *
  * @author John Blum
  * @see java.lang.annotation.Annotation
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.lucene.LuceneIndex
+ * @see org.apache.geode.cache.query.Index
  * @see org.springframework.beans.factory.support.BeanDefinitionBuilder
  * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
+ * @see org.springframework.core.type.AnnotationMetadata
  * @see org.springframework.data.annotation.Id
  * @see org.springframework.data.gemfire.IndexFactoryBean
  * @see org.springframework.data.gemfire.IndexType
- * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
+ * @see org.springframework.data.gemfire.config.annotation.EnableIndexing
  * @see org.springframework.data.gemfire.config.annotation.EntityDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.mapping.GemfirePersistentEntity
  * @see org.springframework.data.gemfire.mapping.GemfirePersistentProperty
  * @see org.springframework.data.gemfire.mapping.annotation.Indexed
- * @see org.apache.geode.cache.Region
- * @see org.apache.geode.cache.lucene.LuceneIndex
- * @see org.apache.geode.cache.query.Index
+ * @see org.springframework.data.gemfire.mapping.annotation.LuceneIndexed
+ * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
  * @since 1.9.0
  */
 public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
+
+	@Autowired(required = false)
+	private List<IndexConfigurer> indexConfigurers = Collections.emptyList();
 
 	/**
 	 * Returns the {@link Annotation} {@link Class type} that configures and creates {@link Region} Indexes
@@ -116,8 +130,8 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 		GemfirePersistentEntity<?> localPersistentEntity =
 			super.postProcess(importingClassMetadata, registry, persistentEntity);
 
-
 		if (isAnnotationPresent(importingClassMetadata, getEnableIndexingAnnotationTypeName())) {
+
 			AnnotationAttributes enableIndexingAttributes =
 				getAnnotationAttributes(importingClassMetadata, getEnableIndexingAnnotationTypeName());
 
@@ -169,6 +183,7 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 			IndexType indexType, Annotation indexAnnotation, BeanDefinitionRegistry registry) {
 
 		Optional.ofNullable(indexAnnotation).ifPresent(localIndexAnnotation -> {
+
 			AnnotationAttributes indexedAttributes = getAnnotationAttributes(localIndexAnnotation);
 
 			BeanDefinitionBuilder indexFactoryBeanBuilder =
@@ -185,6 +200,8 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 			indexFactoryBeanBuilder.addPropertyValue("from",
 				resolveFrom(persistentEntity, persistentProperty, indexedAttributes));
+
+			indexFactoryBeanBuilder.addPropertyValue("indexConfigurers", resolveIndexConfigurers());
 
 			indexFactoryBeanBuilder.addPropertyValue("name", indexName);
 
@@ -222,6 +239,7 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 			Annotation luceneIndexAnnotation, BeanDefinitionRegistry registry) {
 
 		Optional.ofNullable(luceneIndexAnnotation).ifPresent(localLuceneIndexAnnotation -> {
+
 			AnnotationAttributes luceneIndexAttributes =
 				AnnotationAttributes.fromMap(AnnotationUtils.getAnnotationAttributes(localLuceneIndexAnnotation));
 
@@ -237,12 +255,32 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 			luceneIndexFactoryBeanBuilder.addPropertyValue("fields", persistentProperty.getName());
 
+			luceneIndexFactoryBeanBuilder.addPropertyValue("indexConfigurers", resolveIndexConfigurers());
+
 			luceneIndexFactoryBeanBuilder.addPropertyValue("indexName", indexName);
 
 			luceneIndexFactoryBeanBuilder.addPropertyValue("regionPath", persistentEntity.getRegionName());
 
 			registry.registerBeanDefinition(indexName, luceneIndexFactoryBeanBuilder.getBeanDefinition());
 		});
+	}
+
+	/* (non-Javadoc) */
+	private List<IndexConfigurer> resolveIndexConfigurers() {
+
+		return Optional.ofNullable(this.indexConfigurers)
+			.filter(indexConfigurers -> !indexConfigurers.isEmpty())
+			.orElseGet(() ->
+				Optional.of(getBeanFactory())
+					.filter(beanFactory -> beanFactory instanceof ListableBeanFactory)
+					.map(beanFactory -> {
+						Map<String, IndexConfigurer> beansOfType = ((ListableBeanFactory) beanFactory)
+							.getBeansOfType(IndexConfigurer.class, true, true);
+
+						return nullSafeMap(beansOfType).values().stream().collect(Collectors.toList());
+					})
+					.orElseGet(Collections::emptyList)
+			);
 	}
 
 	/* (non-Javadoc) */
