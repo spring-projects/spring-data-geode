@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 the original author or authors.
+ * Copyright 2010-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 /**
  * The RecreatingSpringApplicationContextTest class is an abstract base class that creates the app context after each method.
  * Used to properly destroy the beans defined inside Spring.
- * 
+ *
  * @author Costin Leau
  * @author John Blum
  */
