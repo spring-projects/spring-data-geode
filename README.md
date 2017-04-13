@@ -1,19 +1,23 @@
-Spring Data GemFire
-===================
+Spring Data Geode
+=================
 
-The primary goal of the [Spring Data GemFire](http://http://projects.spring.io/spring-data-gemfire) project is to make it easier to build highly scalable, Spring-powered applications using
-[Pivotal GemFire](http://www.pivotal.io/big-data/pivotal-gemfire) as a distributed, data management platform.
+The primary goal of the [Spring Data Geode](http://projects.spring.io/spring-data-gemfire) project is to 
+make it easier to build highly scalable, _Spring_ powered applications using [Apache Geode](http://geode.apache.org/) 
+as the underlying distributed, in-memory data management platform.
 
 # Examples
 
-For examples on using the Spring Data GemFire, see the [spring-gemfire-examples](https://github.com/SpringSource/spring-gemfire-examples) project.
+For examples on using the _Spring Data Geode_, see the [spring-gemfire-examples](https://github.com/SpringSource/spring-gemfire-examples) project.
 
 # Getting Help
 
-Read the main project [website](http://projects.spring.io/spring-data-gemfire/) and the [User Guide](http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/).
+Read the main project [website](http://projects.spring.io/spring-data-gemfire/) along with the [User Guide](http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/).
+
 Look at the source code and the [JavaDocs](http://docs.spring.io/spring-data-gemfire/docs/current/api/).
+
 For more detailed questions, visit [StackOverflow](https://stackoverflow.com/questions/tagged/spring-data-gemfire).
-If you are new to Spring as well as to Spring Data GemFire, look for information about [Spring projects](http://spring.io/projects).
+
+If you are new to _Spring_ as well as _Spring Data Geode_, look for information about [Spring projects](http://spring.io/projects).
 
 Quick Start
 -----------
@@ -27,34 +31,27 @@ For those in a hurry:
 ~~~~~ xml
 <dependency>
   <groupId>org.springframework.data</groupId>
-  <artifactId>spring-data-gemfire</artifactId>
+  <artifactId>spring-data-geode</artifactId>
   <version>${version}</version>
-</dependency> 
+</dependency>
 
-<!-- used for nightly builds -->
+<!-- nightly builds -->
 <repository>
   <id>spring-maven-snapshot</id>
-  <snapshots><enabled>true</enabled></snapshots>
-  <name>Springframework Maven SNAPSHOT Repository</name>
+  <name>Spring Maven SNAPSHOT Repository</name>
   <url>http://repo.spring.io/snapshot</url>
-</repository> 
-
-<!-- used for milestone/rc releases -->
-<repository>
-  <id>spring-maven-milestone</id>
-  <name>Springframework Maven Milestone Repository</name>
-  <url>http://repo.spring.io/milestone</url>
+  <snapshots><enabled>true</enabled></snapshots>
 </repository>
 
-<!-- required for gemfire jar -->
+<!-- milestones/release candidates-->
 <repository>
-  <id>spring-maven-plugins-release</id>
-  <name>Springframework Maven Plugins Release Repository</name>
-  <url>http://repo.spring.io/plugins-release</url>
-</repository> 
+  <id>spring-maven-milestone</id>
+  <name>Spring Maven Milestone Repository</name>
+  <url>http://repo.spring.io/milestone</url>
+</repository>
 ~~~~~
 
-* Gradle: 
+* Gradle:
 
 ~~~~~ groovy
 repositories {
@@ -64,29 +61,25 @@ repositories {
 }
 
 dependencies {
-   compile "org.springframework.data:spring-data-gemfire:${version}"
+   compile "org.springframework.data:spring-data-geode:${version}"
 }
 ~~~~~
 
-Latest GA release is _1.4.4.RELEASE_
-Latest nightly build is _1.5.0.BUILD-SNAPSHOT_
-
-
-* Configure a GemFire cache and Region (replicated, partitioned, client and so on):
+* Configure a Geode cache and Region (REPLICATE, PARTITION and so on):
 
 ~~~~~ xml
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:gfe="http://www.springframework.org/schema/gemfire"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd">
+    http://www.springframework.org/schema/geode http://www.springframework.org/schema/gemfire/spring-geode.xsd">
 
-  <gfe:cache />
-  
-  <gfe:partitioned-region id="partition" copies="2" total-buckets="4">
+  <gfe:cache/>
 
-  <bean id="gemfireTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="someRegion"/>
+  <gfe:partitioned-region id="ExampleRegion" copies="2">
+
+  <bean id="gemfireTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="ExampleRegion"/>
 </beans>
 ~~~~~
 
@@ -96,7 +89,7 @@ Latest nightly build is _1.5.0.BUILD-SNAPSHOT_
 region.put(Long.valueOf(1), new Person("Jane", "Smith"));
 ~~~~~
 
-* Or/And `GemFireTemplate` to interact with GemFire:
+* And/Or `GemFireTemplate` to interact with Geode:
 
 ~~~~~ java
 template.query("person = 1");
@@ -104,19 +97,9 @@ template.query("person = 1");
 
 # Building
 
-Spring GemFire uses Gradle as its building system. To compile the project, simply type from the root folder
+_Spring Data Geode_ uses Maven as its build system. To compile the project, simply type from the root folder
 
-    gradlew
-
-To generate IDE-specific files, use
-
-    gradlew eclipse
- 
-or
-
-    gradlew idea 
-    
-depending on your editor.
+    mvn clean install
 
 # Contributing
 
