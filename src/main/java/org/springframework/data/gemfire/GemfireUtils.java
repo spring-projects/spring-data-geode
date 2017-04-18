@@ -33,10 +33,13 @@ import org.w3c.dom.Element;
  * @see org.apache.geode.cache.Region
  * @since 1.3.3
  */
+@SuppressWarnings("unused")
 public abstract class GemfireUtils extends CacheUtils {
 
-	public final static String GEMFIRE_NAME = GemFireVersion.getProductName();
-	public final static String GEMFIRE_VERSION = CacheFactory.getVersion();
+	public final static String APACHE_GEODE_NAME = "Aache Geode";
+	public final static String GEMFIRE_NAME = apacheGeodeProductName();
+	public final static String GEMFIRE_VERSION = apacheGeodeVersion();
+	public final static String UNKNOWN = "unknown";
 
 	private static final String ASYNC_EVENT_QUEUE_ELEMENT_NAME = "async-event-queue";
 	private static final String ASYNC_EVENT_QUEUE_TYPE_NAME = "org.apache.geode.cache.asyncqueue.AsyncEventQueue";
@@ -46,6 +49,26 @@ public abstract class GemfireUtils extends CacheUtils {
 	private static final String GATEWAY_RECEIVER_TYPE_NAME = "org.apache.geode.internal.cache.wan.GatewayReceiverFactoryImpl";
 	private static final String GATEWAY_SENDER_ELEMENT_NAME = "gateway-sender";
 	private static final String GATEWAY_SENDER_TYPE_NAME = "org.apache.geode.internal.cache.wan.GatewaySenderFactoryImpl";
+
+	/* (non-Javadoc) */
+	public static String apacheGeodeProductName() {
+		try {
+			return GemFireVersion.getProductName();
+		}
+		catch (Throwable ignore) {
+			return APACHE_GEODE_NAME;
+		}
+	}
+
+	/* (non-Javadoc) */
+	public static String apacheGeodeVersion() {
+		try {
+			return CacheFactory.getVersion();
+		}
+		catch (Throwable ignore) {
+			return UNKNOWN;
+		}
+	}
 
 	/* (non-Javadoc) */
 	public static boolean isClassAvailable(String fullyQualifiedClassName) {
@@ -115,5 +138,4 @@ public abstract class GemfireUtils extends CacheUtils {
 		//System.out.printf("Is GemFire Version 6.5 of Above? %1$s%n", isGemfireVersion65OrAbove());
 		//System.out.printf("Is GemFire Version 7.0 of Above? %1$s%n", isGemfireVersion7OrAbove());
 	}
-
 }

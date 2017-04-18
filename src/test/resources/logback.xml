@@ -6,9 +6,9 @@
         </encoder>
     </appender>
 
-    <logger name="org.springframework.data" level="${logback.log.level:-error}"/>
+    <logger name="org.springframework" level="${logback.log.level:-error}"/>
 
-    <root level="${logback.log.leve:-warn}">
+    <root level="${logback.log.level:-error}">
         <appender-ref ref="console" />
     </root>
 </configuration>

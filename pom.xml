@@ -32,12 +32,12 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>https://repo.spring.io/libs-snapshot</url>
-		</repository>
-		<repository>
 			<id>apache-snapshots</id>
 			<url>https://repository.apache.org/content/repositories/snapshots</url>
+		</repository>
+		<repository>
+			<id>spring-libs-snapshot</id>
+			<url>https://repo.spring.io/libs-snapshot</url>
 		</repository>
 	</repositories>
 

@@ -16,6 +16,8 @@
 
 package org.springframework.data.gemfire;
 
+import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeProductName;
+import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeVersion;
 import static org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.newBeanFactoryLocator;
 
 import java.io.File;
@@ -187,7 +189,6 @@ public class CacheFactoryBean implements BeanClassLoaderAware, BeanFactoryAware,
 	}
 
 	/* (non-Javadoc) */
-	@SuppressWarnings("deprecation")
 	Cache init() throws Exception {
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 
@@ -201,13 +202,15 @@ public class CacheFactoryBean implements BeanClassLoaderAware, BeanFactoryAware,
 
 			DistributedMember member = system.getDistributedMember();
 
-			log.info(String.format("Connected to Distributed System [%1$s] as Member [%2$s]"
-				.concat("in Group(s) [%3$s] with Role(s) [%4$s] on Host [%5$s] having PID [%6$d]."),
-					system.getName(), member.getId(), member.getGroups(), member.getRoles(), member.getHost(),
-						member.getProcessId()));
+			if (log.isInfoEnabled()) {
+				log.info(String.format("Connected to Distributed System [%1$s] as Member [%2$s]"
+					.concat(" in Group(s) [%3$s] with Role(s) [%4$s] on Host [%5$s] having PID [%6$d]."),
+						system.getName(), member.getId(), member.getGroups(), member.getRoles(), member.getHost(),
+							member.getProcessId()));
 
-			log.info(String.format("%1$s GemFire v.%2$s Cache [%3$s].", cacheResolutionMessagePrefix,
-				CacheFactory.getVersion(), cache.getName()));
+				log.info(String.format("%1$s %2$s version [%3$s] Cache [%4$s].",
+					cacheResolutionMessagePrefix, apacheGeodeProductName(), apacheGeodeVersion(), cache.getName()));
+			}
 
 			return cache;
 		}
