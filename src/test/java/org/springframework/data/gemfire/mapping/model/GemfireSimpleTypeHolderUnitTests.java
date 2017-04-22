@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.Test;
-import org.springframework.data.mapping.model.SimpleTypeHolder;
 
 /**
  * Unit tests for {@link GemfireSimpleTypeHolder} class.
@@ -34,9 +33,9 @@ import org.springframework.data.mapping.model.SimpleTypeHolder;
  * @see org.springframework.data.mapping.model.SimpleTypeHolder
  * @since 1.6.3
  */
-public class GemfireSimpleTypeHolderTest {
+public class GemfireSimpleTypeHolderUnitTests {
 
-	private final GemfireSimpleTypeHolder holder = new GemfireSimpleTypeHolder(new SimpleTypeHolder());
+	private final GemfireSimpleTypeHolder holder = new GemfireSimpleTypeHolder();
 
 	@Test
 	public void bigDecimalAndBigIntegerAreSimpleTypes() {
