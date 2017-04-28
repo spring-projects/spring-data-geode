@@ -1,19 +1,18 @@
 [[appendix-schema]]
 [appendix]
-= Spring Data GemFire Schema
+= Spring Data Geode Schema
 :resourcesDir: {basedocdir}/../resources
 
-== Spring Data GemFire Core Schema (gfe)
+== Spring Data Geode Core Schema (gfe)
 
 [source,xml]
 ----
-include::{resourcesDir}/org/springframework/data/gemfire/config/spring-gemfire-1.0.xsd[]
+include::{resourcesDir}/org/springframework/data/gemfire/config/spring-geode-2.0.xsd[]
 ----
 
-== Spring Data GemFire Data Access Schema (gfe-data)
+== Spring Data Geode Data Access Schema (gfe-data)
 
 [source,xml]
 ----
-include::{resourcesDir}/org/springframework/data/gemfire/config/spring-data-gemfire-1.0.xsd[]
+include::{resourcesDir}/org/springframework/data/gemfire/config/spring-data-geode-2.0.xsd[]
 ----
-

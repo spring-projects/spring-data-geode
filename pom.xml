@@ -32,12 +32,12 @@
 
 	<repositories>
 		<repository>
-			<id>apache-snapshots</id>
-			<url>https://repository.apache.org/content/repositories/snapshots</url>
-		</repository>
-		<repository>
 			<id>spring-libs-snapshot</id>
 			<url>https://repo.spring.io/libs-snapshot</url>
+		</repository>
+		<repository>
+			<id>apache-snapshots</id>
+			<url>https://repository.apache.org/content/repositories/snapshots</url>
 		</repository>
 	</repositories>
 
@@ -253,10 +253,34 @@
 					<attributes>
 						<basedocdir>${project.basedir}/src/main/asciidoc</basedocdir>
 						<doctype>book</doctype>
+						<numbered>true</numbered>
+						<sectnums>true</sectnums>
+						<toclevels>2</toclevels>
 						<version>${project.version}</version>
 						<!-- TODO include other attributes from build.gradle! -->
 					</attributes>
 				</configuration>
+				<executions>
+					<execution>
+						<id>html</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>process-asciidoc</goal>
+						</goals>
+						<configuration>
+							<backend>html5</backend>
+							<outputDirectory>${project.root}/target/site/reference/html</outputDirectory>
+							<sectids>false</sectids>
+							<sourceHighlighter>prettify</sourceHighlighter>
+							<attributes>
+								<linkcss>true</linkcss>
+								<icons>font</icons>
+								<sectanchors>true</sectanchors>
+								<stylesheet>spring.css</stylesheet>
+							</attributes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
