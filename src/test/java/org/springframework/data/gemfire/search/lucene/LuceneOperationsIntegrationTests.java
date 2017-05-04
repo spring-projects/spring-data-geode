@@ -25,6 +25,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ import javax.annotation.Resource;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.LuceneIndex;
+import org.apache.geode.cache.lucene.LuceneService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,16 +83,13 @@ public class LuceneOperationsIntegrationTests {
 	private Person sourDoe;
 
 	@Autowired
+	private LuceneService luceneService;
+
+	@Autowired
 	private ProjectingLuceneOperations template;
 
 	@Resource(name = "People")
 	private Region<Long, Person> people;
-
-	protected Person save(Person person) {
-		person.setId(IDENTIFIER.incrementAndGet());
-		people.put(person.getId(), person);
-		return person;
-	}
 
 	@Before
 	public void setup() {
@@ -101,13 +100,30 @@ public class LuceneOperationsIntegrationTests {
 		hoDoe = save(Person.newPerson(LocalDate.of(1984, Month.NOVEMBER, 11), "Ho", "Doe").with("Doctor of Math"));
 		pieDoe = save(Person.newPerson(LocalDate.of(1996, Month.JUNE, 4), "Pie", "Doe").with("Master of Astronomy"));
 		sourDoe = save(Person.newPerson(LocalDate.of(1999, Month.DECEMBER, 1), "Sour", "Doe").with("Bachelor of Art"));
+
+		flushLuceneIndex();
 	}
 
-	protected List<String> asNames(List<? extends Nameable> nameables) {
+	protected Person save(Person person) {
+		person.setId(IDENTIFIER.incrementAndGet());
+		people.put(person.getId(), person);
+		return person;
+	}
+
+	protected void flushLuceneIndex() {
+		try {
+			this.luceneService.waitUntilFlushed("PersonTitleIndex", "/People",
+				15L, TimeUnit.SECONDS);
+		}
+		catch (Throwable ignore) {
+		}
+	}
+
+	private List<String> asNames(List<? extends Nameable> nameables) {
 		return nameables.stream().map(Nameable::getName).collect(Collectors.toList());
 	}
 
-	protected List<User> asUsers(Person... people) {
+	private List<User> asUsers(Person... people) {
 		return Arrays.stream(people).map(User::from).collect(Collectors.toList());
 	}
 
@@ -118,7 +134,6 @@ public class LuceneOperationsIntegrationTests {
 		assertThat(doctorDoes).isNotNull();
 		assertThat(doctorDoes).hasSize(3);
 		assertThat(doctorDoes).contains(janeDoe, froDoe, hoDoe);
-
 	}
 
 	@Test
@@ -149,11 +164,19 @@ public class LuceneOperationsIntegrationTests {
 		}
 
 		@Bean
+		LuceneServiceFactoryBean luceneService(GemFireCache gemFireCache) {
+			LuceneServiceFactoryBean luceneService = new LuceneServiceFactoryBean();
+			luceneService.setCache(gemFireCache);
+			return luceneService;
+		}
+
+		@Bean
 		LuceneIndexFactoryBean personTitleIndex(GemFireCache gemFireCache) {
 			LuceneIndexFactoryBean luceneIndex = new LuceneIndexFactoryBean();
 
 			luceneIndex.setCache(gemFireCache);
 			luceneIndex.setFields("title");
+			luceneIndex.setIndexName("PersonTitleIndex");
 			luceneIndex.setRegionPath("/People");
 
 			return luceneIndex;
