@@ -1,13 +1,14 @@
-Spring Data Geode
-=================
+Spring Data for Apache Geode
+============================
 
-The primary goal of the [Spring Data Geode](http://projects.spring.io/spring-data-gemfire) project is to 
+The primary goal of the [Spring Data for Apache Geode](http://projects.spring.io/spring-data-gemfire) project is to 
 make it easier to build highly scalable, _Spring_ powered applications using [Apache Geode](http://geode.apache.org/) 
 as the underlying distributed, in-memory data management platform.
 
 # Examples
 
-For examples on using the _Spring Data Geode_, see the [spring-gemfire-examples](https://github.com/SpringSource/spring-gemfire-examples) project.
+For examples on using the _Spring Data for Apache Geode_, see the 
+[spring-gemfire-examples](https://github.com/SpringSource/spring-gemfire-examples) project.
 
 # Getting Help
 
@@ -17,7 +18,8 @@ Look at the source code and the [JavaDocs](http://docs.spring.io/spring-data-gem
 
 For more detailed questions, visit [StackOverflow](https://stackoverflow.com/questions/tagged/spring-data-gemfire).
 
-If you are new to _Spring_ as well as _Spring Data Geode_, look for information about [Spring projects](http://spring.io/projects).
+If you are new to _Spring_ as well as _Spring Data for Apache Geode_, look for information about 
+[Spring projects](http://spring.io/projects).
 
 Quick Start
 -----------
@@ -69,11 +71,11 @@ dependencies {
 
 ~~~~~ xml
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:gfe="http://www.springframework.org/schema/gemfire"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:gfe="http://www.springframework.org/schema/geode"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/geode http://www.springframework.org/schema/gemfire/spring-geode.xsd">
+    http://www.springframework.org/schema/geode http://www.springframework.org/schema/geode/spring-geode.xsd">
 
   <gfe:cache/>
 
@@ -97,7 +99,7 @@ template.query("person = 1");
 
 # Building
 
-_Spring Data Geode_ uses Maven as its build system. To compile the project, simply type from the root folder
+_Spring Data for Apache Geode_ uses Maven as its build system. To compile the project, simply type from the root folder
 
     mvn clean install
 
@@ -106,9 +108,18 @@ _Spring Data Geode_ uses Maven as its build system. To compile the project, simp
 
 Here are some ways for you to get involved in the community:
 
-* Get involved with the Spring community on the Spring Community Forums (now on StackOverflow).  Please help out on the [forum](https://stackoverflow.com/questions/tagged/spring-data-gemfire) by responding to questions and joining the debate.
-* Create [JIRA](https://jira.spring.io/browse/SGF) tickets for bugs and new features and comment and vote on the ones that you are interested in.
-* GitHub is for social coding. If you want to write code, we encourage contributions through pull requests from [forks of this repository](http://help.github.com/forking/). If you want to contribute code this way, please reference a JIRA ticket as well covering the specific issue you are addressing.
+* Get involved with the Spring community on the Spring Community Forums (now on StackOverflow).  
+Please help out on the [forum](https://stackoverflow.com/questions/tagged/spring-data-gemfire) 
+by responding to questions and joining the debate.
+* Create [JIRA](https://jira.spring.io/browse/SGF) tickets for bugs and new features and comment and vote on the bugs 
+you are interested in.
+* GitHub is for social coding. If you want to write code, we encourage contributions through pull requests 
+from [forks of this repository](http://help.github.com/forking/). If you want to contribute code this way, 
+please reference a JIRA ticket as well covering the specific issue you are addressing.
 * Watch for upcoming articles on Spring by [subscribing](http://spring.io/blog) to spring.io.
 
-Before we accept a non-trivial patch or pull request we will need you to [sign the Contributor License Agreement](https://cla.pivotal.io/sign/spring). Signing the contributor’s agreement does not grant anyone commit rights to the main repository, but it does mean that we can accept your contributions, and you will get an author credit if we do. If you forget to do so, you'll be reminded when you submit a pull request. Active contributors might be asked to join the core team, and given the ability to merge pull requests.
+Before we accept a non-trivial patch or pull request we will need you to 
+[sign the Contributor License Agreement](https://cla.pivotal.io/sign/spring). Signing the contributor’s agreement 
+does not grant anyone commit rights to the main repository, but it does mean that we can accept your contributions, 
+and you will get an author credit if we do. If you forget to do so, you'll be reminded when you submit a pull request. 
+Active contributors might be asked to join the core team, and given the ability to merge pull requests.
