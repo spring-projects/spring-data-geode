@@ -426,7 +426,7 @@ public class PoolFactoryBeanTest {
 	public void getPoolPendingEventCountWithoutPoolThrowsIllegalStateException() {
 		exception.expect(IllegalStateException.class);
 		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The Pool is not initialized");
+		exception.expectMessage("The Pool has not been initialized");
 
 		new PoolFactoryBean().getPool().getPendingEventCount();
 	}
@@ -455,7 +455,7 @@ public class PoolFactoryBeanTest {
 	public void getPoolQueryServiceWithoutPoolThrowsIllegalStateException() {
 		exception.expect(IllegalStateException.class);
 		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The Pool is not initialized");
+		exception.expectMessage("The Pool has not been initialized");
 
 		new PoolFactoryBean().getPool().getQueryService();
 	}
@@ -534,7 +534,7 @@ public class PoolFactoryBeanTest {
 
 		exception.expect(IllegalStateException.class);
 		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The Pool is not initialized");
+		exception.expectMessage("The Pool has not been initialized");
 
 		pool.releaseThreadLocalConnection();
 	}
