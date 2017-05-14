@@ -151,7 +151,7 @@ public abstract class LuceneAccessor extends LuceneOperationsSupport implements 
 	 * @see #createLuceneQueryFactory()
 	 */
 	public LuceneQueryFactory createLuceneQueryFactory(int resultLimit, int pageSize) {
-		return createLuceneQueryFactory().setResultLimit(resultLimit).setPageSize(pageSize);
+		return createLuceneQueryFactory().setLimit(resultLimit).setPageSize(pageSize);
 	}
 
 	/**

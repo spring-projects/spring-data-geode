@@ -100,7 +100,7 @@ public class LuceneTemplateUnitTests {
 
 		when(mockLuceneService.createLuceneQueryFactory()).thenReturn(mockLuceneQueryFactory);
 		when(mockLuceneQueryFactory.setPageSize(anyInt())).thenReturn(mockLuceneQueryFactory);
-		when(mockLuceneQueryFactory.setResultLimit(anyInt())).thenReturn(mockLuceneQueryFactory);
+		when(mockLuceneQueryFactory.setLimit(anyInt())).thenReturn(mockLuceneQueryFactory);
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq("title : Up Shit Creek Without a Paddle"), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(LuceneOperations.DEFAULT_PAGE_SIZE));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq("title : Up Shit Creek Without a Paddle"), eq("title"));
@@ -152,7 +152,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq("title : Up Shit Creek Without a Paddle"), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(20));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq("title : Up Shit Creek Without a Paddle"), eq("title"));
@@ -181,7 +181,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq(mockLuceneQueryProvider), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(LuceneOperations.DEFAULT_PAGE_SIZE));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq(mockLuceneQueryProvider));
@@ -208,7 +208,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq(mockLuceneQueryProvider), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(20));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq(mockLuceneQueryProvider));
@@ -237,7 +237,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq("title : Up Shit Creek Without a Paddle"), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(LuceneOperations.DEFAULT_PAGE_SIZE));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq("title : Up Shit Creek Without a Paddle"), eq("title"));
@@ -265,7 +265,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq(mockLuceneQueryProvider), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(LuceneOperations.DEFAULT_PAGE_SIZE));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq(mockLuceneQueryProvider));
@@ -294,7 +294,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq("title : Up Shit Creek Without a Paddle"), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(LuceneOperations.DEFAULT_PAGE_SIZE));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq("title : Up Shit Creek Without a Paddle"), eq("title"));
@@ -322,7 +322,7 @@ public class LuceneTemplateUnitTests {
 		verify(luceneTemplate, times(1)).doFind(isA(LuceneQueryExecutor.class),
 			eq(mockLuceneQueryProvider), eq("/Example"), eq("TestIndex"));
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(100));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(100));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(LuceneOperations.DEFAULT_PAGE_SIZE));
 		verify(mockLuceneQueryFactory, times(1)).create(eq("TestIndex"),
 			eq("/Example"), eq(mockLuceneQueryProvider));

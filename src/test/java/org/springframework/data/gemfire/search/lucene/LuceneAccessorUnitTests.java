@@ -136,13 +136,13 @@ public class LuceneAccessorUnitTests {
 		doReturn(mockLuceneService).when(luceneAccessor).resolveLuceneService();
 		when(mockLuceneService.createLuceneQueryFactory()).thenReturn(mockLuceneQueryFactory);
 		when(mockLuceneQueryFactory.setPageSize(anyInt())).thenReturn(mockLuceneQueryFactory);
-		when(mockLuceneQueryFactory.setResultLimit(anyInt())).thenReturn(mockLuceneQueryFactory);
+		when(mockLuceneQueryFactory.setLimit(anyInt())).thenReturn(mockLuceneQueryFactory);
 
 		assertThat(luceneAccessor.createLuceneQueryFactory(1000)).isEqualTo(mockLuceneQueryFactory);
 
 		verify(luceneAccessor).resolveLuceneService();
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(1000));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(1000));
 		verify(mockLuceneQueryFactory, times(1))
 			.setPageSize(eq(LuceneAccessor.DEFAULT_PAGE_SIZE));
 	}
@@ -153,14 +153,14 @@ public class LuceneAccessorUnitTests {
 		doReturn(mockLuceneService).when(luceneAccessor).resolveLuceneService();
 		when(mockLuceneService.createLuceneQueryFactory()).thenReturn(mockLuceneQueryFactory);
 		when(mockLuceneQueryFactory.setPageSize(anyInt())).thenReturn(mockLuceneQueryFactory);
-		when(mockLuceneQueryFactory.setResultLimit(anyInt())).thenReturn(mockLuceneQueryFactory);
+		when(mockLuceneQueryFactory.setLimit(anyInt())).thenReturn(mockLuceneQueryFactory);
 
 		assertThat(luceneAccessor.createLuceneQueryFactory(1000, 20))
 			.isEqualTo(mockLuceneQueryFactory);
 
 		verify(luceneAccessor).resolveLuceneService();
 		verify(mockLuceneService, times(1)).createLuceneQueryFactory();
-		verify(mockLuceneQueryFactory, times(1)).setResultLimit(eq(1000));
+		verify(mockLuceneQueryFactory, times(1)).setLimit(eq(1000));
 		verify(mockLuceneQueryFactory, times(1)).setPageSize(eq(20));
 	}
 
