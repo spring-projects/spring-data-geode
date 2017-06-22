@@ -136,6 +136,7 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 				getAnnotationAttributes(importingClassMetadata, getEnableIndexingAnnotationTypeName());
 
 			localPersistentEntity.doWithProperties((PropertyHandler<GemfirePersistentProperty>) persistentProperty -> {
+
 				Optional<Id> idAnnotation = persistentProperty.findAnnotation(Id.class);
 
 				idAnnotation.ifPresent(id ->
@@ -201,12 +202,13 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 			indexFactoryBeanBuilder.addPropertyValue("from",
 				resolveFrom(persistentEntity, persistentProperty, indexedAttributes));
 
+			indexFactoryBeanBuilder.addPropertyValue("ignoreIfExists", Boolean.TRUE);
+
 			indexFactoryBeanBuilder.addPropertyValue("indexConfigurers", resolveIndexConfigurers());
 
 			indexFactoryBeanBuilder.addPropertyValue("name", indexName);
 
-			indexFactoryBeanBuilder.addPropertyValue("override",
-				resolveOverride(persistentEntity, persistentProperty, indexedAttributes));
+			indexFactoryBeanBuilder.addPropertyValue("override", Boolean.FALSE);
 
 			indexFactoryBeanBuilder.addPropertyValue("type",
 				resolveType(persistentEntity, persistentProperty, indexedAttributes, indexType).toString());
@@ -329,15 +331,6 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 		return String.format("%1$s%2$s%3$sIdx", persistentEntity.getRegionName(),
 			StringUtils.capitalize(persistentProperty.getName()),
 				StringUtils.capitalize(indexType.name().toLowerCase()));
-	}
-
-	/* (non-Javadoc) */
-	@SuppressWarnings("unused")
-	private boolean resolveOverride(GemfirePersistentEntity persistentEntity,
-			GemfirePersistentProperty persistentProperty, AnnotationAttributes indexedAttributes) {
-
-		return (indexedAttributes.containsKey("override")
-			&& indexedAttributes.getBoolean("override"));
 	}
 
 	/* (non-Javadoc) */
