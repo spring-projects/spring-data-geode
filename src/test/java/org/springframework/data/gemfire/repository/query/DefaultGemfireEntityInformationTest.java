@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
 import java.io.Serializable;
 
@@ -69,12 +68,12 @@ public class DefaultGemfireEntityInformationTest {
 
 	@SuppressWarnings("unchecked")
 	protected <T> GemfirePersistentEntity<T> newPersistentEntity(Class<T> entityType) {
-		return (GemfirePersistentEntity<T>) mappingContext.getPersistentEntity(entityType).orElseThrow(
-			() -> newIllegalStateException("Unable to resolve PersistentEntity for type [%s]", entityType));
+		return (GemfirePersistentEntity<T>) mappingContext.getPersistentEntity(entityType);
 	}
 
 	@Test
 	public void interfaceBasedEntity() {
+
 		GemfireEntityInformation<Algorithm, String> entityInfo =
 			newEntityInformation(newPersistentEntity(Algorithm.class));
 
@@ -82,12 +81,13 @@ public class DefaultGemfireEntityInformationTest {
 		assertEquals("Algorithms", entityInfo.getRegionName());
 		assertTrue(Algorithm.class.isAssignableFrom(entityInfo.getJavaType()));
 		assertEquals(String.class, entityInfo.getIdType());
-		assertThat(entityInfo.getId(new QuickSort()).orElse(null)).isEqualTo("QuickSort");
-		assertThat(entityInfo.getId(newAlgorithm("Quick Sort")).orElse(null)).isEqualTo("Quick Sort");
+		assertThat(entityInfo.getId(new QuickSort())).isEqualTo("QuickSort");
+		assertThat(entityInfo.getId(newAlgorithm("Quick Sort"))).isEqualTo("Quick Sort");
 	}
 
 	@Test
 	public void classBasedEntity() {
+
 		GemfireEntityInformation<Animal, Long> entityInfo =
 			newEntityInformation(newPersistentEntity(Animal.class));
 
@@ -95,11 +95,12 @@ public class DefaultGemfireEntityInformationTest {
 		assertEquals("Animal", entityInfo.getRegionName());
 		assertEquals(Animal.class, entityInfo.getJavaType());
 		assertEquals(Long.class, entityInfo.getIdType());
-		assertThat(entityInfo.getId(newAnimal(1L, "Tyger")).orElse(null)).isEqualTo(1L);
+		assertThat(entityInfo.getId(newAnimal(1L, "Tyger"))).isEqualTo(1L);
 	}
 
 	@Test
 	public void confusedDomainEntityTypedWithLongId() {
+
 		GemfireEntityInformation<ConfusedDomainEntity, Long> entityInfo =
 			newEntityInformation(newPersistentEntity(ConfusedDomainEntity.class));
 
@@ -107,12 +108,13 @@ public class DefaultGemfireEntityInformationTest {
 		assertEquals("ConfusedDomainEntity", entityInfo.getRegionName());
 		assertEquals(ConfusedDomainEntity.class, entityInfo.getJavaType());
 		assertEquals(Long.class, entityInfo.getIdType());
-		assertThat(entityInfo.getId(new ConfusedDomainEntity(123L)).orElse(null)).isEqualTo(123L);
+		assertThat(entityInfo.getId(new ConfusedDomainEntity(123L))).isEqualTo(123L);
 	}
 
 	@Test
 	@SuppressWarnings("all")
 	public void confusedDomainEntityTypedStringId() {
+
 		GemfireEntityInformation<ConfusedDomainEntity, ?> entityInfo =
 			newEntityInformation(newPersistentEntity(ConfusedDomainEntity.class));
 
@@ -121,8 +123,8 @@ public class DefaultGemfireEntityInformationTest {
 		assertEquals(ConfusedDomainEntity.class, entityInfo.getJavaType());
 		//assertEquals(String.class, entityInfo.getIdType());
 		assertTrue(Long.class.equals(entityInfo.getIdType()));
-		assertThat(entityInfo.getId(new ConfusedDomainEntity(123L)).orElse(null)).isEqualTo(123L);
-		assertThat(entityInfo.getId(new ConfusedDomainEntity("248")).orElse(null)).isEqualTo(248L);
+		assertThat(entityInfo.getId(new ConfusedDomainEntity(123L))).isEqualTo(123L);
+		assertThat(entityInfo.getId(new ConfusedDomainEntity("248"))).isEqualTo(248L);
 	}
 
 	@SuppressWarnings("unused")

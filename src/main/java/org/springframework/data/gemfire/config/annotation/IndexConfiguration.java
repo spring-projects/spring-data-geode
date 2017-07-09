@@ -137,19 +137,21 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 			localPersistentEntity.doWithProperties((PropertyHandler<GemfirePersistentProperty>) persistentProperty -> {
 
-				Optional<Id> idAnnotation = persistentProperty.findAnnotation(Id.class);
+				Optional<Id> idAnnotation = Optional.ofNullable(persistentProperty.findAnnotation(Id.class));
 
 				idAnnotation.ifPresent(id ->
 					registerIndexBeanDefinition(enableIndexingAttributes, localPersistentEntity, persistentProperty,
 						IndexType.KEY, id, registry));
 
-				Optional<Indexed> indexedAnnotation = persistentProperty.findAnnotation(Indexed.class);
+				Optional<Indexed> indexedAnnotation =
+					Optional.ofNullable(persistentProperty.findAnnotation(Indexed.class));
 
 				indexedAnnotation.ifPresent(indexed ->
 					registerIndexBeanDefinition(enableIndexingAttributes, localPersistentEntity, persistentProperty,
 						indexed.type(), indexed, registry));
 
-				Optional<LuceneIndexed> luceneIndexedAnnotation = persistentProperty.findAnnotation(LuceneIndexed.class);
+				Optional<LuceneIndexed> luceneIndexedAnnotation =
+					Optional.ofNullable(persistentProperty.findAnnotation(LuceneIndexed.class));
 
 				luceneIndexedAnnotation.ifPresent(luceneIndexed ->
 					registerLuceneIndexBeanDefinition(enableIndexingAttributes, localPersistentEntity,
