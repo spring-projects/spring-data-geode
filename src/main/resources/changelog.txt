@@ -3,6 +3,11 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.0.RC2 (2017-07-25)
+-----------------------------------------
+* DATAGEODE-28 - Release 2.0 RC2 (Kay).
+
+
 Changes in version 2.0.0.RC1 (2017-07-25)
 -----------------------------------------
 * DATAGEODE-27 - Release 2.0 RC1 (Kay).
