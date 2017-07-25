@@ -3,6 +3,33 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.0.RC1 (2017-07-25)
+-----------------------------------------
+* DATAGEODE-27 - Release 2.0 RC1 (Kay).
+* DATAGEODE-25 - Add EnableBeanFactoryLocator annotation to enable the GemfireBeanFactoryLocator on Cache creation.
+* DATAGEODE-24 - Enhance @EnableSecurity to provide a default implementation of the Geode AuthInitialize interface.
+* DATAGEODE-23 - Add Annotation to configure and enable Spring's Transaction Management with Local, Geode Cache Transactions.
+* DATAGEODE-22 - Add Annotation to configure and enable the Spring Cache Abstraction with the GemfireCacheManager.
+* DATAGEODE-20 - Upgrade to Apache Geode 1.2.0.
+* DATAGEODE-19 - Meta-annotate all uses of Geode-based property configuration in the Annotation config model.
+* DATAGEODE-18 - Introduce new Apache Geode Mock Objects infrastructure for Unit Testing.
+* DATAGEODE-17 - Adapt to API changes in mapping subsystem.
+* DATAGEODE-16 - Add support for Geode JCA ResourceAdapter.
+* DATAGEODE-15 - Adapt to API changes in RepositoryConfigurationSourceSupport.
+* DATAGEODE-14 - Improve IndexFactoryBean's resilience and options for handling GemFire IndexExistsExceptions and IndexNameConflictExceptions.
+* DATAGEODE-13 - Introduce well-known, documented properties for Annotation config attributes.
+* DATAGEODE-12 - Introduce Spring Configurers to flexibly alter Spring Data Geode configuration when using Annotation config.
+* DATAGEODE-11 - Adapt to API changes in the org.apache.geode.internal.InternalDataSerializer class.
+* DATAGEODE-10 - Adapt to API changes in the org.apache.geode.cache.lucene.LuceneQueryFactory interface.
+* DATAGEODE-9 - Adapt to API changes in the org.apache.geode.cache.client.Pool interface.
+* DATAGEODE-8 - Ensure locators and servers are configured correctly when using <gfe:pool> attributes.
+* DATAGEODE-7 - Javadoc is not part of the distribution build.
+* DATAGEODE-6 - Fix up Lucene Integration tests and Region namespace test to improve reliability.
+* DATAGEODE-5 - Review and edit Spring Data Geode Reference Guide.
+* DATAGEODE-4 - Adapt to API changes in Repository interfaces.
+* DATAGEODE-3 - Fix GemfireSimpleTypeHolderTest due to API changes in SDC SimpleTypeHolder.
+
+
 
 Changes in version 1.0.0.APACHE-GEODE-INCUBATING-RELEASE (2016-11-02)
 ---------------------------------------------------------------------
