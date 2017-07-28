@@ -308,7 +308,11 @@ For more details on using Apache Geode in JTA transactions, see http://geode.apa
 For more details on configuring Apache Geode as a "_Last Resource_",
 see http://geode.apache.org/docs/guide/11/developing/transactions/JTA_transactions.html#concept_csy_vfb_wk[here].
 
+:leveloffset: +1
+
 include::{basedocdir}/reference/cq-container.adoc[]
+
+:leveloffset: -1
 
 [[apis:declarable]]
 == Wiring `Declarable` Components
