@@ -24,6 +24,7 @@ package org.springframework.data.gemfire.config.support;
  */
 @SuppressWarnings("unused")
 public enum GemfireFeature {
+
 	AEQ,
 	BACKUP,
 	CACHING,
