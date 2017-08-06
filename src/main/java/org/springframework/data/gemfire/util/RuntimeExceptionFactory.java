@@ -58,7 +58,7 @@ public abstract class RuntimeExceptionFactory {
 	 * @see java.lang.IllegalArgumentException
 	 */
 	public static IllegalArgumentException newIllegalArgumentException(Throwable cause,
-		String message, Object... args) {
+			String message, Object... args) {
 
 		return new IllegalArgumentException(format(message, args), cause);
 	}

@@ -19,22 +19,22 @@ package org.springframework.data.gemfire;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.GemFireVersion;
 import org.springframework.data.gemfire.config.support.GemfireFeature;
-import org.springframework.data.gemfire.util.CacheUtils;
+import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.util.ClassUtils;
 import org.w3c.dom.Element;
 
 /**
- * GemfireUtils is an abstract utility class encapsulating common functionality to access features and capabilities
- * of GemFire based on version and other configuration meta-data.
+ * {@link GemfireUtils} is an abstract utility class encapsulating common functionality to access features
+ * and capabilities of GemFire based on version and other configuration meta-data.
  *
  * @author John Blum
- * @see org.springframework.data.gemfire.util.DistributedSystemUtils
  * @see org.apache.geode.cache.CacheFactory
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.util.RegionUtils
  * @since 1.3.3
  */
 @SuppressWarnings("unused")
-public abstract class GemfireUtils extends CacheUtils {
+public abstract class GemfireUtils extends RegionUtils {
 
 	public final static String APACHE_GEODE_NAME = "Aache Geode";
 	public final static String GEMFIRE_NAME = apacheGeodeProductName();
