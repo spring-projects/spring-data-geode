@@ -190,6 +190,17 @@ JavaDocs for org.apache.geode.cache.control.ResourceManager for more information
             ]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
+		<xsd:attribute name="critical-off-heap-percentage">
+			<xsd:annotation>
+				<xsd:documentation
+					source="org.apache.geode.cache.control.ResourceManager"><![CDATA[
+Set the percentage of off-heap at or above which the cache is considered in danger of becoming inoperable
+due to out of memory errors. Changing this value can cause LowMemoryException to be thrown. Only one change
+to this attribute or the eviction off-heap percentage will be allowed at any given time and its effect will be
+fully realized before the next change is allowed.
+            ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
 		<xsd:attribute name="eviction-heap-percentage">
 			<xsd:annotation>
 				<xsd:documentation
@@ -197,6 +208,16 @@ JavaDocs for org.apache.geode.cache.control.ResourceManager for more information
 Set the percentage of heap at or above which the eviction should begin on Regions configured for HeapLRU eviction.
 This feature requires additional VM flags to perform properly (see the
 JavaDocs for org.apache.geode.cache.control.ResourceManager for more information).
+            ]]></xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="eviction-off-heap-percentage">
+			<xsd:annotation>
+				<xsd:documentation
+					source="org.apache.geode.cache.control.ResourceManager"><![CDATA[
+Set the percentage of off-heap at or above which the eviction should begin on Regions configured for HeapLRU eviction.
+Changing this value may cause eviction to begin immediately. Only one change to this attribute or critical off-heap
+percentage will be allowed at any given time and its effect will be fully realized before the next change is allowed.
             ]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
