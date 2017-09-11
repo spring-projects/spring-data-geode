@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.0.RC3 (2017-09-11)
+-----------------------------------------
+* DATAGEODE-35 - Add missing configuration support for critical-off-heap-percentage and eviction-off-heap-percentage.
+* DATAGEODE-33 - Add EnableCachingDefinedRegions annotation to configure Geode Regions based on Spring Caching annotations.
+* DATAGEODE-32 - Move custom Asciidoctor Maven build plugin configuration testing HTML doc generation into profile.
+* DATAGEODE-30 - Fix Reference Guide formatting.
+* DATAGEODE-29 - Release 2.0 RC3 (Kay).
+
+
 Changes in version 2.0.0.RC2 (2017-07-25)
 -----------------------------------------
 * DATAGEODE-28 - Release 2.0 RC2 (Kay).
