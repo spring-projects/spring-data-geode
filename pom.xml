@@ -25,6 +25,7 @@
 		<springdata.commons>2.0.0.BUILD-SNAPSHOT</springdata.commons>
 		<spring-shell.version>1.2.0.RELEASE</spring-shell.version>
 		<source.level>1.8</source.level>
+		<java-module-name>spring.data.geode</java-module-name>
 	</properties>
 
 	<repositories>
