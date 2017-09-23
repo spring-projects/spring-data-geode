@@ -295,7 +295,7 @@ public class ClientRegionFactoryBean<K, V> extends RegionLookupFactoryBean<K, V>
 
 	/* (non-Javadoc) */
 	private String resolvePoolName() {
-		return Optional.of(getPoolName()).filter(this::isPoolResolvable).orElse(DEFAULT_POOL_NAME);
+		return Optional.of(getPoolName()).filter(this::isPoolResolvable).orElse(null);
 	}
 
 	/* (non-Javadoc) */

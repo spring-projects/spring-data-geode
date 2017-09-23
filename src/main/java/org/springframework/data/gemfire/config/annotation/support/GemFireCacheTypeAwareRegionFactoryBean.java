@@ -108,11 +108,12 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> extends RegionLookupFa
 		clientRegionFactory.setCache(gemfireCache);
 		clientRegionFactory.setClose(isClose());
 		clientRegionFactory.setKeyConstraint(getKeyConstraint());
-		clientRegionFactory.setPoolName(resolvePoolName());
 		clientRegionFactory.setRegionConfigurers(this.regionConfigurers);
 		clientRegionFactory.setRegionName(regionName);
 		clientRegionFactory.setShortcut(getClientRegionShortcut());
 		clientRegionFactory.setValueConstraint(getValueConstraint());
+
+		resolvePoolName().ifPresent(clientRegionFactory::setPoolName);
 
 		clientRegionFactory.afterPropertiesSet();
 
@@ -204,9 +205,8 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> extends RegionLookupFa
 			.orElse(ClientRegionFactoryBean.GEMFIRE_POOL_NAME);
 	}
 
-	protected String resolvePoolName() {
-		return Optional.of(getPoolName()).filter(this::isPoolResolvable)
-			.orElse(ClientRegionFactoryBean.DEFAULT_POOL_NAME);
+	protected Optional<String> resolvePoolName() {
+		return Optional.of(getPoolName()).filter(this::isPoolResolvable);
 	}
 
 	private boolean isPoolResolvable(String poolName) {

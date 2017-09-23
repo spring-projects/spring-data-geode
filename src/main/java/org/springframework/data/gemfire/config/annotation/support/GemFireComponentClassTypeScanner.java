@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
@@ -201,7 +201,7 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 	 */
 	public Set<Class<?>> scan() {
 
-		Set<Class<?>> componentClasses = new ConcurrentSkipListSet<>();
+		Set<Class<?>> componentClasses = new CopyOnWriteArraySet<>();
 
 		ClassLoader entityClassLoader = getEntityClassLoader();
 
