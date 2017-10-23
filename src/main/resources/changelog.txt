@@ -3,9 +3,21 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+
 Changes in version 2.0.0.RELEASE (2017-10-02)
 ---------------------------------------------
+* DATAGEODE-47 - Add documentation in SDG's Reference Guide for the new Annotation-based configuration model.
+* DATAGEODE-46 - Refactor API names used in the Annotation config and GemFire Mock Objects support.
+* DATAGEODE-45 - Upgrade to Apache Geode 1.2.1.
+* DATAGEODE-44 - Use Geode's DEFAULT Pool when a Pool cannot be resolved from the Spring context.
+* DATAGEODE-43 - Add explicit automatic module name for Java 9.
+* DATAGEODE-42 - Upgrade to OpenWebBeans 2.0.1.
+* DATAGEODE-41 - Fix LuceneOperationsIntegrationTests CI failures.
+* DATAGEODE-40 - Fix PoolsConfiguredWithLocatorsAndServersExpressionsIntegrationTests CI failures.
 * DATAGEODE-39 - Release 2.0 GA (Kay).
+* DATAGEODE-38 - Add Annotation configuration support for Continuous Queries.
+* DATAGEODE-37 - Apply Java 8 types and functionality to the Continuous Query support.
+* DATAGEODE-34 - Add EnableClusterConfiguration annotation to push cluster configuration meta-data from the client to the server.
 
 
 Changes in version 2.0.0.RC3 (2017-09-11)
@@ -19,6 +31,8 @@ Changes in version 2.0.0.RC3 (2017-09-11)
 
 Changes in version 2.0.0.RC2 (2017-07-25)
 -----------------------------------------
+* DATAGEODE-32 - Move custom Asciidoctor Maven build plugin configuration testing HTML doc generation into profile.
+* DATAGEODE-31 - Project build needs to use springdata.commons as property name for Spring Data Commons dependency.
 * DATAGEODE-28 - Release 2.0 RC2 (Kay).
 
 
@@ -47,7 +61,6 @@ Changes in version 2.0.0.RC1 (2017-07-25)
 * DATAGEODE-5 - Review and edit Spring Data Geode Reference Guide.
 * DATAGEODE-4 - Adapt to API changes in Repository interfaces.
 * DATAGEODE-3 - Fix GemfireSimpleTypeHolderTest due to API changes in SDC SimpleTypeHolder.
-
 
 
 Changes in version 1.0.0.APACHE-GEODE-INCUBATING-RELEASE (2016-11-02)
