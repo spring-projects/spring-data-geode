@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.1.RELEASE (2017-10-27)
+---------------------------------------------
+* DATAGEODE-53 - Beans proxied by the Spring container with declared CQs are not registered and triggered.
+* DATAGEODE-52 - Using SD Repositories and @EnableContinuousQueries causes errors with Spring container initialization.
+* DATAGEODE-51 - EnableClusterConfiguration annotation attributes are silently ignored.
+* DATAGEODE-50 - Spring Cache Abstraction annotations do not trigger CQ.
+* DATAGEODE-48 - Release 2.0.1 (Kay SR1).
+
+
 
 Changes in version 2.0.0.RELEASE (2017-10-02)
 ---------------------------------------------
