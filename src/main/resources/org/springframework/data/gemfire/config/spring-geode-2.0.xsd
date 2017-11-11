@@ -9,9 +9,11 @@
 			elementFormDefault="qualified"
 			attributeFormDefault="unqualified"
 			version="2.0">
+
 	<xsd:import namespace="http://www.springframework.org/schema/beans" />
 	<xsd:import namespace="http://www.springframework.org/schema/context" />
 	<xsd:import namespace="http://www.springframework.org/schema/tool" />
+
 	<!-- -->
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -579,6 +581,7 @@ Comma-delimited list of Server endpoints used by this Pool in the form of: host1
 				</xsd:annotation>
 			</xsd:attribute>
 			<xsd:attribute name="socket-buffer-size" type="xsd:string" use="optional"/>
+			<xsd:attribute name="socket-connect-timeout" type="xsd:string" use="optional"/>
 			<xsd:attribute name="statistic-interval" type="xsd:string" use="optional"/>
 			<xsd:attribute name="subscription-ack-interval" type="xsd:string" use="optional"/>
 			<xsd:attribute name="subscription-enabled" type="xsd:string" use="optional"/>
@@ -3284,4 +3287,5 @@ Used for convenience. If no reference exists, use inner bean declarations.
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:complexType>
+
 </xsd:schema>
