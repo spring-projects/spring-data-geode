@@ -9,7 +9,8 @@
 			targetNamespace="http://www.springframework.org/schema/data/geode"
 			elementFormDefault="qualified"
 			attributeFormDefault="unqualified"
-			version="1.1">
+			version="2.1">
+
 	<xsd:import namespace="http://www.springframework.org/schema/beans"/>
 	<xsd:import namespace="http://www.springframework.org/schema/context"
 				schemaLocation="http://www.springframework.org/schema/context/spring-context.xsd" />
@@ -18,6 +19,7 @@
 	<xsd:import namespace="http://www.springframework.org/schema/geode"
 				schemaLocation="http://www.springframework.org/schema/geode/spring-geode.xsd"/>
 	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
+
 	<!-- -->
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -143,7 +145,7 @@ Defines a connection from a Cache client to a set of GemFire Cache Servers.
 						   type="xsd:string" use="optional" />
 		</xsd:complexType>
 	</xsd:element>
-	<!-- JSON support -->
+	<!-- JSON Support -->
 	<xsd:element name="json-region-autoproxy">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
@@ -250,4 +252,5 @@ both in the same definition) is illegal.
 		<xsd:attribute name="format" type="xsd:string" use="optional" default="GEMFIRE"/>
 		<xsd:attribute name="filter-ref" type="xsd:string" use="optional"/>
 	</xsd:complexType>
+
 </xsd:schema>
