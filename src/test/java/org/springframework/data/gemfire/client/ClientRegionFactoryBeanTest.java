@@ -598,7 +598,7 @@ public class ClientRegionFactoryBeanTest {
 	}
 
 	protected <K> Interest<K> newInterest(K key) {
-		return new Interest<K>(key);
+		return new Interest<>(key);
 	}
 
 	@Test
