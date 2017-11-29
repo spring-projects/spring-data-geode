@@ -166,13 +166,6 @@
 			<version>${apache-shiro.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.iq80.snappy</groupId>
-			<artifactId>snappy</artifactId>
-			<version>${snappy.version}</version>
-			<optional>true</optional>
-		</dependency>
-
 		<!-- 3rd Party Dependencies -->
 		<dependency>
 			<groupId>org.aspectj</groupId>
@@ -240,6 +233,13 @@
 			<groupId>edu.umd.cs.mtc</groupId>
 			<artifactId>multithreadedtc</artifactId>
 			<version>${multithreadedtc.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.iq80.snappy</groupId>
+			<artifactId>snappy</artifactId>
+			<version>${snappy.version}</version>
 			<scope>test</scope>
 		</dependency>
 
