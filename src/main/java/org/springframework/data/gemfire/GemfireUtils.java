@@ -52,6 +52,7 @@ public abstract class GemfireUtils extends RegionUtils {
 
 	/* (non-Javadoc) */
 	public static String apacheGeodeProductName() {
+
 		try {
 			return GemFireVersion.getProductName();
 		}
@@ -62,6 +63,7 @@ public abstract class GemfireUtils extends RegionUtils {
 
 	/* (non-Javadoc) */
 	public static String apacheGeodeVersion() {
+
 		try {
 			return CacheFactory.getVersion();
 		}
@@ -77,17 +79,23 @@ public abstract class GemfireUtils extends RegionUtils {
 
 	/* (non-Javadoc) */
 	public static boolean isGemfireFeatureAvailable(GemfireFeature feature) {
+
 		boolean featureAvailable = (!GemfireFeature.AEQ.equals(feature) || isAsyncEventQueueAvailable());
+
 		featureAvailable &= (!GemfireFeature.CONTINUOUS_QUERY.equals(feature) || isContinuousQueryAvailable());
 		featureAvailable &= (!GemfireFeature.WAN.equals(feature) || isGatewayAvailable());
+
 		return featureAvailable;
 	}
 
 	/* (non-Javadoc) */
 	public static boolean isGemfireFeatureAvailable(Element element) {
+
 		boolean featureAvailable = (!isAsyncEventQueue(element) || isAsyncEventQueueAvailable());
+
 		featureAvailable &= (!isContinuousQuery(element) || isContinuousQueryAvailable());
 		featureAvailable &= (!isGateway(element) || isGatewayAvailable());
+
 		return featureAvailable;
 	}
 
@@ -123,7 +131,9 @@ public abstract class GemfireUtils extends RegionUtils {
 
 	/* (non-Javadoc) */
 	private static boolean isGateway(Element element) {
+
 		String elementLocalName = element.getLocalName();
+
 		return (GATEWAY_RECEIVER_ELEMENT_NAME.equals(elementLocalName)
 			|| GATEWAY_SENDER_ELEMENT_NAME.equals(elementLocalName));
 	}
