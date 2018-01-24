@@ -3,6 +3,20 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.3.RELEASE (2018-01-24)
+---------------------------------------------
+* DATAGEODE-78 - Fix incorrect server proxying behavior when registering local, client Regions using EnableCachingDefinedRegions.
+* DATAGEODE-76 - When SDG Annotation config is used to configure and bootstrap an Apache Geode server, automatically register the Administrative Functions.
+* DATAGEODE-75 - Enable the spring.data.gemfire.name property to be used in addition to spring.data.gemfire.cache.name for naming members of the cluster.
+* DATAGEODE-74 - Extend SDG's GemfireSimpleTypeHolder to handle Java 8 Time types.
+* DATAGEODE-73 - Fix race condition between ContinuousQuery registration and EnableClusterConfiguration Region creation.
+* DATAGEODE-72 - Fix MappingPdxSerializer to ignore transient, non-writable and non-entity-based (simple type) properties and fields.
+* DATAGEODE-71 - Change all com.gemstone.gemfire package references in the RegionDataAccessTracingAspect Pointcuts to org.apache.geode.
+* DATAGEODE-69 - Dependency on org.iq80.snappy:snappy breaks the IO Platform build and appears to be a candidate for being test scoped.
+* DATAGEODE-68 - From clause Region path error occurs when creating Indexes from application domain object fields annotated with @Indexed or @Id.
+* DATAGEODE-67 - Release 2.0.3 (Kay SR3).
+
+
 Changes in version 2.0.2.RELEASE (2017-11-27)
 ---------------------------------------------
 * DATAGEODE-66 - Allow basePackages to be configured using a property when creating Entity-defined Regions.
