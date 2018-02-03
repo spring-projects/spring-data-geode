@@ -17,8 +17,6 @@
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -45,9 +43,7 @@ import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -72,9 +68,6 @@ import org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationT
 @SuppressWarnings("unused")
 @RunWith(MockitoJUnitRunner.class)
 public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWithMockSupport {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private GemfireTemplate template;
 
@@ -108,13 +101,19 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		assertThat(localTemplate.isExposeNativeRegion()).isFalse();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void constructWithNullRegionThrowsIllegalArgumentException() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Region is required");
 
-		new GemfireTemplate(null);
+		try {
+			new GemfireTemplate(null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Region is required");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
@@ -167,28 +166,32 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 	@Test
 	public void findIsSuccessful() throws Exception {
+
 		Object[] expectedParams = { "arg" };
+
 		String expectedQuery = "SELECT * FROM /Example";
 
 		SelectResults mockSelectResults = mock(SelectResults.class);
 
-		when(mockQuery.execute(any(Object[].class))).thenReturn(mockSelectResults);
+		when(mockQuery.execute(any(Object.class))).thenReturn(mockSelectResults);
 
 		assertThat(template.find(expectedQuery, expectedParams)).isEqualTo(mockSelectResults);
 
 		verify(mockRegion, atLeastOnce()).getRegionService();
 		verify(mockRegionService, times(1)).getQueryService();
 		verify(mockQueryService, times(1)).newQuery(eq(expectedQuery));
-		verify(mockQuery, times(1)).execute(eq(expectedParams));
+		verify(mockQuery, times(1)).execute(eq("arg"));
 		verifyZeroInteractions(mockSelectResults);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void findWithSingleResultQueryThrowsInvalidDataAccessApiUsageException() throws Exception {
+
 		Object[] expectedParams = { "arg" };
+
 		String expectedQuery = "SELECT 1 FROM /Example";
 
-		when(mockQuery.execute(any(Object[].class))).thenReturn(1);
+		when(mockQuery.execute(any(Object.class))).thenReturn(1);
 
 		try {
 			template.find(expectedQuery, expectedParams);
@@ -197,18 +200,20 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 			verify(mockRegion, atLeastOnce()).getRegionService();
 			verify(mockRegionService, times(1)).getQueryService();
 			verify(mockQueryService, times(1)).newQuery(eq(expectedQuery));
-			verify(mockQuery, times(1)).execute(eq(expectedParams));
+			verify(mockQuery, times(1)).execute(eq("arg"));
 		}
 	}
 
 	@Test
 	public void findUniqueReturnsSelectResultsIsSuccessful() throws Exception {
+
 		Object[] expectedParams = { "arg" };
+
 		String expectedQuery = "SELECT 1 FROM /Example";
 
 		SelectResults mockSelectResults = mock(SelectResults.class);
 
-		when(mockQuery.execute(eq(expectedParams))).thenReturn(mockSelectResults);
+		when(mockQuery.execute(any(Object.class))).thenReturn(mockSelectResults);
 		when(mockSelectResults.asList()).thenReturn(Collections.singletonList(1));
 
 		assertThat((Object) template.findUnique(expectedQuery, expectedParams)).isEqualTo(1);
@@ -216,33 +221,37 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		verify(mockRegion, atLeastOnce()).getRegionService();
 		verify(mockRegionService, times(1)).getQueryService();
 		verify(mockQueryService, times(1)).newQuery(eq(expectedQuery));
-		verify(mockQuery, times(1)).execute(eq(expectedParams));
+		verify(mockQuery, times(1)).execute(eq("arg"));
 		verify(mockSelectResults, times(1)).asList();
 	}
 
 	@Test
 	public void findUniqueReturnsObjectIsSuccessful() throws Exception {
+
 		Object[] expectedParams = { "arg" };
+
 		String expectedQuery = "SELECT 1 FROM /Example";
 
-		when(mockQuery.execute(eq(expectedParams))).thenReturn("test");
+		when(mockQuery.execute(any(Object.class))).thenReturn("test");
 
 		assertThat((Object) template.findUnique(expectedQuery, expectedParams)).isEqualTo("test");
 
 		verify(mockRegion, atLeastOnce()).getRegionService();
 		verify(mockRegionService, times(1)).getQueryService();
 		verify(mockQueryService, times(1)).newQuery(eq(expectedQuery));
-		verify(mockQuery, times(1)).execute(eq(expectedParams));
+		verify(mockQuery, times(1)).execute(eq("arg"));
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void findUniqueWithMultiResultQueryThrowsInvalidDataAccessApiUsageException() throws Exception {
+
 		Object[] expectedParams = { "arg" };
+
 		String expectedQuery = "SELECT 1 FROM /Example";
 
 		SelectResults mockSelectResults = mock(SelectResults.class);
 
-		when(mockQuery.execute(eq(expectedParams))).thenReturn(mockSelectResults);
+		when(mockQuery.execute(any(Object.class))).thenReturn(mockSelectResults);
 		when(mockSelectResults.asList()).thenReturn(Arrays.asList(1, 2));
 
 		try {
@@ -252,7 +261,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 			verify(mockRegion, atLeastOnce()).getRegionService();
 			verify(mockRegionService, times(1)).getQueryService();
 			verify(mockQueryService, times(1)).newQuery(eq(expectedQuery));
-			verify(mockQuery, times(1)).execute(eq(expectedParams));
+			verify(mockQuery, times(1)).execute(eq("arg"));
 			verify(mockSelectResults, times(1)).asList();
 		}
 	}
