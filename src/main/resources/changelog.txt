@@ -3,6 +3,39 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.1.0.M1 (2018-02-06)
+----------------------------------------
+* DATAGEODE-80 - Upgrade to Apache Geode 1.4.0.
+* DATAGEODE-78 - Fix incorrect server proxying behavior when registering local, client Regions using EnableCachingDefinedRegions.
+* DATAGEODE-77 - Update copyright years to 2018.
+* DATAGEODE-76 - When SDG Annotation config is used to configure and bootstrap an Apache Geode server, automatically register the Administrative Functions.
+* DATAGEODE-75 - Enable the spring.data.gemfire.name property to be used in addition to spring.data.gemfire.cache.name for naming members of the cluster.
+* DATAGEODE-74 - Extend SDG's GemfireSimpleTypeHolder to handle Java 8 Time types.
+* DATAGEODE-73 - Fix race condition between ContinuousQuery registration and EnableClusterConfiguration Region creation.
+* DATAGEODE-72 - Fix MappingPdxSerializer to ignore transient, non-writable and non-entity-based (simple type) properties and fields.
+* DATAGEODE-71 - Change all com.gemstone.gemfire package references in the RegionDataAccessTracingAspect Pointcuts to org.apache.geode.
+* DATAGEODE-70 - Investigate long documentation build times.
+* DATAGEODE-69 - Dependency on org.iq80.snappy:snappy breaks the IO Platform build and appears to be a candidate for being test scoped.
+* DATAGEODE-68 - From clause Region path error occurs when creating Indexes from application domain object fields annotated with @Indexed or @Id.
+* DATAGEODE-66 - Allow basePackages to be configured using a property when creating Entity-defined Regions.
+* DATAGEODE-65 - Document use of @EnableGemfireRepositories.
+* DATAGEODE-64 - Allow the QueryService to be configured as a Spring bean in the ContinuousQuery Annotation support.
+* DATAGEODE-63 - Add Annotation support for Region Compression.
+* DATAGEODE-62 - Fix Off-Heap Annotation config to properly handle Entity-defined and Java-based Region configuration.
+* DATAGEODE-61 - Do not configure ClientRegionFactory poolName when Pool is set to DEFAULT.
+* DATAGEODE-60 - Add support for JSR-107 JCache API Annotations in Caching-defined Regions.
+* DATAGEODE-59 - Add support for configuring client and server Region data management policies in Entity-defined Regions.
+* DATAGEODE-58 - Add support for configuring client and server Region data management policies in Caching-defined Regions.
+* DATAGEODE-57 - Add support for invoking callbacks when loading snapshots.
+* DATAGEODE-56 - Add support for parallel snapshots.
+* DATAGEODE-55 - Upgrade to Apache Geode 1.3.0.
+* DATAGEODE-53 - Beans proxied by the Spring container with declared CQs are not registered and triggered.
+* DATAGEODE-52 - Using SD Repositories and @EnableContinuousQueries causes errors with Spring container initialization.
+* DATAGEODE-51 - EnableClusterConfiguration annotation attributes are silently ignored.
+* DATAGEODE-50 - Spring Cache Abstraction annotations do not trigger CQ.
+* DATAGEODE-49 - Release 2.1 M1 (Lovelace).
+
+
 Changes in version 2.0.3.RELEASE (2018-01-24)
 ---------------------------------------------
 * DATAGEODE-78 - Fix incorrect server proxying behavior when registering local, client Regions using EnableCachingDefinedRegions.
