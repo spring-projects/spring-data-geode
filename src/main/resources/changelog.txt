@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.4.RELEASE (2018-02-19)
+---------------------------------------------
+* DATAGEODE-82 - Extend MappingPdxSerializer to allow registering custom PdxSerializers based on fully qualified property name.
+* DATAGEODE-79 - Release 2.0.4 (Kay SR4).
+
+
 Changes in version 2.1.0.M1 (2018-02-06)
 ----------------------------------------
 * DATAGEODE-80 - Upgrade to Apache Geode 1.4.0.
