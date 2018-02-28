@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.5.RELEASE (2018-02-28)
+---------------------------------------------
+* DATAGEODE-85 - Release 2.0.5 (Kay SR5).
+* DATAGEODE-83 - Override generated OQL from Repository query methods.
+
+
 Changes in version 2.0.4.RELEASE (2018-02-19)
 ---------------------------------------------
 * DATAGEODE-82 - Extend MappingPdxSerializer to allow registering custom PdxSerializers based on fully qualified property name.
