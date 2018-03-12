@@ -28,7 +28,7 @@ import org.springframework.data.gemfire.repository.sample.Person;
  * @author John Blum
  * @see org.springframework.data.gemfire.repository.GemfireRepository
  * @see org.springframework.data.gemfire.repository.cdi.CustomPersonRepository
- * @see org.springframework.data.gemfire.repository.cdi.SamplePersonRepositoryImpl
+ * @see org.springframework.data.gemfire.repository.cdi.CustomPersonRepositoryImpl
  * @see org.springframework.data.gemfire.repository.sample.Person
  * @since 1.8.0
  */
