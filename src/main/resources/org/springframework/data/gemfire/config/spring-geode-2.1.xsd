@@ -1425,31 +1425,7 @@ Regular expression based interest. If the pattern is '.*' then all keys of any t
 							</xsd:complexType>
 						</xsd:element>
 					</xsd:choice>
-					<xsd:element name="eviction" minOccurs="0" maxOccurs="1">
-						<xsd:annotation>
-							<xsd:documentation><![CDATA[
-Eviction policy for the partitioned region.
-								]]></xsd:documentation>
-						</xsd:annotation>
-						<xsd:complexType>
-							<xsd:complexContent>
-								<xsd:extension base="evictionType">
-									<xsd:attribute name="action" type="xsd:string" default="LOCAL_DESTROY">
-										<xsd:annotation>
-											<xsd:documentation><![CDATA[
-Set to one of the following Eviction Actions:
-
-LOCAL_DESTROY - Entry is destroyed locally. Not available for Replicated Regions.
-
-OVERFLOW_TO_DISK - Entry is overflowed to disk and the value set to null in memory. For Partitioned Regions,
-this provides the most reliable read behavior across the region.
-											]]></xsd:documentation>
-										</xsd:annotation>
-									</xsd:attribute>
-								</xsd:extension>
-							</xsd:complexContent>
-						</xsd:complexType>
-					</xsd:element>
+					<xsd:element name="eviction" type="evictionType" minOccurs="0" maxOccurs="1"/>
 					<xsd:group ref="subRegionGroup" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
 				<xsd:attribute name="concurrency-level">
@@ -1577,31 +1553,7 @@ Defines a GemFire Local Region instance. Each Local Region is scoped only to the
 		<xsd:complexContent>
 			<xsd:extension base="baseRegionType">
 				<xsd:sequence minOccurs="1" maxOccurs="1">
-					<xsd:element name="eviction" minOccurs="0" maxOccurs="1">
-						<xsd:annotation>
-							<xsd:documentation><![CDATA[
-Eviction policy for the replicated region.
-                                ]]></xsd:documentation>
-						</xsd:annotation>
-						<xsd:complexType>
-							<xsd:complexContent>
-								<xsd:extension base="evictionType">
-									<xsd:attribute name="action" type="xsd:string">
-										<xsd:annotation>
-											<xsd:documentation><![CDATA[
-Set to one of the following Eviction Actions:
-
-LOCAL_DESTROY - Entry is destroyed locally. Not available for Replicated Regions.
-
-OVERFLOW_TO_DISK - Entry is overflowed to disk and the value set to null in memory. For Partitioned Regions,
-this provides the most reliable read behavior across the region.
-											]]></xsd:documentation>
-										</xsd:annotation>
-									</xsd:attribute>
-								</xsd:extension>
-							</xsd:complexContent>
-						</xsd:complexType>
-					</xsd:element>
+					<xsd:element name="eviction" type="evictionType" minOccurs="0" maxOccurs="1"/>
 					<xsd:group ref="subRegionGroup" minOccurs="0" maxOccurs="unbounded" />
 				</xsd:sequence>
 				<xsd:attribute name="concurrency-level">
@@ -1794,31 +1746,7 @@ Subscription policy for the partitioned region.
 							<xsd:attribute name="type" type="xsd:string" use="optional"/>
 						</xsd:complexType>
 					</xsd:element>
-					<xsd:element name="eviction" minOccurs="0" maxOccurs="1">
-						<xsd:annotation>
-							<xsd:documentation><![CDATA[
-Eviction policy for the partitioned region.
-								]]></xsd:documentation>
-						</xsd:annotation>
-						<xsd:complexType>
-							<xsd:complexContent>
-								<xsd:extension base="evictionType">
-									<xsd:attribute name="action" type="xsd:string" default="LOCAL_DESTROY">
-										<xsd:annotation>
-											<xsd:documentation><![CDATA[
-Set to one of the following Eviction Actions:
-
-LOCAL_DESTROY - Entry is destroyed locally. Not available for Replicated Regions.
-
-OVERFLOW_TO_DISK - Entry is overflowed to disk and the value set to null in memory. For Partitioned Regions,
-this provides the most reliable read behavior across the region.
-											]]></xsd:documentation>
-										</xsd:annotation>
-									</xsd:attribute>
-								</xsd:extension>
-							</xsd:complexContent>
-						</xsd:complexType>
-					</xsd:element>
+					<xsd:element name="eviction" type="evictionType" minOccurs="0" maxOccurs="1"/>
 				</xsd:sequence>
 				<xsd:attributeGroup ref="distributedRegionAttributes" />
 				<xsd:attribute name="copies" type="xsd:string" use="optional">
@@ -2002,20 +1930,41 @@ Eviction policy for the replicated region.
                                 ]]></xsd:documentation>
 						</xsd:annotation>
 						<xsd:complexType>
-							<xsd:complexContent>
-								<xsd:extension base="evictionType">
-									<xsd:attribute name="action" type="xsd:string" fixed="OVERFLOW_TO_DISK">
-										<xsd:annotation>
-											<xsd:documentation><![CDATA[
+						<xsd:attribute name="action" type="xsd:string" fixed="OVERFLOW_TO_DISK">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
 Set to the following Eviction Actions (Note LOCAL_DESTROY is not available for Replicated Regions):
 
 OVERFLOW_TO_DISK - Entry is overflowed to disk and the value set to null in memory. For Partitioned Regions,
 this provides the most reliable read behavior across the region.
 											]]></xsd:documentation>
-										</xsd:annotation>
-									</xsd:attribute>
-								</xsd:extension>
-							</xsd:complexContent>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="threshold" type="xsd:string">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+The threshold (or limit) against which the eviction algorithm runs. Once the threshold is reached, eviction is performed.
+				]]></xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="type">
+							<xsd:annotation>
+								<xsd:documentation><![CDATA[
+The 'type' of eviction performed, or algorithm used to perform eviction on the Region entries.  Eviction types include:
+ENTRY_COUNT: Considers the number of entries in the Region before performing an eviction. This is the default if no
+'type' attribute is set.
+HEAP_PERCENTAGE: Considers the amount of heap used (through the GemFire resource manager) before performing an eviction.
+MEMORY_SIZE: Considers the amount of memory consumed by the Region before performing an eviction.
+				]]></xsd:documentation>
+							</xsd:annotation>
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="ENTRY_COUNT"/>
+									<xsd:enumeration value="HEAP_PERCENTAGE"/>
+									<xsd:enumeration value="MEMORY_SIZE"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
 						</xsd:complexType>
 					</xsd:element>
 					<xsd:group ref="subRegionGroup" minOccurs="0" maxOccurs="unbounded"/>
@@ -2272,16 +2221,42 @@ The threshold (or limit) against which the eviction algorithm runs. Once the thr
 				]]></xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="type" type="xsd:string" default="ENTRY_COUNT">
+		<xsd:attribute name="type" default="ENTRY_COUNT">
 			<xsd:annotation>
 				<xsd:documentation><![CDATA[
 The 'type' of eviction performed, or algorithm used to perform eviction on the Region entries.  Eviction types include:
-ENTRY_COUNT: Considers the number of entries in the Region before performing an eviction.
+ENTRY_COUNT: Considers the number of entries in the Region before performing an eviction. This is the default if no
+'type' attribute is set.
 HEAP_PERCENTAGE: Considers the amount of heap used (through the GemFire resource manager) before performing an eviction.
 MEMORY_SIZE: Considers the amount of memory consumed by the Region before performing an eviction.
 				]]></xsd:documentation>
 			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="ENTRY_COUNT"/>
+					<xsd:enumeration value="HEAP_PERCENTAGE"/>
+					<xsd:enumeration value="MEMORY_SIZE"/>
+				</xsd:restriction>
+			</xsd:simpleType>
 		</xsd:attribute>
+		<xsd:attribute name="action">
+				<xsd:annotation>
+					<xsd:documentation><![CDATA[
+Set to one of the following Eviction Actions:
+
+LOCAL_DESTROY - Entry is destroyed locally. Not available for Replicated Regions.
+
+OVERFLOW_TO_DISK - Entry is overflowed to disk and the value set to null in memory. For Partitioned Regions,
+this provides the most reliable read behavior across the region.
+											]]></xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="LOCAL_DESTROY"/>
+						<xsd:enumeration value="OVERFLOW_TO_DISK"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
 	</xsd:complexType>
 	<!-- Expiration -->
 	<xsd:complexType name="expirationType">
