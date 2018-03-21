@@ -230,10 +230,7 @@ public abstract class RegionLookupFactoryBean<K, V> extends AbstractFactoryBeanS
 	 *
 	 * @param name {@link Region} name.
 	 * @see #setBeanName(String)
-<<<<<<< HEAD
 	 * @see org.apache.geode.cache.Region#getFullPath()
-=======
->>>>>>> fffb2b0... SGF-547 - Configure Eviction with annotations.
 	 */
 	public void setName(String name) {
 		this.name = name;
