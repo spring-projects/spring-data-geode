@@ -34,7 +34,7 @@ import org.springframework.lang.Nullable;
  * generated from {@link Repository} {@link QueryMethod query methods}, and give a developer an opportunity,
  * via the callback, to further process the generated {@link QUERY query}.
  *
- * {@link QueryPostProcessor QueryPostProcessors} can be used on both generated {@link QUERY queries}
+ * {@link QueryPostProcessor QueryPostProcessors} can be used on both {@literal generated} {@link QUERY queries}
  * and {@literal manual} {@link QUERY queries}.  {@literal Manual} {@link QUERY queries} are defined as
  * {@link QUERY queries} specified using SDG's {@link Query @Query} annotation or by defining a {@literal named}
  * {@link QUERY query} in a module-specific {@link Properties} files.
@@ -43,6 +43,7 @@ import org.springframework.lang.Nullable;
  * @param <T> {@link Class type} identifying the {@link Repository Repositories} to match on during registration.
  * @param <QUERY> {@link Class type} of the query to process.
  * @see org.springframework.core.Ordered
+ * @see org.springframework.data.gemfire.repository.Query
  * @see org.springframework.data.repository.Repository
  * @see org.springframework.data.repository.query.QueryMethod
  * @since 2.1.0
@@ -71,7 +72,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * Callback method invoked by the Spring Data (SD) {@link Repository} framework to allow the user to process
 	 * the given {@link QUERY query} and (possibly) return a new or modified version of the {@link QUERY query}.
 	 *
-	 * This callback is invoked for {@literal queries} generated from the SD {@link Repository} {@link QueryMethod}
+	 * This callback is invoked for {@literal queries} generated from a SD {@link Repository} {@link QueryMethod}
 	 * signature as well as {@literal queries} specified and defined in {@link NamedQueries},
 	 * or even using SDG's {@link Query @Query} annotation.
 	 *
@@ -88,7 +89,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * Callback method invoked by the Spring Data (SD) {@link Repository} framework to allow the user to process
 	 * the given {@link QUERY query} and (possibly) return a new or modified version of the {@link QUERY query}.
 	 *
-	 * This callback is invoked for {@literal queries} generated from the SD {@link Repository} {@link QueryMethod}
+	 * This callback is invoked for {@literal queries} generated from a SD {@link Repository} {@link QueryMethod}
 	 * signature as well as {@literal queries} specified and defined in {@link NamedQueries},
 	 * or even using SDG's {@link Query @Query} annotation.
 	 *
@@ -104,7 +105,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * Builder method used to compose, or combine this {@link QueryPostProcessor QueryPostProcessors}
 	 * with the given {@link QueryPostProcessor}.
 	 *
-	 * This {@link QueryPostProcessor} come before the given {@link QueryPostProcessor} in the processing chain.
+	 * This {@link QueryPostProcessor} will come before the given {@link QueryPostProcessor} in the processing chain.
 	 *
 	 * @param queryPostProcessor {@link QueryPostProcessor} to compose with this {@link QueryPostProcessor}.
 	 * @return a composed {@link QueryPostProcessor} consisting of this {@link QueryPostProcessor}
@@ -122,7 +123,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * Builder method used to compose, or combine this {@link QueryPostProcessor QueryPostProcessors}
 	 * with the given {@link QueryPostProcessor}.
 	 *
-	 * This {@link QueryPostProcessor} will come after this {@link QueryPostProcessor} in the processing chain.
+	 * This {@link QueryPostProcessor} will come after the given {@link QueryPostProcessor} in the processing chain.
 	 *
 	 * @param queryPostProcessor {@link QueryPostProcessor} to compose with this {@link QueryPostProcessor}.
 	 * @return a composed {@link QueryPostProcessor} consisting of the given {@link QueryPostProcessor}
