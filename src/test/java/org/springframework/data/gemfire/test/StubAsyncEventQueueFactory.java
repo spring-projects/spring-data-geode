@@ -49,14 +49,15 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 
 	private GatewayEventSubstitutionFilter<?, ?> gatewayEventSubstitutionFilter;
 
-	private OrderPolicy orderPolicy;
+	private List<GatewayEventFilter> gatewayEventFilters = new ArrayList<>();
 
-	private List<GatewayEventFilter> gatewayEventFilters = new ArrayList<GatewayEventFilter>();
+	private OrderPolicy orderPolicy;
 
 	private String diskStoreName;
 
 	@Override
 	public AsyncEventQueue create(String name, AsyncEventListener listener) {
+
 		when(asyncEventQueue.getAsyncEventListener()).thenReturn(listener);
 		when(asyncEventQueue.isBatchConflationEnabled()).thenReturn(this.batchConflationEnabled);
 		when(asyncEventQueue.getBatchSize()).thenReturn(this.batchSize);
@@ -113,6 +114,11 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 		return this;
 	}
 
+	public AsyncEventQueueFactory setGatewayEventSubstitutionListener(final GatewayEventSubstitutionFilter gatewayEventSubstitutionFilter) {
+		this.gatewayEventSubstitutionFilter = gatewayEventSubstitutionFilter;
+		return this;
+	}
+
 	public AsyncEventQueueFactory setMaximumQueueMemory(int maxQueueMemory) {
 		this.maxQueueMemory = maxQueueMemory;
 		return this;
@@ -140,11 +146,6 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 
 	public AsyncEventQueueFactory removeGatewayEventFilter(final GatewayEventFilter gatewayEventFilter) {
 		gatewayEventFilters.remove(gatewayEventFilter);
-		return this;
-	}
-
-	public AsyncEventQueueFactory setGatewayEventSubstitutionListener(final GatewayEventSubstitutionFilter gatewayEventSubstitutionFilter) {
-		this.gatewayEventSubstitutionFilter = gatewayEventSubstitutionFilter;
 		return this;
 	}
 }
