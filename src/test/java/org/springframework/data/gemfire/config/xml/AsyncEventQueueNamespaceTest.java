@@ -17,22 +17,29 @@
 
 package org.springframework.data.gemfire.config.xml;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
+
+import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
+import org.apache.geode.cache.wan.GatewayEventFilter;
+import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
+import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * The AsyncEventQueueNamespaceTest class is a test suite of test cases testing the contract and functionality
@@ -48,37 +55,67 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
  * @since 1.0.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("all")
 public class AsyncEventQueueNamespaceTest {
 
-	@Autowired
+	@Resource(name = "TestAsyncEventQueue")
 	private AsyncEventQueue asyncEventQueue;
+
+	@Resource(name = "TestAsyncEventQueueWithFilters")
+	private AsyncEventQueue asyncEventQueueWithFilters;
 
 	@Test
 	public void asyncEventQueueIsConfiguredProperly() {
-		assertThat(asyncEventQueue, is(notNullValue(AsyncEventQueue.class)));
-		assertThat(asyncEventQueue.getId(), is(equalTo("TestAsyncEventQueue")));
-		assertThat(asyncEventQueue.isBatchConflationEnabled(), is(true));
-		assertThat(asyncEventQueue.getBatchSize(), is(equalTo(100)));
-		assertThat(asyncEventQueue.getBatchTimeInterval(), is(equalTo(30)));
-		assertThat(asyncEventQueue.getDiskStoreName(), is(equalTo("TestDiskStore")));
-		assertThat(asyncEventQueue.isDiskSynchronous(), is(true));
-		assertThat(asyncEventQueue.getDispatcherThreads(), is(equalTo(4)));
-		assertThat(asyncEventQueue.isForwardExpirationDestroy(), is(false));
-		assertThat(asyncEventQueue.getMaximumQueueMemory(), is(equalTo(50)));
-		assertThat(asyncEventQueue.getOrderPolicy(), is(equalTo(GatewaySender.OrderPolicy.KEY)));
-		assertThat(asyncEventQueue.isParallel(), is(false));
-		assertThat(asyncEventQueue.isPersistent(), is(true));
+
+		Assert.assertThat(asyncEventQueue, is(notNullValue(AsyncEventQueue.class)));
+		Assert.assertThat(asyncEventQueue.getId(), is(equalTo("TestAsyncEventQueue")));
+		Assert.assertThat(asyncEventQueue.isBatchConflationEnabled(), is(true));
+		Assert.assertThat(asyncEventQueue.getBatchSize(), is(equalTo(100)));
+		Assert.assertThat(asyncEventQueue.getBatchTimeInterval(), is(equalTo(30)));
+		Assert.assertThat(asyncEventQueue.getDiskStoreName(), is(equalTo("TestDiskStore")));
+		Assert.assertThat(asyncEventQueue.isDiskSynchronous(), is(true));
+		Assert.assertThat(asyncEventQueue.getDispatcherThreads(), is(equalTo(4)));
+		Assert.assertThat(asyncEventQueue.isForwardExpirationDestroy(), is(true));
+		Assert.assertThat(asyncEventQueue.getMaximumQueueMemory(), is(equalTo(50)));
+		Assert.assertThat(asyncEventQueue.getOrderPolicy(), is(equalTo(GatewaySender.OrderPolicy.KEY)));
+		Assert.assertThat(asyncEventQueue.isParallel(), is(false));
+		Assert.assertThat(asyncEventQueue.isPersistent(), is(true));
 	}
 
 	@Test
 	public void asyncEventQueueListenerEqualsExpected() {
+
 		AsyncEventListener asyncEventListener = asyncEventQueue.getAsyncEventListener();
 
-		assertThat(asyncEventListener, is(notNullValue(AsyncEventListener.class)));
-		assertThat(asyncEventListener.toString(), is(equalTo("TestAeqListener")));
+		Assert.assertThat(asyncEventListener, is(notNullValue(AsyncEventListener.class)));
+		Assert.assertThat(asyncEventListener.toString(), is(equalTo("TestAeqListener")));
+	}
+
+	@Test
+	public void asyncEventQueueWithFiltersIsConfiguredProperly() {
+
+		assertThat(asyncEventQueueWithFilters).isNotNull();
+		assertThat(asyncEventQueueWithFilters.getId()).isEqualTo("TestAsyncEventQueueWithFilters");
+
+		AsyncEventListener listener = asyncEventQueueWithFilters.getAsyncEventListener();
+
+		assertThat(listener).isNotNull();
+		assertThat(listener.toString()).isEqualTo("TestListenerOne");
+
+		List<GatewayEventFilter> gatewayEventFilters = asyncEventQueueWithFilters.getGatewayEventFilters();
+
+		assertThat(gatewayEventFilters).isNotNull();
+		assertThat(gatewayEventFilters).hasSize(2);
+		assertThat(gatewayEventFilters.stream().map(Object::toString).collect(Collectors.toList()))
+			.containsExactly("GatewayEventFilterOne", "GatewayEventFilterTwo");
+
+		GatewayEventSubstitutionFilter<?, ?> gatewayEventSubstitutionFilter =
+			asyncEventQueueWithFilters.getGatewayEventSubstitutionFilter();
+
+		assertThat(gatewayEventSubstitutionFilter).isNotNull();
+		assertThat(gatewayEventSubstitutionFilter.toString()).isEqualTo("GatewayEventSubstitutionFilterOne");
 	}
 
 	public static class TestAsyncEventListener implements AsyncEventListener {
@@ -97,6 +134,57 @@ public class AsyncEventQueueNamespaceTest {
 		@Override
 		public void close() {
 		}
+
+		@Override
+		public String toString() {
+			return this.name;
+		}
+	}
+
+	public static class TestGatewayEventFilter implements GatewayEventFilter {
+
+		private final String name;
+
+		public TestGatewayEventFilter(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public boolean beforeEnqueue(GatewayQueueEvent event) {
+			return false;
+		}
+
+		@Override
+		public boolean beforeTransmit(GatewayQueueEvent event) {
+			return false;
+		}
+
+		@Override
+		public void afterAcknowledgement(GatewayQueueEvent event) { }
+
+		@Override
+		public void close() { }
+
+		@Override
+		public String toString() {
+			return this.name;
+		}
+	}
+
+	public static class TestGatewayEventSubstitutionFilter implements GatewayEventSubstitutionFilter<Object, Object> {
+
+		private final String name;
+
+		public TestGatewayEventSubstitutionFilter(String name) {
+			this.name = name;
+		}
+		@Override
+		public Object getSubstituteValue(EntryEvent<Object, Object> event) {
+			return null;
+		}
+
+		@Override
+		public void close() { }
 
 		@Override
 		public String toString() {
