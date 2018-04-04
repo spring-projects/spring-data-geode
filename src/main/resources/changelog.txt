@@ -3,6 +3,16 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.6.RELEASE (2018-04-04)
+---------------------------------------------
+* DATAGEODE-93 - Realign SSL configuration using @EnableSsl with Apache Geode's SSL configuration properties.
+* DATAGEODE-92 - Remove explicit declaration of Jackson library versions.
+* DATAGEODE-91 - Impossible to define event filter for AsyncEventQueue.
+* DATAGEODE-90 - Remove all git merge conflict tags in SDG source code Javadoc.
+* DATAGEODE-88 - Add configuration support for critical and eviction off-heap percentages in client, peer and cache server application annotations.
+* DATAGEODE-86 - Release 2.0.6 (Kay SR6).
+
+
 Changes in version 2.0.5.RELEASE (2018-02-28)
 ---------------------------------------------
 * DATAGEODE-85 - Release 2.0.5 (Kay SR5).
