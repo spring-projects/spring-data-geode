@@ -44,8 +44,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 
 /**
- * The LocalRegionNamespaceTest class is a test suite of test cases testing the contract and functionality
- * of GemFire's Local Region support in SDG.
+ * Unit tests for the Local Region Namespace.
  *
  * @author Costin Leau
  * @author David Turanski
@@ -54,8 +53,8 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.data.gemfire.config.xml.LocalRegionParser
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations="local-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(locations="local-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@SuppressWarnings("unused")
 public class LocalRegionNamespaceTest {
 
 	@Autowired
@@ -198,12 +197,12 @@ public class LocalRegionNamespaceTest {
 		}
 
 		@Override
-		public byte[] compress(final byte[] input) {
+		public byte[] compress(byte[] input) {
 			throw new UnsupportedOperationException("Not Implemented!");
 		}
 
 		@Override
-		public byte[] decompress(final byte[] input) {
+		public byte[] decompress(byte[] input) {
 			throw new UnsupportedOperationException("Not Implemented!");
 		}
 

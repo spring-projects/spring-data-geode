@@ -205,6 +205,7 @@ public abstract class RegionLookupFactoryBean<K, V> extends AbstractFactoryBeanS
 	}
 
 	/**
+>>>>>>> DATAGEODE-95 - Upgrade to Apache Geode 1.5.0.
 	 * Returns a reference to the {@link GemFireCache} used to create the {@link Region}.
 	 *
 	 * @return a reference to the {@link GemFireCache} used to create the {@link Region}..
