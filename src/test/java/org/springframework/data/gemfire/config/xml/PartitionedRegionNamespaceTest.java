@@ -16,6 +16,7 @@
 
 package org.springframework.data.gemfire.config.xml;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -44,9 +45,9 @@ import org.springframework.data.gemfire.RegionFactoryBean;
 import org.springframework.data.gemfire.SimpleCacheListener;
 import org.springframework.data.gemfire.SimplePartitionResolver;
 import org.springframework.data.gemfire.TestUtils;
-import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
+import org.springframework.data.gemfire.test.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -59,19 +60,21 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.data.gemfire.PartitionedRegionFactoryBean
  * @see org.springframework.data.gemfire.config.xml.PartitionedRegionParser
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "partitioned-ns.xml", initializers = GemfireTestApplicationContextInitializer.class)
+@RunWith(SpringRunner.class)
+@ContextConfiguration(locations = "partitioned-ns.xml",
+	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class PartitionedRegionNamespaceTest {
 
 	@Autowired
-	private ApplicationContext context;
+	private ApplicationContext applicationContext;
 
 	@Test
 	public void testSimplePartitionRegion() throws Exception {
-		assertTrue(context.containsBean("simple"));
 
-		Region<?, ?> simple = context.getBean("simple", Region.class);
+		assertTrue(applicationContext.containsBean("simple"));
+
+		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
 
 		assertNotNull(simple);
 		assertEquals("simple", simple.getName());
@@ -83,15 +86,25 @@ public class PartitionedRegionNamespaceTest {
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testOptionsPartitionRegion() throws Exception {
-		assertTrue(context.containsBean("options"));
 
-		RegionFactoryBean optionsRegionFactoryBean = context.getBean("&options", RegionFactoryBean.class);
+		assertTrue(applicationContext.containsBean("options"));
+		assertTrue(applicationContext.containsBean("redundant"));
+
+		Region<?, ?> options = applicationContext.getBean("options", Region.class);
+
+		assertThat(options).isNotNull();
+		assertThat(options.getAttributes()).isNotNull();
+		assertThat(options.getName()).isEqualTo("redundant");
+		assertThat(options.getAttributes().getOffHeap()).isTrue();
+
+		RegionFactoryBean optionsRegionFactoryBean = applicationContext.getBean("&options", RegionFactoryBean.class);
 
 		assertTrue(optionsRegionFactoryBean instanceof PartitionedRegionFactoryBean);
+		assertNull(TestUtils.readField("scope", optionsRegionFactoryBean));
 		assertEquals("redundant", TestUtils.readField("name", optionsRegionFactoryBean));
 		assertNull(TestUtils.readField("scope", optionsRegionFactoryBean));
 
-		RegionAttributes optionsRegionAttributes = TestUtils.readField("attributes", optionsRegionFactoryBean);
+		RegionAttributes optionsRegionAttributes = optionsRegionFactoryBean.getAttributes();
 
 		assertNotNull(optionsRegionAttributes);
 		assertTrue(optionsRegionAttributes.getOffHeap());
@@ -108,19 +121,20 @@ public class PartitionedRegionNamespaceTest {
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testComplexPartitionRegion() throws Exception {
-		assertTrue(context.containsBean("complex"));
 
-		RegionFactoryBean complexRegionFactoryBean = context.getBean("&complex", RegionFactoryBean.class);
+		assertTrue(applicationContext.containsBean("complex"));
+
+		RegionFactoryBean complexRegionFactoryBean = applicationContext.getBean("&complex", RegionFactoryBean.class);
 
 		CacheListener[] cacheListeners = TestUtils.readField("cacheListeners", complexRegionFactoryBean);
 
 		assertFalse(ObjectUtils.isEmpty(cacheListeners));
 		assertEquals(2, cacheListeners.length);
-		assertSame(cacheListeners[0], context.getBean("c-listener"));
+		assertSame(cacheListeners[0], applicationContext.getBean("c-listener"));
 		assertTrue(cacheListeners[1] instanceof SimpleCacheListener);
 
-		assertSame(context.getBean("c-loader"), TestUtils.readField("cacheLoader", complexRegionFactoryBean));
-		assertSame(context.getBean("c-writer"), TestUtils.readField("cacheWriter", complexRegionFactoryBean));
+		assertSame(applicationContext.getBean("c-loader"), TestUtils.readField("cacheLoader", complexRegionFactoryBean));
+		assertSame(applicationContext.getBean("c-writer"), TestUtils.readField("cacheWriter", complexRegionFactoryBean));
 
 		RegionAttributes complexRegionAttributes = TestUtils.readField("attributes", complexRegionFactoryBean);
 
@@ -137,9 +151,10 @@ public class PartitionedRegionNamespaceTest {
 
 	@Test
 	public void testCompressedPartitionRegion() {
-		assertTrue(context.containsBean("compressed"));
 
-		Region<?, ?> compressed = context.getBean("compressed", Region.class);
+		assertTrue(applicationContext.containsBean("compressed"));
+
+		Region<?, ?> compressed = applicationContext.getBean("compressed", Region.class);
 
 		assertNotNull("The 'compressed' PARTITION Region was not properly configured and initialized!", compressed);
 		assertEquals("compressed", compressed.getName());
@@ -153,7 +168,8 @@ public class PartitionedRegionNamespaceTest {
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testFixedPartitionRegion() throws Exception {
-		RegionFactoryBean fixedRegionFactoryBean = context.getBean("&fixed", RegionFactoryBean.class);
+
+		RegionFactoryBean fixedRegionFactoryBean = applicationContext.getBean("&fixed", RegionFactoryBean.class);
 
 		assertNotNull(fixedRegionFactoryBean);
 
@@ -177,9 +193,10 @@ public class PartitionedRegionNamespaceTest {
 
 	@Test
 	public void testMultiplePartitionListeners() {
-		assertTrue(context.containsBean("listeners"));
 
-		Region<?, ?> listeners = context.getBean("listeners", Region.class);
+		assertTrue(applicationContext.containsBean("listeners"));
+
+		Region<?, ?> listeners = applicationContext.getBean("listeners", Region.class);
 
 		assertNotNull("The 'listeners' PARTITION Region was not properly configured and initialized!", listeners);
 		assertEquals("listeners", listeners.getName());
@@ -203,9 +220,10 @@ public class PartitionedRegionNamespaceTest {
 
 	@Test
 	public void testSinglePartitionListeners() {
-		assertTrue(context.containsBean("listenerRef"));
 
-		Region<?, ?> listeners = context.getBean("listenerRef", Region.class);
+		assertTrue(applicationContext.containsBean("listenerRef"));
+
+		Region<?, ?> listeners = applicationContext.getBean("listenerRef", Region.class);
 
 		assertNotNull("The 'listenerRef' PARTITION Region was not properly configured and initialized!", listeners);
 		assertEquals("listenerRef", listeners.getName());
@@ -259,5 +277,4 @@ public class PartitionedRegionNamespaceTest {
 			return this.name;
 		}
 	}
-
 }

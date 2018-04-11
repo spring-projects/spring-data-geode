@@ -27,6 +27,7 @@ public class PartitionedRegionFactoryBean<K, V> extends RegionFactoryBean<K, V> 
 
 	@Override
 	protected void resolveDataPolicy(RegionFactory<K, V> regionFactory, Boolean persistent, DataPolicy dataPolicy) {
+
 		if (dataPolicy == null) {
 			dataPolicy = (isPersistent() ? DataPolicy.PERSISTENT_PARTITION : DataPolicy.PARTITION);
 		}
@@ -46,6 +47,7 @@ public class PartitionedRegionFactoryBean<K, V> extends RegionFactoryBean<K, V> 
 
 	@Override
 	protected void resolveDataPolicy(RegionFactory<K, V> regionFactory, Boolean persistent, String dataPolicy) {
+
 		DataPolicy resolvedDataPolicy = null;
 
 		if (dataPolicy != null) {
@@ -55,5 +57,4 @@ public class PartitionedRegionFactoryBean<K, V> extends RegionFactoryBean<K, V> 
 
 		resolveDataPolicy(regionFactory, persistent, resolvedDataPolicy);
 	}
-
 }
