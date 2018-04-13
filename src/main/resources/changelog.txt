@@ -3,6 +3,21 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.1.0.M2 (2018-04-13)
+----------------------------------------
+* DATAGEODE-96 - RegionAttributes.offHeap is improperly overridden by RegionFactoryBean.offHeap.
+* DATAGEODE-93 - Realign SSL configuration using @EnableSsl with Apache Geode's SSL configuration properties.
+* DATAGEODE-92 - Remove explicit declaration of Jackson library versions.
+* DATAGEODE-91 - Impossible to define event filter for AsyncEventQueue.
+* DATAGEODE-90 - Remove all git merge conflict tags in SDG source code Javadoc.
+* DATAGEODE-89 - Export composable repositories via CDI.
+* DATAGEODE-88 - Add configuration support for critical and eviction off-heap percentages in client, peer and cache server application annotations.
+* DATAGEODE-84 - Fix CI test failures caused by changes in Spring Data Commons CDI Repository support allowing unlimited implementation classes.
+* DATAGEODE-83 - Override generated OQL from Repository query methods.
+* DATAGEODE-82 - Extend MappingPdxSerializer to allow registering custom PdxSerializers based on fully qualified property name.
+* DATAGEODE-81 - Release 2.1 M2 (Lovelace).
+
+
 Changes in version 2.0.6.RELEASE (2018-04-04)
 ---------------------------------------------
 * DATAGEODE-93 - Realign SSL configuration using @EnableSsl with Apache Geode's SSL configuration properties.
