@@ -92,6 +92,7 @@ abstract class ParsingUtils {
 
 	static void setPropertyValue(Element element, BeanDefinitionBuilder builder, String attributeName,
 			String propertyName) {
+
 		setPropertyValue(element, builder, attributeName, propertyName, null);
 	}
 
@@ -333,7 +334,7 @@ abstract class ParsingUtils {
 
 	@SuppressWarnings("unused")
 	static void parseOptionalRegionAttributes(Element element, ParserContext parserContext,
-		BeanDefinitionBuilder regionAttributesBuilder) {
+			BeanDefinitionBuilder regionAttributesBuilder) {
 
 		setPropertyValue(element, regionAttributesBuilder, "cloning-enabled");
 		setPropertyValue(element, regionAttributesBuilder, "concurrency-level");

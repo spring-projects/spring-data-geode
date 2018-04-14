@@ -32,8 +32,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -56,10 +58,9 @@ import org.apache.geode.cache.util.GatewayConflictResolver;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.pdx.PdxSerializer;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
@@ -94,34 +95,27 @@ public class CacheFactoryBeanTest {
 	@Mock
 	private Cache mockCache;
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Test
-	public void afterPropertiesSet() throws Exception {
-		final AtomicBoolean postProcessBeforeCacheInitializationCalled = new AtomicBoolean(false);
-		final Properties gemfireProperties = new Properties();
+	public void afterPropertiesSetAppliesCacheConfigurersAndThenInitializesBeanFactoryLocator() throws Exception {
 
-		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean() {
+		CacheFactoryBean cacheFactoryBean = spy(new CacheFactoryBean());
 
-			@Override
-			protected void postProcessBeforeCacheInitialization(Properties actualGemfireProperties) {
-				assertThat(actualGemfireProperties, is(sameInstance(gemfireProperties)));
-				postProcessBeforeCacheInitializationCalled.set(true);
-			}
-		};
-
-		cacheFactoryBean.setProperties(gemfireProperties);
 		cacheFactoryBean.afterPropertiesSet();
 
-		assertThat(postProcessBeforeCacheInitializationCalled.get(), is(true));
+		InOrder orderVerifier = inOrder(cacheFactoryBean);
+
+		orderVerifier.verify(cacheFactoryBean, times(1)).applyCacheConfigurers();
+		orderVerifier.verify(cacheFactoryBean, times(1)).initBeanFactoryLocator();
 	}
 
 	@Test
-	public void postProcessBeforeCacheInitializationUsingDefaults() {
-		Properties gemfireProperties = new Properties();
+	public void applyingCacheConfigurersDisablesAutoReconnectAndDoesNotUseClusterConfigurationByDefault() {
 
-		new CacheFactoryBean().postProcessBeforeCacheInitialization(gemfireProperties);
+		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
+
+		cacheFactoryBean.applyCacheConfigurers();
+
+		Properties gemfireProperties = cacheFactoryBean.getProperties();
 
 		assertThat(gemfireProperties.size(), is(equalTo(2)));
 		assertThat(gemfireProperties.containsKey("disable-auto-reconnect"), is(true));
@@ -131,13 +125,15 @@ public class CacheFactoryBeanTest {
 	}
 
 	@Test
-	public void postProcessBeforeCacheInitializationWithAutoReconnectAndClusterConfigurationDisabled() {
-		Properties gemfireProperties = new Properties();
+	public void applyCacheConfigurersWithAutoReconnectAndClusterConfigurationDisabled() {
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setEnableAutoReconnect(false);
 		cacheFactoryBean.setUseClusterConfiguration(false);
-		cacheFactoryBean.postProcessBeforeCacheInitialization(gemfireProperties);
+		cacheFactoryBean.applyCacheConfigurers();
+
+		Properties gemfireProperties = cacheFactoryBean.getProperties();
 
 		assertThat(gemfireProperties.size(), is(equalTo(2)));
 		assertThat(gemfireProperties.containsKey("disable-auto-reconnect"), is(true));
@@ -147,13 +143,15 @@ public class CacheFactoryBeanTest {
 	}
 
 	@Test
-	public void postProcessBeforeCacheInitializationWithAutoReconnectAndClusterConfigurationEnabled() {
-		Properties gemfireProperties = new Properties();
+	public void applyCacheConfigurersWithAutoReconnectAndClusterConfigurationEnabled() {
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setEnableAutoReconnect(true);
 		cacheFactoryBean.setUseClusterConfiguration(true);
-		cacheFactoryBean.postProcessBeforeCacheInitialization(gemfireProperties);
+		cacheFactoryBean.applyCacheConfigurers();
+
+		Properties gemfireProperties = cacheFactoryBean.getProperties();
 
 		assertThat(gemfireProperties.size(), is(equalTo(2)));
 		assertThat(gemfireProperties.containsKey("disable-auto-reconnect"), is(true));
@@ -163,13 +161,15 @@ public class CacheFactoryBeanTest {
 	}
 
 	@Test
-	public void postProcessBeforeCacheInitializationWithAutoReconnectDisabledAndClusterConfigurationEnabled() {
-		Properties gemfireProperties = new Properties();
+	public void applyCacheConfigurersWithAutoReconnectDisabledAndClusterConfigurationEnabled() {
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setEnableAutoReconnect(false);
 		cacheFactoryBean.setUseClusterConfiguration(true);
-		cacheFactoryBean.postProcessBeforeCacheInitialization(gemfireProperties);
+		cacheFactoryBean.applyCacheConfigurers();
+
+		Properties gemfireProperties = cacheFactoryBean.getProperties();
 
 		assertThat(gemfireProperties.size(), is(equalTo(2)));
 		assertThat(gemfireProperties.containsKey("disable-auto-reconnect"), is(true));
@@ -179,10 +179,29 @@ public class CacheFactoryBeanTest {
 	}
 
 	@Test
-	public void getObjectCallsInit() throws Exception {
-		final Cache mockCache = mock(Cache.class);
+	public void applyCacheConfigurersWithAutoReconnectEnabledAndClusterConfigurationDisabled() {
 
-		final AtomicBoolean initCalled = new AtomicBoolean(false);
+		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
+
+		cacheFactoryBean.setEnableAutoReconnect(true);
+		cacheFactoryBean.setUseClusterConfiguration(false);
+		cacheFactoryBean.applyCacheConfigurers();
+
+		Properties gemfireProperties = cacheFactoryBean.getProperties();
+
+		assertThat(gemfireProperties.size(), is(equalTo(2)));
+		assertThat(gemfireProperties.containsKey("disable-auto-reconnect"), is(true));
+		assertThat(gemfireProperties.containsKey("use-cluster-configuration"), is(true));
+		assertThat(gemfireProperties.getProperty("disable-auto-reconnect"), is(equalTo("false")));
+		assertThat(gemfireProperties.getProperty("use-cluster-configuration"), is(equalTo("false")));
+	}
+
+	@Test
+	public void getObjectCallsInit() throws Exception {
+
+		AtomicBoolean initCalled = new AtomicBoolean(false);
+
+		Cache mockCache = mock(Cache.class);
 
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean() {
 			@Override Cache init() {
@@ -199,6 +218,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void getObjectReturnsExistingCache() throws Exception {
+
 		Cache mockCache = mock(Cache.class);
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -323,9 +343,11 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void resolveCacheCallsFetchCacheReturnsMock() {
-		final Cache mockCache = mock(Cache.class);
+
+		Cache mockCache = mock(Cache.class);
 
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean() {
+
 			@Override @SuppressWarnings("unchecked ")
 			protected <T extends GemFireCache> T fetchCache() {
 				return (T) mockCache;
@@ -339,8 +361,9 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void resolveCacheCreatesCacheWhenFetchCacheThrowsCacheClosedException() {
-		final Cache mockCache = mock(Cache.class);
-		final CacheFactory mockCacheFactory = mock(CacheFactory.class);
+
+		Cache mockCache = mock(Cache.class);
+		CacheFactory mockCacheFactory = mock(CacheFactory.class);
 
 		when(mockCacheFactory.create()).thenReturn(mockCache);
 
@@ -364,6 +387,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void fetchExistingCache() throws Exception {
+
 		Cache mockCache = mock(Cache.class);
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -378,7 +402,9 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void resolveProperties() {
+
 		Properties gemfireProperties = new Properties();
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setProperties(gemfireProperties);
@@ -388,6 +414,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void resolvePropertiesWhenNull() {
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setProperties(null);
@@ -400,7 +427,9 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void createFactory() {
+
 		Properties gemfireProperties = new Properties();
+
 		Object cacheFactoryReference = new CacheFactoryBean().createFactory(gemfireProperties);
 
 		assertThat(cacheFactoryReference, is(instanceOf(CacheFactory.class)));
@@ -416,9 +445,10 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void prepareFactoryWithUnspecifiedPdxOptions() {
+
 		CacheFactory mockCacheFactory = mock(CacheFactory.class);
 
-		assertThat(new CacheFactoryBean().prepareFactory(mockCacheFactory), is(sameInstance(mockCacheFactory)));
+		assertThat(new CacheFactoryBean().configureFactory(mockCacheFactory), is(sameInstance(mockCacheFactory)));
 
 		verify(mockCacheFactory, never()).setPdxDiskStore(any(String.class));
 		verify(mockCacheFactory, never()).setPdxIgnoreUnreadFields(any(Boolean.class));
@@ -429,6 +459,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void prepareFactoryWithSpecificPdxOptions() {
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setPdxSerializer(mock(PdxSerializer.class));
@@ -437,7 +468,7 @@ public class CacheFactoryBeanTest {
 
 		CacheFactory mockCacheFactory = mock(CacheFactory.class);
 
-		assertThat(cacheFactoryBean.prepareFactory(mockCacheFactory), is(sameInstance(mockCacheFactory)));
+		assertThat(cacheFactoryBean.configureFactory(mockCacheFactory), is(sameInstance(mockCacheFactory)));
 
 		verify(mockCacheFactory, never()).setPdxDiskStore(any(String.class));
 		verify(mockCacheFactory, times(1)).setPdxIgnoreUnreadFields(eq(false));
@@ -448,6 +479,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void prepareFactoryWithAllPdxOptions() {
+
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
 		cacheFactoryBean.setPdxDiskStoreName("testPdxDiskStoreName");
@@ -458,7 +490,7 @@ public class CacheFactoryBeanTest {
 
 		CacheFactory mockCacheFactory = mock(CacheFactory.class);
 
-		assertThat(cacheFactoryBean.prepareFactory(mockCacheFactory), is(sameInstance(mockCacheFactory)));
+		assertThat(cacheFactoryBean.configureFactory(mockCacheFactory), is(sameInstance(mockCacheFactory)));
 
 		verify(mockCacheFactory, times(1)).setPdxDiskStore(eq("testPdxDiskStoreName"));
 		verify(mockCacheFactory, times(1)).setPdxIgnoreUnreadFields(eq(false));
@@ -468,24 +500,8 @@ public class CacheFactoryBeanTest {
 	}
 
 	@Test
-	public void createCacheWithExistingCache() throws Exception {
-		CacheFactory mockCacheFactory = mock(CacheFactory.class);
-		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
+	public void createCacheWithCacheFactory() {
 
-		cacheFactoryBean.setCache(mockCache);
-
-		assertThat(cacheFactoryBean.getCache(), is(sameInstance(mockCache)));
-
-		Cache actualCache = cacheFactoryBean.createCache(mockCacheFactory);
-
-		assertThat(actualCache, is(sameInstance(mockCache)));
-
-		verify(mockCacheFactory, never()).create();
-		verifyZeroInteractions(mockCache);
-	}
-
-	@Test
-	public void createCacheWithNoExistingCache() {
 		CacheFactory mockCacheFactory = mock(CacheFactory.class);
 
 		when(mockCacheFactory.create()).thenReturn(mockCache);
@@ -502,6 +518,7 @@ public class CacheFactoryBeanTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void postProcessCacheWithInvalidCriticalHeapPercentage() throws Exception {
+
 		try {
 			CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -521,6 +538,7 @@ public class CacheFactoryBeanTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void postProcessCacheWithInvalidCriticalOffHeapPercentage() throws Exception {
+
 		try {
 			CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -540,6 +558,7 @@ public class CacheFactoryBeanTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void postProcessCacheWithInvalidEvictionHeapPercentage() throws Exception {
+
 		try {
 			CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -559,6 +578,7 @@ public class CacheFactoryBeanTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void postProcessCacheWithInvalidEvictionOffHeapPercentage() throws Exception {
+
 		try {
 			CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -584,6 +604,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void getObjectTypeWithExistingCache() {
+
 		Cache mockCache = mock(Cache.class);
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean();
 
@@ -600,8 +621,10 @@ public class CacheFactoryBeanTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void destroy() throws Exception {
-		final AtomicBoolean fetchCacheCalled = new AtomicBoolean(false);
-		final Cache mockCache = mock(Cache.class, "GemFireCache");
+
+		AtomicBoolean fetchCacheCalled = new AtomicBoolean(false);
+
+		Cache mockCache = mock(Cache.class, "GemFireCache");
 
 		GemfireBeanFactoryLocator mockGemfireBeanFactoryLocator = mock(GemfireBeanFactoryLocator.class);
 
@@ -631,7 +654,8 @@ public class CacheFactoryBeanTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void destroyWhenCacheIsNull() throws Exception {
-		final AtomicBoolean fetchCacheCalled = new AtomicBoolean(false);
+
+		AtomicBoolean fetchCacheCalled = new AtomicBoolean(false);
 
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean() {
 			@Override protected <T extends GemFireCache> T fetchCache() {
@@ -650,8 +674,10 @@ public class CacheFactoryBeanTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void destroyWhenCacheClosedIsTrue() throws Exception {
-		final AtomicBoolean fetchCacheCalled = new AtomicBoolean(false);
-		final Cache mockCache = mock(Cache.class, "GemFireCache");
+
+		AtomicBoolean fetchCacheCalled = new AtomicBoolean(false);
+
+		Cache mockCache = mock(Cache.class, "GemFireCache");
 
 		CacheFactoryBean cacheFactoryBean = new CacheFactoryBean() {
 			@Override @SuppressWarnings("unchecked") protected <T extends GemFireCache> T fetchCache() {
@@ -672,6 +698,7 @@ public class CacheFactoryBeanTest {
 
 	@Test
 	public void closeCache() {
+
 		GemFireCache mockCache = mock(GemFireCache.class, "testCloseCache.MockCache");
 
 		new CacheFactoryBean().close(mockCache);

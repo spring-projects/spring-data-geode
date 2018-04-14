@@ -17,6 +17,7 @@ package org.springframework.data.gemfire;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.RegionFactory;
+import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -39,7 +40,7 @@ public class PartitionedRegionFactoryBean<K, V> extends RegionFactoryBean<K, V> 
 		}
 
 		// Validate the data-policy and persistent attributes are compatible when specified!
-		assertDataPolicyAndPersistentAttributesAreCompatible(dataPolicy);
+		RegionUtils.assertDataPolicyAndPersistentAttributeAreCompatible(dataPolicy, persistent);
 
 		regionFactory.setDataPolicy(dataPolicy);
 		setDataPolicy(dataPolicy);
