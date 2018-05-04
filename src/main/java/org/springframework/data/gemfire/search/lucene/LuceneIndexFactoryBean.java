@@ -101,9 +101,6 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 	private String indexName;
 	private String regionPath;
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
 
