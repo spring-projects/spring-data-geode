@@ -62,13 +62,11 @@ import org.apache.geode.i18n.LogWriterI18n;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxInstanceFactory;
 import org.apache.geode.pdx.PdxSerializer;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 @SuppressWarnings({ "deprecation", "unused" })
 public class StubCache implements Cache, ClientCache {
 
-	private static final AtomicReference<QueryService> queryServiceReference = new AtomicReference<QueryService>(null);
+	private static final AtomicReference<QueryService> queryServiceReference = new AtomicReference<>(null);
 
 	protected static final String NOT_IMPLEMENTED = "Not Implemented";
 
@@ -112,7 +110,7 @@ public class StubCache implements Cache, ClientCache {
 	private String name;
 
 	public StubCache(){
-		rootRegions = new HashMap<String, Region>();
+		rootRegions = new HashMap<>();
 		resourceManager = new StubResourceManager();
 	}
 
@@ -276,7 +274,8 @@ public class StubCache implements Cache, ClientCache {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public <K, V> Map<String, RegionAttributes<K, V>> listRegionAttributes() {
-		Map<String, RegionAttributes<K, V>> attributes = new HashMap<String, RegionAttributes<K, V>>();
+
+		Map<String, RegionAttributes<K, V>> attributes = new HashMap<>();
 
 		for (Entry<String, Region> entry: allRegions().entrySet()) {
 			attributes.put(entry.getKey(), entry.getValue().getAttributes());
@@ -378,7 +377,8 @@ public class StubCache implements Cache, ClientCache {
 	 */
 	@Override
 	public Set<Region<?, ?>> rootRegions() {
-		Set<Region<?,?>> rootRegions = new HashSet<Region<?,?>>();
+
+		Set<Region<?,?>> rootRegions = new HashSet<>();
 
 		for (String key: allRegions().keySet()) {
 			if (!key.contains(Region.SEPARATOR)) {
@@ -689,14 +689,10 @@ public class StubCache implements Cache, ClientCache {
 	}
 
 	DistributedSystem mockDistributedSystem() {
+
 		DistributedSystem mockDistributedSystem = mock(DistributedSystem.class);
 
-		when(mockDistributedSystem.getName()).thenAnswer(new Answer<String>() {
-			@Override
-			public String answer(InvocationOnMock invocation) throws Throwable {
-				return getName();
-			}
-		});
+		when(mockDistributedSystem.getName()).thenAnswer(invocation -> getName());
 
 		when(mockDistributedSystem.getProperties()).thenReturn(this.properties);
 
@@ -718,69 +714,63 @@ public class StubCache implements Cache, ClientCache {
 		return new StubCacheServer();
 	}
 
-	QueryService mockQueryService() throws RegionNotFoundException, IndexInvalidException, IndexNameConflictException, IndexExistsException, UnsupportedOperationException {
+	QueryService mockQueryService() throws RegionNotFoundException, IndexInvalidException, IndexNameConflictException,
+			IndexExistsException, UnsupportedOperationException {
+
 		QueryService queryService = mock(QueryService.class);
 
-		when(queryService.getIndexes()).thenReturn(new ArrayList<Index>());
+		when(queryService.getIndexes()).thenReturn(new ArrayList<>());
 
-		when(queryService.createIndex(anyString(), anyString(),anyString())).thenAnswer(new Answer<Index>() {
-			@Override
-			public Index answer(InvocationOnMock invocation) throws Throwable {
-				String indexName = (String) invocation.getArguments()[0];
-				String indexedExpression = (String) invocation.getArguments()[1];
-				String fromClause = (String) invocation.getArguments()[2];
-				return mockIndex(indexName, org.apache.geode.cache.query.IndexType.FUNCTIONAL, indexedExpression,
-					fromClause, null);
-			}
+		when(queryService.createIndex(anyString(), anyString(),anyString())).thenAnswer(invocation -> {
+
+			String indexName = (String) invocation.getArguments()[0];
+			String indexedExpression = (String) invocation.getArguments()[1];
+			String fromClause = (String) invocation.getArguments()[2];
+
+			return mockIndex(indexName, org.apache.geode.cache.query.IndexType.FUNCTIONAL, indexedExpression,
+				fromClause, null);
 		});
 
-		when(queryService.createIndex(anyString(), anyString(),anyString(),anyString())).thenAnswer(new Answer<Index>() {
-			@Override
-			public Index answer(InvocationOnMock invocation) throws Throwable {
-				String indexName = (String) invocation.getArguments()[0];
-				String indexedExpression = (String) invocation.getArguments()[1];
-				String fromClause = (String) invocation.getArguments()[2];
-				String imports = (String) invocation.getArguments()[3];
-				return mockIndex(indexName, org.apache.geode.cache.query.IndexType.FUNCTIONAL, indexedExpression,
-					fromClause, imports);
-			}
+		when(queryService.createIndex(anyString(), anyString(),anyString(),anyString())).thenAnswer(invocation -> {
+
+			String indexName = (String) invocation.getArguments()[0];
+			String indexedExpression = (String) invocation.getArguments()[1];
+			String fromClause = (String) invocation.getArguments()[2];
+			String imports = (String) invocation.getArguments()[3];
+
+			return mockIndex(indexName, org.apache.geode.cache.query.IndexType.FUNCTIONAL, indexedExpression,
+				fromClause, imports);
 		});
 
-		when(queryService.createKeyIndex(anyString(), anyString(),anyString())).thenAnswer(new Answer<Index>() {
-			@Override
-			public Index answer(InvocationOnMock invocation) throws Throwable {
-				String indexName = (String) invocation.getArguments()[0];
-				String indexedExpression = (String) invocation.getArguments()[1];
-				String fromClause = (String) invocation.getArguments()[2];
+		when(queryService.createKeyIndex(anyString(), anyString(),anyString())).thenAnswer(invocation -> {
 
-				return mockIndex(indexName, org.apache.geode.cache.query.IndexType.PRIMARY_KEY, indexedExpression,
-					fromClause, null);
-			}
+			String indexName = (String) invocation.getArguments()[0];
+			String indexedExpression = (String) invocation.getArguments()[1];
+			String fromClause = (String) invocation.getArguments()[2];
+
+			return mockIndex(indexName, org.apache.geode.cache.query.IndexType.PRIMARY_KEY, indexedExpression,
+				fromClause, null);
 		});
 
-		when(queryService.createHashIndex(anyString(), anyString(),anyString())).thenAnswer(new Answer<Index>() {
-			@Override
-			public Index answer(InvocationOnMock invocation) throws Throwable {
-				String indexName = (String) invocation.getArguments()[0];
-				String indexedExpression = (String) invocation.getArguments()[1];
-				String fromClause = (String) invocation.getArguments()[2];
+		when(queryService.createHashIndex(anyString(), anyString(),anyString())).thenAnswer(invocation -> {
 
-				return mockIndex(indexName, org.apache.geode.cache.query.IndexType.HASH, indexedExpression,
-					fromClause, null);
-			}
+			String indexName = (String) invocation.getArguments()[0];
+			String indexedExpression = (String) invocation.getArguments()[1];
+			String fromClause = (String) invocation.getArguments()[2];
+
+			return mockIndex(indexName, org.apache.geode.cache.query.IndexType.HASH, indexedExpression,
+				fromClause, null);
 		});
 
-		when(queryService.createHashIndex(anyString(), anyString(),anyString(),anyString())).thenAnswer(new Answer<Index>() {
-			@Override
-			public Index answer(InvocationOnMock invocation) throws Throwable {
-				String indexName = (String) invocation.getArguments()[0];
-				String indexedExpression = (String) invocation.getArguments()[1];
-				String fromClause = (String) invocation.getArguments()[2];
-				String imports = (String) invocation.getArguments()[3];
+		when(queryService.createHashIndex(anyString(), anyString(),anyString(),anyString())).thenAnswer(invocation -> {
 
-				return mockIndex(indexName, org.apache.geode.cache.query.IndexType.HASH, indexedExpression,
-					fromClause, imports);
-			}
+			String indexName = (String) invocation.getArguments()[0];
+			String indexedExpression = (String) invocation.getArguments()[1];
+			String fromClause = (String) invocation.getArguments()[2];
+			String imports = (String) invocation.getArguments()[3];
+
+			return mockIndex(indexName, org.apache.geode.cache.query.IndexType.HASH, indexedExpression,
+				fromClause, imports);
 		});
 
 		return queryService;
@@ -871,5 +861,8 @@ public class StubCache implements Cache, ClientCache {
 	public QueryService getQueryService(final String poolName) {
 		return getQueryService();
 	}
+
+	@Override
+	public void registerPdxMetaData(Object objectToSerializeAndRegister) { }
 
 }
