@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.7.RELEASE (2018-05-08)
+---------------------------------------------
+* DATAGEODE-102 - Add support for enforcing Lucene Index creation before Region creation.
+* DATAGEODE-101 - Add support for setting a LuceneSerializer on LuceneIndex creation.
+* DATAGEODE-100 - Avoid Pool Already Exists Exception on Spring container initialization.
+* DATAGEODE-96 - RegionAttributes.offHeap is improperly overridden by RegionFactoryBean.offHeap.
+* DATAGEODE-94 - Release 2.0.7 (Kay SR7).
+
+
 Changes in version 2.1.0.M2 (2018-04-13)
 ----------------------------------------
 * DATAGEODE-96 - RegionAttributes.offHeap is improperly overridden by RegionFactoryBean.offHeap.
