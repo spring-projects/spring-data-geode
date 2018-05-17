@@ -28,6 +28,7 @@ import org.apache.geode.cache.EvictionAction;
  */
 @SuppressWarnings("unused")
 public enum EvictionActionType {
+
 	LOCAL_DESTROY(EvictionAction.LOCAL_DESTROY),
 	NONE(EvictionAction.NONE),
 	OVERFLOW_TO_DISK(EvictionAction.OVERFLOW_TO_DISK);
@@ -55,7 +56,7 @@ public enum EvictionActionType {
 	 * @see #getEvictionAction()
 	 */
 	public static EvictionAction getEvictionAction(final EvictionActionType evictionActionType) {
-		return (evictionActionType != null ? evictionActionType.getEvictionAction() : null);
+		return evictionActionType != null ? evictionActionType.getEvictionAction() : null;
 	}
 
 	/**
@@ -68,6 +69,7 @@ public enum EvictionActionType {
 	 * @see #getEvictionAction()
 	 */
 	public static EvictionActionType valueOf(final EvictionAction evictionAction) {
+
 		for (EvictionActionType evictionActionType : values()) {
 			if (evictionActionType.getEvictionAction().equals(evictionAction)) {
 				return evictionActionType;
@@ -87,6 +89,7 @@ public enum EvictionActionType {
 	 * @see #name()
 	 */
 	public static EvictionActionType valueOfIgnoreCase(final String name) {
+
 		for (EvictionActionType evictionActionType : values()) {
 			if (evictionActionType.name().equalsIgnoreCase(name)) {
 				return evictionActionType;
@@ -103,7 +106,6 @@ public enum EvictionActionType {
 	 * @see org.apache.geode.cache.EvictionAction
 	 */
 	public EvictionAction getEvictionAction() {
-		return evictionAction;
+		return this.evictionAction;
 	}
-
 }

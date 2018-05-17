@@ -72,6 +72,7 @@ public class SubRegionIntegrationTest {
 
 	@Test
 	public void testGemFireAccountsSubRegionCreation() {
+
 		assertNotNull("The GemFire Cache was not properly initialized!", cache);
 
 		Region customers = cache.getRegion("Customers");
@@ -93,6 +94,7 @@ public class SubRegionIntegrationTest {
 
 	@Test
 	public void testSpringSubRegionConfiguration() {
+
 		assertNotNull("The /Customers/Accounts SubRegion was not properly initialized!", accounts);
 		assertEquals("Accounts", accounts.getName());
 		assertEquals("/Customers/Accounts", accounts.getFullPath());
