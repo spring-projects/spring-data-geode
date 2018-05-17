@@ -3,6 +3,20 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.1.0.M3 (2018-05-17)
+----------------------------------------
+* DATAGEODE-107 - Properly enable statistics when Annotation-based Expiration Policies are enabled with EnableExpiration.
+* DATAGEODE-106 - Adapt to SpEL Extension API changes in Spring Data Commons.
+* DATAGEODE-105 - Add ability to filter types de/serialized by the o.s.d.g.mapping.MappingPdxSerializer.
+* DATAGEODE-103 - Upgrade to Apache Geode 1.6.0.
+* DATAGEODE-102 - Add support for enforcing Lucene Index creation before Region creation.
+* DATAGEODE-101 - Add support for setting a LuceneSerializer on LuceneIndex creation.
+* DATAGEODE-100 - Avoid Pool Already Exists Exception on Spring container initialization.
+* DATAGEODE-97 - Release 2.1 M3 (Lovelace).
+* DATAGEODE-95 - Upgrade to Apache Geode 1.5.0.
+* DATAGEODE-87 - Add enumeration for eviction attributes.
+
+
 Changes in version 2.0.7.RELEASE (2018-05-08)
 ---------------------------------------------
 * DATAGEODE-102 - Add support for enforcing Lucene Index creation before Region creation.
