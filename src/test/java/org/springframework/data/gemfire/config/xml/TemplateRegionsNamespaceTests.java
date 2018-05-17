@@ -65,7 +65,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
@@ -84,7 +84,7 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.Region
  * @since 1.5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = GemfireTestApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class TemplateRegionsNamespaceTests {
@@ -110,7 +110,8 @@ public class TemplateRegionsNamespaceTests {
 	@Resource(name = "TemplateBasedLocalRegion")
 	private Region<Long, String> templateBasedLocalRegion;
 
-	protected void assertAsyncEventQueues(final Region<?, ?> region, final String... expectedNames) {
+	private void assertAsyncEventQueues(Region<?, ?> region, String... expectedNames) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertNotNull(region.getAttributes().getAsyncEventQueueIds());
@@ -121,7 +122,8 @@ public class TemplateRegionsNamespaceTests {
 		}
 	}
 
-	protected void assertCacheListeners(final Region<?, ?> region, final String... expectedNames) {
+	private void assertCacheListeners(Region<?, ?> region, String... expectedNames) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertNotNull(region.getAttributes().getCacheListeners());
@@ -133,31 +135,30 @@ public class TemplateRegionsNamespaceTests {
 		}
 	}
 
-	protected void assertCacheLoader(final Region<?, ?> region, final String expectedName) {
+	private void assertCacheLoader(Region<?, ?> region, String expectedName) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertTrue(region.getAttributes().getCacheLoader() instanceof TestCacheLoader);
 		assertEquals(expectedName, region.getAttributes().getCacheLoader().toString());
 	}
 
-	protected void assertCacheWriter(final Region<?, ?> region, final String expectedName) {
+	private void assertCacheWriter(Region<?, ?> region, String expectedName) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertTrue(region.getAttributes().getCacheWriter() instanceof TestCacheWriter);
 		assertEquals(expectedName, region.getAttributes().getCacheWriter().toString());
 	}
 
-	protected void assertDefaultEvictionAttributes(final EvictionAttributes evictionAttributes) {
+	private void assertDefaultEvictionAttributes(EvictionAttributes evictionAttributes) {
 		assumeNotNull(evictionAttributes);
 		assertEvictionAttributes(evictionAttributes, EvictionAction.NONE, EvictionAlgorithm.NONE, 0, null);
 	}
 
-	protected void assertEvictionAttributes(final EvictionAttributes evictionAttributes,
-		final EvictionAction expectedAction,
-		final EvictionAlgorithm expectedAlgorithm,
-		final int expectedMaximum,
-		final ObjectSizer expectedObjectSizer)
-	{
+	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
+			EvictionAlgorithm expectedAlgorithm, int expectedMaximum, ObjectSizer expectedObjectSizer) {
+
 		assertNotNull("The 'EvictionAttributes' must not be null!", evictionAttributes);
 		assertEquals(expectedAction, evictionAttributes.getAction());
 		assertEquals(expectedAlgorithm, evictionAttributes.getAlgorithm());
@@ -165,22 +166,23 @@ public class TemplateRegionsNamespaceTests {
 		assertEquals(expectedObjectSizer, evictionAttributes.getObjectSizer());
 	}
 
-	protected void assertDefaultExpirationAttributes(final ExpirationAttributes expirationAttributes) {
+	private void assertDefaultExpirationAttributes(ExpirationAttributes expirationAttributes) {
+
 		assumeNotNull(expirationAttributes);
 		assertEquals(ExpirationAction.INVALIDATE, expirationAttributes.getAction());
 		assertEquals(0, expirationAttributes.getTimeout());
 	}
 
-	protected void assertExpirationAttributes(final ExpirationAttributes expirationAttributes,
-		final ExpirationAction expectedAction,
-		final int expectedTimeout)
-	{
+	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes, ExpirationAction expectedAction,
+			int expectedTimeout) {
+
 		assertNotNull("The 'ExpirationAttributes' must not be null!", expirationAttributes);
 		assertEquals(expectedAction, expirationAttributes.getAction());
 		assertEquals(expectedTimeout, expirationAttributes.getTimeout());
 	}
 
-	protected void assertGatewaySenders(final Region<?, ?> region, final String... gatewaySenderIds) {
+	private void assertGatewaySenders(Region<?, ?> region, String... gatewaySenderIds) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertNotNull(region.getAttributes().getGatewaySenderIds());
@@ -188,16 +190,15 @@ public class TemplateRegionsNamespaceTests {
 		assertTrue(Arrays.asList(gatewaySenderIds).containsAll(region.getAttributes().getGatewaySenderIds()));
 	}
 
-	protected void assertDefaultMembershipAttributes(final MembershipAttributes membershipAttributes) {
+	private void assertDefaultMembershipAttributes(MembershipAttributes membershipAttributes) {
+
 		assumeNotNull(membershipAttributes);
 		assertMembershipAttributes(membershipAttributes, LossAction.FULL_ACCESS, ResumptionAction.NONE);
 	}
 
-	protected void assertMembershipAttributes(final MembershipAttributes membershipAttributes,
-		final LossAction expectedLossAction,
-		final ResumptionAction expectedResumptionAction,
-		final String... expectedRequiredRoles)
-	{
+	private void assertMembershipAttributes(MembershipAttributes membershipAttributes, LossAction expectedLossAction,
+			ResumptionAction expectedResumptionAction, String... expectedRequiredRoles) {
+
 		assertNotNull("The 'MembershipAttributes' must not be null!", membershipAttributes);
 		assertEquals(expectedLossAction, membershipAttributes.getLossAction());
 		assertEquals(expectedResumptionAction, membershipAttributes.getResumptionAction());
@@ -210,7 +211,8 @@ public class TemplateRegionsNamespaceTests {
 		}
 	}
 
-	protected void assertPartitionListener(final Region<?, ?> region, final String... expectedNames) {
+	private void assertPartitionListener(Region<?, ?> region, String... expectedNames) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertNotNull(region.getAttributes().getPartitionAttributes());
@@ -223,16 +225,17 @@ public class TemplateRegionsNamespaceTests {
 		}
 	}
 
-	protected void assertPartitionResolver(final Region<?, ?> region, final String expectedName) {
+	private void assertPartitionResolver(Region<?, ?> region, String expectedName) {
+
 		assertNotNull(region);
 		assertNotNull(region.getAttributes());
 		assertNotNull(region.getAttributes().getPartitionAttributes());
-		assertTrue(
-			region.getAttributes().getPartitionAttributes().getPartitionResolver() instanceof TestPartitionResolver);
+		assertTrue(region.getAttributes().getPartitionAttributes().getPartitionResolver() instanceof TestPartitionResolver);
 		assertEquals(expectedName, region.getAttributes().getPartitionAttributes().getPartitionResolver().toString());
 	}
 
-	protected void assertDefaultRegionAttributes(final Region region) {
+	private void assertDefaultRegionAttributes(Region region) {
+
 		assertNotNull("The Region must not be null!", region);
 		assertNotNull(String.format("Region (%1$s) must have 'RegionAttributes' defined!",
 			region.getFullPath()), region.getAttributes());
@@ -246,35 +249,37 @@ public class TemplateRegionsNamespaceTests {
 		assertDefaultExpirationAttributes(region.getAttributes().getRegionIdleTimeout());
 	}
 
-	protected void assertDefaultSubscriptionAttributes(final SubscriptionAttributes subscriptionAttributes) {
+	private void assertDefaultSubscriptionAttributes(SubscriptionAttributes subscriptionAttributes) {
+
 		assumeNotNull(subscriptionAttributes);
 		assertSubscriptionAttributes(subscriptionAttributes, InterestPolicy.DEFAULT);
 	}
 
-	protected void assertSubscriptionAttributes(final SubscriptionAttributes subscriptionAttributes,
-		final InterestPolicy expectedInterestPolicy)
-	{
+	private void assertSubscriptionAttributes(SubscriptionAttributes subscriptionAttributes,
+			InterestPolicy expectedInterestPolicy) {
+
 		assertNotNull("The 'SubscriptionAttributes' must not be null!", subscriptionAttributes);
 		assertEquals(expectedInterestPolicy, subscriptionAttributes.getInterestPolicy());
 	}
 
-	protected static void assertEmpty(final Object[] array) {
+	private static void assertEmpty(Object[] array) {
 		assertTrue((array == null || array.length == 0));
 	}
 
-	protected static void assertEmpty(final Iterable<?> collection) {
+	private static void assertEmpty(Iterable<?> collection) {
 		assertTrue(collection == null || !collection.iterator().hasNext());
 	}
 
-	protected static void assertNullEmpty(final String value) {
+	private static void assertNullEmpty(String value) {
 		assertFalse(StringUtils.hasText(value));
 	}
 
-	protected static void assertRegionMetaData(final Region<?, ?> region, final String expectedRegionName) {
+	private static void assertRegionMetaData(Region<?, ?> region, String expectedRegionName) {
 		assertRegionMetaData(region, expectedRegionName, Region.SEPARATOR + expectedRegionName);
 	}
 
-	protected static void assertRegionMetaData(final Region<?, ?> region, final String expectedRegionName, final String expectedRegionPath) {
+	private static void assertRegionMetaData(Region<?, ?> region, String expectedRegionName, String expectedRegionPath) {
+
 		assertNotNull(String.format("The '%1$s' Region was not properly configured and initialized!",
 			expectedRegionName), region);
 		assertEquals(expectedRegionName, region.getName());
@@ -285,6 +290,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testNoAbstractRegionTemplateBeans() {
+
 		String[] beanNames = {
 			"BaseRegionTemplate",
 			"ExtendedRegionTemplate",
@@ -311,6 +317,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testNonTemplateBasedReplicateRegion() {
+
 		assertRegionMetaData(nonTemplateBasedReplicateRegion, "NonTemplateBasedReplicateRegion");
 		assertDefaultRegionAttributes(nonTemplateBasedReplicateRegion);
 		assertEmpty(nonTemplateBasedReplicateRegion.getAttributes().getAsyncEventQueueIds());
@@ -344,6 +351,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testTemplateBasedReplicateRegion() {
+
 		assertRegionMetaData(templateBasedReplicateRegion, "TemplateBasedReplicateRegion");
 		assertDefaultRegionAttributes(templateBasedReplicateRegion);
 		assertEmpty(templateBasedReplicateRegion.getAttributes().getAsyncEventQueueIds());
@@ -381,6 +389,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testTemplateBasedReplicateSubRegion() {
+
 		assertRegionMetaData(templateBasedReplicateSubRegion, "TemplateBasedReplicateSubRegion",
 			"/TemplateBasedReplicateRegion/TemplateBasedReplicateSubRegion");
 		assertDefaultRegionAttributes(templateBasedReplicateSubRegion);
@@ -418,6 +427,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testTemplateBasedReplicateRegionNoOverrides() {
+
 		assertRegionMetaData(templateBasedReplicateRegionNoOverrides, "TemplateBasedReplicateRegionNoOverrides");
 		assertDefaultRegionAttributes(templateBasedReplicateRegionNoOverrides);
 		assertEmpty(templateBasedReplicateRegionNoOverrides.getAttributes().getAsyncEventQueueIds());
@@ -457,6 +467,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testTemplateBasedPartitionRegion() {
+
 		assertRegionMetaData(templateBasedPartitionRegion, "TemplateBasedPartitionRegion");
 		assertDefaultRegionAttributes(templateBasedPartitionRegion);
 		assertAsyncEventQueues(templateBasedPartitionRegion, "TestAsyncEventQueue");
@@ -504,6 +515,7 @@ public class TemplateRegionsNamespaceTests {
 
 	@Test
 	public void testTemplateBasedLocalRegion() {
+
 		assertRegionMetaData(templateBasedLocalRegion, "TemplateBasedLocalRegion");
 		assertDefaultRegionAttributes(templateBasedLocalRegion);
 		assertEmpty(templateBasedLocalRegion.getAttributes().getAsyncEventQueueIds());
@@ -542,18 +554,17 @@ public class TemplateRegionsNamespaceTests {
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
 		@Override
-		public boolean processEvents(final List<AsyncEvent> asyncEvents) {
+		public boolean processEvents(List<AsyncEvent> asyncEvents) {
 			return false;
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
 
 		@Override
 		public String toString() {
@@ -565,7 +576,7 @@ public class TemplateRegionsNamespaceTests {
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
@@ -579,18 +590,17 @@ public class TemplateRegionsNamespaceTests {
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
 		@Override
-		public Object load(final LoaderHelper loaderHelper) throws CacheLoaderException {
+		public Object load(LoaderHelper loaderHelper) throws CacheLoaderException {
 			return null;
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
 
 		@Override
 		public String toString() {
@@ -602,7 +612,7 @@ public class TemplateRegionsNamespaceTests {
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
@@ -616,7 +626,7 @@ public class TemplateRegionsNamespaceTests {
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
@@ -630,12 +640,12 @@ public class TemplateRegionsNamespaceTests {
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
 		@Override
-		public Object getRoutingObject(final EntryOperation entryOperation) {
+		public Object getRoutingObject(EntryOperation entryOperation) {
 			return null;
 		}
 
@@ -645,13 +655,11 @@ public class TemplateRegionsNamespaceTests {
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
 
 		@Override
 		public String toString() {
 			return name;
 		}
 	}
-
 }
