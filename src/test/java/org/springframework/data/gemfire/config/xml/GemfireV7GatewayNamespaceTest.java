@@ -42,7 +42,7 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.RecreatingSpringApplicationContextTest;
-import org.springframework.data.gemfire.RegionFactoryBean;
+import org.springframework.data.gemfire.PeerRegionFactoryBean;
 import org.springframework.data.gemfire.TestUtils;
 import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
 import org.springframework.data.gemfire.wan.GatewaySenderFactoryBean;
@@ -144,7 +144,7 @@ public class GemfireV7GatewayNamespaceTest extends RecreatingSpringApplicationCo
 		assertNotNull(region.getAttributes().getGatewaySenderIds());
 		assertEquals(2, region.getAttributes().getGatewaySenderIds().size());
 
-		RegionFactoryBean regionFactoryBean = applicationContext.getBean("&region-inner-gateway-sender", RegionFactoryBean.class);
+		PeerRegionFactoryBean regionFactoryBean = applicationContext.getBean("&region-inner-gateway-sender", PeerRegionFactoryBean.class);
 
 		Object[] gatewaySenders = TestUtils.readField("gatewaySenders", regionFactoryBean);
 

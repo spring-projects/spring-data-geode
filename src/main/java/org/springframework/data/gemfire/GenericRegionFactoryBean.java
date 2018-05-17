@@ -17,7 +17,7 @@
 package org.springframework.data.gemfire;
 
 /**
- * The GenericRegionFactoryBean class is an extension of the abstract, base RegionFactoryBean class enabling developers
+ * The GenericRegionFactoryBean class is an extension of the abstract, base PeerRegionFactoryBean class enabling developers
  * to define a GemFire Cache Region with defaults.
  *
  * The defaults for DataPolicy is NORMAL and Scope is DISTRIBUTED_NO_ACK, effectively creating a "non-replicate",
@@ -33,12 +33,12 @@ package org.springframework.data.gemfire;
  * in certain use cases.
  *
  * @author John Blum
- * @see org.springframework.data.gemfire.RegionFactoryBean
+ * @see PeerRegionFactoryBean
  * @link http://gemfire.docs.pivotal.io/latest/userguide/index.html#developing/region_options/region_types.html
  * @link http://gemfire.docs.pivotal.io/latest/userguide/index.html#developing/region_options/storage_distribution_options.html
  * @since 1.7.0
  */
 @SuppressWarnings("unused")
-public class GenericRegionFactoryBean<K, V> extends RegionFactoryBean<K, V> {
+public class GenericRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> {
 
 }

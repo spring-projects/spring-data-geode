@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.data.gemfire.PeerRegionFactoryBean;
 
 /**
  * The {@link EnableAutoRegionLookup} annotation configures a Spring {@link org.springframework.context.annotation.Configuration}
@@ -36,7 +37,7 @@ import org.springframework.context.annotation.Import;
  * expression or a Spring property placeholder.
  *
  * @author John Blum
- * @see org.springframework.data.gemfire.RegionFactoryBean#setLookupEnabled(Boolean)
+ * @see PeerRegionFactoryBean#setLookupEnabled(Boolean)
  * @see org.springframework.data.gemfire.config.annotation.AutoRegionLookupConfiguration
  * @since 1.9.0
  */
