@@ -134,7 +134,6 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		applyClientCacheConfigurers();
 	}
 
-	/* (non-Javadoc) */
 	private void applyClientCacheConfigurers() {
 		applyClientCacheConfigurers(getCompositeClientCacheConfigurer());
 	}
@@ -244,7 +243,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #initializePdx(ClientCacheFactory)
 	 */
 	@Override
-	protected Object prepareFactory(Object factory) {
+	protected Object configureFactory(Object factory) {
 		return initializePool(initializePdx((ClientCacheFactory) factory));
 	}
 
@@ -447,22 +446,18 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return Optional.ofNullable(getCache()).map(Object::getClass).orElse((Class) ClientCache.class);
 	}
 
-	/* (non-Javadoc) */
 	public void addLocators(ConnectionEndpoint... locators) {
 		this.locators.add(locators);
 	}
 
-	/* (non-Javadoc) */
 	public void addLocators(Iterable<ConnectionEndpoint> locators) {
 		this.locators.add(locators);
 	}
 
-	/* (non-Javadoc) */
 	public void addServers(ConnectionEndpoint... servers) {
 		this.servers.add(servers);
 	}
 
-	/* (non-Javadoc) */
 	public void addServers(Iterable<ConnectionEndpoint> servers) {
 		this.servers.add(servers);
 	}
@@ -544,34 +539,28 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return this.durableClientTimeout;
 	}
 
-	/* (non-Javadoc) */
 	@Override
 	public final void setEnableAutoReconnect(Boolean enableAutoReconnect) {
 		throw new UnsupportedOperationException("Auto-reconnect does not apply to clients");
 	}
 
-	/* (non-Javadoc) */
 	@Override
 	public final Boolean getEnableAutoReconnect() {
 		return Boolean.FALSE;
 	}
 
-	/* (non-Javadoc) */
 	public void setFreeConnectionTimeout(Integer freeConnectionTimeout) {
 		this.freeConnectionTimeout = freeConnectionTimeout;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getFreeConnectionTimeout() {
 		return freeConnectionTimeout;
 	}
 
-	/* (non-Javadoc) */
 	public void setIdleTimeout(Long idleTimeout) {
 		this.idleTimeout = idleTimeout;
 	}
 
-	/* (non-Javadoc) */
 	public Long getIdleTimeout() {
 		return idleTimeout;
 	}
@@ -606,58 +595,47 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return Boolean.TRUE.equals(getKeepAlive());
 	}
 
-	/* (non-Javadoc) */
 	public void setLoadConditioningInterval(Integer loadConditioningInterval) {
 		this.loadConditioningInterval = loadConditioningInterval;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getLoadConditioningInterval() {
 		return loadConditioningInterval;
 	}
 
-	/* (non-Javadoc) */
 	public void setLocators(ConnectionEndpoint[] locators) {
 		setLocators(ConnectionEndpointList.from(locators));
 	}
 
-	/* (non-Javadoc) */
 	public void setLocators(Iterable<ConnectionEndpoint> locators) {
 		getLocators().clear();
 		addLocators(locators);
 	}
 
-	/* (non-Javadoc) */
 	protected ConnectionEndpointList getLocators() {
 		return locators;
 	}
 
-	/* (non-Javadoc) */
 	public void setMaxConnections(Integer maxConnections) {
 		this.maxConnections = maxConnections;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getMaxConnections() {
 		return maxConnections;
 	}
 
-	/* (non-Javadoc) */
 	public void setMinConnections(Integer minConnections) {
 		this.minConnections = minConnections;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getMinConnections() {
 		return minConnections;
 	}
 
-	/* (non-Javadoc) */
 	public void setMultiUserAuthentication(Boolean multiUserAuthentication) {
 		this.multiUserAuthentication = multiUserAuthentication;
 	}
 
-	/* (non-Javadoc) */
 	public Boolean getMultiUserAuthentication() {
 		return multiUserAuthentication;
 	}
@@ -702,32 +680,26 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return poolName;
 	}
 
-	/* (non-Javadoc) */
 	public void setPingInterval(Long pingInterval) {
 		this.pingInterval = pingInterval;
 	}
 
-	/* (non-Javadoc) */
 	public Long getPingInterval() {
 		return pingInterval;
 	}
 
-	/* (non-Javadoc) */
 	public void setPrSingleHopEnabled(Boolean prSingleHopEnabled) {
 		this.prSingleHopEnabled = prSingleHopEnabled;
 	}
 
-	/* (non-Javadoc) */
 	public Boolean getPrSingleHopEnabled() {
 		return prSingleHopEnabled;
 	}
 
-	/* (non-Javadoc) */
 	public void setReadTimeout(Integer readTimeout) {
 		this.readTimeout = readTimeout;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getReadTimeout() {
 		return readTimeout;
 	}
@@ -778,119 +750,96 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		}
 	}
 
-	/* (non-Javadoc) */
 	public void setRetryAttempts(Integer retryAttempts) {
 		this.retryAttempts = retryAttempts;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getRetryAttempts() {
 		return retryAttempts;
 	}
 
-	/* (non-Javadoc) */
 	public void setServerGroup(String serverGroup) {
 		this.serverGroup = serverGroup;
 	}
 
-	/* (non-Javadoc) */
 	public String getServerGroup() {
 		return serverGroup;
 	}
 
-	/* (non-Javadoc) */
 	public void setServers(ConnectionEndpoint[] servers) {
 		setServers(ConnectionEndpointList.from(servers));
 	}
 
-	/* (non-Javadoc) */
 	public void setServers(Iterable<ConnectionEndpoint> servers) {
 		getServers().clear();
 		addServers(servers);
 	}
 
-	/* (non-Javadoc) */
 	protected ConnectionEndpointList getServers() {
 		return servers;
 	}
 
-	/* (non-Javadoc) */
 	public void setSocketBufferSize(Integer socketBufferSize) {
 		this.socketBufferSize = socketBufferSize;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getSocketBufferSize() {
 		return socketBufferSize;
 	}
 
-	/* (non-Javadoc) */
 	public void setStatisticsInterval(Integer statisticsInterval) {
 		this.statisticsInterval = statisticsInterval;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getStatisticsInterval() {
 		return statisticsInterval;
 	}
 
-	/* (non-Javadoc) */
 	public void setSubscriptionAckInterval(Integer subscriptionAckInterval) {
 		this.subscriptionAckInterval = subscriptionAckInterval;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getSubscriptionAckInterval() {
 		return subscriptionAckInterval;
 	}
 
-	/* (non-Javadoc) */
 	public void setSubscriptionEnabled(Boolean subscriptionEnabled) {
 		this.subscriptionEnabled = subscriptionEnabled;
 	}
 
-	/* (non-Javadoc) */
 	public Boolean getSubscriptionEnabled() {
 		return subscriptionEnabled;
 	}
 
-	/* (non-Javadoc) */
 	public void setSubscriptionMessageTrackingTimeout(Integer subscriptionMessageTrackingTimeout) {
 		this.subscriptionMessageTrackingTimeout = subscriptionMessageTrackingTimeout;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getSubscriptionMessageTrackingTimeout() {
 		return subscriptionMessageTrackingTimeout;
 	}
 
-	/* (non-Javadoc) */
 	public void setSubscriptionRedundancy(Integer subscriptionRedundancy) {
 		this.subscriptionRedundancy = subscriptionRedundancy;
 	}
 
-	/* (non-Javadoc) */
 	public Integer getSubscriptionRedundancy() {
 		return subscriptionRedundancy;
 	}
 
-	/* (non-Javadoc) */
 	public void setThreadLocalConnections(Boolean threadLocalConnections) {
 		this.threadLocalConnections = threadLocalConnections;
 	}
 
-	/* (non-Javadoc) */
 	public Boolean getThreadLocalConnections() {
 		return threadLocalConnections;
 	}
 
-	/* (non-Javadoc) */
 	@Override
 	public final void setUseClusterConfiguration(Boolean useClusterConfiguration) {
 		throw new UnsupportedOperationException("Cluster-based Configuration is not applicable for clients");
 	}
 
-	/* (non-Javadoc) */
 	@Override
 	public final Boolean getUseClusterConfiguration() {
 		return Boolean.FALSE;
