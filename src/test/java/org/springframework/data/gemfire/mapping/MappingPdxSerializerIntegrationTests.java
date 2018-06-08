@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ import lombok.Setter;
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.mapping.MappingPdxSerializer
  */
 public class MappingPdxSerializerIntegrationTests {
 
@@ -78,6 +80,9 @@ public class MappingPdxSerializerIntegrationTests {
 	public static void setUp() {
 
 		MappingPdxSerializer serializer = MappingPdxSerializer.newMappingPdxSerializer();
+
+		serializer.setIncludeTypeFilters(type ->
+			type.getPackage().getName().startsWith("org.springframework.data.gemfire"));
 
 		cache = new CacheFactory()
 			.set("name", MappingPdxSerializerIntegrationTests.class.getSimpleName())
@@ -344,7 +349,7 @@ public class MappingPdxSerializerIntegrationTests {
 		private DataSerializableProperty property;
 
 		public PersonWithDataSerializableProperty(Long id, String firstname,
-				String lastname, DataSerializableProperty property) {
+			String lastname, DataSerializableProperty property) {
 
 			super(id, firstname, lastname);
 
