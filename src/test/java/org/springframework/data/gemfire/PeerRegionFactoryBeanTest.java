@@ -115,10 +115,12 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 	@SuppressWarnings({ "deprecation", "rawtypes" })
 	private RegionFactoryBeanConfig invalidPersistentConfig() {
+
 		return new RegionFactoryBeanConfig(new TestRegionFactoryBean(), "invalid-persistence") {
+
 			@Override
 			public void configureRegionFactoryBean() {
-				regionFactoryBean.setDataPolicy("persistent_replicate");
+				regionFactoryBean.setDataPolicy(DataPolicy.PERSISTENT_REPLICATE);
 				regionFactoryBean.setPersistent(false);
 			}
 
@@ -1087,6 +1089,6 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		}
 	}
 
-	protected static class TestRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> {
-	}
+	protected static class TestRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> { }
+
 }

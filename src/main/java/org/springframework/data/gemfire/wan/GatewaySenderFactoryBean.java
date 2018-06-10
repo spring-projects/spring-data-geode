@@ -86,8 +86,10 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 	 */
 	@Override
 	protected void doInit() {
-		GatewaySenderFactory gatewaySenderFactory = (this.factory != null ? (GatewaySenderFactory) factory
-			: cache.createGatewaySenderFactory());
+
+		GatewaySenderFactory gatewaySenderFactory = this.factory != null
+			? (GatewaySenderFactory) factory
+			: cache.createGatewaySenderFactory();
 
 		if (alertThreshold != null) {
 			gatewaySenderFactory.setAlertThreshold(alertThreshold);
@@ -163,7 +165,7 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 	 */
 	@Override
 	public GatewaySender getObject() throws Exception {
-		return gatewaySender;
+		return this.gatewaySender;
 	}
 
 	/**
@@ -171,7 +173,7 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 	 */
 	@Override
 	public Class<?> getObjectType() {
-		return (gatewaySender != null ? gatewaySender.getClass() : GatewaySender.class);
+		return this.gatewaySender != null ? this.gatewaySender.getClass() : GatewaySender.class;
 	}
 
 	public void setAlertThreshold(Integer alertThreshold) {
@@ -180,18 +182,6 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 	public void setBatchConflationEnabled(Boolean batchConflationEnabled) {
 		this.batchConflationEnabled = batchConflationEnabled;
-	}
-
-	/**
-	 * Boolean value that determines whether GemFire should conflate messages.
-	 *
-	 * @param enableBatchConflation a boolean value indicating whether GemFire should conflate messages in the Queue.
-	 * @see #setBatchConflationEnabled(Boolean)
-	 * @deprecated use setBatchConflationEnabled(Boolean)
-	 */
-	@Deprecated
-	public void setEnableBatchConflation(Boolean enableBatchConflation) {
-		this.batchConflationEnabled = enableBatchConflation;
 	}
 
 	public void setBatchSize(Integer batchSize) {
@@ -228,15 +218,6 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 	public void setMaximumQueueMemory(Integer maximumQueueMemory) {
 		this.maximumQueueMemory = maximumQueueMemory;
-	}
-
-	/**
-	 * @see #setOrderPolicy(org.apache.geode.cache.wan.GatewaySender.OrderPolicy)
-	 * @deprecated please use setOrderPolicy(:GatewaySender.OrderPolicy) instead.
-	 */
-	@Deprecated
-	public void setOrderPolicy(String orderPolicy) {
-		setOrderPolicy(new OrderPolicyConverter().convert(orderPolicy));
 	}
 
 	public void setOrderPolicy(GatewaySender.OrderPolicy orderPolicy) {

@@ -16,10 +16,8 @@
 
 package org.springframework.data.gemfire.wan;
 
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -47,13 +45,13 @@ import org.springframework.data.gemfire.TestUtils;
  */
 public class GatewaySenderFactoryBeanTest {
 
-	protected Cache createMockCacheWithGatewayInfrastructure(final GatewaySenderFactory gatewaySenderFactory) {
+	private Cache mockCacheWithGatewayInfrastructure(final GatewaySenderFactory gatewaySenderFactory) {
 		Cache mockCache = mock(Cache.class);
 		when(mockCache.createGatewaySenderFactory()).thenReturn(gatewaySenderFactory);
 		return mockCache;
 	}
 
-	protected GatewaySenderFactory createMockGatewaySenderFactory(final String gatewaySenderName,
+	private GatewaySenderFactory mockGatewaySenderFactory(final String gatewaySenderName,
 			final int remoteDistributedSystemId) {
 		GatewaySenderFactory mockGatewaySenderFactory = mock(GatewaySenderFactory.class);
 		GatewaySender mockGatewaySender = mock(GatewaySender.class);
@@ -66,8 +64,9 @@ public class GatewaySenderFactoryBeanTest {
 		return mockGatewaySenderFactory;
 	}
 
-	protected void verifyExpectations(final GatewaySenderFactoryBean factoryBean,
-			final GatewaySenderFactory mockGatewaySenderFactory) throws Exception {
+	protected void verifyExpectations(GatewaySenderFactoryBean factoryBean,
+			GatewaySenderFactory mockGatewaySenderFactory) throws Exception {
+
 		Boolean parallel = TestUtils.readField("parallel", factoryBean);
 
 		verify(mockGatewaySenderFactory).setParallel(eq(Boolean.TRUE.equals(parallel)));
@@ -108,10 +107,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test
 	public void concurrentParallelGatewaySenderCreation() throws Exception {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g0", 69);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g0", 69);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g0");
 		factoryBean.setRemoteDistributedSystemId(69);
@@ -130,10 +131,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test
 	public void concurrentSerialGatewaySenderCreation() throws Exception {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g4", 21);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g4", 21);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g4");
 		factoryBean.setRemoteDistributedSystemId(21);
@@ -152,10 +155,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test
 	public void parallelGatewaySenderCreation() throws Exception {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g1", 69);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g1", 69);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g1");
 		factoryBean.setRemoteDistributedSystemId(69);
@@ -173,10 +178,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void parallelGatewaySenderWithOrderPolicyCreation() {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g2", 69);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g2", 69);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g2");
 		factoryBean.setRemoteDistributedSystemId(69);
@@ -194,10 +201,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test
 	public void gatewaySenderCreationWithDiskSynchronousAndNoPersistence() throws Exception {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g7", 51);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g7", 51);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g7");
 		factoryBean.setRemoteDistributedSystemId(51);
@@ -215,10 +224,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test
 	public void gatewaySenderCreationWithOverflowDiskStoreAndNoPersistence() throws Exception {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g6", 51);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g6", 51);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g6");
 		factoryBean.setRemoteDistributedSystemId(51);
@@ -237,10 +248,12 @@ public class GatewaySenderFactoryBeanTest {
 
 	@Test
 	public void gatewaySenderCreationWithOrderPolicyAndDispatcherThreads() throws Exception {
-		GatewaySenderFactory mockGatewaySenderFactory = createMockGatewaySenderFactory("g5", 42);
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g5", 42);
 
 		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			createMockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
 
 		factoryBean.setName("g5");
 		factoryBean.setRemoteDistributedSystemId(42);
@@ -255,31 +268,5 @@ public class GatewaySenderFactoryBeanTest {
 		assertNotNull(gatewaySender);
 		assertEquals("g5", gatewaySender.getId());
 		assertEquals(42, gatewaySender.getRemoteDSId());
-	}
-
-	@Test
-	@SuppressWarnings("deprecation")
-	public void setOrderPolicyAsValidString() throws Exception {
-		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(mock(Cache.class,
-			"setOrderPolicyAsAValidString.MockCache"));
-
-		factoryBean.setOrderPolicy(GatewaySender.OrderPolicy.THREAD.name().toLowerCase());
-
-		assertThat(TestUtils.<GatewaySender.OrderPolicy>readField("orderPolicy", factoryBean),
-			is(GatewaySender.OrderPolicy.THREAD));
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	@SuppressWarnings("deprecation")
-	public void setOrderPolicyAsInvalidString() {
-		try {
-			new GatewaySenderFactoryBean(mock(Cache.class, "setOrderPolicyAsInvalidString.MockCache"))
-				.setOrderPolicy("invalid");
-		}
-		catch (IllegalArgumentException expected) {
-			assertEquals(String.format("[invalid] is not a valid %s", GatewaySender.OrderPolicy.class.getSimpleName()),
-				expected.getMessage());
-			throw expected;
-		}
 	}
 }
