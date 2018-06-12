@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function;
 
 import static java.util.Arrays.stream;
@@ -21,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,9 +27,6 @@ import java.util.stream.Stream;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.security.ResourcePermission;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -41,6 +36,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for registering a POJO as a GemFire/Geode {@link Function}.
@@ -56,7 +54,7 @@ public abstract class GemfireFunctionUtils {
 
 	private static final String DEFAULT_FUNCTION_ID = null;
 
-	private static Logger logger = LoggerFactory.getLogger(GemfireFunctionUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(GemfireFunctionUtils.class);
 
 	/**
 	 * Determines whether the given {@link Method} is a POJO, {@link GemfireFunction} annotated {@link Method}.
@@ -120,7 +118,6 @@ public abstract class GemfireFunctionUtils {
 	 * @see java.lang.reflect.Method
 	 * @see #isGemfireFunction(Method)
 	 */
-	@SuppressWarnings("all")
 	public static Optional<String> getGemfireFunctionId(Method method) {
 
 		return Optional.ofNullable(method)
@@ -152,6 +149,18 @@ public abstract class GemfireFunctionUtils {
 			.orElse(null);
 	}
 
+	public static void registerFunctionsForPojoType(Class<?> type) {
+
+		Assert.notNull(type, () -> String.format("Class type of POJO containing %s annotated method(s) is required",
+			GemfireFunction.class.getName()));
+
+		Object target = constructInstance(type);
+
+		Arrays.stream(nullSafeArray(type.getMethods(), Method.class))
+			.filter(GemfireFunctionUtils::isGemfireFunction)
+			.forEach(function -> registerFunctionForPojoMethod(target, function, true));
+	}
+
 	/**
 	 * Bind a {@link Method method} with the given {@link Function#getId() Function ID} on an object
 	 * of the given {@link Class type} as a {@link Function} and register it with the {@link FunctionService}.
@@ -166,14 +175,10 @@ public abstract class GemfireFunctionUtils {
 	@SuppressWarnings("unused")
 	public static void registerFunctionForPojoMethod(Class<?> type, String functionId) {
 
-		Assert.notNull(type, () -> String.format("Class type of POJO containing %s(s) is required",
+		Assert.notNull(type, () -> String.format("Class type of POJO containing %s annotated method(s) is required",
 			GemfireFunction.class.getName()));
 
-		ReflectionUtils.doWithMethods(type,
-			method -> registerFunctionForPojoMethod(constructInstance(type), method,
-				getAnnotationAttributes(method, GemfireFunction.class), true),
-			method -> isMatchingGemfireFunction(method, functionId));
-
+		registerFunctionForPojoMethod(constructInstance(type), functionId);
 	}
 
 	/**
@@ -216,7 +221,7 @@ public abstract class GemfireFunctionUtils {
 
 		Assert.notNull(target, "Target object is required");
 
-		Assert.isTrue(isGemfireFunction(method), () -> String.format("Method [%s] must be a %s",
+		Assert.isTrue(isGemfireFunction(method), () -> String.format("Method [%1$s] must be a %2$s",
 			nullSafeName(method), GemfireFunction.class.getName()));
 
 		registerFunctionForPojoMethod(target, method, getAnnotationAttributes(method, GemfireFunction.class), overwrite);
@@ -350,6 +355,7 @@ public abstract class GemfireFunctionUtils {
 		return value != null ? value.trim() : null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static <T extends Enum<T>> T parseEnum(String name, Class<T> enumType, Enum[] enumeratedValues) {
 
 		name = nullSafeToUpperCase(name);
@@ -410,8 +416,6 @@ public abstract class GemfireFunctionUtils {
 
 			Class<?>[] parameterTypes = method.getParameterTypes();
 
-			List<Class<?>> requiredTypesList = Arrays.asList(requiredTypes);
-
 			for (int index = 0; index < parameterAnnotations.length; index++) {
 
 				Annotation[] annotations = parameterAnnotations[index];
@@ -426,7 +430,7 @@ public abstract class GemfireFunctionUtils {
 
 							boolean isRequiredType = false;
 
-							for (Class<?> requiredType : requiredTypesList) {
+							for (Class<?> requiredType : requiredTypes) {
 								if (requiredType.isAssignableFrom(parameterTypes[index])) {
 									isRequiredType = true;
 									break;

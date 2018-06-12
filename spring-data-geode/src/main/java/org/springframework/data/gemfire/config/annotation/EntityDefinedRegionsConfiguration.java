@@ -63,13 +63,13 @@ import org.springframework.data.gemfire.config.annotation.support.GemFireCompone
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
-import org.springframework.data.gemfire.mapping.GemfirePersistentProperty;
 import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.support.CompositeTypeFilter;
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.mapping.PersistentProperty;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -117,6 +117,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	@Autowired(required = false)
 	private GemfireMappingContext mappingContext;
 
+	@SuppressWarnings("all")
 	@Autowired(required = false)
 	private List<RegionConfigurer> regionConfigurers = Collections.emptyList();
 
@@ -599,14 +600,14 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 
 		private ClientRegionShortcut clientRegionShortcut;
 
-		private GemfirePersistentEntity<?> persistentEntity;
+		private final GemfirePersistentEntity<?> persistentEntity;
 
 		private RegionShortcut serverRegionShortcut;
 
 		private String poolName;
 
 		protected RegionBeanDefinitionMetadata(GemfirePersistentEntity<?> persistentEntity) {
-			Assert.notNull(persistentEntity, "GemfirePersistentEntity is required");
+			Assert.notNull(persistentEntity, "GemfirePersistentEntity must not be null");
 			this.persistentEntity = persistentEntity;
 		}
 
@@ -643,7 +644,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 		protected Class<?> getRegionKeyConstraint() {
 
 			return Optional.ofNullable(resolvePersistentEntity().getIdProperty())
-				.map(idProperty -> ((GemfirePersistentProperty) idProperty).getActualType())
+				.map(PersistentProperty::getActualType)
 				.orElse((Class) Object.class);
 		}
 
