@@ -102,6 +102,6 @@ public abstract class DeclarableSupport implements CacheCallback, Declarable {
 	 * @inheritDoc
 	 */
 	@Override
-	public void close() {
-	}
+	public void close() { }
+
 }

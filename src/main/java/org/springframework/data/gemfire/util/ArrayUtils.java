@@ -125,6 +125,10 @@ public abstract class ArrayUtils {
 		return length(array) == 0;
 	}
 
+	public static boolean isNotEmpty(Object[] array) {
+		return !isEmpty(array);
+	}
+
 	/**
 	 * Null-safe operation to determine an array's length.
 	 *

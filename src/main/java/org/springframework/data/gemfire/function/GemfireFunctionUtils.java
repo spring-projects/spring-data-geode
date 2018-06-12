@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -50,49 +50,64 @@ import org.springframework.util.StringUtils;
  */
 public abstract class GemfireFunctionUtils {
 
-	private static Log log = LogFactory.getLog(GemfireFunctionUtils.class);
+	private static Logger log = LoggerFactory.getLogger(GemfireFunctionUtils.class);
 
 	/**
-	 * Determines whether the given {@link Method} is a POJO, {@link GemfireFunction} annotated {@link Method}.
+	 * Determines whether the given {@link Method} is a {@link GemfireFunction} annotated POJO {@link Method}.
 	 *
 	 * @param method {@link Method} to evaluate.
-	 * @return a boolean value indicating whether the {@link Method} on a POJO represents a SDG {@link GemfireFunction}.
+	 * @return a boolean value indicating whether the {@link Method} on a POJO represents a SDG {@link GemfireFunction}
+	 * and a proper Apache Geode or Pivotal GemFire {@link Function}.
 	 * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
 	 * @see java.lang.reflect.Method
 	 */
 	public static boolean isGemfireFunction(Method method) {
-		return (method != null && method.isAnnotationPresent(GemfireFunction.class));
+		return method != null && method.isAnnotationPresent(GemfireFunction.class);
 	}
 
-	private static boolean isMatchingGemfireFunction(Method method, String functionId) {
-		return getGemfireFunctionId(method).filter(methodFunctionId ->
-			ObjectUtils.nullSafeEquals(methodFunctionId, functionId)).isPresent();
+	/**
+	 * Determines whether the given {@link Method} is a proper Apache Geode or Pivotal GemFire {@link Function}
+	 * and whether the {@link Function} matches the given {@literal identifier}.
+	 *
+	 * @param method {@link Method} to evaluate.
+	 * @param functionId {@link String ID} of the {@link Function} to match.
+	 * @return a boolean value indicating whether the given {@link Method} is a proper Apache Geode or Pivotal GemFire
+	 * {@link Function} and whether the {@link Function} matches the given {@literal identifier}.
+	 * @see #getGemfireFunctionId(Method)
+	 * @see java.lang.reflect.Method
+	 */
+	public static boolean isMatchingGemfireFunction(Method method, String functionId) {
+
+		return getGemfireFunctionId(method)
+			.filter(methodFunctionId -> ObjectUtils.nullSafeEquals(methodFunctionId, functionId))
+			.isPresent();
 	}
 
 	private static AnnotationAttributes getAnnotationAttributes(AnnotatedElement element,
 			Class<? extends Annotation> annotationType) {
 
-		return AnnotationAttributes.fromMap(
-			AnnotationUtils.getAnnotationAttributes(element, element.getAnnotation(annotationType)));
+		return AnnotationAttributes.fromMap(AnnotationUtils.getAnnotationAttributes(
+			element, element.getAnnotation(annotationType)));
 	}
 
 	/**
-	 * Null-safe operation used to determine the GemFire/Geode {@link Function#getId()} Function ID}
+	 * Null-safe operation used to determine the Apache Geode/Pivotal GemFire {@link Function#getId()} Function ID}
 	 * of a given {@link GemfireFunction} annotated POJO {@link Method}.
 	 *
 	 * If the {@link Method} is not {@literal null} and annotated with {@link GemfireFunction} then this method
-	 * tries to determine the {@link Function#getId()} from the {@link GemfireFunction#id()} attribute.
+	 * tries to determine the {@link Function#getId() Function ID} from the {@link GemfireFunction#id()} attribute.
 	 *
 	 * If the {@link GemfireFunction#id()} attribute was not set, then the {@link Method#getName()}
 	 * is returned as the {@link Function#getId() Function ID}.
 	 *
 	 * @param method {@link GemfireFunction} annotated POJO {@link Method} containing the implementation
-	 * for a GemFire/Geode {@link Function}.
-	 * @return the GemFire/Geode Function ID of the given {@link Method}, or an empty {@link Optional}
-	 * if the {@link Method} is not a GemFire/Geode {@link Function}.
+	 * for a Apache Geode/Pivotal GemFire {@link Function}.
+	 * @return the Apache Geode/Pivotal GemFire {@link Function#getId() Function ID} of the given {@link Method},
+	 * or an empty {@link Optional} if the {@link Method} is not a proper Apache Geode/Pivotal GemFire {@link Function}.
 	 * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
-	 * @see java.lang.reflect.Method
+	 * @see org.apache.geode.cache.execute.Function
 	 * @see #isGemfireFunction(Method)
+	 * @see java.lang.reflect.Method
 	 */
 	private static Optional<String> getGemfireFunctionId(Method method) {
 
@@ -125,6 +140,18 @@ public abstract class GemfireFunctionUtils {
 			.orElse(null);
 	}
 
+	public static void registerFunctionsForPojoType(Class<?> type) {
+
+		Assert.notNull(type, () -> String.format("Class type of POJO containing %s annotated method(s) is required",
+			GemfireFunction.class.getName()));
+
+		Object target = constructInstance(type);
+
+		Arrays.stream(nullSafeArray(type.getMethods(), Method.class))
+			.filter(GemfireFunctionUtils::isGemfireFunction)
+			.forEach(function -> registerFunctionForPojoMethod(target, function, true));
+	}
+
 	/**
 	 * Bind a {@link Method method} with the given {@link Function#getId() Function ID} on an object
 	 * of the given {@link Class type} as a {@link Function} and register it with the {@link FunctionService}.
@@ -139,14 +166,10 @@ public abstract class GemfireFunctionUtils {
 	@SuppressWarnings("unused")
 	public static void registerFunctionForPojoMethod(Class<?> type, String functionId) {
 
-		Assert.notNull(type, () -> String.format("Class type of POJO containing %s(s) is required",
+		Assert.notNull(type, () -> String.format("Class type of POJO containing %s annotated method(s) is required",
 			GemfireFunction.class.getName()));
 
-		ReflectionUtils.doWithMethods(type,
-			method -> registerFunctionForPojoMethod(constructInstance(type), method,
-				getAnnotationAttributes(method, GemfireFunction.class), true),
-			method -> isMatchingGemfireFunction(method, functionId));
-
+		registerFunctionForPojoMethod(constructInstance(type), functionId);
 	}
 
 	/**
@@ -187,23 +210,27 @@ public abstract class GemfireFunctionUtils {
 
 		Assert.notNull(target, "Target object is required");
 
-		Assert.isTrue(isGemfireFunction(method), () -> String.format("Method [%s] must be a %s",
+		Assert.isTrue(isGemfireFunction(method), () -> String.format("Method [%1$s] must be a %2$s",
 			nullSafeName(method), GemfireFunction.class.getName()));
 
 		registerFunctionForPojoMethod(target, method, getAnnotationAttributes(method, GemfireFunction.class), overwrite);
-
 	}
 
 	/**
-	 * Wrap the {@link Object target object} and {@link Method method} in a GemFire/Geode {@link Function}
-	 * and register the {@link Function} with the {@link FunctionService}.
+	 * Wrap the {@link Object target object} and {@link Method method} in an Apache Geode/Pivotal GemFire
+	 * {@link Function} and register the {@link Function} with the {@link FunctionService}.
 	 *
 	 * @param target {@link Object target object}.
 	 * @param method {@link Method} bound to a {@link Function}.
 	 * @param gemfireFunctionAttributes {@link GemfireFunction} {@link AnnotationAttributes annotation attributes}.
 	 * @param overwrite if {@literal true}, will replace any existing {@link Function} having the same ID.
+	 * @return the {@link PojoFunctionWrapper} wrapping the POJO {@link Method} serving as
+	 * the {@link Function} implementation.
+	 * @see org.springframework.core.annotation.AnnotationAttributes
+	 * @see java.lang.reflect.Method
+	 * @see java.lang.Object
 	 */
-	public static void registerFunctionForPojoMethod(Object target, Method method,
+	public static PojoFunctionWrapper registerFunctionForPojoMethod(Object target, Method method,
 			AnnotationAttributes gemfireFunctionAttributes, boolean overwrite) {
 
 		String id = gemfireFunctionAttributes.containsKey("id")
@@ -247,7 +274,12 @@ public abstract class GemfireFunctionUtils {
 			}
 		}
 
-		if (!FunctionService.isRegistered(function.getId())) {
+		if (FunctionService.isRegistered(function.getId())) {
+			if (log.isDebugEnabled()) {
+				log.debug(String.format("Function [%s] is already registered", function.getId()));
+			}
+		}
+		else {
 
 			FunctionService.registerFunction(function);
 
@@ -255,11 +287,8 @@ public abstract class GemfireFunctionUtils {
 				log.debug(String.format("Registered Function [%s]", function.getId()));
 			}
 		}
-		else {
-			if (log.isDebugEnabled()) {
-				log.debug(String.format("Function [%s] is already registered", function.getId()));
-			}
-		}
+
+		return function;
 	}
 
 	/**

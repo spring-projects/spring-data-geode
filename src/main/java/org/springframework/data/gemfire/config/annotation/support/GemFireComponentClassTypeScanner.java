@@ -30,12 +30,14 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -43,7 +45,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * The {@link GemFireComponentClassTypeScanner} class is a classpath component scanner used to search
- * for GemFire components based on {@link Class} type.
+ * for Apache Geode/Pivotal GemFire application components based on {@link Class} type.
  *
  * @author John Blum
  * @see java.lang.Iterable
@@ -83,27 +85,31 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 			.collect(Collectors.toSet()));
 	}
 
-	private ClassLoader entityClassLoader;
+	private ClassLoader contextClassLoader;
 
 	private ConfigurableApplicationContext applicationContext;
 
 	private Set<TypeFilter> excludes = new HashSet<>();
 	private Set<TypeFilter> includes = new HashSet<>();
 
-	protected final Log log = LogFactory.getLog(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private ResourceLoader resourceLoader;
 
 	private final Set<String> basePackages;
 
 	/**
-	 * Constructs an instance of the {@link GemFireComponentClassTypeScanner} initialized with
-	 * the given {@link Set} of base packages to scan.
+	 * Constructs a new instance of {@link GemFireComponentClassTypeScanner} initialized with the given {@link Set}
+	 * of base packages to scan.
 	 *
-	 * @param basePackages {@link Set} of base packages to scan for GemFire component clases.
+	 * @param basePackages {@link Set} of base packages to scan for GemFire component classes.
 	 * @throws IllegalArgumentException if the {@link Set} is {@literal null} or empty.
 	 * @see java.util.Set
 	 */
 	protected GemFireComponentClassTypeScanner(Set<String> basePackages) {
+
 		Assert.notEmpty(basePackages, "Base packages is required");
+
 		this.basePackages = basePackages;
 	}
 
@@ -128,31 +134,41 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 	}
 
 	/**
-	 * Returns a reference to the {@link ClassLoader} used to find and load GemFire application
-	 * persistent entity classes.
+	 * Returns a reference to the context-based {@link ClassLoader} used to find
+	 * and load GemFire application components.
 	 *
-	 * @return the {@link ClassLoader} used to find and load GemFire application persistent entity classes.
+	 * @return the {@link ClassLoader} used to find and load GemFire application components.
 	 * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#getBeanClassLoader()
 	 * @see java.lang.Thread#getContextClassLoader()
 	 * @see java.lang.ClassLoader
 	 * @see #getApplicationContext()
 	 */
-	protected ClassLoader getEntityClassLoader() {
+	protected ClassLoader getContextClassLoader() {
 
 		ConfigurableApplicationContext applicationContext = getApplicationContext();
 
-		return (this.entityClassLoader != null ? this.entityClassLoader
-			: (applicationContext != null ? applicationContext.getBeanFactory().getBeanClassLoader()
-			: Thread.currentThread().getContextClassLoader()));
+		return this.contextClassLoader != null
+			? this.contextClassLoader
+			: (applicationContext != null
+				? applicationContext.getBeanFactory().getBeanClassLoader()
+				: Thread.currentThread().getContextClassLoader());
 	}
 
 	/**
-	 * Returns a reference to the Spring {@link Environment} in which the Spring GemFire application is running.
+	 * @deprecated please use {@link #getContextClassLoader()}.
+	 */
+	@Deprecated
+	protected ClassLoader getEntityClassLoader() {
+		return getContextClassLoader();
+	}
+
+	/**
+	 * Returns a reference to the Spring {@link Environment} in which the Spring-based application is running.
 	 *
 	 * @return a reference to the Spring {@link Environment}.
 	 * @see org.springframework.context.ApplicationContext#getEnvironment()
-	 * @see org.springframework.core.env.Environment
 	 * @see org.springframework.core.env.StandardEnvironment
+	 * @see org.springframework.core.env.Environment
 	 * @see #getApplicationContext()
 	 */
 	protected Environment getEnvironment() {
@@ -192,6 +208,38 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 	}
 
 	/**
+	 * Returns a reference to the configured {@link ResourceLoader} used to configure the component scanner.
+	 *
+	 * @return a reference to the configured {@link ResourceLoader}.
+	 * @see org.springframework.core.io.ResourceLoader
+	 */
+	protected ResourceLoader getResourceLoader() {
+		return this.resourceLoader;
+	}
+
+	/**
+	 * {@link Optional Optionally} resolves the {@link ResourceLoader} used to load resources and GemFire components
+	 * during the component scan.
+	 *
+	 * @return the {@link Optional optionally} resolved {@link ResourceLoader}.
+	 * @see org.springframework.core.io.ResourceLoader
+	 * @see #getContextClassLoader()
+	 * @see #getResourceLoader()
+	 * @see java.lang.ClassLoader
+	 * @see java.util.Optional
+	 */
+	protected Optional<ResourceLoader> resolveResourceLoader() {
+
+		ClassLoader contextClassLoader = getContextClassLoader();
+
+		ResourceLoader configuredResourceLoader = getResourceLoader();
+
+		return Optional.ofNullable(configuredResourceLoader != null ? configuredResourceLoader
+			: contextClassLoader != null ? new DefaultResourceLoader(contextClassLoader)
+			: getApplicationContext());
+	}
+
+	/**
 	 * Scans the {@link Set} of base packages searching for GemFire application components
 	 * accepted by the filters of this scanner.
 	 *
@@ -203,26 +251,26 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 
 		Set<Class<?>> componentClasses = new CopyOnWriteArraySet<>();
 
-		ClassLoader entityClassLoader = getEntityClassLoader();
+		ClassLoader contextClassLoader = getContextClassLoader();
 
 		ClassPathScanningCandidateComponentProvider componentProvider =
 			newClassPathScanningCandidateComponentProvider();
 
 		stream(this.spliterator(), true)
 			.flatMap(packageName -> componentProvider.findCandidateComponents(packageName).stream())
-			.forEach(beanDefinition -> {
+			.forEach(beanDefinition ->
 				Optional.ofNullable(beanDefinition.getBeanClassName())
 					.filter(StringUtils::hasText)
 					.ifPresent(beanClassName -> {
 						try {
-							componentClasses.add(ClassUtils.forName(beanClassName, entityClassLoader));
+							componentClasses.add(ClassUtils.forName(beanClassName, contextClassLoader));
 						}
 						catch (ClassNotFoundException ignore) {
-							log.warn(String.format("Class for component type [%s] not found",
+							logger.warn(String.format("Class for component type [%s] not found",
 								beanDefinition.getBeanClassName()));
 						}
-					});
-			});
+					})
+			);
 
 		return componentClasses;
 	}
@@ -258,38 +306,39 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 		this.excludes.forEach(componentProvider::addExcludeFilter);
 		this.includes.forEach(componentProvider::addIncludeFilter);
 
+		resolveResourceLoader().ifPresent(componentProvider::setResourceLoader);
+
 		return componentProvider;
 	}
 
-	/* (non-Javadoc) */
-	public GemFireComponentClassTypeScanner with(ClassLoader entityClassLoader) {
-		this.entityClassLoader = entityClassLoader;
+	public GemFireComponentClassTypeScanner with(ClassLoader contextClassLoader) {
+		this.contextClassLoader = contextClassLoader;
 		return this;
 	}
 
-	/* (non-Javadoc) */
 	public GemFireComponentClassTypeScanner with(ConfigurableApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 		return this;
 	}
 
-	/* (non-Javadoc) */
+	public GemFireComponentClassTypeScanner with(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
+		return this;
+	}
+
 	public GemFireComponentClassTypeScanner withExcludes(TypeFilter... excludes) {
 		return withExcludes(asSet(nullSafeArray(excludes, TypeFilter.class)));
 	}
 
-	/* (non-Javadoc) */
 	public GemFireComponentClassTypeScanner withExcludes(Iterable<TypeFilter> excludes) {
 		stream(nullSafeIterable(excludes).spliterator(), false).forEach(this.excludes::add);
 		return this;
 	}
 
-	/* (non-Javadoc) */
 	public GemFireComponentClassTypeScanner withIncludes(TypeFilter... includes) {
 		return withIncludes(asSet(nullSafeArray(includes, TypeFilter.class)));
 	}
 
-	/* (non-Javadoc) */
 	public GemFireComponentClassTypeScanner withIncludes(Iterable<TypeFilter> includes) {
 		stream(nullSafeIterable(includes).spliterator(), false).forEach(this.includes::add);
 		return this;

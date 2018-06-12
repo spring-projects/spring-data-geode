@@ -148,6 +148,19 @@ public class ArrayUtilsUnitTests {
 	}
 
 	@Test
+	public void isNotEmptyIsTrue() {
+		assertThat(ArrayUtils.isNotEmpty(new Object[1])).isTrue();
+		assertThat(ArrayUtils.isNotEmpty(new Object[] { "test", "testing", "tested" })).isTrue();
+	}
+
+	@Test
+	public void isNotEmptyIsFalse() {
+		assertThat(ArrayUtils.isNotEmpty(null)).isFalse();
+		assertThat(ArrayUtils.isNotEmpty(new Object[0])).isFalse();
+		assertThat(ArrayUtils.isNotEmpty(new Object[] { })).isFalse();
+	}
+
+	@Test
 	public void length() {
 		assertThat(ArrayUtils.length(ArrayUtils.asArray("test", "testing", "tested"))).isEqualTo(3);
 		assertThat(ArrayUtils.length(ArrayUtils.asArray("test"))).isEqualTo(1);
