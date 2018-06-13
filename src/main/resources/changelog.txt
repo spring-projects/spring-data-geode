@@ -3,6 +3,21 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.8.RELEASE (2018-06-13)
+---------------------------------------------
+* DATAGEODE-122 - Refactor Function annotation configuration to be smarter in resolving Apache Geode objects on startup.
+* DATAGEODE-121 - Do not allow eager init when getting beans by type to resolve Configurers for Annotation configuration.
+* DATAGEODE-117 - Move configuration of PDX to a PdxConfiguration class imported by the EnablePdx annotation.
+* DATAGEODE-116 - Add ability to declare include filters in addition to exclude filters on o.s.d.g.mapping.MappingPdxSerializer.
+* DATAGEODE-113 - Add name attribute to EnableGemFireProperties.
+* DATAGEODE-112 - Clean BeanFactoryLocator references on CacheFactoryBean destroy.
+* DATAGEODE-111 - Add ability to configure SecurityManager on CacheFactoryBean.
+* DATAGEODE-110 - Move client Region interests registration to on SmartLifecycle start.
+* DATAGEODE-107 - Properly enable statistics when Annotation-based Expiration Policies are enabled with EnableExpiration.
+* DATAGEODE-105 - Add ability to filter types de/serialized by the o.s.d.g.mapping.MappingPdxSerializer.
+* DATAGEODE-104 - Release 2.0.8 (Kay SR8).
+
+
 Changes in version 2.1.0.M3 (2018-05-17)
 ----------------------------------------
 * DATAGEODE-107 - Properly enable statistics when Annotation-based Expiration Policies are enabled with EnableExpiration.
