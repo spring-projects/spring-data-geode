@@ -39,18 +39,20 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.apache.geode.cache.execute.FunctionContext
 	 */
 	@Override
 	public Object[] resolveFunctionArguments(final FunctionContext functionContext) {
+
 		Object[] functionArguments = super.resolveFunctionArguments(functionContext);
 
 		if (isPdxSerializerConfigured()) {
+
 			int index = 0;
 
 			for (Object functionArgument : functionArguments) {
 				if (functionArgument instanceof PdxInstance) {
+
 					String className = ((PdxInstance) functionArgument).getClassName();
 
 					if (isDeserializationNecessary(className)) {
@@ -67,7 +69,6 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see java.lang.reflect.Method
 	 */
 	@Override
@@ -77,7 +78,6 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see org.apache.geode.cache.Cache#getPdxSerializer()
 	 * @see org.apache.geode.cache.CacheFactory#getAnyInstance()
 	 */
@@ -92,16 +92,15 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 	/*
 	 * (non-Javadac)
-	 *
 	 * @see #isOnClasspath(String)
 	 * @see #functionAnnotatedMethodHasParameterOfType(String)
 	 */
 	boolean isDeserializationNecessary(final String className) {
 		return (isOnClasspath(className) && functionAnnotatedMethodHasParameterOfType(className));
 	}
+
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see java.lang.Thread#currentThread()
 	 * @see java.lang.Thread#getContextClassLoader()
 	 * @see org.springframework.util.ClassUtils#isPresent(String, ClassLoader)
@@ -112,7 +111,6 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 	/*
 	 * (non-Javadoc)
-	 *
 	 * @see #getFunctionAnnotatedMethod()
 	 * @see java.lang.reflect.Method#getParameterTypes()
 	 */
@@ -125,5 +123,4 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 		return false;
 	}
-
 }
