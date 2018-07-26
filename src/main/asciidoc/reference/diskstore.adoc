@@ -1,22 +1,23 @@
 [[bootstrap:diskstore]]
 = Configuring a DiskStore
 
-_Spring Data Geode_ supports `DiskStore` configuration via the `disk-store` element.
-
-For example:
+{sdg-name} supports `DiskStore` configuration and creation through the `disk-store` element,
+as the following example shows:
 
 [source,xml]
 ----
-<gfe:disk-store id="diskStore1" queue-size="50" auto-compact="true"
-        max-oplog-size="10" time-interval="9999">
-        <gfe:disk-dir location="/gemfire/store1/" max-size="20"/>
-        <gfe:disk-dir location="/gemfire/store2/" max-size="20"/>
+<gfe:disk-store id="Example" auto-compact="true" max-oplog-size="10"
+                queue-size="50" time-interval="9999">
+    <gfe:disk-dir location="/disk/location/one" max-size="20"/>
+    <gfe:disk-dir location="/disk/location/two" max-size="20"/>
 </gfe:disk-store>
 ----
 
-`DiskStores` are used by Regions for file system persistent backup and overflow of evicted entries
-as well as persistent backup of WAN Gateways.  Multiple Geode components may share the same `DiskStore`.
-Additionally, multiple file system directories may be defined for a single `DiskStore`.
+`DiskStore` instances are used by Regions for file system persistent backup and overflow of evicted entries
+as well as persistent backup for WAN Gateways. Multiple {data-store-name} components may share the same `DiskStore`.
+Additionally, multiple file system directories may be defined for a single `DiskStore`, as shown in
+the preceding example.
 
-Please refer to Apache Geode's documentation for a complete explanation of the
-http://geode.apache.org/docs/guide/11/developing/storing_data_on_disk/chapter_overview.html[configuration options].
+See {data-store-name}'s documentation for a complete explanation of
+{x-data-store-docs}/developing/storing_data_on_disk/chapter_overview.html[Persistence and Overflow]
+and configuration options on `DiskStore` instances.

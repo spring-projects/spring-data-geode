@@ -1,16 +1,14 @@
 = Preface
 
-_Spring Data Geode_ focuses on integrating the _Spring Framework's_ powerful, non-invasive programming model
-and concepts with Apache Geode to simplify configuration and development of Java applications using Geode.
+{sdg-name} focuses on integrating the Spring Framework's powerful, non-invasive programming model
+and concepts with {data-store-name} to simplify configuration and development of Java applications
+when using {data-store-name} as you data management solution.
 
-This document assumes the reader already has a basic familiarity with the _Spring Framework_ and Apache Geode
-concepts and APIs.
+This document assumes you already have a basic understanding of, and some familiarity with, the core Spring Framework
+and {data-store-name} concepts.
 
-While every effort has been made to ensure this documentation is comprehensive and complete, with no errors,
-some topics are beyond the scope of this document and may require more explanation (e.g. data distribution management
-with partitioning for HA while still preserving consistency).  Additionally, some typos might have crept in.
-If you do spot mistakes or even more serious errors and you can spare a few cycles, please do bring these issues
-to the attention of the _Spring Data Geode_ team by raising an appropriate
-https://jira.spring.io/browse/DATAGEODE[issue].
-
-Thank you.
+While every effort has been made to ensure this documentation is comprehensive and complete without errors,
+some topics are beyond the scope of this document and may require more explanation (for example, data distribution management
+using partitioning with HA while still preserving consistency).  Additionally, some typographical errors might have crept in.
+If you do spot mistakes or even more serious errors, please bring these issues to the attention of the Spring Data team
+by raising an appropriate https://jira.spring.io/browse/SGF[issue in JIRA].

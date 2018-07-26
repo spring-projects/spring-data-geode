@@ -1,74 +1,92 @@
-= Spring Data for Apache Geode - Reference Guide
-Costin Leau; David Turanski; John Blum; Oliver Gierke
-:revnumber: {version}
+= Spring Data for {data-store-name} Reference Guide
+Costin Leau; David Turanski; John Blum; Oliver Gierke; Jay Bryant
 :revdate: {localdate}
-:spring-data-commons-docs: {basedocdir}/../../../../spring-data-commons/src/main/asciidoc
-:toc:
-:!toc-placement:
+:revnumber: {version}
+:linkcss:
+:doctype: book
+:docinfo: shared
+:toc: left
+:toclevels: 4
+:source-highlighter: prettify
+:icons: font
+:imagesdir: images
+:apache-geode-version: 16
+:apache-geode-docs: http://geode.apache.org/docs/guide/{apache-geode-version}
+:apache-geode-javadoc: http://geode.apache.org/releases/latest/javadoc
+:apache-geode-website: http://geode.apache.org
+:apache-geode-wiki: https://cwiki.apache.org/confluence/display/GEODE
+:data-store-name-symbolic: geode
+:data-store-name-simple: Geode
+:data-store-name: Apache {data-store-name-simple}
+:data-store-version: 1.6.0
+:pivotal-gemfire-version: 95
+:pivotal-gemfire-docs: http://gemfire.docs.pivotal.io/{pivotal-gemfire-version}
+:pivotal-gemfire-javadoc: http://gemfire-{pivotal-gemfire-version}-javadocs.docs.pivotal.io/
+:pivotal-gemfire-website: https://pivotal.io/pivotal-gemfire
+:pivotal-gemfire-wiki: https://cwiki.apache.org/confluence/display/GEODE
+:sdg-acronym: SDG
+:sdg-javadoc: https://docs.spring.io/spring-data/{data-store-name-symbolic}/docs/current/api
+:sdg-name: Spring Data for {data-store-name}
+:spring-data-access-schema-location: http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd
+:spring-data-access-schema-namespace: http://www.springframework.org/schema/data/gemfire
+:spring-data-commons-docs: https://docs.spring.io/spring-data/commons/docs/current/reference
+:spring-data-commons-docs-html: {spring-data-commons-docs}/html
+:spring-data-commons-javadoc: https://docs.spring.io/spring-data/commons/docs/current/api
+:spring-data-schema-location: http://www.springframework.org/schema/gemfire/spring-gemfire.xsd
+:spring-data-schema-namespace: http://www.springframework.org/schema/gemfire
+:spring-data-website: https://spring.io/projects/spring-data
+:spring-framework-docs: https://docs.spring.io/spring/docs/current/spring-framework-reference
+:spring-framework-javadoc: https://docs.spring.io/spring/docs/current/javadoc-api
+:spring-framework-website: https://spring.io/projects/spring-framework
+:x-data-store-docs: {apache-geode-docs}
+:x-data-store-javadoc: {apache-geode-javadoc}
+:x-data-store-website: {apache-geode-website}
+:x-data-store-wiki: {apache-geode-wiki}
+ifdef::backend-epub3[:front-cover-image: image:epub-cover.png[Front Cover,1050,1600]]
 
-(C) 2010-2017 The original authors.
+(C) 2010-2018 The original authors.
 
 NOTE: Copies of this document may be made for your own use and for distribution to others provided that you do not
 charge any fee for such copies and further provided that each copy contains this Copyright Notice
 whether distributed in print or electronically.
 
-toc::[]
-
 [[preface]]
 include::{basedocdir}/preface.adoc[]
 
-ifndef::leveloffset[:leveloffset: 0]
-
-:leveloffset: +1
-
-include::{basedocdir}/introduction/introduction.adoc[]
-include::{basedocdir}/introduction/requirements.adoc[]
-include::{basedocdir}/introduction/new-features.adoc[]
-
-:leveloffset: -1
+include::{basedocdir}/introduction/introduction.adoc[leveloffset=+1]
+include::{basedocdir}/introduction/requirements.adoc[leveloffset=+1]
+include::{basedocdir}/introduction/new-features.adoc[leveloffset=+1]
 
 [[reference]]
 = Reference Guide
 
-:leveloffset: +1
-
-include::{basedocdir}/reference/introduction.adoc[]
-include::{basedocdir}/reference/bootstrap.adoc[]
-include::{basedocdir}/reference/bootstrap-annotations.adoc[]
-include::{basedocdir}/reference/data.adoc[]
-include::{basedocdir}/reference/serialization.adoc[]
-include::{basedocdir}/reference/mapping.adoc[]
-include::{basedocdir}/reference/repositories.adoc[]
-include::{basedocdir}/reference/function-annotations.adoc[]
-include::{basedocdir}/reference/lucene.adoc[]
-include::{basedocdir}/reference/gemfire-bootstrap.adoc[]
-include::{basedocdir}/reference/samples.adoc[]
-
-:leveloffset: -1
+include::{basedocdir}/reference/introduction.adoc[leveloffset=+1]
+include::{basedocdir}/reference/bootstrap.adoc[leveloffset=+1]
+include::{basedocdir}/reference/bootstrap-annotations.adoc[leveloffset=+1]
+include::{basedocdir}/reference/data.adoc[leveloffset=+1]
+include::{basedocdir}/reference/serialization.adoc[leveloffset=+1]
+include::{basedocdir}/reference/mapping.adoc[leveloffset=+1]
+include::{basedocdir}/reference/repositories.adoc[leveloffset=+1]
+include::{basedocdir}/reference/function-annotations.adoc[leveloffset=+1]
+include::{basedocdir}/reference/lucene.adoc[leveloffset=+1]
+include::{basedocdir}/reference/gemfire-bootstrap.adoc[leveloffset=+1]
+include::{basedocdir}/reference/samples.adoc[leveloffset=+1]
 
 [[resources]]
 = Resources
 
 In addition to this reference documentation, there are a number of other resources that may help you learn
-how to use Apache Geode with the _Spring Framework_. These additional, third-party resources are enumerated
-in this section.
+how to use {data-store-product-name} with the _Spring Framework_. These additional, third-party resources
+are enumerated in this section.
 
-:leveloffset: +1
-
-include::{basedocdir}/links.adoc[]
-
-:leveloffset: -1
+include::{basedocdir}/links.adoc[leveloffset=+1]
 
 [[appendices]]
 = Appendices
 
 :!sectnums:
-:leveloffset: +1
-
-include::{spring-data-commons-docs}/repository-namespace-reference.adoc[]
-include::{spring-data-commons-docs}/repository-populator-namespace-reference.adoc[]
-include::{spring-data-commons-docs}/repository-query-keywords-reference.adoc[]
-include::{spring-data-commons-docs}/repository-query-return-types-reference.adoc[]
-include::{basedocdir}/appendix/appendix-schema.adoc[]
-
-:leveloffset: -1
+include::{spring-data-commons-docs}/repository-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-populator-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-query-keywords-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-query-return-types-reference.adoc[leveloffset=+1]
+include::{basedocdir}/appendix/appendix-schema.adoc[leveloffset=+1]

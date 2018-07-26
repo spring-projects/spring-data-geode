@@ -1,24 +1,30 @@
 [[ref-introduction]]
 = Document Structure
 
-The following chapters explain the core functionality offered by _Spring Data Geode_ for Apache Geode.
+The following chapters explain the core functionality offered by {sdg-name}:
 
-<<bootstrap>> describes the configuration support provided for bootstrapping, configuring, initializing
-and accessing Apache Geode Caches, Regions, and related Distributed System components.
+* <<bootstrap>> describes the configuration support provided for configuring, initializing, and accessing
+{data-store-name} Caches, Regions, and related distributed system components.
 
-<<apis>> explains the integration between the Apache Geode APIs and the various data access features
-available in _Spring_, such as transaction management and exception translation.
+* <<apis>> explains the integration between the {data-store-name} APIs and the various data access features
+available in Spring, such as template-based data access, exception translation, transaction management, and caching.
 
-<<serialization>> describes the enhancements for Apache Geode (de)serialization and management of associated objects.
+* <<serialization>> describes enhancements to {data-store-name}'s serialization and deserialization of managed objects.
 
-<<mapping>> describes persistence mapping for POJOs stored in Apache Geode using _Spring Data_.
+* <<mapping>> describes persistence mapping for POJOs stored in {data-store-name} using Spring Data.
 
-<<gemfire-repositories>> describes how to create and use _Spring Data Repositories_ to access data in Apache Geode.
+* <<gemfire-repositories>> describes how to create and use Spring Data Repositories to access data
+stored in {data-store-name} by using basic CRUD and simple query operations.
 
-<<function-annotations>> describes how to create and use Apache Geode Functions using Annotations.
+* <<function-annotations>> describes how to create and use {data-store-name} Functions by using annotations
+to perform distributed computations where the data lives.
 
-<<gemfire-bootstrap>> describes how to bootstrap a _Spring_ `ApplicationContext` running in an Apache Geode server
-using _Gfsh_.
+* <<apis:continuous-query>> describes how to use {data-store-name}'s Continuous Query (CQ) functionality
+to process a stream of events based on interest defined and registered using {data-store-name}'s
+OQL (Object Query Language) query.
 
-<<samples>> describes the examples provided with the distribution to illustrate the various features
-available in _Spring Data Geode_.
+* <<gemfire-bootstrap>> describes how to bootstrap a Spring `ApplicationContext` running in an {data-store-name} server
+using `Gfsh`.
+
+* <<samples>> describes the examples provided with the distribution to illustrate the various features
+available in {sdg-name}.

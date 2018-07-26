@@ -1,7 +1,6 @@
 [[appendix-schema]]
 [appendix]
-= Spring Data Geode Schema
-:resourcesDir: {basedocdir}/../resources
+= {sdg-name} Schema
 
-- http://www.springframework.org/schema/gemfire/spring-gemfire.xsd[Spring Data for Apache Geode Core Schema (`gfe`-namespace)]
-- http://www.springframework.org/schema/gemfire/spring-data-gemfire.xsd[Spring Data for Apache Geode Data Access Schema (`gfe-data`-namespace)]
+* {spring-data-schema-location}[{sdg-name} Core Schema (`gfe` XML namespace)]
+* {spring-data-access-schema-location}[{sdg-name} Data Access Schema (`gfe-data` XML namespace)]
