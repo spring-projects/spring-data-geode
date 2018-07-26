@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.9.RELEASE (2018-07-26)
+---------------------------------------------
+* DATAGEODE-131 - XML schema spring-gemfire.xsd missing, application cannot start without Internet connection.
+* DATAGEODE-130 - Review and merge SDG Reference Guide Edits.
+* DATAGEODE-128 - Allow CacheTypeAwareFactoryBean to register interests on client Region creation and implement SmartLifecycle.
+* DATAGEODE-124 - Relax type matching for resolving Function arguments in FunctionContextInjectingArgumentResolver.
+* DATAGEODE-123 - Release 2.0.9 (Kay SR9).
+
+
 Changes in version 2.1.0.RC1 (2018-07-26)
 -----------------------------------------
 * DATAGEODE-132 - Adapt to API changes in the core Spring Framework.
