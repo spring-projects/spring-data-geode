@@ -155,7 +155,7 @@ Peer Cache JavaConfig:
 [source,java]
 ----
 @Bean
-CacheFacatoryBean gemfireCache() {
+CacheFactoryBean gemfireCache() {
 
   CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
