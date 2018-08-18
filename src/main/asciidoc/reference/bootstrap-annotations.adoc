@@ -357,9 +357,9 @@ However, `Configurers` are not the only option.
 [[bootstrap-annotation-config-properties]]
 == Runtime configuration using `Properties`
 
-In addition to `Configurers`, each annotation attribute in the annotation-based configuration model is associated
-with a corresponding configuration property (prefixed with `spring.data.gemfire.`), which can be declared in a
-Spring Boot `application.properties` file.
+In addition to `Configurers`, each annotation attribute in the annotation-based configuration model is associated with
+a corresponding configuration property (prefixed with `spring.data.gemfire.`), which can be declared in a Spring Boot
+`application.properties` file.
 
 Building on the earlier examples, the client's `application.properties` file would define the following
 set of properties:
@@ -368,17 +368,17 @@ set of properties:
 [source, java]
 ----
 spring.data.gemfire.cache.log-level=info
-spring.data.gemfire.pool.venus.servers=venus[48484]
-spring.data.gemfire.pool.venus.max-connections=200
-spring.data.gemfire.pool.venus.min-connections=50
-spring.data.gemfire.pool.venus.ping-interval=15000
-spring.data.gemfire.pool.venus.pr-single-hop-enabled=true
-spring.data.gemfire.pool.venus.read-timeout=20000
-spring.data.gemfire.pool.venus.subscription-enabled=true
-spring.data.gemfire.pool.saturn.locators=skullbox[20668]
-spring.data.gemfire.pool.saturn.subscription-enabled=true
-spring.data.gemfire.pool.neptune.servers=saturn[41414],neptune[42424]
-spring.data.gemfire.pool.neptune.min-connections=25
+spring.data.gemfire.pool.Venus.servers=venus[48484]
+spring.data.gemfire.pool.Venus.max-connections=200
+spring.data.gemfire.pool.Venus.min-connections=50
+spring.data.gemfire.pool.Venus.ping-interval=15000
+spring.data.gemfire.pool.Venus.pr-single-hop-enabled=true
+spring.data.gemfire.pool.Venus.read-timeout=20000
+spring.data.gemfire.pool.Venus.subscription-enabled=true
+spring.data.gemfire.pool.Saturn.locators=skullbox[20668]
+spring.data.gemfire.pool.Saturn.subscription-enabled=true
+spring.data.gemfire.pool.Neptune.servers=saturn[41414],neptune[42424]
+spring.data.gemfire.pool.Neptune.min-connections=25
 ----
 
 The corresponding server's `application.properties` file would define the following properties:
@@ -401,9 +401,9 @@ Then you can simplify the `@ClientCacheApplication` class to the following:
 @SpringBootApplication
 @ClientCacheApplication
 @EnablePools(pools = {
-    @EnablePool(name = "VenusPool"),
-    @EnablePool(name = "SaturnPool"),
-    @EnablePool(name = "NeptunePool")
+    @EnablePool(name = "Venus"),
+    @EnablePool(name = "Saturn"),
+    @EnablePool(name = "Neptune")
 })
 class ClientApplication { .. }
 ----
@@ -424,9 +424,9 @@ class ServerApplication { .. }
 ----
 
 The preceding example shows why it is important to "name" your annotation-based beans (other than because it is required
-in certain cases). Doing so makes it possible to reference the bean in a Spring context from XML, properties,
-and Java. It is even possible to inject annotation-defined beans into an application class,
-for whatever purpose, as the following example demonstrates:
+in certain cases). Doing so makes it possible to reference the bean in the Spring container from XML, properties,
+and Java. It is even possible to inject annotation-defined beans into an application class, for whatever purpose,
+as the following example demonstrates:
 
 [source, java]
 ----
@@ -456,19 +456,18 @@ spring.data.gemfire.cache.server.Saturn...
 spring.data.gemfire.cache.server.Neptune...
 ----
 
-While there are three named `CacheServers` above, there is one unnamed `CacheServer` property providing the default
-value for any unspecified value for that property, even for "named" `CacheServers`. So, while "Venus" sets
-and overrides its own `bind-address`, "Saturn" and "Neptune" inherit from the "unnamed"
+While there are three named `CacheServers` above, there is also one unnamed `CacheServer` property providing
+the default value for any unspecified value of that property, even for "named" `CacheServers`. So, while "Venus"
+sets and overrides its own `bind-address`, "Saturn" and "Neptune" inherit from the "unnamed"
 `spring.data.gemfire.cache.server.bind-address` property.
 
-See an annotation's Javadoc for which annotation attributes support property-based configuration and whether
-they support "named" properties over default, "unnamed" properties.
+See an annotation's Javadoc for which annotation attributes support property-based configuration
+and whether they support "named" properties over default, "unnamed" properties.
 
 [[bootstrap-annotation-config-properties-of-properties]]
 === `Properties` of `Properties`
 
-In the usual Spring fashion, you can even express `Properties` in terms of other `Properties`, whether that is
-by using a Spring Boot `application.properties` file or by using the `@Value` annotation in your Java configuration class.
+In the usual Spring fashion, you can even express `Properties` in terms of other `Properties`, whether that is by
 The following example shows a nested property being set in an `application.properties` file:
 
 .Properties of Properties
