@@ -854,12 +854,15 @@ public abstract class AbstractAnnotationConfigSupport
 	 */
 	protected Optional<Class<?>> resolveBeanClass(BeanDefinition beanDefinition, ClassLoader classLoader) {
 
-		Class<?> beanClass = (beanDefinition instanceof AbstractBeanDefinition
-			? safeResolveType(() -> ((AbstractBeanDefinition) beanDefinition).resolveBeanClass(classLoader)) : null);
+		Class<?> beanClass = beanDefinition instanceof AbstractBeanDefinition
+			? safeResolveType(() -> ((AbstractBeanDefinition) beanDefinition).resolveBeanClass(classLoader))
+			: null;
 
 		if (beanClass == null) {
-			beanClass = resolveBeanClassName(beanDefinition).map(beanClassName ->
-				safeResolveType(() -> ClassUtils.forName(beanClassName, classLoader))).orElse(null);
+			beanClass = resolveBeanClassName(beanDefinition)
+				.map(beanClassName ->
+					safeResolveType(() ->
+						ClassUtils.forName(beanClassName, classLoader))).orElse(null);
 		}
 
 		return Optional.ofNullable(beanClass);
@@ -895,8 +898,9 @@ public abstract class AbstractAnnotationConfigSupport
 	 */
 	protected Optional<String> resolveBeanClassName(BeanDefinition beanDefinition) {
 
-		Optional<String> beanClassName =
-			Optional.ofNullable(beanDefinition).map(BeanDefinition::getBeanClassName).filter(StringUtils::hasText);
+		Optional<String> beanClassName = Optional.ofNullable(beanDefinition)
+			.map(BeanDefinition::getBeanClassName)
+			.filter(StringUtils::hasText);
 
 		if (!beanClassName.isPresent()) {
 			beanClassName = Optional.ofNullable(beanDefinition)
