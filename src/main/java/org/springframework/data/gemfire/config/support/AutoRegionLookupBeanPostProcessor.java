@@ -47,6 +47,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.BeanFactoryAware
  * @see org.springframework.beans.factory.config.BeanPostProcessor
+ * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @since 1.5.0
  */
 public class AutoRegionLookupBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
@@ -54,7 +55,13 @@ public class AutoRegionLookupBeanPostProcessor implements BeanPostProcessor, Bea
 	private ConfigurableListableBeanFactory beanFactory;
 
 	/**
-	 * {@inheritDoc}
+	 * Sets a reference to the configured Spring {@link BeanFactory}.
+	 *
+	 * @param beanFactory configured Spring {@link BeanFactory}.
+	 * @throws IllegalArgumentException if the given {@link BeanFactory} is not an instance of
+	 * {@link ConfigurableListableBeanFactory}.
+	 * @see org.springframework.beans.factory.BeanFactoryAware
+	 * @see org.springframework.beans.factory.BeanFactory
 	 */
 	@Override
 	@SuppressWarnings("all")
@@ -67,15 +74,18 @@ public class AutoRegionLookupBeanPostProcessor implements BeanPostProcessor, Bea
 		this.beanFactory = (ConfigurableListableBeanFactory) beanFactory;
 	}
 
-	/* (non-Javadoc) */
+	/**
+	 * Returns a reference to the containing Spring {@link BeanFactory}.
+	 *
+	 * @return a reference to the containing Spring {@link BeanFactory}.
+	 * @throws IllegalStateException if the {@link BeanFactory} was not configured.
+	 * @see org.springframework.beans.factory.BeanFactory
+	 */
 	protected ConfigurableListableBeanFactory getBeanFactory() {
-		return Optional.ofNullable(this.beanFactory).orElseThrow(() ->
-			newIllegalStateException("BeanFactory was not properly configured"));
+		return Optional.ofNullable(this.beanFactory)
+			.orElseThrow(() -> newIllegalStateException("BeanFactory was not properly configured"));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
@@ -86,12 +96,10 @@ public class AutoRegionLookupBeanPostProcessor implements BeanPostProcessor, Bea
 		return bean;
 	}
 
-	/* (non-Javadoc) */
 	void registerCacheRegionsAsBeans(GemFireCache cache) {
 		cache.rootRegions().forEach(this::registerCacheRegionAsBean);
 	}
 
-	/* (non-Javadoc) */
 	void registerCacheRegionAsBean(Region<?, ?> region) {
 
 		if (region != null) {
@@ -108,7 +116,6 @@ public class AutoRegionLookupBeanPostProcessor implements BeanPostProcessor, Bea
 		}
 	}
 
-	/* (non-Javadoc) */
 	String getBeanName(Region region) {
 
 		return Optional.ofNullable(region.getFullPath())
@@ -117,7 +124,6 @@ public class AutoRegionLookupBeanPostProcessor implements BeanPostProcessor, Bea
 			.orElseGet(region::getName);
 	}
 
-	/* (non-Javadoc) */
 	Set<Region<?, ?>> nullSafeSubregions(Region<?, ?> parentRegion) {
 		return Optional.ofNullable(parentRegion.subregions(false)).orElse(Collections.emptySet());
 	}
