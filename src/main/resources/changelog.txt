@@ -3,6 +3,18 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.10.RELEASE (2018-09-10)
+----------------------------------------------
+* DATAGEODE-140 - Correct Pool references in 'Runtime configuration using Properties' documentation.
+* DATAGEODE-137 - Fix typo in Global, JTA Transaction Management documentation.
+* DATAGEODE-136 - Replace all BeanPostProcessors setting GemFire/Geode Properties using SDG service enabling annotations with Configurers.
+* DATAGEODE-135 - Polish SDG Reference Guide Edits.
+* DATAGEODE-134 - Release 2.0.10 (Kay SR10).
+* DATAGEODE-127 - Add quick start reference to the "Bootstrapping Apache Geode Using Annotations" chapter.
+* DATAGEODE-125 - Edit MappingPdxSerializer type filter documentation to cover includes and excludes.
+* DATAGEODE-114 - Edit Annotation config chapter to include a Annotation quick start section.
+
+
 Changes in version 2.1.0.RC2 (2018-08-20)
 -----------------------------------------
 * DATAGEODE-140 - Correct Pool references in 'Runtime configuration using Properties' documentation.
