@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.1.0.RELEASE (2018-09-21)
+---------------------------------------------
+* DATAGEODE-146 - Include documentation about Object Mapping Fundamentals.
+* DATAGEODE-144 - Add "requiredPermissions" to @GemfireFunction annotation.
+* DATAGEODE-142 - Add annotation configuration support to create client Regions from Cluster-defined Regions.
+* DATAGEODE-141 - Release 2.1 GA (Lovelace).
+* DATAGEODE-109 - Refactor and reorganize codebase.
+
+
 Changes in version 2.0.10.RELEASE (2018-09-10)
 ----------------------------------------------
 * DATAGEODE-140 - Correct Pool references in 'Runtime configuration using Properties' documentation.
