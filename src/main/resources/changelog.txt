@@ -3,6 +3,11 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.1.1.RELEASE (2018-10-15)
+---------------------------------------------
+* DATAGEODE-147 - Release 2.1.1 (Lovelace SR1).
+
+
 Changes in version 2.1.0.RELEASE (2018-09-21)
 ---------------------------------------------
 * DATAGEODE-146 - Include documentation about Object Mapping Fundamentals.
