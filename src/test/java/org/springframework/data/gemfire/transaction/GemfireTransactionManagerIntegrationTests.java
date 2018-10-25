@@ -53,12 +53,12 @@ import org.springframework.util.Assert;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
+@SuppressWarnings("unused")
 public class GemfireTransactionManagerIntegrationTests {
 
-	private static final String GEMFIRE_LOG_LEVEL = "warning";
+	private static final String GEMFIRE_LOG_LEVEL = "error";
 
 	@Resource(name = "Example")
-	@SuppressWarnings("unused")
 	private Region<Object, Object> example;
 
 	@Autowired
@@ -67,27 +67,32 @@ public class GemfireTransactionManagerIntegrationTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void suspendAndResumeIsSuccessful() {
+
 		try {
-			assertThat(example).isEmpty();
 
-			service.doCacheTransactions();
+			assertThat(this.example).isEmpty();
+
+			this.service.doCacheTransactions();
 		}
-		catch (IllegalArgumentException e) {
-			assertThat(e).hasMessage("boom!");
-			assertThat(e).hasNoCause();
+		catch (IllegalArgumentException expected) {
 
-			throw e;
+			assertThat(expected).hasMessage("BOOM!");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
-			assertThat(example).hasSize(1);
-			assertThat(example.containsKey("tx-1-op-1")).isFalse();
-			assertThat(example.containsKey("tx-2-op-1")).isTrue();
+			assertThat(this.example).hasSize(1);
+			assertThat(this.example.containsKey("tx-1-op-1")).isFalse();
+			assertThat(this.example.containsKey("tx-2-op-1")).isTrue();
 		}
 	}
 
-	@SuppressWarnings("unused")
+	@PeerCacheApplication(
+		name = "GemfireTransactionManagerIntegrationTests",
+		logLevel = GEMFIRE_LOG_LEVEL
+	)
 	@EnableGemfireCacheTransactions
-	@PeerCacheApplication(name = "GemfireTransactionManagerIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
 	static class TestConfiguration {
 
 		@Bean(name = "Example")
@@ -104,14 +109,14 @@ public class GemfireTransactionManagerIntegrationTests {
 
 		@Bean
 		SuspendAndResumeCacheTransactionsRepository suspendAndResumeCacheTransactionsRepository(
-			GemFireCache gemFireCache) {
+				GemFireCache gemFireCache) {
 
 			return new SuspendAndResumeCacheTransactionsRepository(gemFireCache.getRegion("Example"));
 		}
 
 		@Bean
 		SuspendAndResumeCacheTransactionsService suspendAndResumeCacheTransactionsService(
-			SuspendAndResumeCacheTransactionsRepository repository) {
+				SuspendAndResumeCacheTransactionsRepository repository) {
 
 			return new SuspendAndResumeCacheTransactionsService(repository);
 		}
@@ -129,9 +134,9 @@ public class GemfireTransactionManagerIntegrationTests {
 
 		@Transactional
 		public void doCacheTransactions() {
-			repository.doOperationOneInTransactionOne();
-			repository.doOperationOneInTransactionTwo();
-			repository.doOperationTwoInTransactionOne();
+			this.repository.doOperationOneInTransactionOne();
+			this.repository.doOperationOneInTransactionTwo();
+			this.repository.doOperationTwoInTransactionOne();
 		}
 	}
 
@@ -148,17 +153,17 @@ public class GemfireTransactionManagerIntegrationTests {
 
 		@Transactional(propagation = Propagation.REQUIRED)
 		public void doOperationOneInTransactionOne() {
-			example.put("tx-1-op-1", "test");
+			this.example.put("tx-1-op-1", "test");
 		}
 
 		@Transactional(propagation = Propagation.REQUIRES_NEW)
 		public void doOperationOneInTransactionTwo() {
-			example.put("tx-2-op-1", "test");
+			this.example.put("tx-2-op-1", "test");
 		}
 
 		@Transactional(propagation = Propagation.REQUIRED)
 		public void doOperationTwoInTransactionOne() {
-			throw new IllegalArgumentException("boom!");
+			throw new IllegalArgumentException("BOOM!");
 		}
 	}
 }
