@@ -3,6 +3,11 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.12.RELEASE (2018-11-27)
+----------------------------------------------
+* DATAGEODE-150 - Release 2.0.12 (Kay SR12).
+
+
 Changes in version 2.1.2.RELEASE (2018-10-29)
 ---------------------------------------------
 * DATAGEODE-149 - Release 2.1.2 (Lovelace SR2).
