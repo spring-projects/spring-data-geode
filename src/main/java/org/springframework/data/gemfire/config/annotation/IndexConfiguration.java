@@ -224,7 +224,6 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 		});
 	}
 
-	/* (non-Javadoc) */
 	private String toRegionName(String from) {
 
 		return Optional.ofNullable(from)
@@ -233,13 +232,12 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 				boolean isSubRegionPath = from.lastIndexOf(Region.SEPARATOR) > 0;
 
-				return (!isSubRegionPath && from.startsWith(Region.SEPARATOR) ? from.substring(1) : from);
+				return !isSubRegionPath && from.startsWith(Region.SEPARATOR) ? from.substring(1) : from;
 
 			})
 			.orElseThrow(() -> newIllegalArgumentException("From clause [%s] is required", from));
 	}
 
-	/* (non-Javadoc) */
 	private String toRegionPath(String from) {
 
 		return Optional.ofNullable(from)
@@ -281,8 +279,11 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 			String indexName = luceneIndexAttributes.getString("name");
 
-			boolean destroy = (luceneIndexAttributes.containsKey("destroy")
-				&& luceneIndexAttributes.getBoolean("destroy"));
+			boolean destroy = luceneIndexAttributes.containsKey("destroy")
+				&& luceneIndexAttributes.getBoolean("destroy");
+
+			luceneIndexFactoryBeanBuilder.addPropertyReference("cache",
+				GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 			luceneIndexFactoryBeanBuilder.addPropertyValue("destroy", destroy);
 
@@ -298,7 +299,6 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 		});
 	}
 
-	/* (non-Javadoc) */
 	private List<IndexConfigurer> resolveIndexConfigurers() {
 
 		return Optional.ofNullable(this.indexConfigurers)
@@ -316,46 +316,45 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 			);
 	}
 
-	/* (non-Javadoc) */
 	private boolean resolveDefine(AnnotationAttributes enableIndexingAttributes) {
-		return (enableIndexingAttributes.containsKey("define")
-			&& enableIndexingAttributes.getBoolean("define"));
+
+		return enableIndexingAttributes.containsKey("define")
+			&& enableIndexingAttributes.getBoolean("define");
 	}
 
-	/* (non-Javadoc) */
 	@SuppressWarnings("unused")
 	private String resolveExpression(GemfirePersistentEntity<?> persistentEntity,
 			GemfirePersistentProperty persistentProperty, AnnotationAttributes indexedAttributes) {
 
-		String expression = (indexedAttributes.containsKey("expression")
-			? indexedAttributes.getString("expression") : null);
+		String expression = indexedAttributes.containsKey("expression")
+			? indexedAttributes.getString("expression")
+			: null;
 
 		return (StringUtils.hasText(expression) ? expression : persistentProperty.getName());
 	}
 
-	/* (non-Javadoc) */
 	@SuppressWarnings("unused")
 	private String resolveFrom(GemfirePersistentEntity<?> persistentEntity,
 			GemfirePersistentProperty persistentProperty, AnnotationAttributes indexedAttributes) {
 
-		String from = (indexedAttributes.containsKey("from")
-			? indexedAttributes.getString("from") : null);
+		String from = indexedAttributes.containsKey("from")
+			? indexedAttributes.getString("from")
+			: null;
 
 		return (StringUtils.hasText(from) ? from : persistentEntity.getRegionName());
 	}
 
-	/* (non-Javadoc) */
 	private String resolveName(GemfirePersistentEntity<?> persistentEntity,
 			GemfirePersistentProperty persistentProperty, AnnotationAttributes indexedAttributes, IndexType indexType) {
 
-		String indexName = (indexedAttributes.containsKey("name")
-			? indexedAttributes.getString("name") : null);
+		String indexName = indexedAttributes.containsKey("name")
+			? indexedAttributes.getString("name")
+			: null;
 
 		return (StringUtils.hasText(indexName) ? indexName
 			: generateIndexName(persistentEntity, persistentProperty, indexType));
 	}
 
-	/* (non-Javadoc) */
 	private String generateIndexName(GemfirePersistentEntity persistentEntity,
 			GemfirePersistentProperty persistentProperty, IndexType indexType) {
 
@@ -364,13 +363,13 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 				StringUtils.capitalize(indexType.name().toLowerCase()));
 	}
 
-	/* (non-Javadoc) */
 	@SuppressWarnings("unused")
 	private IndexType resolveType(GemfirePersistentEntity<?> persistentEntity,
 			GemfirePersistentProperty persistentProperty, AnnotationAttributes indexedAttributes, IndexType indexType) {
 
-		IndexType resolvedIndexType = (indexedAttributes.containsKey("type")
-			? indexedAttributes.getEnum("type") : null);
+		IndexType resolvedIndexType = indexedAttributes.containsKey("type")
+			? indexedAttributes.getEnum("type")
+			: null;
 
 		return Optional.ofNullable(resolvedIndexType).orElse(indexType);
 	}
