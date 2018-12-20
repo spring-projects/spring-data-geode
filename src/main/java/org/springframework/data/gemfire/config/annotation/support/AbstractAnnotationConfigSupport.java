@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * with Spring Data GemFire or Spring Data Geode.
  *
  * @author John Blum
+ * @author Udo Kohlmeyer
  * @see java.lang.ClassLoader
  * @see org.springframework.beans.factory.BeanClassLoaderAware
  * @see org.springframework.beans.factory.BeanFactory
@@ -768,6 +769,10 @@ public abstract class AbstractAnnotationConfigSupport
 
 	protected String httpServiceProperty(String propertyNameSuffix) {
 		return String.format("%1$s%2$s", serviceProperty("http."), propertyNameSuffix);
+	}
+
+	protected String gatewayReceiverProperty(String propertyNameSuffix) {
+		return String.format("%1$s%2$s", propertyName("gateway.receiver."), propertyNameSuffix);
 	}
 
 	/**
