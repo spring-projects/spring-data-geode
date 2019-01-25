@@ -1,5 +1,9 @@
 package org.springframework.data.gemfire.wan.annotation;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanReference;
@@ -13,10 +17,6 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean;
-
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Optional;
 
 /**
  * Spring {@link Configuration} class used to construct, configure and initialize a {@link GatewayReceiver} instance
@@ -39,8 +39,9 @@ public class EnableGatewayReceiverConfiguration extends AbstractAnnotationConfig
 	static final int DEFAULT_SOCKET_BUFFER_SIZE = GatewayReceiver.DEFAULT_SOCKET_BUFFER_SIZE;
 	static final String DEFAULT_BIND_ADDRESS = GatewayReceiver.DEFAULT_BIND_ADDRESS;
 	static final String DEFAULT_HOSTNAME_FOR_SENDERS = GatewayReceiver.DEFAULT_HOSTNAME_FOR_SENDERS;
+
 	private final String START_PORT_LITERAL = "startPort";
-	private final String END_PORT_LITERAL = "END_PORT_LITERAL";
+	private final String END_PORT_LITERAL = "endPort";
 	private final String MANUAL_START_LITERAL = "manualStart";
 	private final String MAXIMUM_TIME_BETWEEN_PINGS_LITERAL = "maximumTimeBetweenPings";
 	private final String SOCKET_BUFFER_SIZE_LITERAL = "socketBufferSize";
