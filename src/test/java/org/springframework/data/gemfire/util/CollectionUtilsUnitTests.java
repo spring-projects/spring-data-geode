@@ -435,7 +435,7 @@ public class CollectionUtilsUnitTests {
 		Iterator<?> iterator = CollectionUtils.nullSafeIterator(null);
 
 		assertThat(iterator).isNotNull();
-		assertThat(iterator).isEmpty();
+		assertThat(iterator).isExhausted();
 	}
 
 	@Test
