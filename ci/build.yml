@@ -17,3 +17,4 @@ caches:
 - path: maven
 
 run:
+  path: spring-data-geode-github/ci/build.sh
