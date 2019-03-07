@@ -3,6 +3,20 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.2.0.M2 (2019-03-07)
+----------------------------------------
+* DATAGEODE-173 - Adapt to Repository API (findAll) changes in Spring Data Commons.
+* DATAGEODE-172 - Upgrade to AssertJ 3.12.0.
+* DATAGEODE-165 - Introduce Concourse CI.
+* DATAGEODE-164 - Update copyright years to 2019.
+* DATAGEODE-163 - Add dependency between Lucene Index bean definition and the GemFireCache instance.
+* DATAGEODE-162 - Fix link in Annotation Config Quickstart doc to the MappingPdxSerializer section of the POJO Mapping chapter.
+* DATAGEODE-161 - Upgrade to Apache Geode 1.8.0.
+* DATAGEODE-160 - Release 2.2 M2 (Moore).
+* DATAGEODE-157 - 13.2. Annotation Configuration Support, refers to incorrect Indexing annotations.
+* DATAGEODE-151 - BatchingResultSender does not send result when results are empty.
+
+
 Changes in version 2.1.5.RELEASE (2019-02-13)
 ---------------------------------------------
 * DATAGEODE-167 - Release 2.1.5 (Lovelace SR5).
