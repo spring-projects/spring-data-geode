@@ -34,8 +34,8 @@ package org.springframework.data.gemfire;
  *
  * @author John Blum
  * @see PeerRegionFactoryBean
- * @link http://gemfire.docs.pivotal.io/latest/userguide/index.html#developing/region_options/region_types.html
- * @link http://gemfire.docs.pivotal.io/latest/userguide/index.html#developing/region_options/storage_distribution_options.html
+ * @link https://gemfire.docs.pivotal.io/latest/userguide/index.html#developing/region_options/region_types.html
+ * @link https://gemfire.docs.pivotal.io/latest/userguide/index.html#developing/region_options/storage_distribution_options.html
  * @since 1.7.0
  */
 @SuppressWarnings("unused")
