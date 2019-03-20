@@ -1,6 +1,6 @@
 SPRING DATA GEODE CHANGELOG
 ---------------------------
-http://projects.spring.io/spring-data-gemfire/
+https://projects.spring.io/spring-data-gemfire/
 ==============================================
 
 Changes in version 2.2.0.M2 (2019-03-07)
