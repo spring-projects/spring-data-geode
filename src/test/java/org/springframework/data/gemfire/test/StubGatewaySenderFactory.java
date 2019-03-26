@@ -10,6 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
+
 package org.springframework.data.gemfire.test;
 
 import static org.mockito.Mockito.doAnswer;
@@ -64,8 +65,8 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	private String diskStoreName;
 
 	public StubGatewaySenderFactory() {
-		this.eventFilters = new ArrayList<GatewayEventFilter>();
-		this.transportFilters = new ArrayList<GatewayTransportFilter>();
+		this.eventFilters = new ArrayList<>();
+		this.transportFilters = new ArrayList<>();
 	}
 
 	@Override
@@ -110,11 +111,11 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 			}
 		});
 		doAnswer(new Answer<Void>() {
-            public Void answer(InvocationOnMock invocation) {
+			public Void answer(InvocationOnMock invocation) {
 				running = true;
 				return null;
-            }
-        }).when(gatewaySender).start();
+			}
+		}).when(gatewaySender).start();
 
 		return gatewaySender;
 	}
@@ -221,7 +222,8 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	}
 
 	@Override
-	public GatewaySenderFactory setGatewayEventSubstitutionFilter(final GatewayEventSubstitutionFilter gatewayEventSubstitutionFilter) {
+	public GatewaySenderFactory setGatewayEventSubstitutionFilter(
+		final GatewayEventSubstitutionFilter gatewayEventSubstitutionFilter) {
 		this.gatewayEventSubstitutionFilter = gatewayEventSubstitutionFilter;
 		return this;
 	}

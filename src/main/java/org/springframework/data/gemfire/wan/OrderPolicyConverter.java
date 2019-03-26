@@ -46,6 +46,6 @@ public class OrderPolicyConverter extends AbstractPropertyEditorConverterSupport
 	public GatewaySender.OrderPolicy convert(final String source) {
 		return assertConverted(source, OrderPolicyType.getOrderPolicy(OrderPolicyType.valueOfIgnoreCase(source)),
 			GatewaySender.OrderPolicy.class);
-	}
+		}
 
 }
