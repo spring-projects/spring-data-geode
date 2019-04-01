@@ -3,6 +3,11 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.0.14.RELEASE (2019-04-01)
+----------------------------------------------
+* DATAGEODE-166 - Release 2.0.14 (Kay SR14).
+
+
 Changes in version 2.2.0.M2 (2019-03-07)
 ----------------------------------------
 * DATAGEODE-173 - Adapt to Repository API (findAll) changes in Spring Data Commons.
