@@ -97,10 +97,10 @@ public class PdxDiskStoreIntegrationTest {
 
 	@Before
 	public void setup() {
+
 		assertNotNull("The PdxData GemFire Region was not created successfully!", pdxDataRegion);
 
 		if (pdxDataRegion.size() == 0) {
-			System.out.printf("Creating entries for Region (%1$s)...%n", pdxDataRegion.getName());
 			for (int index = 1; index <= NUMBER_OF_REGION_ENTRIES; index++) {
 				pdxDataRegion.put(new KeyHolder<String>("key" + index), new ValueHolder<Integer>(index));
 			}

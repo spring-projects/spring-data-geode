@@ -69,6 +69,7 @@ public class ClientCacheVariableLocatorsTest {
 
 	@BeforeClass
 	public static void setup() throws IOException {
+
 		String serverName = ClientCacheVariableServersTest.class.getSimpleName().concat("Server");
 
 		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
@@ -85,9 +86,6 @@ public class ClientCacheVariableLocatorsTest {
 			arguments.toArray(new String[arguments.size()]));
 
 		waitForServerToStart(TimeUnit.SECONDS.toMillis(20));
-
-		System.out.printf("Spring-based, GemFire Cache Server process for %1$s should be running...%n",
-			ClientCacheVariableLocatorsTest.class.getSimpleName());
 	}
 
 	private static void waitForServerToStart(final long milliseconds) {
