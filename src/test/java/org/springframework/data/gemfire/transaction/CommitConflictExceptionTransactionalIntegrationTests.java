@@ -27,6 +27,11 @@ import javax.transaction.Transactional;
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import edu.umd.cs.mtc.TestFramework;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
 import org.apache.geode.cache.client.ClientRegionShortcut;
@@ -46,11 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Integration tests asserting the proper configuration and behavior of Apache Geode/Pivotal GemFire
@@ -176,7 +176,7 @@ public class CommitConflictExceptionTransactionalIntegrationTests {
 		}
 	}
 
-	@ClientCacheApplication
+	@ClientCacheApplication(logLevel = "error")
 	@EnableEntityDefinedRegions(
 		basePackageClasses = Customer.class,
 		clientRegionShortcut = ClientRegionShortcut.LOCAL
