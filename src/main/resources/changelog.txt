@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.1.7.RELEASE (2019-05-10)
+---------------------------------------------
+* DATAGEODE-184 - Apply RegionConfigurers to Caching-defined Regions.
+* DATAGEODE-178 - Release 2.1.7 (Lovelace SR7).
+
+
 Changes in version 2.2.0.M3 (2019-04-11)
 ----------------------------------------
 * DATAGEODE-180 - Set Framework and Geode log level in tests to error.
