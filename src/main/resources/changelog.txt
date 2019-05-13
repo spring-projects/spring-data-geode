@@ -3,6 +3,16 @@ SPRING DATA GEODE CHANGELOG
 http://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.2.0.M4 (2019-05-13)
+----------------------------------------
+* DATAGEODE-188 - Refactor and simplify codebase.
+* DATAGEODE-187 - Configure and start GemFire Locators with SDG config.
+* DATAGEODE-185 - Fix DurableClientCacheIntegrationTest.
+* DATAGEODE-184 - Apply RegionConfigurers to Caching-defined Regions.
+* DATAGEODE-183 - Upgrade to Apache Geode 1.9.0.
+* DATAGEODE-182 - Release 2.2 M4 (Moore).
+
+
 Changes in version 2.1.7.RELEASE (2019-05-10)
 ---------------------------------------------
 * DATAGEODE-184 - Apply RegionConfigurers to Caching-defined Regions.
