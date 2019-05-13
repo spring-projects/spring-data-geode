@@ -1350,6 +1350,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @see org.apache.geode.cache.CacheFactory
 	 * @see org.apache.geode.cache.client.ClientCacheFactory
 	 */
+	@FunctionalInterface
 	public interface CacheFactoryInitializer<T> {
 
 		/**
