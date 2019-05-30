@@ -1,8 +1,12 @@
 http\://www.springframework.org/schema/geode/spring-geode-2.0.xsd=org/springframework/data/gemfire/config/spring-geode-2.0.xsd
 http\://www.springframework.org/schema/geode/spring-geode-2.1.xsd=org/springframework/data/gemfire/config/spring-geode-2.1.xsd
-http\://www.springframework.org/schema/geode/spring-gemfire.xsd=org/springframework/data/gemfire/config/spring-geode-2.1.xsd
 http\://www.springframework.org/schema/geode/spring-geode.xsd=org/springframework/data/gemfire/config/spring-geode-2.1.xsd
 http\://www.springframework.org/schema/data/geode/spring-data-geode-2.0.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.0.xsd
 http\://www.springframework.org/schema/data/geode/spring-data-geode-2.1.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.1.xsd
-http\://www.springframework.org/schema/data/geode/spring-data-gemfire.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.1.xsd
 http\://www.springframework.org/schema/data/geode/spring-data-geode.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.1.xsd
+https\://www.springframework.org/schema/geode/spring-geode-2.0.xsd=org/springframework/data/gemfire/config/spring-geode-2.0.xsd
+https\://www.springframework.org/schema/geode/spring-geode-2.1.xsd=org/springframework/data/gemfire/config/spring-geode-2.1.xsd
+https\://www.springframework.org/schema/geode/spring-geode.xsd=org/springframework/data/gemfire/config/spring-geode-2.1.xsd
+https\://www.springframework.org/schema/data/geode/spring-data-geode-2.0.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.0.xsd
+https\://www.springframework.org/schema/data/geode/spring-data-geode-2.1.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.1.xsd
+https\://www.springframework.org/schema/data/geode/spring-data-geode.xsd=org/springframework/data/gemfire/config/spring-data-geode-2.1.xsd
