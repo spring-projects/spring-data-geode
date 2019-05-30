@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <xsd:schema xmlns="http://www.springframework.org/schema/data/geode"
-			xmlns:beans="http://www.springframework.org/schema/beans"
 			xmlns:context="http://www.springframework.org/schema/context"
 			xmlns:gfe="http://www.springframework.org/schema/geode"
 			xmlns:repository="http://www.springframework.org/schema/data/repository"
@@ -10,14 +9,16 @@
 			elementFormDefault="qualified"
 			attributeFormDefault="unqualified"
 			version="2.0">
-	<xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
 	<xsd:import namespace="http://www.springframework.org/schema/context"
-				schemaLocation="http://www.springframework.org/schema/context/spring-context.xsd" />
+				schemaLocation="https://www.springframework.org/schema/context/spring-context.xsd" />
 	<xsd:import namespace="http://www.springframework.org/schema/data/repository"
-				schemaLocation="http://www.springframework.org/schema/data/repository/spring-repository.xsd"/>
+				schemaLocation="https://www.springframework.org/schema/data/repository/spring-repository.xsd"/>
 	<xsd:import namespace="http://www.springframework.org/schema/geode"
-				schemaLocation="http://www.springframework.org/schema/geode/spring-geode.xsd"/>
-	<xsd:import namespace="http://www.springframework.org/schema/tool"/>
+				schemaLocation="https://www.springframework.org/schema/geode/spring-geode.xsd"/>
+	<xsd:import namespace="http://www.springframework.org/schema/tool"
+				schemaLocation="https://www.springframework.org/schema/tool/spring-tool.xsd"/>
+
 	<!-- -->
 	<xsd:annotation>
 		<xsd:documentation><![CDATA[
@@ -250,4 +251,5 @@ both in the same definition) is illegal.
 		<xsd:attribute name="format" type="xsd:string" use="optional" default="GEMFIRE"/>
 		<xsd:attribute name="filter-ref" type="xsd:string" use="optional"/>
 	</xsd:complexType>
+
 </xsd:schema>
