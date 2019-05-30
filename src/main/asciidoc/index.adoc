@@ -28,12 +28,12 @@ Costin Leau; David Turanski; John Blum; Oliver Gierke; Jay Bryant
 :sdg-javadoc: https://docs.spring.io/spring-data/{data-store-name-symbolic}/docs/current/api
 :sdg-name: Spring Data for {data-store-name}
 :sdg-website: https://projects.spring.io/spring-data-gemfire
-:spring-data-access-schema-location: http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd
-:spring-data-access-schema-namespace: http://www.springframework.org/schema/data/gemfire
+:spring-data-access-schema-location: https://www.springframework.org/schema/data/geode/spring-data-geode.xsd
+:spring-data-access-schema-namespace: http://www.springframework.org/schema/data/geode
 :spring-data-commons-docs: https://docs.spring.io/spring-data/commons/docs/current/reference
 :spring-data-commons-docs-html: {spring-data-commons-docs}/html
 :spring-data-commons-javadoc: https://docs.spring.io/spring-data/commons/docs/current/api
-:spring-data-schema-location: http://www.springframework.org/schema/gemfire/spring-gemfire.xsd
+:spring-data-schema-location: https://www.springframework.org/schema/geode/spring-geode.xsd
 :spring-data-schema-namespace: http://www.springframework.org/schema/gemfire
 :spring-data-website: https://spring.io/projects/spring-data
 :spring-framework-docs: https://docs.spring.io/spring/docs/current/spring-framework-reference

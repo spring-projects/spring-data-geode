@@ -3,7 +3,7 @@
     "-//GemStone Systems, Inc.//GemFire Declarative Caching 6.5//EN"
     "http://www.gemstone.com/dtd/cache6_5.dtd">
 
-<client-cache>      
+<client-cache>
    <pool name="DEFAULT">
    	<locator port="1234" host="localhost"/>
    </pool>
