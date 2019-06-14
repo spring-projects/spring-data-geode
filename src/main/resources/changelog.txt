@@ -3,6 +3,21 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ==============================================
 
+Changes in version 2.2.0.RC1 (2019-06-14)
+-----------------------------------------
+* DATAGEODE-201 - Create security policy readme.
+* DATAGEODE-200 - Fix CacheClusterConfigurationIntegrationTest.
+* DATAGEODE-199 - Refactor current SDG XML Schemas (XSD) and add new SDG 2.2 XML Schemas (XSD).
+* DATAGEODE-198 - Add support for lazy resolving, composable Configurers.
+* DATAGEODE-196 - Add support for dynamic HTTP client port configuration based on protocol/scheme.
+* DATAGEODE-194 - Add support to authenticate HTTP requests when using @EnableClusterConfiguration and @EnableSecurity.
+* DATAGEODE-193 - Add support for HTTPS and Follow Redirects when using @EnableClusterConfiguration.
+* DATAGEODE-192 - Add support for HTTPS and Follow Redirects when using @EnableClusterConfiguration.
+* DATAGEODE-190 - Add support to EnableSsl for ssl-use-default-context and ssl-endpoint-identification-enabled.
+* DATAGEODE-181 - Release 2.2 RC1 (Moore).
+* DATAGEODE-168 - Configure GatewayReceivers with Annotations.
+
+
 Changes in version 2.1.9.RELEASE (2019-06-14)
 ---------------------------------------------
 * DATAGEODE-199 - Refactor current SDG XML Schemas (XSD) and add new SDG 2.2 XML Schemas (XSD).
