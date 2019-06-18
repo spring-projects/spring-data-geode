@@ -15,7 +15,7 @@ details, consult the provided javadoc for specific packages and classes.
 
 3. GETTING STARTED
 
-Please see the reference documentation at https://www.springsource.org/spring-gemfire/
+Please see the reference documentation at https://spring.io/projects/spring-data-geode
 and the Spring GemFire Examples at https://github.com/SpringSource/spring-gemfire-examples
 
 ADDITIONAL RESOURCES
