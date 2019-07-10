@@ -34,7 +34,9 @@ import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.pdx.internal.PdxInstanceEnum;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -56,6 +58,7 @@ import org.springframework.util.ObjectUtils;
  * when PDX is configured and read-serialized is set to true.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see SpringContainerProcess
@@ -82,12 +85,15 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 	@Autowired
 	private ApplicationDomainFunctionExecutions functionExecutions;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), ServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
 			getServerContextXmlFileLocation(ClientCacheFunctionExecutionWithPdxIntegrationTest.class));
 

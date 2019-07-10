@@ -16,7 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
@@ -29,6 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 /**
  * @author David Turanski
  * @author John Blum
+ * @author Jens Deppe
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
@@ -40,6 +43,9 @@ public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrat
 	@Autowired
 	private PersonRepository repository;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
@@ -47,7 +53,7 @@ public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrat
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), ServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
 			getServerContextXmlFileLocation(RepositoryClientRegionIntegrationTests.class));
 

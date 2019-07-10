@@ -24,7 +24,9 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireTemplate;
@@ -38,6 +40,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Integration test testing {@link Region sub-Region} functionality from a GemFire cache client.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
@@ -67,11 +70,14 @@ public class ClientSubRegionIntegrationTests extends ClientServerIntegrationTest
 	@Resource(name = "/Parent/Child")
 	private Region child;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), ServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
 			getServerContextXmlFileLocation(ClientSubRegionIntegrationTests.class));
 

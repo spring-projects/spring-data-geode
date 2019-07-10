@@ -31,9 +31,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -62,6 +64,7 @@ import org.springframework.util.StringUtils;
  * new shared, persistent, cluster configuration service.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
@@ -83,6 +86,9 @@ public class CacheClusterConfigurationIntegrationTest extends ClientServerIntegr
 	private static final String LOG_LEVEL = "config";
 	private static final String LOG_FILE = "Locator.log";
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@Rule
 	public TestRule watchman = new TestWatcher() {
 
@@ -100,7 +106,7 @@ public class CacheClusterConfigurationIntegrationTest extends ClientServerIntegr
 
 			if (Boolean.valueOf(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
 				try {
-					FileUtils.write(new File(locatorWorkingDirectory.getParent(),
+					FileUtils.write(new File(locatorWorkingDirectory,
 						String.format("%s-clusterconfiglocator.log", description.getMethodName())),
 							getLocatorProcessOutput(description));
 				}
@@ -137,14 +143,13 @@ public class CacheClusterConfigurationIntegrationTest extends ClientServerIntegr
 
 		String locatorName = "ClusterConfigLocator";
 
-		locatorWorkingDirectory = new File(System.getProperty("user.dir"), locatorName.toLowerCase());
-
-		assertTrue(locatorWorkingDirectory.isDirectory() || locatorWorkingDirectory.mkdirs());
+		locatorWorkingDirectory = tempDir.getRoot();
 
 		ZipUtils.unzip(new ClassPathResource("/cluster_config.zip"), locatorWorkingDirectory);
 
 		List<String> arguments = new ArrayList<>();
 
+		arguments.add("-Dlog4j.configurationFile=log4j2-test-info.xml");
 		arguments.add("-Dgemfire.name=" + locatorName);
 		arguments.add("-Dspring.data.gemfire.enable-cluster-configuration=true");
 		arguments.add("-Dspring.data.gemfire.load-cluster-configuration=true");

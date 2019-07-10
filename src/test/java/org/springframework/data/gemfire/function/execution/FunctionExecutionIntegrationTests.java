@@ -26,7 +26,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.data.gemfire.fork.FunctionCacheServerProcess;
 import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
@@ -34,6 +36,7 @@ import org.springframework.data.gemfire.test.support.ClientServerIntegrationTest
 /**
  * @author David Turanski
  * @author John Blum
+ * @author Jens Deppe
  */
 public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTestsSupport {
 
@@ -47,12 +50,15 @@ public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTe
 
 	private Region<String, String> gemfireRegion = null;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		availablePort = findAvailablePort();
 
-		gemfireServer = run(FunctionCacheServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), FunctionCacheServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
