@@ -33,7 +33,9 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.Pool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -75,6 +77,7 @@ import lombok.RequiredArgsConstructor;
  * with the data of interest are targeted.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.springframework.data.gemfire.GemfireTemplate
@@ -101,11 +104,14 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 	@Qualifier("dogsTemplate")
 	private GemfireTemplate dogsTemplate;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void setupGemFireCluster() throws Exception {
-		serverOne = ProcessExecutor.launch(createDirectory("serverOne"), GemFireCacheServerOneConfiguration.class);
+		serverOne = ProcessExecutor.launch(tempDir.newFolder("serverOne"), GemFireCacheServerOneConfiguration.class);
 		waitForServerToStart("localhost", 41414);
-		serverTwo = ProcessExecutor.launch(createDirectory("serverTwo"), GemFireCacheServerTwoConfiguration.class);
+		serverTwo = ProcessExecutor.launch(tempDir.newFolder("serverTwo"), GemFireCacheServerTwoConfiguration.class);
 		waitForServerToStart("localhost", 42424);
 	}
 

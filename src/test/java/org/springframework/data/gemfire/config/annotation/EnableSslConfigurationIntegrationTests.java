@@ -21,7 +21,9 @@ import javax.annotation.Resource;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.CacheLoader;
@@ -45,6 +47,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Integration tests for {@link EnableSsl} and {@link SslConfiguration}.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
@@ -63,6 +66,9 @@ public class EnableSslConfigurationIntegrationTests extends ClientServerIntegrat
 	@Resource(name = "Echo")
 	private Region<String, String> echo;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
 
@@ -70,7 +76,7 @@ public class EnableSslConfigurationIntegrationTests extends ClientServerIntegrat
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerTestConfiguration.class,
+		gemfireServer = run(tempDir.getRoot(), ServerTestConfiguration.class,
 			String.format("-Dgemfire.name=%s", asApplicationName(EnableSslConfigurationIntegrationTests.class)),
 			String.format("-Djavax.net.ssl.keyStore=%s", System.getProperty("javax.net.ssl.keyStore")),
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));

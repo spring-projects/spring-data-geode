@@ -31,7 +31,9 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,7 @@ import org.springframework.mock.env.MockPropertySource;
  * The AutoConfiguredAuthenticationConfigurationIntegrationTests class...
  *
  * @author John Blum
+ * @author Jens Deppe
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
@@ -58,10 +61,13 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests extends C
 
 	private ConfigurableApplicationContext applicationContext;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
 
-		gemfireServerProcess = run(TestGemFireServerConfiguration.class, String.format("-Dgemfire.name=%1$s",
+		gemfireServerProcess = run(tempDir.getRoot(), TestGemFireServerConfiguration.class, String.format("-Dgemfire.name=%1$s",
 			asApplicationName(AutoConfiguredAuthenticationConfigurationIntegrationTests.class)));
 
 		Optional.ofNullable(gemfireServerProcess)

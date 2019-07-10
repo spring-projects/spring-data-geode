@@ -27,7 +27,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.geode.cache.query.CqEvent;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +52,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Integration tests testing the combination of {@link EnableContinuousQueries} with {@link EnableClusterConfiguration}.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.apache.geode.cache.query.CqEvent
  * @see org.springframework.data.gemfire.config.annotation.EnableClusterConfiguration
@@ -70,12 +73,15 @@ public class EnableContinuousQueriesWithClusterConfigurationIntegrationTests
 
 	private static ProcessWrapper gemfireServer;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(EnableContinuousQueriesWithClusterConfigurationIntegrationTests.GemFireServerConfiguration.class,
+		gemfireServer = run(tempDir.getRoot(), EnableContinuousQueriesWithClusterConfigurationIntegrationTests.GemFireServerConfiguration.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart("localhost", availablePort);

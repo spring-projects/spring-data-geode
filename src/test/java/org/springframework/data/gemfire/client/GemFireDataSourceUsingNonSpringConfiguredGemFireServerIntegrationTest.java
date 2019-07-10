@@ -31,7 +31,9 @@ import org.apache.geode.distributed.ServerLauncher;
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -40,7 +42,6 @@ import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.GemFireBasedServerProcess;
 import org.springframework.data.gemfire.process.ProcessExecutor;
 import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
 import org.springframework.data.gemfire.test.support.ThreadUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -56,6 +57,7 @@ import org.springframework.util.StringUtils;
  * in the Spring ApplicationContext correctly.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.springframework.data.gemfire.client.GemfireDataSourcePostProcessor
  * @since 1.7.0
  */
@@ -84,6 +86,9 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 	@Resource(name = "AnotherServerRegion")
 	private Region anotherServerRegion;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws IOException {
 
@@ -91,7 +96,7 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 
 		String serverName = "GemFireDataSourceGemFireBasedServer";
 
-		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
+		File serverWorkingDirectory = tempDir.getRoot();
 
 		Assert.isTrue(serverWorkingDirectory.isDirectory() || serverWorkingDirectory.mkdirs(),
 			String.format("Server working directory [%s] does not exist and could not be created", serverWorkingDirectory));

@@ -31,7 +31,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter;
 import org.springframework.data.gemfire.process.ProcessWrapper;
@@ -39,6 +41,7 @@ import org.springframework.data.gemfire.test.support.ClientServerIntegrationTest
 
 /**
  * @author Costin Leau
+ * @author Jens Deppe
  */
 public class ListenerContainerIntegrationTests extends ClientServerIntegrationTestsSupport {
 
@@ -58,11 +61,14 @@ public class ListenerContainerIntegrationTests extends ClientServerIntegrationTe
 
 	private final List<CqEvent> cqEvents = new CopyOnWriteArrayList<>();
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 		availablePort = findAvailablePort();
 
-		gemfireServer = run(CqCacheServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), CqCacheServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);

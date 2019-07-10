@@ -41,6 +41,7 @@ import org.springframework.data.gemfire.util.CollectionUtils;
  * to support the implementation of GemFire client/server tests.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see java.io.File
  * @see java.net.ServerSocket
  * @see java.net.Socket
@@ -165,16 +166,8 @@ public class ClientServerIntegrationTestsSupport {
 			String.format("%s", CollectionUtils.toString(System.getProperties())));
 	}
 
-	protected static ProcessWrapper run(Class<?> type, String... arguments) throws IOException {
-		return run(createDirectory(asDirectoryName(type)), type, arguments);
-	}
-
 	protected static ProcessWrapper run(File workingDirectory, Class<?> type, String... arguments) throws IOException {
 		return isProcessRunAuto() ? launch(createDirectory(workingDirectory), type, arguments) : null;
-	}
-
-	protected static ProcessWrapper run(String classpath, Class<?> type, String... arguments) throws IOException {
-		return run(createDirectory(asDirectoryName(type)), classpath, type, arguments);
 	}
 
 	protected static ProcessWrapper run(File workingDirectory, String classpath, Class<?> type, String... arguments)

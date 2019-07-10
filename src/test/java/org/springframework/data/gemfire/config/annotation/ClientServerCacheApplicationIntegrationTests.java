@@ -30,7 +30,9 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * or Apache Geode client/server topology
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.config.annotation.CacheServerApplication
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
@@ -65,10 +68,13 @@ public class ClientServerCacheApplicationIntegrationTests extends ClientServerIn
 
 	private static ProcessWrapper gemfireServerProcess;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
 
-		gemfireServerProcess = run(ServerTestConfiguration.class, String.format("-Dgemfire.name=%1$s",
+		gemfireServerProcess = run(tempDir.getRoot(), ServerTestConfiguration.class, String.format("-Dgemfire.name=%1$s",
 			asApplicationName(ClientServerCacheApplicationIntegrationTests.class)));
 
 		waitForServerToStart("localhost", PORT);

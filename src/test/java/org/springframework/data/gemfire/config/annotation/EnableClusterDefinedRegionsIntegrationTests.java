@@ -27,7 +27,9 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -47,6 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Integration tests for {@link EnableClusterDefinedRegions} and {@link ClusterDefinedRegionsConfiguration}.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
@@ -67,12 +70,15 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ClientServerInt
 
 	private static ProcessWrapper gemfireServer;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerTestConfiguration.class,
+		gemfireServer = run(tempDir.getRoot(), ServerTestConfiguration.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart("localhost", availablePort);

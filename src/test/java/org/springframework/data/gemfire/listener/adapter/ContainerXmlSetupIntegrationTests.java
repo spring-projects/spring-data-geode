@@ -23,7 +23,9 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.query.CqQuery;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -37,6 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 /**
  * @author Costin Leau
  * @author John Blum
+ * @author Jens Deppe
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
@@ -46,12 +49,15 @@ public class ContainerXmlSetupIntegrationTests extends ClientServerIntegrationTe
 
 	private static ProcessWrapper gemfireServer;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(CqCacheServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), CqCacheServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);

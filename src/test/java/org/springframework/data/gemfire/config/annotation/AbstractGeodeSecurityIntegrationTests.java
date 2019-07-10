@@ -19,6 +19,7 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
@@ -43,12 +44,15 @@ import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
@@ -56,7 +60,9 @@ import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAuthInitialize;
 import org.springframework.data.gemfire.process.ProcessWrapper;
+import org.springframework.data.gemfire.process.support.ProcessUtils;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.test.support.FileSystemUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.annotation.DirtiesContext;
@@ -72,6 +78,7 @@ import lombok.RequiredArgsConstructor;
  * Abstract base test class for implementing Apache Geode Integrated Security Integration Tests.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see java.security.Principal
  * @see java.util.Properties
  * @see org.junit.FixMethodOrder
@@ -101,6 +108,9 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServer
 
 	private static ProcessWrapper geodeServerProcess;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void runGeodeServer() throws IOException {
 
@@ -118,7 +128,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServer
 
 		String debugEndpoint = Boolean.getBoolean(DEBUGGING_ENABLED_PROPERTY) ? DEBUG_ENDPOINT : null;
 
-		geodeServerProcess = run(GeodeServerConfiguration.class,
+		geodeServerProcess = run(tempDir.getRoot(), GeodeServerConfiguration.class,
 			String.format("-Dgemfire.log-file=%s", logFile()),
 			String.format("-Dgemfire.log-level=%s", logLevel(TEST_GEMFIRE_LOG_LEVEL)),
 			String.format("-Dspring.profiles.active=apache-geode-server,%s", geodeSecurityProfile),
@@ -243,8 +253,11 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServer
 	@Profile("apache-geode-server")
 	public static class GeodeServerConfiguration {
 
-		public static void main(String[] args) {
-			runSpringApplication(GeodeServerConfiguration.class, args);
+		public static void main(String[] args) throws IOException {
+			AnnotationConfigApplicationContext context = runSpringApplication(GeodeServerConfiguration.class, args);
+
+			ProcessUtils.writePid(new File(FileSystemUtils.WORKING_DIRECTORY, "process.pid"),
+				ProcessUtils.currentPid());
 		}
 
 		@Autowired

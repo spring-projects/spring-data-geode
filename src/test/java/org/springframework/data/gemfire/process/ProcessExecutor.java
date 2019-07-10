@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
  * The {@link ProcessExecutor} class is a utility class for launching and running Java processes.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see java.io.File
  * @see java.lang.Process
  * @see java.lang.ProcessBuilder
@@ -116,7 +117,9 @@ public abstract class ProcessExecutor {
 	}
 
 	protected static boolean isJvmOption(String option) {
-		return StringUtils.hasText(option) && (option.startsWith("-D") || option.startsWith("-X"));
+		return StringUtils.hasText(option) && (option.startsWith("-D")
+			|| option.startsWith("-X")
+			|| option.startsWith("-agentlib"));
 	}
 
 	protected static File validateDirectory(File workingDirectory) {

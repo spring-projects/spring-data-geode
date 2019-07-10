@@ -34,7 +34,9 @@ import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.TestUtils;
@@ -54,6 +56,7 @@ import org.springframework.util.ErrorHandler;
  * using the SDG XML namespace.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.apache.geode.cache.client.ClientCache
@@ -71,12 +74,15 @@ public class ContinuousQueryListenerContainerNamespaceTest extends ClientServerI
 
 	private static ProcessWrapper gemfireServer;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(CqCacheServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), CqCacheServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);

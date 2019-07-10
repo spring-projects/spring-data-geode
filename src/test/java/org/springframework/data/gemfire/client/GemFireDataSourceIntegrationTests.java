@@ -24,7 +24,9 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -42,6 +44,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author David Turanski
  * @author John Blum
+ * @author Jens Deppe
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
@@ -53,6 +56,9 @@ public class GemFireDataSourceIntegrationTests extends ClientServerIntegrationTe
 
 	@Autowired
 	private ApplicationContext applicationContext;
+
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
 
 	@BeforeClass
 	public static void setGemFireLogLevel() {
@@ -69,7 +75,7 @@ public class GemFireDataSourceIntegrationTests extends ClientServerIntegrationTe
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), ServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
 			getServerContextXmlFileLocation(GemFireDataSourceIntegrationTests.class));
 

@@ -29,7 +29,9 @@ import org.apache.geode.cache.Region;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
@@ -43,6 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 /**
  * @author David Turanski
  * @author John Blum
+ * @author Jens Deppe
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
@@ -54,11 +57,14 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 	@Resource(name = "test-region")
 	private Region<String, Integer> region;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(ServerProcess.class,
+		gemfireServer = run(tempDir.getRoot(), ServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
 			getServerContextXmlFileLocation(FunctionIntegrationTests.class));
 

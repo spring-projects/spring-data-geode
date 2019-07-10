@@ -39,7 +39,9 @@ import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -65,6 +67,7 @@ import lombok.RequiredArgsConstructor;
  * and {@link ContinuousQueryListenerContainer}.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
@@ -89,12 +92,15 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Client
 
 	private static ProcessWrapper gemfireServer;
 
+	@ClassRule
+	public static TemporaryFolder tempDir = new TemporaryFolder();
+
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
 		int availablePort = findAvailablePort();
 
-		gemfireServer = run(GemFireServerConfiguration.class,
+		gemfireServer = run(tempDir.getRoot(), GemFireServerConfiguration.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
 
 		waitForServerToStart("localhost", availablePort);
