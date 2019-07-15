@@ -34,6 +34,8 @@ import javax.annotation.Resource;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.LuceneService;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +56,7 @@ import lombok.RequiredArgsConstructor;
  * Integration tests for the Spring Data Geode, Apache Geode and Apache Lucene Integration.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see lombok
  * @see org.apache.geode.cache.GemFireCache
@@ -91,7 +94,7 @@ public class LuceneOperationsIntegrationTests {
 	private Region<Long, Person> people;
 
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 
 		jonDoe = save(Person.newPerson(LocalDate.of(1969, Month.JULY, 4), "Jon", "Doe").with("Master of Science"));
 		janeDoe = save(Person.newPerson(LocalDate.of(1969, Month.AUGUST, 16), "Jane", "Doe").with("Doctor of Astrophysics"));
@@ -104,19 +107,21 @@ public class LuceneOperationsIntegrationTests {
 		flushLuceneIndex();
 	}
 
+	@After
+	public void after() {
+		people.keySet().forEach(k -> people.destroy(k));
+	}
+
 	private Person save(Person person) {
 		person.setId(IDENTIFIER.incrementAndGet());
 		people.put(person.getId(), person);
 		return person;
 	}
 
-	private void flushLuceneIndex() {
-		try {
-			this.luceneService.waitUntilFlushed("PersonTitleIndex", "/People",
-				15L, TimeUnit.SECONDS);
-		}
-		catch (Throwable ignore) {
-		}
+	private void flushLuceneIndex() throws InterruptedException {
+		boolean flushed = luceneService.waitUntilFlushed("personTitleIndex", "/People",
+			15L, TimeUnit.SECONDS);
+		assertThat(flushed).as("Lucene index not flushed").isTrue();
 	}
 
 	private List<String> asNames(List<? extends Nameable> nameables) {
