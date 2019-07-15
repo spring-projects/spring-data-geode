@@ -57,6 +57,7 @@ import org.springframework.util.StringUtils;
  * of GemFire Cache Region data.
  *
  * @author John Blum
+ * @author Jens Deppe
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.springframework.test.context.ContextConfiguration
@@ -143,13 +144,17 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTest {
 	protected void wait(int seconds, int expectedDoeSize, int expectedEveryoneSize, int expectedHandySize) {
 
 		ThreadUtils.timedWait(TimeUnit.SECONDS.toMillis(seconds), 500,
-			() -> (doe.size() < expectedDoeSize && everyoneElse.size() <
-				expectedEveryoneSize && handy.size() < expectedHandySize));
+			// Beware of operator short-circuiting here - we want to ensure that every
+			// condition is always evaluated because the wait loop terminates once the
+			// whole predicate returns false.
+			() -> (!(doe.size() == expectedDoeSize
+				&& everyoneElse.size() == expectedEveryoneSize
+				&& handy.size() == expectedHandySize)));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void exportsTriggeringImportsOnSnapshotApplicationEvents() {
+	public void exportsTriggeringImportsOnSnapshotApplicationEvents() throws Exception {
 
 		Person jonDoe = put(people, newPerson("Jon", "Doe"));
 		Person janeDoe = put(people, newPerson("Jane", "Doe"));
@@ -176,9 +181,10 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTest {
 		Person jackHill = put(people, newPerson("Jack", "Hill"));
 		Person jillHill = put(people, newPerson("Jill", "Hill"));
 
+		Thread.sleep(1000);
 		eventPublisher.publishEvent(event);
 
-		wait(10, 5, 4, 3);
+		wait(5, 5, 4, 3);
 
 		assertPeople(doe, jonDoe, janeDoe, cookieDoe, pieDoe, sourDoe);
 		assertPeople(everyoneElse, jackBlack, joeDirt, jackHill, jillHill);
@@ -189,9 +195,10 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTest {
 		Person imaPigg = put(people, newPerson("Ima", "Pigg"));
 		Person benDover = put(people, newPerson("Ben", "Dover"));
 
+		Thread.sleep(1000);
 		eventPublisher.publishEvent(event);
 
-		wait(15, 6, 6, 4);
+		wait(5, 6, 6, 4);
 
 		assertPeople(doe, jonDoe, janeDoe, cookieDoe, pieDoe, sourDoe, bobDoe);
 		assertPeople(everyoneElse, jackBlack, joeDirt, jackHill, jillHill, imaPigg, benDover);
