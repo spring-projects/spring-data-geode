@@ -592,7 +592,7 @@ Comma-delimited list of Server endpoints used by this Pool in the form of: host1
 		<xsd:annotation>
 			<xsd:appinfo>
 				<tool:annotation>
-					<tool:exports type="org.apache.geode.cache.Region" />
+					<tool:exports type="org.apache.geode.cache.Region"/>
 				</tool:annotation>
 			</xsd:appinfo>
 		</xsd:annotation>
@@ -2703,8 +2703,7 @@ must implement org.apache.geode.cache.execute.Function
 					</xsd:annotation>
 					<xsd:complexType>
 						<xsd:sequence>
-							<xsd:any namespace="##other" processContents="skip"
-									 minOccurs="0" maxOccurs="unbounded">
+							<xsd:any namespace="##other" processContents="skip" minOccurs="0" maxOccurs="unbounded">
 								<xsd:annotation>
 									<xsd:documentation><![CDATA[
 Inner bean definition of the remote function.
