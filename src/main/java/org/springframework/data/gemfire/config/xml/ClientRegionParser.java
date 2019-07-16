@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 import java.util.List;
@@ -31,6 +30,7 @@ import org.springframework.data.gemfire.client.KeyInterest;
 import org.springframework.data.gemfire.client.RegexInterest;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+
 import org.w3c.dom.Element;
 
 /**
@@ -66,7 +66,9 @@ class ClientRegionParser extends AbstractRegionParser {
 		String resolvedCacheRef = ParsingUtils.resolveCacheReference(element.getAttribute("cache-ref"));
 
 		if (!subRegion) {
+
 			regionBuilder.addPropertyReference("cache", resolvedCacheRef);
+
 			ParsingUtils.setPropertyValue(element, regionBuilder, "close");
 			ParsingUtils.setPropertyValue(element, regionBuilder, "destroy");
 		}
