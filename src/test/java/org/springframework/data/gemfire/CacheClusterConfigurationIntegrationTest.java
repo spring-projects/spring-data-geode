@@ -146,6 +146,8 @@ public class CacheClusterConfigurationIntegrationTest extends ClientServerIntegr
 		List<String> arguments = new ArrayList<>();
 
 		arguments.add("-Dgemfire.name=" + locatorName);
+		arguments.add("-Dlog4j.geode.log.level=info");
+		arguments.add("-Dlogback.log.level=info");
 		arguments.add("-Dspring.data.gemfire.enable-cluster-configuration=true");
 		arguments.add("-Dspring.data.gemfire.load-cluster-configuration=true");
 		arguments.add(String.format("-Dgemfire.log-level=%s", LOG_LEVEL));
@@ -261,6 +263,7 @@ public class CacheClusterConfigurationIntegrationTest extends ClientServerIntegr
 	public void localConfigurationTest() {
 
 		try {
+
 			newApplicationContext(getLocation("cacheUsingLocalConfigurationIntegrationTest.xml"));
 
 			fail("Loading the 'cacheUsingLocalOnlyConfigurationIntegrationTest.xml' Spring ApplicationContext"
