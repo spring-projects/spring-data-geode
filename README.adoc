@@ -6,7 +6,7 @@ Spring Data for Apache Geode brings the full power of the Spring Framework to yo
 
 == Features
 
-* XML namespace to http://docs.spring.io/spring-data-geode/docs/current/reference/html/#bootstrap[configure and create Apache Geode resources declaratively with Spring]
+* XML namespace to https://docs.spring.io/spring-data-geode/docs/current/reference/html/#bootstrap[configure and create Apache Geode resources declaratively with Spring]
 * Annotation model to https://docs.spring.io/spring-data/geode/docs/current/reference/html/#bootstrap-annotation-config[quickly and easily get started with Apache Geode out-of-the-box]
 * Simplifies https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis[working with Apache Geode APIs]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:spring-cache-abstraction[Spring Cache Abstraction backed by Apache Geode]
@@ -19,7 +19,7 @@ Spring Data for Apache Geode brings the full power of the Spring Framework to yo
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:continuous-query[Support for Continuous Query]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#bootstrap:lucene[Enhanced support for Apache Lucene Integration]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#gemfire-bootstrap[Bootstrapping a Spring Context with Apache Geode]
-* Spring Tool Suite http://docs.spring.io/sts/nan/v310/NewAndNoteworthy.html[Spring Project Templates for Apache Geode]
+* Spring Tool Suite https://docs.spring.io/sts/nan/v310/NewAndNoteworthy.html[Spring Project Templates for Apache Geode]
 
 == Code of Conduct
 
@@ -73,7 +73,7 @@ Configure a Pivotal Geode cache and Region (REPLICATE, PARTITION and so on):
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/geode https://www.springframework.org/schema/geode/spring-geode.xsd
-		http://www.springframework.org/schema/data/gemfire https://www.springframework.org/schema/data/geode/spring-data-gemfire.xsd">
+	http://www.springframework.org/schema/data/gemfire https://www.springframework.org/schema/data/geode/spring-data-gemfire.xsd">
 
   <gfe:cache/>
 
