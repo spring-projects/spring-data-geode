@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.wan;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
-import org.junit.Test;
+
 import org.springframework.data.gemfire.TestUtils;
 
 /**
@@ -174,29 +175,6 @@ public class GatewaySenderFactoryBeanTest {
 		assertNotNull(gatewaySender);
 		assertEquals("g1", gatewaySender.getId());
 		assertEquals(69, gatewaySender.getRemoteDSId());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void parallelGatewaySenderWithOrderPolicyCreation() {
-
-		GatewaySenderFactory mockGatewaySenderFactory =
-			mockGatewaySenderFactory("g2", 69);
-
-		GatewaySenderFactoryBean factoryBean = new GatewaySenderFactoryBean(
-			mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
-
-		factoryBean.setName("g2");
-		factoryBean.setRemoteDistributedSystemId(69);
-		factoryBean.setParallel(true);
-		factoryBean.setOrderPolicy(GatewaySender.OrderPolicy.KEY);
-
-		try {
-			factoryBean.doInit();
-		}
-		catch (IllegalArgumentException expected) {
-			assertEquals("Order Policy cannot be used with a Parallel Gateway Sender Queue.", expected.getMessage());
-			throw expected;
-		}
 	}
 
 	@Test

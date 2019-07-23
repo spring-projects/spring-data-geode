@@ -13,36 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.wan;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.wan.GatewayReceiverFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-import org.junit.Test;
 
 /**
- * The GatewayReceiverFactoryBeanTest class is a test suite of test cases testing the contract and functionality
- * of the GatewayReceiverFactoryBean class.
+ * Unit Tests for {@link GatewayReceiverFactoryBean}.
  *
  * @author John Blum
- * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.wan.GatewayReceiverFactory
+ * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
  * @since 1.5.0
  */
 public class GatewayReceiverFactoryBeanTest {
 
 	@Test
-	public void testDoInit() throws Exception {
+	public void doInitCreatesGatewaySender() throws Exception {
 		Cache mockCache = mock(Cache.class, "testDoInit.Cache");
 		GatewayReceiverFactory mockGatewayReceiverFactory = mock(GatewayReceiverFactory.class, "testDoInit.GatewayReceiverFactory");
 		GatewayTransportFilter mockGatewayTransportFilter = mock(GatewayTransportFilter.class, "testDoInit.GatewayTransportFilter");
@@ -74,7 +75,7 @@ public class GatewayReceiverFactoryBeanTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDoInitWithIllegalStartEndPorts() throws Exception {
+	public void doInitWithIllegalStartEndPorts() throws Exception {
 		try {
 			Cache mockCache = mock(Cache.class, "testDoInitWithIllegalStartEndPorts.Cache");
 			GatewayReceiverFactory mockGatewayReceiverFactory = mock(GatewayReceiverFactory.class,
@@ -90,9 +91,11 @@ public class GatewayReceiverFactoryBeanTest {
 			factoryBean.afterPropertiesSet();
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("'startPort' must be less than or equal to 8192.", expected.getMessage());
+
+			assertThat(expected).hasMessageContaining("[startPort] must be less than or equal to [8192]");
+			assertThat(expected).hasNoCause();
+
 			throw expected;
 		}
 	}
-
 }
