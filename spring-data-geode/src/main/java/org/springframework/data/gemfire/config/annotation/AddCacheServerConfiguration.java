@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -203,9 +202,5 @@ public class AddCacheServerConfiguration extends AbstractAnnotationConfigSupport
 		else {
 			return BeanDefinitionReaderUtils.registerWithGeneratedName(beanDefinition, registry);
 		}
-	}
-
-	protected BeanDefinitionHolder newBeanDefinitionHolder(BeanDefinition beanDefinition, String beanName) {
-		return new BeanDefinitionHolder(beanDefinition, beanName);
 	}
 }

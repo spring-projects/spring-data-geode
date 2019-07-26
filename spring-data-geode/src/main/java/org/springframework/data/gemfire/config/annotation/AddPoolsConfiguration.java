@@ -43,16 +43,16 @@ public class AddPoolsConfiguration extends AddPoolConfiguration {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-		if (importingClassMetadata.hasAnnotation(EnablePools.class.getName())) {
+		if (isAnnotationPresent(importingClassMetadata, EnablePools.class.getName())) {
 
 			AnnotationAttributes enablePoolsAttributes =
 				getAnnotationAttributes(importingClassMetadata, EnablePools.class.getName());
 
-			AnnotationAttributes[] serversAttributes =
+			AnnotationAttributes[] poolsAttributes =
 				enablePoolsAttributes.getAnnotationArray("pools");
 
-			Arrays.stream(ArrayUtils.nullSafeArray(serversAttributes, AnnotationAttributes.class))
-				.forEach(enablePoolAttributes -> registerPoolFactoryBeanDefinition(enablePoolAttributes, registry));
+			Arrays.stream(ArrayUtils.nullSafeArray(poolsAttributes, AnnotationAttributes.class))
+				.forEach(poolAttributes -> registerPoolFactoryBeanDefinition(poolAttributes, registry));
 		}
 	}
 }

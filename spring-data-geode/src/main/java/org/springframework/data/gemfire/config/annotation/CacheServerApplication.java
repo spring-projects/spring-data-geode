@@ -23,6 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.cache.server.ClientSubscriptionConfig;
@@ -33,13 +34,14 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.gemfire.server.SubscriptionEvictionPolicy;
 
 /**
- * The CacheServerApplication annotation enables an embedded GemFire
- * {@link org.apache.geode.cache.server.CacheServer} instance in a Spring Data GemFire based application.
+ * The {@link CacheServerApplication} annotation enables an embedded Apache Geode or Pivotal GemFire {@link CacheServer}
+ * instance in a Spring Data-based application.
  *
- * In addition, this also implies an embedded GemFire peer {@link org.apache.geode.cache.Cache} must exist
- * and therefore will be configured, constructed and initialized as a Spring bean in the application context.
+ * In addition, this also implies an embedded GemFire/Geode peer {@link Cache} instance must exist and therefore will be
+ * constructed, configured and initialized as a Spring bean in the application context.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.control.ResourceManager
  * @see org.apache.geode.cache.server.CacheServer
  * @see org.apache.geode.cache.server.ClientSubscriptionConfig

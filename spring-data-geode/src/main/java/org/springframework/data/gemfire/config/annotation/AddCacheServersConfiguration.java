@@ -42,7 +42,7 @@ public class AddCacheServersConfiguration extends AddCacheServerConfiguration {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-		if (importingClassMetadata.hasAnnotation(EnableCacheServers.class.getName())) {
+		if (isAnnotationPresent(importingClassMetadata, EnableCacheServers.class.getName())) {
 
 			AnnotationAttributes enableCacheServersAttributes =
 				getAnnotationAttributes(importingClassMetadata, EnableCacheServers.class.getName());
@@ -51,8 +51,8 @@ public class AddCacheServersConfiguration extends AddCacheServerConfiguration {
 				enableCacheServersAttributes.getAnnotationArray("servers");
 
 			Arrays.stream(ArrayUtils.nullSafeArray(serversAttributes, AnnotationAttributes.class))
-				.forEach(enableCacheServerAttributes ->
-					registerCacheServerFactoryBeanDefinition(enableCacheServerAttributes, registry));
+				.forEach(cacheServerAttributes ->
+					registerCacheServerFactoryBeanDefinition(cacheServerAttributes, registry));
 		}
 	}
 }

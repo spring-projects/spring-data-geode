@@ -23,6 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.control.ResourceManager;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -31,10 +32,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
 
 /**
- * The {@link PeerCacheApplication} annotation enables an embedded GemFire peer {@link org.apache.geode.cache.Cache}
- * instance in a Spring Data GemFire based application.
+ * The {@link PeerCacheApplication} annotation enables an embedded Apache Geode or Pivotal GemFire peer {@link Cache}
+ * instance in a Spring Data-based application.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.control.ResourceManager
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.context.annotation.Configuration

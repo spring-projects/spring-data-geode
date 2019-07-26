@@ -40,15 +40,15 @@ public class DiskStoresConfiguration extends DiskStoreConfiguration {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-		if (importingClassMetadata.hasAnnotation(EnableDiskStores.class.getName())) {
+		if (isAnnotationPresent(importingClassMetadata, EnableDiskStores.class.getName())) {
 
 			AnnotationAttributes enableDiskStoresAttributes =
 				getAnnotationAttributes(importingClassMetadata, EnableDiskStores.class.getName());
 
-			AnnotationAttributes[] diskStores =
+			AnnotationAttributes[] diskStoresAttributes =
 				enableDiskStoresAttributes.getAnnotationArray("diskStores");
 
-			Arrays.stream(ArrayUtils.nullSafeArray(diskStores, AnnotationAttributes.class))
+			Arrays.stream(ArrayUtils.nullSafeArray(diskStoresAttributes, AnnotationAttributes.class))
 				.forEach(diskStoreAttributes ->  registerDiskStoreBeanDefinition(
 					mergeDiskStoreAttributes(enableDiskStoresAttributes, diskStoreAttributes), registry));
 		}
