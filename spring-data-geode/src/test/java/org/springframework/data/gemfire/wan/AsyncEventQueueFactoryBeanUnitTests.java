@@ -422,51 +422,6 @@ public class AsyncEventQueueFactoryBeanUnitTests {
 		}
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void doInitWithParallelAsyncEventQueueHavingAnOrderPolicyThrowsIllegalStateException() throws Exception {
-
-		AsyncEventQueueFactory mockAsyncEventQueueFactory =
-			mockAsyncEventQueueFactory("parallelQueue");
-
-		AsyncEventQueueFactoryBean factoryBean =
-			new AsyncEventQueueFactoryBean(mockCache(mockAsyncEventQueueFactory));
-
-		factoryBean.setAsyncEventListener(mockAsyncEventListener());
-		factoryBean.setName("parallelQueue");
-		factoryBean.setOrderPolicy(GatewaySender.OrderPolicy.KEY);
-		factoryBean.setParallel(true);
-
-		try {
-			factoryBean.doInit();
-		}
-		catch (IllegalStateException expected) {
-
-			assertThat(expected).hasMessage("OrderPolicy cannot be used with a Parallel AsyncEventQueue");
-			assertThat(expected).hasNoCause();
-
-			throw expected;
-		}
-		finally {
-
-			assertThat(factoryBean.getObject()).isNull();
-
-			verify(mockAsyncEventQueueFactory, never()).setBatchConflationEnabled(anyBoolean());
-			verify(mockAsyncEventQueueFactory, never()).setBatchSize(anyInt());
-			verify(mockAsyncEventQueueFactory, never()).setBatchTimeInterval(anyInt());
-			verify(mockAsyncEventQueueFactory, never()).setDiskStoreName(anyString());
-			verify(mockAsyncEventQueueFactory, never()).setDiskSynchronous(anyBoolean());
-			verify(mockAsyncEventQueueFactory, never()).setDispatcherThreads(eq(8));
-			verify(mockAsyncEventQueueFactory, never()).setForwardExpirationDestroy(anyBoolean());
-			verify(mockAsyncEventQueueFactory, never()).setGatewayEventSubstitutionListener(any());
-			verify(mockAsyncEventQueueFactory, never()).setMaximumQueueMemory(anyInt());
-			verify(mockAsyncEventQueueFactory, never()).setOrderPolicy(any());
-			verify(mockAsyncEventQueueFactory, times(1)).setParallel(eq(true));
-			verify(mockAsyncEventQueueFactory, never()).setPersistent(anyBoolean());
-			verify(mockAsyncEventQueueFactory, never()).addGatewayEventFilter(any());
-			verify(mockAsyncEventQueueFactory, never()).pauseEventDispatching();
-		}
-	}
-
 	@Test
 	public void doInitConfiguresAsyncEventQueueWithSynchronousOverflowNonPersistentDiskStorePausingEventDispatching()
 			throws Exception {

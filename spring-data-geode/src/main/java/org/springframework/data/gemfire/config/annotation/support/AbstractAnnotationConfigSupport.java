@@ -36,6 +36,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -159,6 +160,20 @@ public abstract class AbstractAnnotationConfigSupport
 
 		this.evaluationContext = newEvaluationContext(beanFactory);
 		this.log = newLog();
+	}
+
+	/**
+	 * Constructs a new instance of {@link BeanDefinitionHolder} initialized with the given {@link BeanDefinition}
+	 * and {@link String beanName}.
+	 *
+	 * @param beanDefinition {@link BeanDefinition} to hold.
+	 * @param beanName {@link String} containing the name of the bean.
+	 * @return a new instance of {@link BeanDefinitionHolder}.
+	 * @see org.springframework.beans.factory.config.BeanDefinition
+	 * @see org.springframework.beans.factory.config.BeanDefinitionHolder
+	 */
+	protected BeanDefinitionHolder newBeanDefinitionHolder(BeanDefinition beanDefinition, String beanName) {
+		return new BeanDefinitionHolder(beanDefinition, beanName);
 	}
 
 	/**
@@ -673,6 +688,14 @@ public abstract class AbstractAnnotationConfigSupport
 	protected String asArrayProperty(String propertyNamePrefix, int index, String propertyNameSuffix) {
 		return String.format("%1$s[%2$d]%3$s", propertyNamePrefix, index,
 			Optional.ofNullable(propertyNameSuffix).filter(StringUtils::hasText).map("."::concat).orElse(""));
+	}
+
+	protected String asyncEventQueueProperty(String propertyNameSuffix) {
+		return String.format("%1$s%2$s", propertyName("async-event-queue."), propertyNameSuffix);
+	}
+
+	protected String namedAsyncEventQueueProperty(String name, String propertyNameSuffix) {
+		return String.format("%1$s%2$s.%3$s", propertyName("async-event-queue."), name, propertyNameSuffix);
 	}
 
 	protected String cacheProperty(String propertyNameSuffix) {

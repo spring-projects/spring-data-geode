@@ -15,8 +15,14 @@
  */
 package org.springframework.data.gemfire.wan;
 
+import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeCollection;
+import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
@@ -29,6 +35,9 @@ import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.config.annotation.AsyncEventQueueConfigurer;
+import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
@@ -71,25 +80,37 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 
 	private GatewaySender.OrderPolicy orderPolicy;
 
+	@Autowired(required = false)
+	private List<AsyncEventQueueConfigurer> asyncEventQueueConfigurers = Collections.emptyList();
+
+	private AsyncEventQueueConfigurer compositeAsyncEventQueueConfigurer = (beanName, bean) ->
+		nullSafeCollection(this.asyncEventQueueConfigurers).forEach(asyncEventQueueConfigurer ->
+			asyncEventQueueConfigurer.configure(beanName, bean));
+
 	private List<GatewayEventFilter> gatewayEventFilters;
 
 	private String diskStoreReference;
 
 	/**
-	 * Constructs an instance of the AsyncEventQueueFactoryBean for creating an GemFire AsyncEventQueue.
+	 * Constructs a new instance of the {@link AsyncEventQueueFactoryBean} to create an {@link AsyncEventQueue} (AEQ).
 	 *
-	 * @param cache the GemFire Cache reference.
-	 * @see #AsyncEventQueueFactoryBean(org.apache.geode.cache.Cache, org.apache.geode.cache.asyncqueue.AsyncEventListener)
+	 * @param cache reference to the peer {@link Cache}.
+	 * @see org.apache.geode.cache.Cache
+	 * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
+	 * @see #AsyncEventQueueFactoryBean(Cache, AsyncEventListener)
 	 */
 	public AsyncEventQueueFactoryBean(Cache cache) {
 		this(cache, null);
 	}
 
 	/**
-	 * Constructs an instance of the AsyncEventQueueFactoryBean for creating an GemFire AsyncEventQueue.
+	 * Constructs a new instance of the {@link AsyncEventQueueFactoryBean} to create an {@link AsyncEventQueue} (AEQ).
 	 *
-	 * @param cache the GemFire Cache reference.
-	 * @param asyncEventListener required {@link AsyncEventListener}
+	 * @param cache reference to the peer {@link Cache}.
+	 * @param asyncEventListener {@link AsyncEventListener} used to process events from the queue (AEQ).
+	 * @see org.apache.geode.cache.Cache
+	 * @see org.apache.geode.cache.asyncqueue.AsyncEventListener
+	 * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
 	 */
 	public AsyncEventQueueFactoryBean(Cache cache, AsyncEventListener asyncEventListener) {
 
@@ -105,7 +126,10 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 
 	@Override
 	public Class<?> getObjectType() {
-		return this.asyncEventQueue != null ? this.asyncEventQueue.getClass() : AsyncEventQueue.class;
+
+		return this.asyncEventQueue != null
+			? this.asyncEventQueue.getClass()
+			: AsyncEventQueue.class;
 	}
 
 	@Override
@@ -115,7 +139,11 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 
 		Assert.state(listener != null, "AsyncEventListener must not be null");
 
+		String asyncEventQueueName = getName();
+
 		AsyncEventQueueFactory asyncEventQueueFactory = resolveAsyncEventQueueFactory();
+
+		applyAsyncEventQueueConfigurers(asyncEventQueueName);
 
 		Optional.ofNullable(this.batchConflationEnabled).ifPresent(asyncEventQueueFactory::setBatchConflationEnabled);
 		Optional.ofNullable(this.batchSize).ifPresent(asyncEventQueueFactory::setBatchSize);
@@ -134,20 +162,32 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 
 		asyncEventQueueFactory.setParallel(isParallelEventQueue());
 
-		if (this.orderPolicy != null) {
-
-			Assert.state(isSerialEventQueue(), "OrderPolicy cannot be used with a Parallel AsyncEventQueue");
-
-			asyncEventQueueFactory.setOrderPolicy(this.orderPolicy);
-		}
+		Optional.ofNullable(this.orderPolicy).ifPresent(asyncEventQueueFactory::setOrderPolicy);
 
 		CollectionUtils.nullSafeList(this.gatewayEventFilters).forEach(asyncEventQueueFactory::addGatewayEventFilter);
 
-		setAsyncEventQueue(asyncEventQueueFactory.create(getName(), listener));
+		setAsyncEventQueue(asyncEventQueueFactory.create(asyncEventQueueName, this.asyncEventListener));
 	}
 
 	private AsyncEventQueueFactory resolveAsyncEventQueueFactory() {
-		return this.factory != null ? (AsyncEventQueueFactory) this.factory : this.cache.createAsyncEventQueueFactory();
+
+		return Optional.ofNullable(this.factory)
+			.filter(AsyncEventQueueFactory.class::isInstance)
+			.map(AsyncEventQueueFactory.class::cast)
+			.orElseGet(this.cache::createAsyncEventQueueFactory);
+	}
+	protected void applyAsyncEventQueueConfigurers(String asyncEventQueueName) {
+		applyAsyncEventQueueConfigurers(asyncEventQueueName, getCompositeAsyncEventQueueConfigurer());
+	}
+
+	protected void applyAsyncEventQueueConfigurers(String asyncEventQueueName, AsyncEventQueueConfigurer... configurers) {
+		applyAsyncEventQueueConfigurers(asyncEventQueueName,
+			Arrays.asList(ArrayUtils.nullSafeArray(configurers, AsyncEventQueueConfigurer.class)));
+	}
+
+	protected void applyAsyncEventQueueConfigurers(String asyncEventQueueName, Iterable<AsyncEventQueueConfigurer> configurers) {
+		StreamSupport.stream(nullSafeIterable(configurers).spliterator(), false)
+			.forEach(configurer -> configurer.configure(asyncEventQueueName, this));
 	}
 
 	@Override
@@ -166,6 +206,8 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 	 * @throws IllegalStateException if the {@link AsyncEventQueue} has already bean created.
 	 * @see org.apache.geode.cache.asyncqueue.AsyncEventListener
 	 */
+	// TODO: SDG could provide an implementation of AsyncEventListener that delegates to a listener
+	//  in order to hot swap out the listener.
 	public final void setAsyncEventListener(AsyncEventListener listener) {
 
 		Assert.state(this.asyncEventQueue == null,
@@ -175,7 +217,7 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 	}
 
 	/**
-	 * Returns the configured {@link AsyncEventListener} for the {@link AsyncEventQueue}
+ 	 * Returns the configured {@link AsyncEventListener} for the {@link AsyncEventQueue}
 	 * returned by this {@link FactoryBean}.
 	 *
 	 * @return the configured {@link AsyncEventListener}.
@@ -190,10 +232,27 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 	 * Configures the {@link AsyncEventQueue} returned by this {@link FactoryBean}.
 	 *
 	 * @param asyncEventQueue overrides the {@link AsyncEventQueue} returned by this {@link FactoryBean}.
+=======
+	 * Configures the {@link AsyncEventQueue} (AEQ) returned by this {@link FactoryBean}.
+	 *
+	 * @param asyncEventQueue overrides {@link AsyncEventQueue} (AEQ) returned by this {@link FactoryBean}.
+>>>>>>> DATAGEODE-214 - Configure AsyncEventQueues and AsyncEventListeners using Annotations.:src/main/java/org/springframework/data/gemfire/wan/AsyncEventQueueFactoryBean.java
 	 * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
 	 */
 	public void setAsyncEventQueue(AsyncEventQueue asyncEventQueue) {
 		this.asyncEventQueue = asyncEventQueue;
+	}
+
+	public void setAsyncEventQueueConfigurers(AsyncEventQueueConfigurer... configurers) {
+		setAsyncEventQueueConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(configurers, AsyncEventQueueConfigurer.class)));
+	}
+
+	public void setAsyncEventQueueConfigurers(List<AsyncEventQueueConfigurer> configurers) {
+		this.asyncEventQueueConfigurers = configurers;
+	}
+
+	protected AsyncEventQueueConfigurer getCompositeAsyncEventQueueConfigurer() {
+		return this.compositeAsyncEventQueueConfigurer;
 	}
 
 	/**
