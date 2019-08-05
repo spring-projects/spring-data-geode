@@ -23,11 +23,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
-
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
+
+import org.junit.Test;
 
 import org.springframework.data.gemfire.TestUtils;
 
@@ -46,14 +46,17 @@ import org.springframework.data.gemfire.TestUtils;
  */
 public class GatewaySenderFactoryBeanTest {
 
-	private Cache mockCacheWithGatewayInfrastructure(final GatewaySenderFactory gatewaySenderFactory) {
+	private Cache mockCacheWithGatewayInfrastructure(GatewaySenderFactory gatewaySenderFactory) {
+
 		Cache mockCache = mock(Cache.class);
+
 		when(mockCache.createGatewaySenderFactory()).thenReturn(gatewaySenderFactory);
+
 		return mockCache;
 	}
 
-	private GatewaySenderFactory mockGatewaySenderFactory(final String gatewaySenderName,
-			final int remoteDistributedSystemId) {
+	private GatewaySenderFactory mockGatewaySenderFactory(String gatewaySenderName, int remoteDistributedSystemId) {
+
 		GatewaySenderFactory mockGatewaySenderFactory = mock(GatewaySenderFactory.class);
 		GatewaySender mockGatewaySender = mock(GatewaySender.class);
 
