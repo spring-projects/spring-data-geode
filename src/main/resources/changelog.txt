@@ -3,6 +3,19 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.0.RC2 (2019-08-05)
+-----------------------------------------
+* DATAGEODE-213 - Polish Annotation-based Configuration Model.
+* DATAGEODE-212 - Refactor Gateway Sender/Receiver support and remove unnecessary configuration validations.
+* DATAGEODE-210 - Fix unreliable tests.
+* DATAGEODE-208 - Revise readme for a consistent structure.
+* DATAGEODE-207 - Add Integration Tests asserting the configuration of Apache Geode Logging using Spring.
+* DATAGEODE-203 - Release 2.2 RC2 (Moore).
+* DATAGEODE-197 - Add support in the XML Namespace for Region to AsyncEventQueue and GatewaySender associations by ID.
+* DATAGEODE-195 - Introduce Jenkins CI.
+* DATAGEODE-169 - Configure GatewaySenders with Annotations.
+
+
 Changes in version 2.1.10.RELEASE (2019-08-05)
 ----------------------------------------------
 * DATAGEODE-212 - Refactor Gateway Sender/Receiver support and remove unnecessary configuration validations.
