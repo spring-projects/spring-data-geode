@@ -3,6 +3,18 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.1.10.RELEASE (2019-08-05)
+----------------------------------------------
+* DATAGEODE-212 - Refactor Gateway Sender/Receiver support and remove unnecessary configuration validations.
+* DATAGEODE-210 - Fix unreliable tests.
+* DATAGEODE-206 - Adapt to Mockito API (and behavior) changes due to log-level changes.
+* DATAGEODE-205 - Tune the build log output.
+* DATAGEODE-204 - Replace all cache.xml document schema declarations referring to the DTD to use the XSD.
+* DATAGEODE-202 - Release 2.1.10 (Lovelace SR10).
+* DATAGEODE-197 - Add support in the XML Namespace for Region to AsyncEventQueue and GatewaySender associations by ID.
+* DATAGEODE-195 - Introduce Jenkins CI.
+
+
 Changes in version 2.2.0.RC1 (2019-06-14)
 -----------------------------------------
 * DATAGEODE-201 - Create security policy readme.
