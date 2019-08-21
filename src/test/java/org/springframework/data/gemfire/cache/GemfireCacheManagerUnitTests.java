@@ -17,10 +17,17 @@
 
 package org.springframework.data.gemfire.cache;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +36,7 @@ import java.util.Set;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +44,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.cache.Cache;
 
 /**

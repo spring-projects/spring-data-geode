@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.apache.geode.cache.wan.GatewaySender;
+
 import org.junit.Test;
 
 /**

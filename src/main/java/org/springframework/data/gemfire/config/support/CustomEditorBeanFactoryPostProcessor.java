@@ -24,6 +24,7 @@ import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.wan.GatewaySender;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;

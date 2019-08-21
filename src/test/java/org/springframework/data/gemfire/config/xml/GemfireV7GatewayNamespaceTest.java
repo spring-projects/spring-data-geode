@@ -28,9 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
@@ -41,6 +38,9 @@ import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
+
+import org.junit.AfterClass;
+import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;

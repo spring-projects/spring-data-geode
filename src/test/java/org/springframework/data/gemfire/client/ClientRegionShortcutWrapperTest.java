@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.geode.cache.client.ClientRegionShortcut;
+
 import org.junit.Test;
 
 /**
