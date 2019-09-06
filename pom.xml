@@ -22,7 +22,8 @@
 		<antlr.version>2.7.7</antlr.version>
 		<apache-shiro.version>1.4.1</apache-shiro.version>
 		<cache-api.version>1.1.1</cache-api.version>
-		<geode.version>1.9.0</geode.version>
+		<geode.version>1.9.1</geode.version>
+		<log4j.version>2.12.1</log4j.version>
 		<multithreadedtc.version>1.01</multithreadedtc.version>
 		<snappy.version>0.4</snappy.version>
 		<springdata.commons>2.2.0.BUILD-SNAPSHOT</springdata.commons>
@@ -187,6 +188,13 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${logback}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-to-slf4j</artifactId>
+			<version>${log4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 
