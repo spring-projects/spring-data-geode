@@ -3,6 +3,22 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.0.RC3 (2019-09-06)
+-----------------------------------------
+* DATAGEODE-228 - Fix parsing issue that mishandles whitespace in ConnectionEndpoint.parse(..).
+* DATAGEODE-227 - Revert spring-web as an optional dependency.
+* DATAGEODE-226 - Switch spring-web to be an optional dependency.
+* DATAGEODE-225 - Allow the JSR-107, JCache API to be an optional dependency when using @EnableCachingDefinedRegions.
+* DATAGEODE-224 - Refactor codebase.
+* DATAGEODE-223 - Upgrade to JCache API 1.1.1.
+* DATAGEODE-222 - Upgrade to Apache Shiro 1.4.1.
+* DATAGEODE-221 - Remove unnecessary use of Apache Shiro API.
+* DATAGEODE-220 - Correct misspelling in the LazyResolvingComposableContinousQueryListenerContainerConfigurer class name.
+* DATAGEODE-219 - Invoke SmartLifecycle callbacks when defining Regions based on Caching annotations.
+* DATAGEODE-218 - Refactor GatewayReceiver to use LazyResolvingComposableConfigurers.
+* DATAGEODE-217 - Release 2.2 RC3 (Moore).
+
+
 Changes in version 2.2.0.RC2 (2019-08-05)
 -----------------------------------------
 * DATAGEODE-213 - Polish Annotation-based Configuration Model.
