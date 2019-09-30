@@ -3,6 +3,16 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.1.11.RELEASE (2019-09-30)
+----------------------------------------------
+* DATAGEODE-228 - Fix parsing issue that mishandles whitespace in ConnectionEndpoint.parse(..).
+* DATAGEODE-225 - Allow the JSR-107, JCache API to be an optional dependency when using @EnableCachingDefinedRegions.
+* DATAGEODE-221 - Remove unnecessary use of Apache Shiro API.
+* DATAGEODE-220 - Correct misspelling in the LazyResolvingComposableContinousQueryListenerContainerConfigurer class name.
+* DATAGEODE-219 - Invoke SmartLifecycle callbacks when defining Regions based on Caching annotations.
+* DATAGEODE-215 - Release 2.1.11 (Lovelace SR11).
+
+
 Changes in version 2.2.0.RC3 (2019-09-06)
 -----------------------------------------
 * DATAGEODE-228 - Fix parsing issue that mishandles whitespace in ConnectionEndpoint.parse(..).
