@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.0.RELEASE (2019-09-30)
+---------------------------------------------
+* DATAGEODE-232 - Add support for @CacheConfig in @EnableCachingDefinedRegions.
+* DATAGEODE-231 - The 'gemfireDataSourcePostProcessor' bean should be a BeanPostProcessor.
+* DATAGEODE-230 - Remove 'What's New' Release Notes prior 2.0 and add 'What's New' Release Notes for 2.2.
+* DATAGEODE-229 - Upgrade to Apache Geode 1.9.1.
+* DATAGEODE-216 - Release 2.2 GA (Moore).
+
+
 Changes in version 2.1.11.RELEASE (2019-09-30)
 ----------------------------------------------
 * DATAGEODE-228 - Fix parsing issue that mishandles whitespace in ConnectionEndpoint.parse(..).
