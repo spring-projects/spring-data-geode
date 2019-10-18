@@ -77,6 +77,7 @@ import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
  * Unit tests for {@link CacheFactoryBean}.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see java.io.InputStream
  * @see java.util.Properties
  * @see org.junit.Test
@@ -303,7 +304,6 @@ public class CacheFactoryBeanTest {
 		cacheFactoryBean.setCopyOnRead(true);
 		cacheFactoryBean.setCriticalHeapPercentage(0.90f);
 		cacheFactoryBean.setCriticalOffHeapPercentage(0.95f);
-		cacheFactoryBean.setDynamicRegionSupport(null);
 		cacheFactoryBean.setEnableAutoReconnect(false);
 		cacheFactoryBean.setEvictionHeapPercentage(0.75f);
 		cacheFactoryBean.setEvictionOffHeapPercentage(0.90f);
@@ -791,7 +791,6 @@ public class CacheFactoryBeanTest {
 		cacheFactoryBean.setUseBeanFactoryLocator(false);
 		cacheFactoryBean.setClose(false);
 		cacheFactoryBean.setCopyOnRead(true);
-		cacheFactoryBean.setDynamicRegionSupport(new CacheFactoryBean.DynamicRegionSupport());
 		cacheFactoryBean.setEnableAutoReconnect(true);
 		cacheFactoryBean.setCriticalHeapPercentage(0.95f);
 		cacheFactoryBean.setCriticalOffHeapPercentage(0.99f);
@@ -823,7 +822,6 @@ public class CacheFactoryBeanTest {
 		assertTrue(cacheFactoryBean.getCopyOnRead());
 		assertEquals(0.95f, cacheFactoryBean.getCriticalHeapPercentage(), 0.0f);
 		assertEquals(0.99f, cacheFactoryBean.getCriticalOffHeapPercentage(), 0.0f);
-		assertNotNull(cacheFactoryBean.getDynamicRegionSupport());
 		assertTrue(cacheFactoryBean.getEnableAutoReconnect());
 		assertEquals(0.70f, cacheFactoryBean.getEvictionHeapPercentage(), 0.0f);
 		assertEquals(0.80f, cacheFactoryBean.getEvictionOffHeapPercentage(), 0.0f);
