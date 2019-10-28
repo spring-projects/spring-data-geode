@@ -12,6 +12,7 @@
  */
 package org.springframework.data.gemfire.test;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +41,7 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 	private boolean diskSynchronous;
 	private boolean forwardExpirationDestroy;
 	private boolean parallel;
+	private boolean pauseEventDispatching;
 	private boolean persistent;
 
 	private int batchSize;
@@ -65,6 +67,7 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 		when(asyncEventQueue.getDiskStoreName()).thenReturn(this.diskStoreName);
 		when(asyncEventQueue.isDiskSynchronous()).thenReturn(this.diskSynchronous);
 		when(asyncEventQueue.getDispatcherThreads()).thenReturn(this.dispatcherThreads);
+		when(asyncEventQueue.isDispatchingPaused()).thenAnswer(invocation -> this.pauseEventDispatching);
 		when(asyncEventQueue.getGatewayEventFilters()).thenReturn(Collections.unmodifiableList(gatewayEventFilters));
 		when(asyncEventQueue.getGatewayEventSubstitutionFilter()).thenReturn(this.gatewayEventSubstitutionFilter);
 		when(asyncEventQueue.getId()).thenReturn(name);
@@ -73,6 +76,11 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 		when(asyncEventQueue.getOrderPolicy()).thenReturn(this.orderPolicy);
 		when(asyncEventQueue.isParallel()).thenReturn(this.parallel);
 		when(asyncEventQueue.isPersistent()).thenReturn(this.persistent);
+
+		doAnswer(invocation -> {
+			this.pauseEventDispatching = false;
+			return null;
+		}).when(asyncEventQueue).resumeEventDispatching();
 
 		return this.asyncEventQueue;
 	}
@@ -145,6 +153,7 @@ public class StubAsyncEventQueueFactory implements AsyncEventQueueFactory {
 	}
 
 	public AsyncEventQueueFactory pauseEventDispatching() {
+		this.pauseEventDispatching = true;
 		return this;
 	}
 
