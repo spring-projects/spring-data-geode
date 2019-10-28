@@ -3028,6 +3028,7 @@ if an inner bean.
 			</xsd:annotation>
 		</xsd:attribute>
 		<xsd:attribute name="forward-expiration-destroy" type="xsd:string" default="false" use="optional"/>
+		<xsd:attribute name="pause-event-dispatching" type="xsd:string" default="false" use="optional"/>
 		<xsd:attributeGroup ref="commonWANQueueAttributes" />
 	</xsd:complexType>
 	<!-- -->
