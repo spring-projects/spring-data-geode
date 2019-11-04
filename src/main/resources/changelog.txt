@@ -3,6 +3,14 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.1.RELEASE (2019-11-04)
+---------------------------------------------
+* DATAGEODE-243 - Introduce RestTemplateConfigurer to configure the RestTemplate used when sending configuration metadata from client to server.
+* DATAGEODE-242 - Add support for AEQ pauseEventDispatching.
+* DATAGEODE-240 - Upgrade to Apache Geode 1.9.2.
+* DATAGEODE-234 - Release 2.2.1 (Moore SR1).
+
+
 Changes in version 2.1.12.RELEASE (2019-11-04)
 ----------------------------------------------
 * DATAGEODE-243 - Introduce RestTemplateConfigurer to configure the RestTemplate used when sending configuration metadata from client to server.
