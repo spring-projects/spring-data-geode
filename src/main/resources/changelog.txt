@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.1.12.RELEASE (2019-11-04)
+----------------------------------------------
+* DATAGEODE-243 - Introduce RestTemplateConfigurer to configure the RestTemplate used when sending configuration metadata from client to server.
+* DATAGEODE-233 - Release 2.1.12 (Lovelace SR12).
+
+
 Changes in version 2.2.0.RELEASE (2019-09-30)
 ---------------------------------------------
 * DATAGEODE-232 - Add support for @CacheConfig in @EnableCachingDefinedRegions.
