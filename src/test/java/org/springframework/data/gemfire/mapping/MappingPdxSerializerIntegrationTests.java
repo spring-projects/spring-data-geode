@@ -63,12 +63,14 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.repository.sample.Address;
 import org.springframework.data.gemfire.repository.sample.Person;
+import org.springframework.data.gemfire.test.support.MapBuilder;
 
 /**
  * Integration tests for {@link MappingPdxSerializer}.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @author Jeff Cherng
  */
 public class MappingPdxSerializerIntegrationTests {
 
@@ -273,8 +275,33 @@ public class MappingPdxSerializerIntegrationTests {
 			.fromData(eq(String.class), isA(PdxReader.class));
 	}
 
-	@Test
-	public void serializationUsesCustomPropertyTypeBasedPdxSerializer() {
+	@Test // DATAGEODE-170
+	public void serializationUsesCustomPdxSerializers() {
+
+		PdxSerializer mockCustomerSerializer = mock(PdxSerializer.class);
+
+		when(mockCustomerSerializer.toData(any(), any(PdxWriter.class))).thenAnswer(invocation -> {
+
+			Customer customer = invocation.getArgument(0);
+
+			PdxWriter pdxWriter = invocation.getArgument(1);
+
+			pdxWriter.writeObject("creditCard", customer.getCreditCard());
+			pdxWriter.writeString("name", customer.getName());
+
+			return true;
+		});
+
+		when(mockCustomerSerializer.fromData(any(Class.class), any(PdxReader.class))).thenAnswer(invocation -> {
+
+			PdxReader pdxReader = invocation.getArgument(1);
+
+			CreditCard creditCard = (CreditCard) pdxReader.readObject("creditCard");
+
+			String name = pdxReader.readString("name");
+
+			return Customer.newCustomer(creditCard, name);
+		});
 
 		PdxSerializer mockCreditCardSerializer = mock(PdxSerializer.class);
 
@@ -314,7 +341,10 @@ public class MappingPdxSerializerIntegrationTests {
 			.map(regionService -> ((Cache) regionService).getPdxSerializer())
 			.filter(pdxSerializer -> pdxSerializer instanceof MappingPdxSerializer)
 			.ifPresent(pdxSerializer -> ((MappingPdxSerializer) pdxSerializer)
-				.setCustomPdxSerializers(Collections.singletonMap(CreditCard.class, mockCreditCardSerializer)));
+				.setCustomPdxSerializers(MapBuilder.<Object, PdxSerializer>newMapBuilder()
+					.put(Customer.class, mockCustomerSerializer)
+					.put(CreditCard.class, mockCreditCardSerializer)
+					.build()));
 
 		CreditCard creditCard = CreditCard.of(LocalDate.of(2020, Month.FEBRUARY, 12),
 			"8842-6789-4186-7981", CreditCard.Type.VISA);
@@ -337,8 +367,10 @@ public class MappingPdxSerializerIntegrationTests {
 		assertThat(jonDoeLoaded.getCreditCard().getNumber()).isEqualTo("xxxx-7981");
 		assertThat(jonDoeLoaded.getCreditCard().getType()).isEqualTo(jonDoe.getCreditCard().getType());
 
+		verify(mockCustomerSerializer, atLeastOnce()).toData(eq(jonDoe), isA(PdxWriter.class));
+		verify(mockCustomerSerializer, times(1))
+			.fromData(eq(Customer.class), isA(PdxReader.class));
 		verify(mockCreditCardSerializer, atLeastOnce()).toData(eq(creditCard), isA(PdxWriter.class));
-
 		verify(mockCreditCardSerializer, times(1))
 			.fromData(eq(CreditCard.class), isA(PdxReader.class));
 	}
