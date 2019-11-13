@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -10,10 +12,32 @@
 	</parent>
 
 	<groupId>org.springframework.data</groupId>
-	<artifactId>spring-data-geode</artifactId>
+	<artifactId>spring-data-geode-parent</artifactId>
 	<version>2.3.0.BUILD-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-	<name>Spring Data Geode</name>
+	<name>Spring Data for Apache Geode and Pivotal GemFire Parent</name>
+	<description>Spring Data for Apache Geode and Pivotal GemFire Parent</description>
+	<url>https://projects.spring.io/spring-data-geode/</url>
+
+	<developers>
+		<developer>
+			<id>jblum</id>
+			<name>John Blum</name>
+			<email>jblum at pivotal.io</email>
+			<organization>Pivotal</organization>
+			<organizationUrl>https://www.pivotal.io</organizationUrl>
+			<roles>
+				<role>Lead Developer</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+	</developers>
+
+	<modules>
+		<module>spring-data-geode</module>
+		<module>spring-data-gemfire</module>
+	</modules>
 
 	<properties>
 		<dist.key>SGF</dist.key>
@@ -22,7 +46,6 @@
 		<antlr.version>2.7.7</antlr.version>
 		<apache-shiro.version>1.4.1</apache-shiro.version>
 		<cache-api.version>1.1.1</cache-api.version>
-		<geode.version>1.10.0</geode.version>
 		<log4j.version>2.12.1</log4j.version>
 		<multithreadedtc.version>1.01</multithreadedtc.version>
 		<snappy.version>0.4</snappy.version>
@@ -114,45 +137,7 @@
 			<version>${springdata.commons}</version>
 		</dependency>
 
-		<!-- Apache Geode -->
-		<dependency>
-			<groupId>org.apache.geode</groupId>
-			<artifactId>geode-core</artifactId>
-			<version>${geode.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-jcl</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-jul</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.logging.log4j</groupId>
-					<artifactId>log4j-slf4j-impl</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geode</groupId>
-			<artifactId>geode-cq</artifactId>
-			<version>${geode.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geode</groupId>
-			<artifactId>geode-lucene</artifactId>
-			<version>${geode.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geode</groupId>
-			<artifactId>geode-wan</artifactId>
-			<version>${geode.version}</version>
-		</dependency>
-
+		<!-- Spring Data Geode & GemFire common dependencies -->
 		<dependency>
 			<groupId>antlr</groupId>
 			<artifactId>antlr</artifactId>
@@ -207,20 +192,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-library</artifactId>
-			<version>${hamcrest}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-core</artifactId>
-			<version>${hamcrest}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
 			<version>${assertj}</version>
@@ -238,6 +209,20 @@
 			<groupId>org.apache.openwebbeans</groupId>
 			<artifactId>openwebbeans-se</artifactId>
 			<version>${webbeans}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-library</artifactId>
+			<version>${hamcrest}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-core</artifactId>
+			<version>${hamcrest}</version>
 			<scope>test</scope>
 		</dependency>
 
