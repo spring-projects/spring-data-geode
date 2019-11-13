@@ -885,7 +885,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the copyOnRead
 	 */
 	public Boolean getCopyOnRead() {
-		return copyOnRead;
+		return this.copyOnRead;
 	}
 
 	/**
@@ -901,7 +901,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the criticalHeapPercentage
 	 */
 	public Float getCriticalHeapPercentage() {
-		return criticalHeapPercentage;
+		return this.criticalHeapPercentage;
 	}
 
 	/**
@@ -953,7 +953,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the evictionHeapPercentage
 	 */
 	public Float getEvictionHeapPercentage() {
-		return evictionHeapPercentage;
+		return this.evictionHeapPercentage;
 	}
 
 	/**
@@ -986,7 +986,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the gatewayConflictResolver
 	 */
 	public GatewayConflictResolver getGatewayConflictResolver() {
-		return gatewayConflictResolver;
+		return this.gatewayConflictResolver;
 	}
 
 	/**
@@ -1000,7 +1000,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the list of configured JndiDataSources.
 	 */
 	public List<JndiDataSource> getJndiDataSources() {
-		return jndiDataSources;
+		return this.jndiDataSources;
 	}
 
 	/**
@@ -1016,7 +1016,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the lockLease
 	 */
 	public Integer getLockLease() {
-		return lockLease;
+		return this.lockLease;
 	}
 
 	/**
@@ -1032,7 +1032,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the lockTimeout
 	 */
 	public Integer getLockTimeout() {
-		return lockTimeout;
+		return this.lockTimeout;
 	}
 
 	/**
@@ -1051,7 +1051,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the messageSyncInterval
 	 */
 	public Integer getMessageSyncInterval() {
-		return messageSyncInterval;
+		return this.messageSyncInterval;
 	}
 
 	/**
@@ -1091,7 +1091,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the pdxDiskStoreName
 	 */
 	public String getPdxDiskStoreName() {
-		return pdxDiskStoreName;
+		return this.pdxDiskStoreName;
 	}
 
 	/**
@@ -1108,7 +1108,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the pdxIgnoreUnreadFields
 	 */
 	public Boolean getPdxIgnoreUnreadFields() {
-		return pdxIgnoreUnreadFields;
+		return this.pdxIgnoreUnreadFields;
 	}
 
 	/**
@@ -1124,7 +1124,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the pdxPersistent
 	 */
 	public Boolean getPdxPersistent() {
-		return pdxPersistent;
+		return this.pdxPersistent;
 	}
 
 	/**
@@ -1141,7 +1141,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the pdxReadSerialized
 	 */
 	public Boolean getPdxReadSerialized() {
-		return pdxReadSerialized;
+		return this.pdxReadSerialized;
 	}
 
 	/**
@@ -1159,7 +1159,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the pdxSerializer
 	 */
 	public PdxSerializer getPdxSerializer() {
-		return pdxSerializer;
+		return this.pdxSerializer;
 	}
 
 	/**
@@ -1200,7 +1200,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the searchTimeout
 	 */
 	public Integer getSearchTimeout() {
-		return searchTimeout;
+		return this.searchTimeout;
 	}
 
 	/**
@@ -1220,7 +1220,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @see org.apache.geode.security.SecurityManager
 	 */
 	public SecurityManager getSecurityManager() {
-		return securityManager;
+		return this.securityManager;
 	}
 
 	/**
@@ -1238,14 +1238,14 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the transactionListeners
 	 */
 	public List<TransactionListener> getTransactionListeners() {
-		return transactionListeners;
+		return this.transactionListeners;
 	}
 
 	/**
-	 * Sets the TransactionWriter used to configure the Cache for handling transaction events, such as to veto
+	 * Sets the {@link TransactionWriter} used to configure the cache for handling transaction events, such as to veto
 	 * the transaction or update an external DB before the commit.
 	 *
-	 * @param transactionWriter the GemFire TransactionWriter callback receiving transaction events.
+	 * @param transactionWriter configured {@link TransactionWriter} callback receiving transaction events.
 	 * @see org.apache.geode.cache.TransactionWriter
 	 */
 	public void setTransactionWriter(TransactionWriter transactionWriter) {
@@ -1253,10 +1253,13 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	}
 
 	/**
-	 * @return the transactionWriter
+	 * Return the configured {@link TransactionWriter} used to process and handle transaction events.
+	 *
+	 * @return the configured {@link TransactionWriter}.
+	 * @see org.apache.geode.cache.TransactionWriter
 	 */
 	public TransactionWriter getTransactionWriter() {
-		return transactionWriter;
+		return this.transactionWriter;
 	}
 
 	/**
