@@ -16,6 +16,7 @@
 
 	<name>Spring Data for Pivotal GemFire</name>
 	<description>Spring Data for Pivotal GemFire (a.k.a. Spring Data GemFire or SDG)</description>
+	<url>https://projects.spring.io/spring-data-geode/spring-data-gemfire</url>
 
 	<properties>
 		<gemfire.version>9.8.4</gemfire.version>

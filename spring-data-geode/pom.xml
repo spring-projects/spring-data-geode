@@ -16,6 +16,7 @@
 
 	<name>Spring Data for Apache Geode</name>
 	<description>Spring Data for Apache Geode (a.k.a. Spring Data Geode or SDG)</description>
+	<url>https://projects.spring.io/spring-data-geode/spring-data-geode</url>
 
 	<properties>
 		<geode.version>1.10.0</geode.version>

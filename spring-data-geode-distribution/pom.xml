@@ -14,6 +14,10 @@
 	<artifactId>spring-data-geode-distribution</artifactId>
 	<packaging>pom</packaging>
 
+	<name>Distribution for Spring Data Geode and Spring Data GemFire</name>
+	<description>Distribution build for both Spring Data for Apache Geode and Pivotal GemFire</description>
+	<url>https://projects.spring.io/spring-data-geode/spring-data-geode-distribution</url>
+
 	<properties>
 		<project.root>${project.basedir}/..</project.root>
 		<dist.key>SGF</dist.key>
