@@ -48,7 +48,7 @@
 			</exclusions>
 		</dependency>
 
-		<!-- Apache Geode -->
+		<!-- Pivotal GemFire -->
 		<dependency>
 			<groupId>io.pivotal.gemfire</groupId>
 			<artifactId>geode-core</artifactId>

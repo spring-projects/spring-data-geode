@@ -19,8 +19,8 @@
 	<url>https://projects.spring.io/spring-data-geode/spring-data-geode</url>
 
 	<properties>
-		<geode.version>1.10.0</geode.version>
 		<project.root>${basedir}/..</project.root>
+		<geode.version>1.10.0</geode.version>
 	</properties>
 
 	<dependencies>
@@ -181,13 +181,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<version>${assertj}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyLocale_zh_TW</artifactId>
 			<version>10.9.1.0</version>
@@ -202,15 +195,22 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-library</artifactId>
-			<version>${hamcrest}</version>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>${assertj}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-core</artifactId>
+			<version>${hamcrest}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-library</artifactId>
 			<version>${hamcrest}</version>
 			<scope>test</scope>
 		</dependency>

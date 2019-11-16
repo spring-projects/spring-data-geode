@@ -5,6 +5,7 @@ out/
 target/
 .gradle
 .springBeans
+*.dat
 *.iml
 *.ipr
 *.iws
@@ -12,10 +13,9 @@ target/
 .classpath
 .project
 .settings/
-.idea/
 _site/
+.idea/
 .bak/
-*.dat
 
 /samples/hello-world/vf.gf.dmn-events.cfg
 /samples/hello-world/vf.gf.dmn-license.cfg
@@ -24,4 +24,5 @@ _site/
 /vf.gf.dmn-license.cfg
 
 BACKUP*
+ConfigDiskDir*
 newDB
