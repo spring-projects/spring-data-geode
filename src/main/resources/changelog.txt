@@ -3,6 +3,13 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.1.13.RELEASE (2019-11-18)
+----------------------------------------------
+* DATAGEODE-271 - Cannot enable the BeanFactoryLocator for a ClientCache instance using SDG property.
+* DATAGEODE-259 - Release 2.1.13 (Lovelace SR13).
+* DATAGEODE-152 - Confirm that @TransactionalEventListener will work for @Transactional services.
+
+
 Changes in version 2.2.1.RELEASE (2019-11-04)
 ---------------------------------------------
 * DATAGEODE-243 - Introduce RestTemplateConfigurer to configure the RestTemplate used when sending configuration metadata from client to server.
