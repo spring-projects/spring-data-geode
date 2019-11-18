@@ -3,6 +3,14 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.2.RELEASE (2019-11-18)
+---------------------------------------------
+* DATAGEODE-271 - Cannot enable the BeanFactoryLocator for a ClientCache instance using SDG property.
+* DATAGEODE-260 - Release 2.2.2 (Moore SR2).
+* DATAGEODE-211 - Include geode redis module due to upgrading geode to 1.9.0.
+* DATAGEODE-152 - Confirm that @TransactionalEventListener will work for @Transactional services.
+
+
 Changes in version 2.1.13.RELEASE (2019-11-18)
 ----------------------------------------------
 * DATAGEODE-271 - Cannot enable the BeanFactoryLocator for a ClientCache instance using SDG property.
