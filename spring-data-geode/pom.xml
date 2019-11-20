@@ -101,6 +101,12 @@
 			<version>${cdi}</version>
 			<optional>true</optional>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.annotation</groupId>
+					<artifactId>jsr250-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Core Spring Framework -->
