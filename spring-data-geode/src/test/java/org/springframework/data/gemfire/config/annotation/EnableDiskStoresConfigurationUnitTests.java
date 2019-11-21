@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,18 +23,18 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.geode.cache.DiskStore;
-
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+
+import org.apache.geode.cache.DiskStore;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 
 /**
- * Unit tests for the {@link EnableDiskStore} and {@link EnableDiskStores} annotations as well as
+ * Unit Tests for the {@link EnableDiskStore} and {@link EnableDiskStores} annotations as well as
  * the {@link DiskStoreConfiguration} and {@link DiskStoresConfiguration} classes.
  *
  * @author John Blum
@@ -60,7 +59,6 @@ public class EnableDiskStoresConfigurationUnitTests {
 		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
 	}
 
-	/* (non-Javadoc) */
 	private void assertDiskStore(DiskStore diskStore, String name, boolean allowForceCompaction, boolean autoCompact,
 			int compactionThreshold, float diskUsageCriticalPercentage, float diskUsageWarningPercentage,
 			long maxOplogSize, int queueSize, long timeInterval, int writeBufferSize) {
@@ -78,7 +76,6 @@ public class EnableDiskStoresConfigurationUnitTests {
 		assertThat(diskStore.getWriteBufferSize()).isEqualTo(writeBufferSize);
 	}
 
-	/* (non-Javadoc) */
 	private void assertDiskStoreDirectoryLocations(DiskStore diskStore, File... diskDirectories) {
 
 		assertThat(diskStore).isNotNull();
@@ -95,7 +92,6 @@ public class EnableDiskStoresConfigurationUnitTests {
 		}
 	}
 
-	/* (non-Javadoc) */
 	private void assertDiskStoreDirectorySizes(DiskStore diskStore, int... diskDirectorySizes) {
 
 		assertThat(diskStore).isNotNull();
@@ -112,14 +108,15 @@ public class EnableDiskStoresConfigurationUnitTests {
 		}
 	}
 
-	/* (non-Javadoc) */
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
+
 		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
+
 		applicationContext.registerShutdownHook();
+
 		return applicationContext;
 	}
 
-	/* (non-Javadoc) */
 	private File newFile(String location) {
 		return new File(location);
 	}
@@ -155,13 +152,12 @@ public class EnableDiskStoresConfigurationUnitTests {
 		return String.format("%s%d", baseName, MOCK_ID.incrementAndGet());
 	}
 
-	/* (non-Javadoc) */
 	protected static <R> Answer<R> newGetter(AtomicReference<R> returnValue) {
 		return invocation -> returnValue.get();
 	}
 
-	/* (non-Javadoc) */
 	protected static <T, R> Answer<R> newSetter(Class<T> parameterType, AtomicReference<T> argument, R returnValue) {
+
 		return invocation -> {
 			argument.set(invocation.getArgument(0));
 			return returnValue;
@@ -176,9 +172,7 @@ public class EnableDiskStoresConfigurationUnitTests {
 			@EnableDiskStore.DiskDirectory(location = "/absolute/path/to/gemfire/disk/directory", maxSize = 1024),
 			@EnableDiskStore.DiskDirectory(location = "relative/path/to/gemfire/disk/directory", maxSize = 4096)
 	})
-	static class SingleDiskStoreConfiguration {
-
-	}
+	static class SingleDiskStoreConfiguration { }
 
 	@PeerCacheApplication
 	@EnableGemFireMockObjects
@@ -187,7 +181,6 @@ public class EnableDiskStoresConfigurationUnitTests {
 		@EnableDiskStore(name = "TestDiskStoreTwo", allowForceCompaction = true,
 			compactionThreshold = 85, maxOplogSize = 4096)
 	})
-	static class MultipleDiskStoresConfiguration {
+	static class MultipleDiskStoresConfiguration { }
 
-	}
 }

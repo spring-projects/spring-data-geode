@@ -64,7 +64,7 @@ public class DiskStoresConfiguration extends DiskStoreConfiguration {
 			enableDiskStoresAttributes.<Integer>getNumber("compactionThreshold"), 50);
 
 		setAttributeIfNotDefault(diskStoreAttributes, "maxOplogSize",
-			enableDiskStoresAttributes.<Integer>getNumber("maxOplogSize"), 1024);
+			enableDiskStoresAttributes.<Long>getNumber("maxOplogSize"), 1024L);
 
 		return diskStoreAttributes;
 	}
