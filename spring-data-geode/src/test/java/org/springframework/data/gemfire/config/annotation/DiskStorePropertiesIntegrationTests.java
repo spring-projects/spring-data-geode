@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.apache.geode.cache.DiskStore;
-import org.apache.geode.cache.DiskStoreFactory;
-
 import org.junit.After;
 import org.junit.Test;
+
+import org.apache.geode.cache.DiskStore;
+import org.apache.geode.cache.DiskStoreFactory;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -35,7 +34,7 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
 import org.springframework.mock.env.MockPropertySource;
 
 /**
- * Integration tests for {@link EnableDiskStore}.
+ * Integration Tests for {@link EnableDiskStore}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -167,6 +166,7 @@ public class DiskStorePropertiesIntegrationTests {
 
 		@Bean
 		DiskStoreConfigurer testDiskStoreConfigurer() {
+
 			return (beanName, factoryBean) -> {
 				factoryBean.setCompactionThreshold(75);
 				//factoryBean.setDiskUsageWarningPercentage(95.0f);
@@ -180,6 +180,6 @@ public class DiskStorePropertiesIntegrationTests {
 	@EnableDiskStores(diskStores = {
 		@EnableDiskStore(name = "TestDiskStoreOne"), @EnableDiskStore(name = "TestDiskStoreTwo")
 	})
-	static class TestDiskStoresConfiguration {
-	}
+	static class TestDiskStoresConfiguration { }
+
 }
