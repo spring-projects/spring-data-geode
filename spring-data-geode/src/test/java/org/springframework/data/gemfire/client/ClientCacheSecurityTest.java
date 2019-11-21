@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.client;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -28,16 +27,18 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.CacheLoader;
-import org.apache.geode.cache.CacheLoaderException;
-import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.CacheLoader;
+import org.apache.geode.cache.CacheLoaderException;
+import org.apache.geode.cache.LoaderHelper;
+import org.apache.geode.cache.Region;
+
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.process.ProcessExecutor;
 import org.springframework.data.gemfire.process.ProcessWrapper;
@@ -48,7 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
 /**
- * Integration tests to test SSL configuration between a Pivotal GemFire or Apache Geode client and server
+ * Integration Tests to test SSL configuration between a Pivotal GemFire or Apache Geode client and server
  * using GemFire/Geode System properties.
  *
  * @author John Blum
@@ -127,4 +128,15 @@ public class ClientCacheSecurityTest {
 		public void close() { }
 	}
 
+	public static class SslGemFireServer {
+
+		public static void main(String[] args) {
+
+			String configLocation = "org/springframework/data/gemfire/client/ClientCacheSecurityTest-server-context.xml";
+
+			ConfigurableApplicationContext applicationContext = new ClassPathXmlApplicationContext(configLocation);
+
+			applicationContext.registerShutdownHook();
+		}
+	}
 }

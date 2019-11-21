@@ -15,6 +15,7 @@
 		<prop key="client.server.host">localhost</prop>
 		<prop key="client.server.port">31517</prop>
 		<prop key="gemfire.security.ssl.components">all</prop>
+		<prop key="gemfire.security.ssl.endpoint-identification-enabled">true</prop>
 		<prop key="gemfire.security.ssl.require-authentication">true</prop>
 		<prop key="gemfire.security.ssl.protocols">any</prop>
 		<prop key="gemfire.security.ssl.ciphers">any</prop>
@@ -29,6 +30,7 @@
 		<prop key="log-level">error</prop>
 		<prop key="ssl-ciphers">${gemfire.security.ssl.ciphers}</prop>
 		<prop key="ssl-enabled-components">${gemfire.security.ssl.components}</prop>
+		<prop key="ssl-endpoint-identification-enabled">${gemfire.security.ssl.endpoint-identification-enabled}</prop>
 		<prop key="ssl-keystore">${gemfire.security.ssl.keystore.location}</prop>
 		<prop key="ssl-keystore-password">${gemfire.security.ssl.keystore.password}</prop>
 		<prop key="ssl-keystore-type">${gemfire.security.ssl.keystore.type}</prop>
