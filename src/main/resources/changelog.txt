@@ -3,6 +3,11 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.3.RELEASE (2019-12-04)
+---------------------------------------------
+* DATAGEODE-275 - Release 2.2.3 (Moore SR3).
+
+
 Changes in version 2.1.14.RELEASE (2019-12-04)
 ----------------------------------------------
 * DATAGEODE-274 - Release 2.1.14 (Lovelace SR14).
@@ -600,4 +605,5 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
