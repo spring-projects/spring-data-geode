@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.serialization.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -28,12 +26,12 @@ import javax.annotation.Resource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.query.SelectResults;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireOperations;
@@ -66,6 +64,7 @@ public class JSONRegionAdviceIntegrationTests {
 	@Autowired
 	private GemfireOperations template;
 
+	@SuppressWarnings("rawtypes")
 	@Resource(name = "JsonRegion")
 	private Region jsonRegion;
 
@@ -116,7 +115,7 @@ public class JSONRegionAdviceIntegrationTests {
 	}
 
 	@Test
-	public void objectToJSon() throws IOException {
+	public void objectToJSon() {
 
 		Person davidTuranski = new Person(1L, "David", "Turanski");
 
