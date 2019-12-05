@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 the original author or authors.
+ * Copyright 2010-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,16 @@ package org.springframework.data.gemfire;
 
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.internal.GemFireVersion;
+
+import org.w3c.dom.Element;
+
 import org.springframework.data.gemfire.config.support.GemfireFeature;
 import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.util.ClassUtils;
-import org.w3c.dom.Element;
 
 /**
  * {@link GemfireUtils} is an abstract utility class encapsulating common functionality for accessing features
- * and capabilities of Apache Geode or Pivotal GemFire based on version as well as other configuration metadata.
+ * and capabilities of Apache Geode based on version as well as other configuration meta-data.
  *
  * @author John Blum
  * @see org.apache.geode.cache.CacheFactory

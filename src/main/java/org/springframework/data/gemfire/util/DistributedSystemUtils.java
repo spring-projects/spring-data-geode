@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 the original author or authors.
+ * Copyright 2010-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.util;
 
 import java.util.Optional;
@@ -53,7 +52,6 @@ public abstract class DistributedSystemUtils extends SpringUtils {
 	public static final String GEMFIRE_PREFIX = DistributionConfig.GEMFIRE_PREFIX;
 	public static final String NAME_PROPERTY_NAME = DistributionConfig.NAME_NAME;
 
-	/* (non-Javadoc) */
 	public static Properties configureDurableClient(Properties gemfireProperties,
 			String durableClientId, Integer durableClientTimeout) {
 
@@ -71,29 +69,24 @@ public abstract class DistributedSystemUtils extends SpringUtils {
 		return gemfireProperties;
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isConnected(DistributedSystem distributedSystem) {
 		return Optional.ofNullable(distributedSystem).filter(DistributedSystem::isConnected).isPresent();
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isNotConnected(DistributedSystem distributedSystem) {
 		return !isConnected(distributedSystem);
 	}
 
-	/* (non-Javadoc) */
 	@SuppressWarnings("unchecked")
 	public static <T extends DistributedSystem> T getDistributedSystem() {
 		return (T) InternalDistributedSystem.getAnyInstance();
 	}
 
-	/* (non-Javadoc) */
 	@SuppressWarnings("unchecked")
 	public static <T extends DistributedSystem> T getDistributedSystem(GemFireCache gemfireCache) {
 		return (T) Optional.ofNullable(gemfireCache).map(GemFireCache::getDistributedSystem).orElse(null);
 	}
 
-	/* (non-Javadoc)*/
 	@SuppressWarnings("unchecked")
 	public static <T extends Locator> T getLocator() {
 		return (T) InternalLocator.getLocator();

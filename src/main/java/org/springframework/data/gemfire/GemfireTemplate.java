@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2020 the original author or authors.
+ * Copyright 2010-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import java.lang.reflect.InvocationHandler;
@@ -23,6 +22,8 @@ import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.apache.geode.GemFireCheckedException;
 import org.apache.geode.GemFireException;
@@ -34,12 +35,14 @@ import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryInvalidException;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.internal.cache.LocalRegion;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.gemfire.util.RegionUtils;
+import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -411,8 +414,8 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		ClientCache clientCache = (ClientCache) region.getRegionService();
 
 		return requiresLocalQueryService(region) ? clientCache.getLocalQueryService()
-			: (requiresPooledQueryService(region) ? clientCache.getQueryService(poolNameFrom(region))
-			: queryServiceFrom(region));
+			: requiresPooledQueryService(region) ? clientCache.getQueryService(poolNameFrom(region))
+			: queryServiceFrom(region);
 	}
 
 	boolean requiresLocalQueryService(Region<?, ?> region) {
@@ -420,19 +423,31 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	}
 
 	boolean isLocalWithNoServerProxy(Region<?, ?> region) {
-		return region instanceof LocalRegion && !((LocalRegion) region).hasServerProxy();
+
+		if (RegionUtils.isLocal(region)) {
+
+			Supplier<Boolean> hasServerProxyMethod = () ->
+				Optional.ofNullable(ReflectionUtils.findMethod(region.getClass(), "hasServerProxy"))
+					.map(method -> ReflectionUtils.invokeMethod(method, region))
+					.map(Boolean.FALSE::equals)
+					.orElse(false);
+
+			return SpringUtils.safeGetValue(hasServerProxyMethod, false);
+		}
+
+		return false;
 	}
 
 	boolean requiresPooledQueryService(Region<?, ?> region) {
 		return StringUtils.hasText(poolNameFrom(region));
 	}
 
-	QueryService queryServiceFrom(Region<?, ?> region) {
-		return region.getRegionService().getQueryService();
-	}
-
 	String poolNameFrom(Region<?, ?> region) {
 		return region.getAttributes().getPoolName();
+	}
+
+	QueryService queryServiceFrom(Region<?, ?> region) {
+		return region.getRegionService().getQueryService();
 	}
 
 	/*
@@ -455,7 +470,7 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 		try {
 
-			Region<?, ?> regionArgument = (exposeNativeRegion ? getRegion() : regionProxy);
+			Region<?, ?> regionArgument = (exposeNativeRegion ? getRegion() : this.regionProxy);
 
 			return action.doInGemfire(regionArgument);
 		}
