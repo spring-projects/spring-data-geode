@@ -35,7 +35,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.query.internal.ResultsBag;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxInstance;
 
@@ -264,13 +263,13 @@ public class JSONRegionAdvice {
 
 				if (returnValue instanceof SelectResults && this.convertReturnedCollections) {
 
-					ResultsBag resultsBag = new ResultsBag();
+					Collection<Object> results = new ArrayList<>();
 
 					for (Object obj : (SelectResults<?>) returnValue) {
-						resultsBag.add(convertToJson(obj));
+						results.add(convertToJson(obj));
 					}
 
-					returnValue = resultsBag;
+					returnValue = results;
 				}
 				else {
 					returnValue = convertToJson(returnValue);

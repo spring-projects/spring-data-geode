@@ -21,6 +21,7 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.ClientRegionShortcut;
+import org.apache.geode.internal.cache.LocalRegion;
 
 import org.springframework.data.gemfire.client.ClientRegionShortcutWrapper;
 import org.springframework.lang.NonNull;
@@ -43,23 +44,23 @@ public abstract class RegionUtils extends CacheUtils {
 	 * Assert that the configuration settings for {@link ClientRegionShortcut} and the {@literal persistent} attribute
 	 * in &lt;gfe:*-region&gt; elements are compatible.
 	 *
-	 * @param resolvedShortcut {@link ClientRegionShortcut} resolved from the SDG XML namespace.
+	 * @param clientRegionShortcut {@link ClientRegionShortcut} resolved from the SDG XML namespace.
 	 * @param persistent boolean indicating the value of the {@literal persistent} configuration attribute.
 	 * @see org.springframework.data.gemfire.client.ClientRegionShortcutWrapper
 	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
 	public static void assertClientRegionShortcutAndPersistentAttributeAreCompatible(
-			ClientRegionShortcut resolvedShortcut, Boolean persistent) {
+			ClientRegionShortcut clientRegionShortcut, Boolean persistent) {
 
 		boolean persistentUnspecified = persistent == null;
 
-		if (ClientRegionShortcutWrapper.valueOf(resolvedShortcut).isPersistent()) {
+		if (ClientRegionShortcutWrapper.valueOf(clientRegionShortcut).isPersistent()) {
 			Assert.isTrue(persistentUnspecified || Boolean.TRUE.equals(persistent),
-				String.format("Client Region Shortcut [%s] is not valid when persistent is false", resolvedShortcut));
+				String.format("Client Region Shortcut [%s] is not valid when persistent is false", clientRegionShortcut));
 		}
 		else {
 			Assert.isTrue(persistentUnspecified || Boolean.FALSE.equals(persistent),
-				String.format("Client Region Shortcut [%s] is not valid when persistent is true", resolvedShortcut));
+				String.format("Client Region Shortcut [%s] is not valid when persistent is true", clientRegionShortcut));
 		}
 	}
 
@@ -67,22 +68,21 @@ public abstract class RegionUtils extends CacheUtils {
 	 * Assert that the configuration settings for {@link DataPolicy} and the {@literal persistent} attribute
 	 * in &lt;gfe:*-region&gt; elements are compatible.
 	 *
-	 * @param resolvedDataPolicy {@link DataPolicy} resolved from the SDG XML namespace.
+	 * @param dataPolicy {@link DataPolicy} resolved from the SDG XML namespace.
 	 * @param persistent boolean indicating the value of the {@literal persistent} configuration attribute.
 	 * @see org.apache.geode.cache.DataPolicy
 	 */
-	public static void assertDataPolicyAndPersistentAttributeAreCompatible(
-			DataPolicy resolvedDataPolicy, Boolean persistent) {
+	public static void assertDataPolicyAndPersistentAttributeAreCompatible(DataPolicy dataPolicy, Boolean persistent) {
 
 		boolean persistentUnspecified = persistent == null;
 
-		if (resolvedDataPolicy.withPersistence()) {
+		if (dataPolicy.withPersistence()) {
 			Assert.isTrue(persistentUnspecified || Boolean.TRUE.equals(persistent),
-				String.format("Data Policy [%s] is not valid when persistent is false", resolvedDataPolicy));
+				String.format("Data Policy [%s] is not valid when persistent is false", dataPolicy));
 		}
 		else {
 			Assert.isTrue(persistentUnspecified || Boolean.FALSE.equals(persistent),
-				String.format("Data Policy [%s] is not valid when persistent is true", resolvedDataPolicy));
+				String.format("Data Policy [%s] is not valid when persistent is true", dataPolicy));
 		}
 	}
 
@@ -135,6 +135,18 @@ public abstract class RegionUtils extends CacheUtils {
 			.map(Region::getRegionService)
 			.filter(regionService -> !regionService.isClosed())
 			.isPresent();
+	}
+
+	/**
+	 * Determines whether the given {@link Region} is a non-distributed, {@literal local} {@link Region}.
+	 *
+	 * @param region {@link Region} to evaluate.
+	 * @return a boolean value indicating whether the given {@link Region} is a non-distributed,
+	 * {@literal local} {@link Region}.
+	 * @see org.apache.geode.cache.Region
+	 */
+	public static boolean isLocal(@Nullable Region<?, ?> region) {
+		return region instanceof LocalRegion;
 	}
 
 	@Nullable

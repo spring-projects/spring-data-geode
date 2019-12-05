@@ -26,7 +26,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * {@link GemfireUtils} is an abstract utility class encapsulating common functionality for accessing features
- * and capabilities of Apache Geode or Pivotal GemFire based on version as well as other configuration meta-data.
+ * and capabilities of Apache Geode based on version as well as other configuration meta-data.
  *
  * @author John Blum
  * @see org.apache.geode.cache.CacheFactory
