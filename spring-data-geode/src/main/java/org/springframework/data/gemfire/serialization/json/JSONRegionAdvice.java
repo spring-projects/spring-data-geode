@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.serialization.json;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
@@ -22,19 +21,26 @@ import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList
 import static org.springframework.data.gemfire.util.RegionUtils.toRegionName;
 import static org.springframework.data.gemfire.util.RegionUtils.toRegionPath;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
+import org.apache.geode.cache.query.types.CollectionType;
+import org.apache.geode.cache.query.types.ObjectType;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxInstance;
 
@@ -263,13 +269,13 @@ public class JSONRegionAdvice {
 
 				if (returnValue instanceof SelectResults && this.convertReturnedCollections) {
 
-					Collection<Object> results = new ArrayList<>();
+					List<Object> results = new ArrayList<>();
 
 					for (Object obj : (SelectResults<?>) returnValue) {
 						results.add(convertToJson(obj));
 					}
 
-					returnValue = results;
+					returnValue = new ImmutableSelectResults<>(results);
 				}
 				else {
 					returnValue = convertToJson(returnValue);
@@ -282,9 +288,9 @@ public class JSONRegionAdvice {
 		catch (Throwable cause) {
 			handleThrowable(cause);
 		}
+
 		return returnValue;
 	}
-
 
 	private boolean isIncludedJsonRegion(Object target) {
 		return target instanceof Region && isIncludedJsonRegion((Region) target);
@@ -367,6 +373,55 @@ public class JSONRegionAdvice {
 		}
 		else {
 			throw new RuntimeException(cause);
+		}
+	}
+
+	private static final class ImmutableSelectResults<T> extends AbstractCollection<T> implements SelectResults<T> {
+
+		private final List<T> results;
+
+		private ImmutableSelectResults(List<T> results) {
+			this.results = new ArrayList<>(results);
+		}
+
+		@Override
+		public List<T> asList() {
+			return Collections.unmodifiableList(this.results);
+		}
+
+		@Override
+		public Set<T> asSet() {
+			return new HashSet<>(this.results);
+		}
+
+		@Override
+		public void setElementType(ObjectType elementType) {
+			throw new UnsupportedOperationException("Setting element type on an immutable SelectResults object is not supported");
+		}
+
+		@Override
+		public CollectionType getCollectionType() {
+			throw new UnsupportedOperationException("Not Implemented");
+		}
+
+		@Override
+		public boolean isModifiable() {
+			return false;
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+			return asList().iterator();
+		}
+
+		@Override
+		public int occurrences(T element) {
+			return Long.valueOf(asList().stream().filter(item -> item.equals(element)).count()).intValue();
+		}
+
+		@Override
+		public int size() {
+			return this.results.size();
 		}
 	}
 }
