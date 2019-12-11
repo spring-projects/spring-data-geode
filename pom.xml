@@ -54,6 +54,7 @@
 		<snappy.version>0.4</snappy.version>
 		<springdata.commons>2.3.0.BUILD-SNAPSHOT</springdata.commons>
 		<spring-shell.version>1.2.0.RELEASE</spring-shell.version>
+		<awaitility.version>3.1.2</awaitility.version>
 	</properties>
 
 	<repositories>
