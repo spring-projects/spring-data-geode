@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.listener;
 
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeSet;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +32,6 @@ import java.util.stream.StreamSupport;
 
 import org.apache.geode.cache.RegionService;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqException;
@@ -57,18 +54,22 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.gemfire.GemfireQueryException;
 import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.client.PoolResolver;
 import org.springframework.data.gemfire.client.support.DefaultableDelegatingPoolAdapter;
 import org.springframework.data.gemfire.client.support.DelegatingPoolAdapter;
+import org.springframework.data.gemfire.client.support.PoolManagerPoolResolver;
 import org.springframework.data.gemfire.config.annotation.ContinuousQueryListenerContainerConfigurer;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ErrorHandler;
 import org.springframework.util.StringUtils;
 
 /**
- * Container providing asynchronous processing/handling for Pivotal GemFire / Apache Geode Continuous Queries (CQ).
+ * Container providing asynchronous processing/handling for Apache Geode Continuous Queries (CQ).
  *
  * @author Costin Leau
  * @author John Blum
@@ -89,6 +90,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.context.SmartLifecycle
  * @see org.springframework.core.task.SimpleAsyncTaskExecutor
  * @see org.springframework.core.task.TaskExecutor
+ * @see org.springframework.data.gemfire.client.PoolResolver
  * @see org.springframework.data.gemfire.client.support.DefaultableDelegatingPoolAdapter
  * @see org.springframework.data.gemfire.client.support.DelegatingPoolAdapter
  * @see org.springframework.util.ErrorHandler
@@ -101,6 +103,9 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	// Default Thread name prefix is "ContinuousQueryListenerContainer-"
 	public static final String DEFAULT_THREAD_NAME_PREFIX =
 		String.format("%s-", ContinuousQueryListenerContainer.class.getSimpleName());
+
+	// Default PoolResolver uses Apache Geode's PoolManager
+	protected static final PoolResolver DEFAULT_POOL_RESOLVER = new PoolManagerPoolResolver();
 
 	private boolean autoStartup = true;
 
@@ -124,6 +129,8 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+	private PoolResolver poolResolver = DEFAULT_POOL_RESOLVER;
+
 	private Queue<CqQuery> continuousQueries = new ConcurrentLinkedQueue<>();
 
 	private QueryService queryService;
@@ -144,12 +151,19 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 		this.initialized = true;
 	}
 
+	/**
+	 * Applies configuration customizations to this {@link ContinuousQueryListenerContainer} from the registered
+	 * composite {@link ContinuousQueryListenerContainerConfigurer} objects.
+	 *
+	 * @see #getCompositeContinuousQueryListenerContainerConfigurer()
+	 * @see #applyContinuousQueryListenerContainerConfigurers(ContinuousQueryListenerContainerConfigurer...)
+	 */
 	private void applyContinuousQueryListenerContainerConfigurers() {
 		applyContinuousQueryListenerContainerConfigurers(getCompositeContinuousQueryListenerContainerConfigurer());
 	}
 
 	/**
-	 * Applies the array of {@link ContinuousQueryListenerContainerConfigurer} objects to customize the configuration
+	 * Applies an array of {@link ContinuousQueryListenerContainerConfigurer} objects to customize the configuration
 	 * of this {@link ContinuousQueryListenerContainer}.
 	 *
 	 * @param configurers array of {@link ContinuousQueryListenerContainerConfigurer} used to customize
@@ -166,7 +180,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	}
 
 	/**
-	 * Applies the {@link Iterable} of {@link ContinuousQueryListenerContainerConfigurer} objects to customize
+	 * Applies an {@link Iterable} of {@link ContinuousQueryListenerContainerConfigurer} objects to customize
 	 * the configuration of this {@link ContinuousQueryListenerContainer}.
 	 *
 	 * @param configurers {@link Iterable} of {@link ContinuousQueryListenerContainerConfigurer} used to customize
@@ -178,6 +192,18 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 
 		StreamSupport.stream(CollectionUtils.nullSafeIterable(configurers).spliterator(), false)
 			.forEach(configurer -> configurer.configure(getBeanName(), this));
+	}
+
+	/**
+	 * Resolves a {@link Pool} object with the given {@link String name} from the configured {@link PoolResolver}.
+	 *
+	 * @param poolName {@link String name} of the {@link Pool} to resolve.
+	 * @return a resolved {@link Pool} object from the given {@link String name}.
+	 * @see org.apache.geode.cache.client.Pool
+	 * @see #getPoolResolver()
+	 */
+	@Nullable Pool resolvePool(String poolName) {
+		return getPoolResolver().resolve(poolName);
 	}
 
 	/**
@@ -193,7 +219,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 			.filter(StringUtils::hasText)
 			.orElseGet(() ->
 				Optional.ofNullable(getBeanFactory())
-					.filter(it -> it.containsBean(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))
+					.filter(it -> SpringUtils.isMatchingBean(it, GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME, Pool.class))
 					.map(it -> GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
 					.orElse(GemfireUtils.DEFAULT_POOL_NAME));
 	}
@@ -207,7 +233,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	 *
 	 * However, if the {@link BeanFactory} was not configured, or no bean exists in the Spring container
 	 * with the given {@link String name} or of the {@link Pool} type, then the named {@link Pool} is looked up
-	 * in GemFire/Geode's {@link PoolManager}.
+	 * in GemFire/Geode's {@link org.apache.geode.cache.client.PoolManager}.
 	 *
 	 * @param poolName {@link String} containing the name of the {@link Pool} to initialize.
 	 * @return the given {@link Pool} name.
@@ -215,13 +241,12 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	String eagerlyInitializePool(String poolName) {
 
 		Supplier<String> poolNameResolver = () -> {
-			Assert.notNull(PoolManager.find(poolName), String.format("No Pool with name [%s] was found", poolName));
+			Assert.notNull(resolvePool(poolName), String.format("No Pool with name [%s] was found", poolName));
 			return poolName;
 		};
 
 		return Optional.ofNullable(getBeanFactory())
-			.filter(it -> it.containsBean(poolName))
-			.filter(it -> it.isTypeMatch(poolName, Pool.class))
+			.filter(it -> SpringUtils.isMatchingBean(it, poolName, Pool.class))
 			.map(it -> {
 				try {
 					it.getBean(poolName, Pool.class);
@@ -247,9 +272,13 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 		QueryService queryService = getQueryService();
 
 		if (queryService == null || StringUtils.hasText(poolName)) {
-			setQueryService(DefaultableDelegatingPoolAdapter.from(
-				DelegatingPoolAdapter.from(PoolManager.find(poolName)))
-					.preferPool().getQueryService(queryService));
+
+			Pool resolvedPool = resolvePool(poolName);
+
+			DefaultableDelegatingPoolAdapter poolAdapter =
+				DefaultableDelegatingPoolAdapter.from(DelegatingPoolAdapter.from(resolvedPool));
+
+			setQueryService(poolAdapter.preferPool().getQueryService(queryService));
 		}
 
 		return getQueryService();
@@ -308,7 +337,11 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	}
 
 	/**
-	 * Initializes all the {@link CqQuery Continuous Queries} defined by the {@link ContinuousQueryDefinition defintions}.
+	 * Initializes all the {@link CqQuery Continuous Queries} defined by
+	 * the {@link ContinuousQueryDefinition Continuous Query Defintions}.
+	 *
+	 * @see #getContinuousQueryDefinitions()
+	 * @see #initContinuousQueries(Set)
 	 */
 	private void initContinuousQueries() {
 		initContinuousQueries(getContinuousQueryDefinitions());
@@ -317,17 +350,13 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	private void initContinuousQueries(Set<ContinuousQueryDefinition> continuousQueryDefinitions) {
 
 		// Stop the ContinuousQueryListenerContainer if currently running...
-		if (isRunning()) {
-			stop();
-		}
+		stop();
 
 		// Close any existing continuous queries...
 		closeQueries();
 
 		// Add current continuous queries based on the definitions from the configuration...
-		for (ContinuousQueryDefinition definition : continuousQueryDefinitions) {
-			addContinuousQuery(definition);
-		}
+		continuousQueryDefinitions.forEach(this::addContinuousQuery);
 	}
 
 	/**
@@ -455,8 +484,11 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	 * @see #setContinuousQueryListenerContainerConfigurers(List)
 	 */
 	public void setContinuousQueryListenerContainerConfigurers(ContinuousQueryListenerContainerConfigurer... configurers) {
-		setContinuousQueryListenerContainerConfigurers(Arrays.asList(
-			ArrayUtils.nullSafeArray(configurers, ContinuousQueryListenerContainerConfigurer.class)));
+
+		List<ContinuousQueryListenerContainerConfigurer> configurerList =
+			Arrays.asList(ArrayUtils.nullSafeArray(configurers, ContinuousQueryListenerContainerConfigurer.class));
+
+		setContinuousQueryListenerContainerConfigurers(configurerList);
 	}
 
 	/**
@@ -468,7 +500,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	 * @see org.springframework.data.gemfire.config.annotation.ContinuousQueryListenerContainerConfigurer
 	 */
 	public void setContinuousQueryListenerContainerConfigurers(List<ContinuousQueryListenerContainerConfigurer> configurers) {
-		this.cqListenerContainerConfigurers = Optional.ofNullable(configurers).orElseGet(Collections::emptyList);
+		this.cqListenerContainerConfigurers = CollectionUtils.nullSafeList(configurers);
 	}
 
 	/**
@@ -548,11 +580,34 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	}
 
 	/**
+	 * Configures the {@link PoolResolver} to resolve {@link Pool} objects by {@link String name}
+	 * from the Apache Geode cache.
+	 *
+	 * @param poolResolver the configured {@link PoolResolver} used to resolve {@link Pool} objects
+	 * by {@link String name}.
+	 * @see org.springframework.data.gemfire.client.PoolResolver
+	 */
+	public void setPoolResolver(PoolResolver poolResolver) {
+		this.poolResolver = poolResolver;
+	}
+
+	/**
+	 * Returns the configured {@link PoolResolver} used to resolve {@link Pool} object by {@link String name}.
+	 *
+	 * @return the configured {@link PoolResolver}.
+	 * @see org.springframework.data.gemfire.client.PoolResolver
+	 */
+	public PoolResolver getPoolResolver() {
+		return this.poolResolver != null ? this.poolResolver : DEFAULT_POOL_RESOLVER;
+	}
+
+	/**
 	 * Attaches the given query definitions.
 	 *
 	 * @param queries set of queries
 	 */
 	public void setQueryListeners(Set<ContinuousQueryDefinition> queries) {
+
 		getContinuousQueryDefinitions().clear();
 		getContinuousQueryDefinitions().addAll(nullSafeSet(queries));
 	}
@@ -630,8 +685,9 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 
 			CqAttributes attributes = definition.toCqAttributes(this::newCqListener);
 
-			CqQuery query = (definition.isNamed() ? newNamedContinuousQuery(definition, attributes)
-				: newUnnamedContinuousQuery(definition, attributes));
+			CqQuery query = definition.isNamed()
+				? newNamedContinuousQuery(definition, attributes)
+				: newUnnamedContinuousQuery(definition, attributes);
 
 			return manage(query);
 		}
@@ -657,7 +713,9 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	}
 
 	private CqQuery manage(CqQuery query) {
+
 		getContinuousQueries().add(query);
+
 		return query;
 	}
 
@@ -669,8 +727,8 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 			doStart();
 			this.running = true;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Started ContinuousQueryListenerContainer");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Started ContinuousQueryListenerContainer");
 			}
 		}
 	}
@@ -737,22 +795,22 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 
 				boolean active = this.isActive();
 
-				if (!active && logger.isDebugEnabled()) {
-					logger.debug("A CQ listener exception occurred after container shutdown; ErrorHandler will not be invoked", cause);
+				if (!active && this.logger.isDebugEnabled()) {
+					this.logger.debug("A CQ listener exception occurred after container shutdown; ErrorHandler will not be invoked", cause);
 				}
 
 				return active;
 			})
 			.ifPresent(errorHandler -> errorHandler.handleError(cause));
 
-		if (!getErrorHandler().isPresent() && logger.isWarnEnabled()) {
-			logger.warn("Execution of CQ listener failed; No ErrorHandler was configured", cause);
+		if (!getErrorHandler().isPresent() && this.logger.isWarnEnabled()) {
+			this.logger.warn("Execution of CQ listener failed; No ErrorHandler was configured", cause);
 		}
 	}
 
 	@Override
-	@SuppressWarnings("all")
 	public void stop(Runnable callback) {
+
 		stop();
 		callback.run();
 	}
@@ -765,21 +823,20 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 			this.running = false;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Stopped ContinuousQueryListenerContainer");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Stopped ContinuousQueryListenerContainer");
 		}
 	}
 
 	void doStop() {
 
 		getContinuousQueries().forEach(query -> {
-
 			try {
 				query.stop();
 			}
 			catch (Exception cause) {
-				if (logger.isWarnEnabled()) {
-					logger.warn(String.format("Cannot stop query [%1$s]; state is [%2$s]",
+				if (this.logger.isWarnEnabled()) {
+					this.logger.warn(String.format("Cannot stop query [%1$s]; state is [%2$s]",
 						query.getName(), query.getState()), cause);
 				}
 			}
@@ -787,26 +844,30 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void destroy() {
+
 		stop();
 		closeQueries();
 		destroyExecutor();
+
 		this.initialized = false;
 	}
 
 	private void closeQueries() {
 
-		getContinuousQueries().stream().filter(query -> !query.isClosed()).forEach(query -> {
-			try {
-				query.close();
-			}
-			catch (Exception cause) {
-				if (logger.isWarnEnabled()) {
-					logger.warn(String.format("Cannot close query [%1$s]; state is [%2$s]",
-						query.getName(), query.getState()), cause);
+		getContinuousQueries().stream()
+			.filter(query -> !query.isClosed())
+			.forEach(query -> {
+				try {
+					query.close();
 				}
-			}
-		});
+				catch (Exception cause) {
+					if (logger.isWarnEnabled()) {
+						logger.warn(String.format("Cannot close query [%1$s]; state is [%2$s]",
+							query.getName(), query.getState()), cause);
+					}
+				}
+			});
 
 		getContinuousQueries().clear();
 	}
@@ -815,17 +876,19 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 
 		Optional.ofNullable(getTaskExecutor())
 			.filter(it -> this.manageExecutor)
-			.filter(it -> it instanceof DisposableBean)
+			.filter(DisposableBean.class::isInstance)
 			.ifPresent(it -> {
 				try {
+
 					((DisposableBean) it).destroy();
 
-					if (logger.isDebugEnabled()) {
-						logger.debug("Stopped internally-managed TaskExecutor {}", it);
+					if (this.logger.isDebugEnabled()) {
+						this.logger.debug("Stopped internally-managed TaskExecutor {}", it);
 					}
 				}
-				catch (Exception ignore) {
-					logger.warn("Failed to properly destroy the managed TaskExecutor {}", it);
+				catch (Exception cause) {
+					this.logger.warn("Failed to properly destroy the managed TaskExecutor {}: {}",
+						it, cause.getMessage());
 				}
 			});
 	}
@@ -835,8 +898,10 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 		private final ContinuousQueryListener listener;
 
 		protected EventDispatcherAdapter(ContinuousQueryListener listener) {
-			this.listener = Optional.ofNullable(listener)
-				.orElseThrow(() -> newIllegalArgumentException("ContinuousQueryListener is required"));
+
+			Assert.notNull(listener, "ContinuousQueryListener is required");
+
+			this.listener = listener;
 		}
 
 		protected ContinuousQueryListener getListener() {
@@ -851,7 +916,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 			dispatchEvent(getListener(), event);
 		}
 
-		public void close() {
-		}
+		public void close() { }
+
 	}
 }

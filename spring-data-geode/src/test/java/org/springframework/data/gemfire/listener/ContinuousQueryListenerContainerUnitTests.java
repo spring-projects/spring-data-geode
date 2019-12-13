@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -53,13 +52,13 @@ import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.CqState;
 import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.internal.cache.PoolManagerImpl;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.data.gemfire.GemfireQueryException;
 import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.client.PoolResolver;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.util.ErrorHandler;
 
@@ -80,6 +79,11 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 	private ContinuousQueryListenerContainer cqListenerContainer;
 
+	@Before
+	public void setup() {
+		this.cqListenerContainer = spy(new ContinuousQueryListenerContainer());
+	}
+
 	private CqQuery mockCqQuery(String name, String query, CqAttributes attributes, boolean durable) {
 
 		CqQuery mockQuery = mock(CqQuery.class);
@@ -91,30 +95,27 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		return mockQuery;
 	}
-	@Before
-	public void setup() {
-		this.cqListenerContainer = spy(new ContinuousQueryListenerContainer());
-	}
 
 	@Test
 	public void afterPropertiesSetIsAutoStart() {
 
 		Pool mockPool = mock(Pool.class);
 
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
 		QueryService mockQueryService = mock(QueryService.class);
 
-		when(mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
-		when(mockBeanFactory.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
-		when(mockBeanFactory.getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(mockPool);
-		when(mockPool.getName()).thenReturn(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
+		when(this.mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
+		when(this.mockBeanFactory.getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(mockPool);
+		when(mockPoolResolver.resolve(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(mockPool);
 		when(mockPool.getQueryService()).thenReturn(mockQueryService);
 
+		this.cqListenerContainer.setAutoStartup(true);
+		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
+
 		try {
-
-			PoolManagerImpl.getPMI().register(mockPool);
-
-			this.cqListenerContainer.setAutoStartup(true);
-			this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
 			this.cqListenerContainer.afterPropertiesSet();
 		}
 		finally {
@@ -122,15 +123,16 @@ public class ContinuousQueryListenerContainerUnitTests {
 			assertThat(this.cqListenerContainer.isActive()).isTrue();
 			assertThat(this.cqListenerContainer.isAutoStartup()).isTrue();
 			assertThat(this.cqListenerContainer.isRunning()).isFalse();
+			assertThat(this.cqListenerContainer.getPoolResolver()).isEqualTo(mockPoolResolver);
 			assertThat(this.cqListenerContainer.getQueryService()).isEqualTo(mockQueryService);
 			assertThat(this.cqListenerContainer.getTaskExecutor()).isInstanceOf(Executor.class);
 
 			verify(this.mockBeanFactory, times(2)).containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
-			verify(this.mockBeanFactory, times(1)).isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
+			verify(this.mockBeanFactory, times(2)).isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
 			verify(this.mockBeanFactory, times(1)).getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
-			verify(mockPool, times(1)).getName();
+			verify(mockPoolResolver, times(1)).resolve(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
 			verify(mockPool, times(1)).getQueryService();
-			verifyZeroInteractions(mockQueryService);
+			verifyNoInteractions(mockQueryService);
 		}
 	}
 
@@ -139,33 +141,44 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		Executor mockExecutor = mock(Executor.class);
 
-		PoolManagerImpl poolManagerSpy = spy(PoolManagerImpl.getPMI());
+		Pool mockPool = mock(Pool.class);
+
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
 
 		QueryService mockQueryService = mock(QueryService.class);
 
-		when(mockBeanFactory.containsBean(eq("TestPool"))).thenReturn(true);
-		when(mockBeanFactory.isTypeMatch(eq("TestPool"), eq(Pool.class))).thenReturn(true);
+		when(this.mockBeanFactory.containsBean(eq("TestPool"))).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(eq("TestPool"), eq(Pool.class))).thenReturn(true);
+		when(mockPoolResolver.resolve(eq("TestPool"))).thenReturn(mockPool);
 
-		cqListenerContainer.setAutoStartup(false);
-		cqListenerContainer.setBeanFactory(mockBeanFactory);
-		cqListenerContainer.setPoolName("TestPool");
-		cqListenerContainer.setQueryService(mockQueryService);
-		cqListenerContainer.setTaskExecutor(mockExecutor);
-		cqListenerContainer.afterPropertiesSet();
+		this.cqListenerContainer.setAutoStartup(false);
+		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+		this.cqListenerContainer.setPoolName("TestPool");
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
+		this.cqListenerContainer.setQueryService(mockQueryService);
+		this.cqListenerContainer.setTaskExecutor(mockExecutor);
 
-		assertThat(cqListenerContainer.isActive()).isTrue();
-		assertThat(cqListenerContainer.isAutoStartup()).isFalse();
-		assertThat(cqListenerContainer.isRunning()).isFalse();
-		assertThat(cqListenerContainer.getBeanFactory()).isSameAs(mockBeanFactory);
-		assertThat(cqListenerContainer.getPoolName()).isEqualTo("TestPool");
-		assertThat(cqListenerContainer.getQueryService()).isSameAs(mockQueryService);
-		assertThat(cqListenerContainer.getTaskExecutor()).isSameAs(mockExecutor);
+		try {
+			this.cqListenerContainer.afterPropertiesSet();
+		}
+		finally {
 
-		verify(mockBeanFactory, times(1)).containsBean(eq("TestPool"));
-		verify(mockBeanFactory, times(1)).isTypeMatch(eq("TestPool"), eq(Pool.class));
-		verify(mockBeanFactory, times(1)).getBean(eq("TestPool"), eq(Pool.class));
-		verify(poolManagerSpy, never()).find(anyString());
-		verifyZeroInteractions(mockQueryService);
+			assertThat(this.cqListenerContainer.isActive()).isTrue();
+			assertThat(this.cqListenerContainer.isAutoStartup()).isFalse();
+			assertThat(this.cqListenerContainer.isRunning()).isFalse();
+			assertThat(this.cqListenerContainer.getBeanFactory()).isSameAs(this.mockBeanFactory);
+			assertThat(this.cqListenerContainer.getPoolName()).isEqualTo("TestPool");
+			assertThat(this.cqListenerContainer.getPoolResolver()).isEqualTo(mockPoolResolver);
+			assertThat(this.cqListenerContainer.getQueryService()).isSameAs(mockQueryService);
+			assertThat(this.cqListenerContainer.getTaskExecutor()).isSameAs(mockExecutor);
+
+			verify(this.mockBeanFactory, times(1)).containsBean(eq("TestPool"));
+			verify(this.mockBeanFactory, times(1)).isTypeMatch(eq("TestPool"), eq(Pool.class));
+			verify(this.mockBeanFactory, times(1)).getBean(eq("TestPool"), eq(Pool.class));
+			verify(mockPoolResolver, times(1)).resolve(eq("TestPool"));
+			verify(mockPool, times(1)).getQueryService();
+			verifyNoInteractions(mockQueryService);
+		}
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -199,62 +212,134 @@ public class ContinuousQueryListenerContainerUnitTests {
 	}
 
 	@Test
+	public void setAndGetPoolResolver() {
+
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
+		assertThat(this.cqListenerContainer.getPoolResolver())
+			.isEqualTo(ContinuousQueryListenerContainer.DEFAULT_POOL_RESOLVER);
+
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
+
+		assertThat(this.cqListenerContainer.getPoolResolver()).isEqualTo(mockPoolResolver);
+
+		this.cqListenerContainer.setPoolResolver(null);
+
+		assertThat(this.cqListenerContainer.getPoolResolver())
+			.isEqualTo(ContinuousQueryListenerContainer.DEFAULT_POOL_RESOLVER);
+
+		verifyNoInteractions(mockPoolResolver);
+	}
+
+	@Test
+	public void resolvePoolCallsPoolResolverResolveReturnsNull() {
+
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
+		when(mockPoolResolver.resolve(anyString())).thenReturn(null);
+
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
+
+		assertThat(this.cqListenerContainer.resolvePool("TestPool")).isNull();
+
+		verify(mockPoolResolver, times(1)).resolve(eq("TestPool"));
+	}
+
+	@Test
+	public void resolvePoolCallsPoolResolverResolveReturnsPool() {
+
+		Pool mockPool = mock(Pool.class);
+
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
+		when(mockPoolResolver.resolve(eq("TestPool"))).thenReturn(mockPool);
+
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
+
+		assertThat(this.cqListenerContainer.resolvePool("TestPool")).isEqualTo(mockPool);
+
+		verify(mockPoolResolver, times(1)).resolve(eq("TestPool"));
+		verifyNoInteractions(mockPool);
+	}
+
+	@Test
 	public void resolvePoolNameReturnsConfiguredPoolName() {
 
-		cqListenerContainer.setPoolName("TestPool");
+		this.cqListenerContainer.setPoolName("TestPool");
 
-		assertThat(cqListenerContainer.resolvePoolName()).isEqualTo("TestPool");
+		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo("TestPool");
 	}
 
 	@Test
-	public void resolvePoolNameReturnsGemFireDefaultPoolName() {
+	public void resolvePoolNameReturnsApacheGeodeDefaultPoolName() {
 
-		cqListenerContainer.setPoolName(null);
+		this.cqListenerContainer.setPoolName(null);
 
-		assertThat(cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
+		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
 	}
 
 	@Test
-	public void resolvePoolNameReturnsGemFireDefaultPoolNameWhenBeanFactoryDoesNotContainNamedPool() {
+	public void resolvePoolNameReturnsApacheGeodeDefaultPoolNameWhenBeanFactoryDoesNotContainNamedPool() {
 
-		when(mockBeanFactory.containsBean(anyString())).thenReturn(false);
+		when(this.mockBeanFactory.containsBean(anyString())).thenReturn(false);
 
-		cqListenerContainer.setBeanFactory(mockBeanFactory);
-		cqListenerContainer.setPoolName("");
+		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+		this.cqListenerContainer.setPoolName("");
 
-		assertThat(cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
+		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
 
-		verify(mockBeanFactory, times(1))
+		verify(this.mockBeanFactory, times(1))
 			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+		verify(this.mockBeanFactory, never()).isTypeMatch(anyString(), any(Class.class));
+	}
+
+	@Test
+	public void resolvePoolNameReturnsApacheGeodeDefaultPoolNameWhenBeanFactoryContainsBeanWithNonMatchingPoolType() {
+
+		when(this.mockBeanFactory.containsBean(anyString())).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(anyString(), eq(Pool.class))).thenReturn(false);
+
+		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+		this.cqListenerContainer.setPoolName("");
+
+		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
+
+		verify(this.mockBeanFactory, times(1))
+			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+		verify(this.mockBeanFactory, times(1))
+			.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), any(Class.class));
 	}
 
 	@Test
 	public void resolvePoolNameReturnsSpringDataGemFireDefaultPoolName() {
 
-		when(mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
+		when(this.mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
 
-		cqListenerContainer.setBeanFactory(mockBeanFactory);
-		cqListenerContainer.setPoolName("  ");
+		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+		this.cqListenerContainer.setPoolName("  ");
 
-		assertThat(cqListenerContainer.resolvePoolName()).isEqualTo(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
+		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 
-		verify(mockBeanFactory, times(1))
+		verify(this.mockBeanFactory, times(1))
 			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+		verify(this.mockBeanFactory, times(1))
+			.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
 	}
 
 	@Test
 	public void eagerlyInitializePoolWithGivenPoolName() {
 
-		when(mockBeanFactory.containsBean(eq("TestPool"))).thenReturn(true);
-		when(mockBeanFactory.isTypeMatch(eq("TestPool"), eq(Pool.class))).thenReturn(true);
+		when(this.mockBeanFactory.containsBean(eq("TestPool"))).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(eq("TestPool"), eq(Pool.class))).thenReturn(true);
 
-		cqListenerContainer.setBeanFactory(mockBeanFactory);
+		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
 
-		assertThat(cqListenerContainer.eagerlyInitializePool("TestPool")).isEqualTo("TestPool");
+		assertThat(this.cqListenerContainer.eagerlyInitializePool("TestPool")).isEqualTo("TestPool");
 
-		verify(mockBeanFactory, times(1)).containsBean(eq("TestPool"));
-		verify(mockBeanFactory, times(1)).isTypeMatch(eq("TestPool"), eq(Pool.class));
-		verify(mockBeanFactory, times(1)).getBean(eq("TestPool"), eq(Pool.class));
+		verify(this.mockBeanFactory, times(1)).containsBean(eq("TestPool"));
+		verify(this.mockBeanFactory, times(1)).isTypeMatch(eq("TestPool"), eq(Pool.class));
+		verify(this.mockBeanFactory, times(1)).getBean(eq("TestPool"), eq(Pool.class));
 	}
 
 	@Test
@@ -262,14 +347,15 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		Pool mockPool = mock(Pool.class);
 
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
 		when(this.mockBeanFactory.containsBean(eq("TestPoolOne"))).thenReturn(false);
-		when(mockPool.getName()).thenReturn("TestPoolOne");
+		when(mockPoolResolver.resolve(eq("TestPoolOne"))).thenReturn(mockPool);
 
 		try {
 
-			PoolManagerImpl.getPMI().register(mockPool);
-
 			this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+			this.cqListenerContainer.setPoolResolver(mockPoolResolver);
 
 			assertThat(this.cqListenerContainer.eagerlyInitializePool("TestPoolOne"))
 				.isEqualTo("TestPoolOne");
@@ -279,7 +365,8 @@ public class ContinuousQueryListenerContainerUnitTests {
 			verify(this.mockBeanFactory, times(1)).containsBean(eq("TestPoolOne"));
 			verify(this.mockBeanFactory, never()).isTypeMatch(anyString(), eq(Pool.class));
 			verify(this.mockBeanFactory, never()).getBean(anyString(), eq(Pool.class));
-			verify(mockPool, atLeast(1)).getName();
+			verify(mockPoolResolver, times(1)).resolve(eq("TestPoolOne"));
+			verifyNoInteractions(mockPool);
 		}
 	}
 
@@ -288,18 +375,18 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		Pool mockPool = mock(Pool.class);
 
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
 		when(this.mockBeanFactory.containsBean(eq("TestPoolTwo"))).thenReturn(true);
 		when(this.mockBeanFactory.isTypeMatch(eq("TestPoolTwo"), eq(Pool.class))).thenReturn(true);
 		when(this.mockBeanFactory.getBean(eq("TestPoolTwo"), eq(Pool.class)))
 			.thenThrow(new NoSuchBeanDefinitionException("TEST"));
-		when(mockPool.getName()).thenReturn("TestPoolTwo");
+		when(mockPoolResolver.resolve(eq("TestPoolTwo"))).thenReturn(mockPool);
 
 		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
 
 		try {
-
-			PoolManagerImpl.getPMI().register(mockPool);
-
 			assertThat(this.cqListenerContainer.eagerlyInitializePool("TestPoolTwo"))
 				.isEqualTo("TestPoolTwo");
 		}
@@ -308,7 +395,8 @@ public class ContinuousQueryListenerContainerUnitTests {
 			verify(this.mockBeanFactory, times(1)).containsBean(eq("TestPoolTwo"));
 			verify(this.mockBeanFactory, times(1)).isTypeMatch(eq("TestPoolTwo"), eq(Pool.class));
 			verify(this.mockBeanFactory, times(1)).getBean(eq("TestPoolTwo"), eq(Pool.class));
-			verify(mockPool, atLeast(1)).getName();
+			verify(mockPoolResolver, times(1)).resolve(eq("TestPoolTwo"));
+			verifyNoInteractions(mockPool);
 		}
 	}
 
@@ -345,7 +433,7 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		assertThat(cqListenerContainer.initQueryService("TestPool")).isSameAs(mockQueryService);
 
-		verifyZeroInteractions(mockQueryService);
+		verifyNoInteractions(mockQueryService);
 	}
 
 	@Test
@@ -358,23 +446,25 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		Pool mockPool = mock(Pool.class);
 
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
 		QueryService mockQueryService = mock(QueryService.class);
 
-		when(mockPool.getName()).thenReturn("TestPoolFour");
+		when(mockPoolResolver.resolve(eq("TestPoolFour"))).thenReturn(mockPool);
 		when(mockPool.getQueryService()).thenReturn(mockQueryService);
 
-		try {
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
 
-			PoolManagerImpl.getPMI().register(mockPool);
+		try {
 
 			assertThat(this.cqListenerContainer.getQueryService()).isNull();
 			assertThat(this.cqListenerContainer.initQueryService("TestPoolFour")).isEqualTo(mockQueryService);
 		}
 		finally {
 
-			verify(mockPool, atLeast(1)).getName();
+			verify(mockPoolResolver, times(1)).resolve(eq("TestPoolFour"));
 			verify(mockPool, times(1)).getQueryService();
-			verifyZeroInteractions(mockQueryService);
+			verifyNoInteractions(mockQueryService);
 		}
 	}
 
@@ -383,28 +473,30 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		Pool mockPool = mock(Pool.class);
 
+		PoolResolver mockPoolResolver = mock(PoolResolver.class);
+
 		QueryService mockQueryServiceOne = mock(QueryService.class);
 		QueryService mockQueryServiceTwo = mock(QueryService.class);
 
-		when(mockPool.getName()).thenReturn("TestPoolFive");
+		when(mockPoolResolver.resolve(eq("TestPoolFive"))).thenReturn(mockPool);
 		when(mockPool.getQueryService()).thenReturn(mockQueryServiceOne);
+
+		this.cqListenerContainer.setPoolResolver(mockPoolResolver);
+		this.cqListenerContainer.setQueryService(mockQueryServiceTwo);
 
 		try {
 
-			PoolManagerImpl.getPMI().register(mockPool);
-
-			this.cqListenerContainer.setQueryService(mockQueryServiceTwo);
-
+			assertThat(this.cqListenerContainer.getPoolResolver()).isSameAs(mockPoolResolver);
 			assertThat(this.cqListenerContainer.getQueryService()).isSameAs(mockQueryServiceTwo);
 			assertThat(this.cqListenerContainer.initQueryService("TestPoolFive"))
 				.isEqualTo(mockQueryServiceOne);
 		}
 		finally {
 
-			verify(mockPool, atLeast(1)).getName();
+			verify(mockPoolResolver, times(1)).resolve(eq("TestPoolFive"));
 			verify(mockPool, times(1)).getQueryService();
-			verifyZeroInteractions(mockQueryServiceOne);
-			verifyZeroInteractions(mockQueryServiceTwo);
+			verifyNoInteractions(mockQueryServiceOne);
+			verifyNoInteractions(mockQueryServiceTwo);
 		}
 	}
 
@@ -417,7 +509,7 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		assertThat(cqListenerContainer.initExecutor()).isSameAs(mockExecutor);
 
-		verifyZeroInteractions(mockExecutor);
+		verifyNoInteractions(mockExecutor);
 	}
 
 	@Test
@@ -454,7 +546,7 @@ public class ContinuousQueryListenerContainerUnitTests {
 		assertThat(cqListenerContainer.initQueryService(null)).isEqualTo(mockQueryService);
 
 		verify(mockRegionService, times(1)).getQueryService();
-		verifyZeroInteractions(mockQueryService);
+		verifyNoInteractions(mockQueryService);
 	}
 
 	@Test

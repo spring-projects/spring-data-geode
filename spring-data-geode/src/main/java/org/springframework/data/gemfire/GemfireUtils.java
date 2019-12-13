@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import org.apache.geode.cache.CacheFactory;
@@ -26,13 +25,8 @@ import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.util.ClassUtils;
 
 /**
-<<<<<<< HEAD
- * {@link GemfireUtils} is an abstract utility class encapsulating common functionality to access features
- * and capabilities of GemFire based on version and other configuration meta-data.
-=======
  * {@link GemfireUtils} is an abstract utility class encapsulating common functionality for accessing features
  * and capabilities of Apache Geode or Pivotal GemFire based on version as well as other configuration meta-data.
->>>>>>> 284e248b... SGF-826 - Move away from Spring Data Commons deprecations.
  *
  * @author John Blum
  * @see org.apache.geode.cache.CacheFactory
@@ -58,7 +52,6 @@ public abstract class GemfireUtils extends RegionUtils {
 	private static final String GATEWAY_SENDER_ELEMENT_NAME = "gateway-sender";
 	private static final String GATEWAY_SENDER_TYPE_NAME = "org.apache.geode.internal.cache.wan.GatewaySenderFactoryImpl";
 
-	/* (non-Javadoc) */
 	public static String apacheGeodeProductName() {
 
 		try {
@@ -69,7 +62,6 @@ public abstract class GemfireUtils extends RegionUtils {
 		}
 	}
 
-	/* (non-Javadoc) */
 	public static String apacheGeodeVersion() {
 
 		try {
@@ -80,12 +72,10 @@ public abstract class GemfireUtils extends RegionUtils {
 		}
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isClassAvailable(String fullyQualifiedClassName) {
 		return ClassUtils.isPresent(fullyQualifiedClassName, GemfireUtils.class.getClassLoader());
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isGemfireFeatureAvailable(GemfireFeature feature) {
 
 		boolean featureAvailable = (!GemfireFeature.AEQ.equals(feature) || isAsyncEventQueueAvailable());
@@ -96,7 +86,6 @@ public abstract class GemfireUtils extends RegionUtils {
 		return featureAvailable;
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isGemfireFeatureAvailable(Element element) {
 
 		boolean featureAvailable = (!isAsyncEventQueue(element) || isAsyncEventQueueAvailable());
@@ -107,37 +96,30 @@ public abstract class GemfireUtils extends RegionUtils {
 		return featureAvailable;
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isGemfireFeatureUnavailable(GemfireFeature feature) {
 		return !isGemfireFeatureAvailable(feature);
 	}
 
-	/* (non-Javadoc) */
 	public static boolean isGemfireFeatureUnavailable(Element element) {
 		return !isGemfireFeatureAvailable(element);
 	}
 
-	/* (non-Javadoc) */
 	private static boolean isAsyncEventQueue(Element element) {
 		return ASYNC_EVENT_QUEUE_ELEMENT_NAME.equals(element.getLocalName());
 	}
 
-	/* (non-Javadoc) */
 	private static boolean isAsyncEventQueueAvailable() {
 		return isClassAvailable(ASYNC_EVENT_QUEUE_TYPE_NAME);
 	}
 
-	/* (non-Javadoc) */
 	private static boolean isContinuousQuery(Element element) {
 		return CQ_ELEMENT_NAME.equals(element.getLocalName());
 	}
 
-	/* (non-Javadoc) */
 	private static boolean isContinuousQueryAvailable() {
 		return isClassAvailable(CQ_TYPE_NAME);
 	}
 
-	/* (non-Javadoc) */
 	private static boolean isGateway(Element element) {
 
 		String elementLocalName = element.getLocalName();
@@ -146,7 +128,6 @@ public abstract class GemfireUtils extends RegionUtils {
 			|| GATEWAY_SENDER_ELEMENT_NAME.equals(elementLocalName));
 	}
 
-	/* (non-Javadoc) */
 	private static boolean isGatewayAvailable() {
 		return isClassAvailable(GATEWAY_SENDER_TYPE_NAME);
 	}
