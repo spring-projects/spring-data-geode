@@ -26,6 +26,7 @@ import org.junit.Test;
  * Unit Tests for {@link ConnectionEndpoint}.
  *
  * @author John Blum
+ * @author Jacob Barret
  * @see java.net.InetSocketAddress
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.support.ConnectionEndpoint
@@ -100,7 +101,7 @@ public class ConnectionEndpointUnitTests {
 	}
 
 	@Test
-	public void parseWithHostPortWithColon() {
+	public void parseWithHostPortSeparatedByColon() {
 
 		ConnectionEndpoint connectionEndpoint = ConnectionEndpoint.parse("skullbox:12345", 80);
 
@@ -132,7 +133,7 @@ public class ConnectionEndpointUnitTests {
 	}
 
 	@Test
-	public void parseWithHostPortHavingSpacingWithColon() {
+	public void parseWithHostPortHavingSpacingSeparatedByColon() {
 
 		ConnectionEndpoint connectionEndpoint = ConnectionEndpoint.parse(" saturn  :1  23 4 ");
 
@@ -189,10 +190,10 @@ public class ConnectionEndpointUnitTests {
 	}
 
 	@Test
-	public void parseWithHostUsingDefaultPortWithColon() {
+	public void parseWithHostUsingDefaultPortSeparatedByColon() {
 
 		ConnectionEndpoint connectionEndpoint =
-				ConnectionEndpoint.parse("mercury:oneTwoThreeFourFive", 80);
+			ConnectionEndpoint.parse("mercury:oneTwoThreeFourFive", 80);
 
 		assertThat(connectionEndpoint).isNotNull();
 		assertThat(connectionEndpoint.getHost()).isEqualTo("mercury");
@@ -246,7 +247,7 @@ public class ConnectionEndpointUnitTests {
 	}
 
 	@Test
-	public void parseWithPortUsingDefaultHostWithColon() {
+	public void parseWithPortUsingDefaultHostSeparatedByColon() {
 
 		ConnectionEndpoint connectionEndpoint = ConnectionEndpoint.parse(":12345", 80);
 
@@ -317,7 +318,9 @@ public class ConnectionEndpointUnitTests {
 
 	@Test
 	public void indexOfPort() {
+
 		assertThat(ConnectionEndpoint.indexOfPort("")).isEqualTo(-1);
+		assertThat(ConnectionEndpoint.indexOfPort("  ")).isEqualTo(-1);
 		assertThat(ConnectionEndpoint.indexOfPort("a")).isEqualTo(-1);
 		assertThat(ConnectionEndpoint.indexOfPort(":")).isEqualTo(0);
 		assertThat(ConnectionEndpoint.indexOfPort("a:")).isEqualTo(1);
@@ -325,6 +328,11 @@ public class ConnectionEndpointUnitTests {
 		assertThat(ConnectionEndpoint.indexOfPort("a:b")).isEqualTo(1);
 		assertThat(ConnectionEndpoint.indexOfPort("ab:")).isEqualTo(2);
 		assertThat(ConnectionEndpoint.indexOfPort("ab:c")).isEqualTo(2);
+	}
+
+	@Test
+	@SuppressWarnings("all")
+	public void indexOfPortWithNull() {
 		assertThatThrownBy(() -> ConnectionEndpoint.indexOfPort(null)).isInstanceOf(NullPointerException.class);
 	}
 
