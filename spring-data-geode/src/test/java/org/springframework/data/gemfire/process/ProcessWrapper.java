@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,7 +61,7 @@ public class ProcessWrapper {
 
 	protected static final long DEFAULT_WAIT_TIME_MILLISECONDS = TimeUnit.SECONDS.toMillis(5);
 
-	private final List<ProcessInputStreamListener> listeners = new CopyOnWriteArrayList<>();
+	private final List<Consumer<String>> listeners = new CopyOnWriteArrayList<>();
 
 	protected final Logger log = Logger.getLogger(getClass().getName());
 
@@ -77,11 +78,9 @@ public class ProcessWrapper {
 
 		this.process = process;
 		this.processConfiguration = processConfiguration;
-
-		init();
 	}
 
-	private void init() {
+	public void init() {
 
 		newThread("Process OUT Stream Reader Thread",
 			newProcessInputStreamReaderRunnable(process.getInputStream())).start();
@@ -101,8 +100,8 @@ public class ProcessWrapper {
 
 				try {
 					for (String input = inputReader.readLine(); input != null; input = inputReader.readLine()) {
-						for (ProcessInputStreamListener listener : listeners) {
-							listener.onInput(input);
+						for (Consumer<String> listener : listeners) {
+							listener.accept(input);
 						}
 					}
 				}
@@ -213,7 +212,7 @@ public class ProcessWrapper {
 		return FileUtils.read(log);
 	}
 
-	public boolean register(ProcessInputStreamListener listener) {
+	public boolean register(Consumer<String> listener) {
 		return (listener != null && listeners.add(listener));
 	}
 
@@ -323,7 +322,7 @@ public class ProcessWrapper {
 		return stop();
 	}
 
-	public boolean unregister(ProcessInputStreamListener listener) {
+	public boolean unregister(Consumer<String> listener) {
 		return listeners.remove(listener);
 	}
 

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.data.gemfire.test.support.FileSystemUtils;
@@ -56,10 +57,21 @@ public abstract class ProcessExecutor {
 	}
 
 	public static ProcessWrapper launch(File workingDirectory, Class<?> type, String... args) throws IOException {
-		return launch(workingDirectory, JAVA_CLASSPATH, type, args);
+		return launch("FORK", workingDirectory, JAVA_CLASSPATH, type, args);
 	}
 
-	public static ProcessWrapper launch(File workingDirectory, String classpath, Class<?> type, String... args)
+	public static ProcessWrapper launch(File workingDirectory, String classpath, Class<?> type, String... args) throws IOException {
+		return launch("FORK", workingDirectory, classpath, type, args);
+	}
+
+	public static ProcessWrapper launch(String name, File workingDirectory, String classpath,
+																			Class<?> type, String... args)
+			throws IOException {
+		return launch(name, workingDirectory, classpath, type, x -> {}, y -> {}, args);
+  }
+
+	public static ProcessWrapper launch(String name, File workingDirectory, String classpath,
+																			Class<?> type, Consumer<String> logConsumer, Consumer<ProcessWrapper> waitFunction, String... args)
 			throws IOException {
 
 		ProcessBuilder processBuilder = new ProcessBuilder()
@@ -71,7 +83,10 @@ public abstract class ProcessExecutor {
 
 		ProcessWrapper processWrapper = new ProcessWrapper(process, ProcessConfiguration.create(processBuilder));
 
-		//processWrapper.register((input) -> System.err.printf("[FORK] - %s%n", input));
+		processWrapper.register(logConsumer);
+		processWrapper.init();
+
+		waitFunction.accept(processWrapper);
 
 		return processWrapper;
 	}
@@ -115,7 +130,9 @@ public abstract class ProcessExecutor {
 	}
 
 	protected static boolean isJvmOption(String option) {
-		return StringUtils.hasText(option) && (option.startsWith("-D") || option.startsWith("-X"));
+		return StringUtils.hasText(option) && (option.startsWith("-D")
+				|| option.startsWith("-X")
+				|| option.startsWith("-agent"));
 	}
 
 	protected static File validateDirectory(File workingDirectory) {
