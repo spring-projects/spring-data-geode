@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright 2002-2019 the original author or authors.
-=======
- * Copyright 2002-2019 the original author or authors.
->>>>>>> Stashed changes
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -17,6 +13,7 @@
 package org.springframework.data.gemfire.function.execution;
 
 import java.lang.reflect.Method;
+import java.util.stream.StreamSupport;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -35,6 +32,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author David Turanski
  * @author John Blum
+ * @author Patrick Johnson
  * @see java.lang.reflect.Method
  * @see org.aopalliance.intercept.MethodInterceptor
  * @see org.springframework.beans.factory.BeanClassLoaderAware
@@ -93,7 +91,16 @@ public class GemfireFunctionProxyFactoryBean implements BeanClassLoaderAware, Fa
 			logger.debug("Invoking method {}", invocation.getMethod().getName());
 		}
 
-		return invokeFunction(invocation.getMethod(), invocation.getArguments());
+		Object result = invokeFunction(invocation.getMethod(), invocation.getArguments());
+
+		if(!invocation.getMethod().getReturnType().isAssignableFrom(result.getClass()) && result instanceof Iterable) {
+			Iterable iter = (Iterable)result;
+			if(StreamSupport.stream(iter.spliterator(), false).count() == 1) {
+				result = iter.iterator().next();
+			}
+		}
+
+		return result;
 	}
 
 	protected Object invokeFunction(Method method, Object[] args) {
