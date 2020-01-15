@@ -19,7 +19,7 @@
 	<url>https://projects.spring.io/spring-data-geode/spring-data-gemfire</url>
 
 	<properties>
-		<gemfire.version>9.8.4</gemfire.version>
+		<gemfire.version>9.9.1</gemfire.version>
 	</properties>
 
 	<dependencies>
