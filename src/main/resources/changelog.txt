@@ -3,6 +3,16 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.4.RELEASE (2020-01-15)
+---------------------------------------------
+* DATAGEODE-287 - Update copyright year to 2020.
+* DATAGEODE-283 - ConnectionEndpoint should support standard "host:port" format.
+* DATAGEODE-282 - Refactor PoolFactoryBean to use PoolResolver.
+* DATAGEODE-281 - Introduce a PoolResolver strategy interface to resolve Pool instances and provide a layer of indirection between SDG and Apache Geode's static PoolManager class.
+* DATAGEODE-280 - Refactor ContinuousQueryListenerContainer to use PoolResolver.
+* DATAGEODE-279 - Release 2.2.4 (Moore SR4).
+
+
 Changes in version 2.1.15.RELEASE (2020-01-15)
 ----------------------------------------------
 * DATAGEODE-287 - Update copyright year to 2020.
@@ -611,6 +621,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
