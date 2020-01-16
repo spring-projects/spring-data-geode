@@ -3,6 +3,33 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.3.0.M1 (2020-01-16)
+----------------------------------------
+* DATAGEODE-291 - Avoid test cases that test Spring Data Commons' internals.
+* DATAGEODE-288 - Upgrade to Pivotal GemFire 9.9.1.
+* DATAGEODE-287 - Update copyright year to 2020.
+* DATAGEODE-286 - Upgrade to Apache Geode 1.11.
+* DATAGEODE-283 - ConnectionEndpoint should support standard "host:port" format.
+* DATAGEODE-282 - Refactor PoolFactoryBean to use PoolResolver.
+* DATAGEODE-281 - Introduce a PoolResolver strategy interface to resolve Pool instances and provide a layer of indirection between SDG and Apache Geode's static PoolManager class.
+* DATAGEODE-280 - Refactor ContinuousQueryListenerContainer to use PoolResolver.
+* DATAGEODE-277 - Upgrade to Apache Geode 1.11.
+* DATAGEODE-276 - Add additional tests covering error handling in the Cache Abstraction with Apache Geode as the caching provider.
+* DATAGEODE-273 - Enable JDK 11+ builds.
+* DATAGEODE-272 - Adapt TransactionListener to enable auto transaction event publishing in the Spring ApplicationContext.
+* DATAGEODE-271 - Cannot enable the BeanFactoryLocator for a ClientCache instance using SDG property.
+* DATAGEODE-243 - Introduce RestTemplateConfigurer to configure the RestTemplate used when sending configuration metadata from client to server.
+* DATAGEODE-242 - Add support for AEQ pauseEventDispatching.
+* DATAGEODE-241 - Upgrade to Apache Geode 1.10.
+* DATAGEODE-238 - Create module for Spring Data GemFire.
+* DATAGEODE-237 - Reintroduce Hamcrest dependency.
+* DATAGEODE-235 - Release 2.3 M1 (Neumann).
+* DATAGEODE-211 - Include geode redis module due to upgrading geode to 1.9.0.
+* DATAGEODE-191 - Fix ContinuousQueryListenerContainerTests.
+* DATAGEODE-152 - Confirm that @TransactionalEventListener will work for @Transactional services.
+* DATAGEODE-1 - Remove support for DynamicRegionFactory.
+
+
 Changes in version 2.2.4.RELEASE (2020-01-15)
 ---------------------------------------------
 * DATAGEODE-287 - Update copyright year to 2020.
@@ -621,6 +648,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
