@@ -475,7 +475,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 * @see java.lang.Object
 	 * @see java.lang.Class
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	Object doFromData(Class<?> type, PdxReader reader) {
 
 		GemfirePersistentEntity<?> entity = getPersistentEntity(type);
@@ -493,6 +493,8 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 
 				PdxSerializer customPdxSerializer = resolveCustomPdxSerializer(persistentProperty);
 
+				boolean isCustomPdxSerializerPresent = customPdxSerializer != null;
+
 				Object value = null;
 
 				try {
@@ -502,9 +504,9 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 								? String.format(" using custom PdxSerializer [%s]", customPdxSerializer) : "")));
 					}
 
-					value = (customPdxSerializer != null
+					value = isCustomPdxSerializerPresent
 						? customPdxSerializer.fromData(persistentProperty.getType(), reader)
-						: reader.readField(persistentProperty.getName()));
+						: reader.readField(persistentProperty.getName());
 
 					if (getLogger().isDebugEnabled()) {
 						getLogger().debug(String.format("... with value [%s]", value));
@@ -513,10 +515,16 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 					propertyAccessor.setProperty(persistentProperty, value);
 				}
 				catch (Exception cause) {
-					throw new MappingException(
-						String.format("While setting value [%1$s] of property [%2$s] for entity of type [%3$s] from PDX%4$s",
-						value, persistentProperty.getName(), type, (customPdxSerializer != null
-							? String.format(" using custom PdxSerializer [%s]", customPdxSerializer) : "")), cause);
+
+					String MAPPING_ERROR_MESSAGE =
+						"While setting value [%1$s] of property [%2$s] for entity of type [%3$s] from PDX%4$s";
+
+					String CUSTOM_PDX_SERIALIZER_MESSAGE = isCustomPdxSerializerPresent
+						? String.format(" using custom PdxSerializer [%s]", customPdxSerializer)
+						: "";
+
+					throw new MappingException(String.format(MAPPING_ERROR_MESSAGE,
+						value, persistentProperty.getName(), type, CUSTOM_PDX_SERIALIZER_MESSAGE), cause);
 				}
 			}
 		});

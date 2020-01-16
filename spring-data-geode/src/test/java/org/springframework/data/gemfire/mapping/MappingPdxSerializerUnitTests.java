@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -30,7 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
@@ -42,15 +40,15 @@ import java.util.Optional;
 
 import com.gemstone.gemfire.TestGemStoneGemFireType;
 
-import org.apache.geode.pdx.PdxReader;
-import org.apache.geode.pdx.PdxSerializer;
-import org.apache.geode.pdx.PdxWriter;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.pdx.PdxReader;
+import org.apache.geode.pdx.PdxSerializer;
+import org.apache.geode.pdx.PdxWriter;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.convert.ConversionService;
@@ -79,11 +77,10 @@ import org.springframework.data.mapping.PersistentProperty;
 import org.springframework.data.mapping.model.ParameterValueProvider;
 
 /**
- * Unit tests for {@link MappingPdxSerializer}.
+ * Unit Tests for {@link MappingPdxSerializer}.
  *
  * @author Oliver Gierke
  * @author John Blum
- * @see org.junit.Rule
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
@@ -260,6 +257,7 @@ public class MappingPdxSerializerUnitTests {
 		assertThat(this.pdxSerializer.getEntityInstantiators()).isSameAs(mockEntityInstantiators);
 	}
 
+	@SuppressWarnings("all")
 	@Test(expected = IllegalArgumentException.class)
 	public void setEntityInstantiatorsWithNullEntityInstantiators() {
 
@@ -286,6 +284,7 @@ public class MappingPdxSerializerUnitTests {
 		assertThat(this.pdxSerializer.getEntityInstantiators()).isInstanceOf(EntityInstantiators.class);
 	}
 
+	@SuppressWarnings("all")
 	@Test(expected = IllegalArgumentException.class)
 	public void setEntityInstantiatorsWithNullMap() {
 
@@ -468,6 +467,47 @@ public class MappingPdxSerializerUnitTests {
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
+	public void resolveEntityInstantiatorForManagedPersistentEntityWithEntityInstantiator() {
+
+		EntityInstantiator mockEntityInstantiator = mock(EntityInstantiator.class);
+
+		EntityInstantiators mockEntityInstantiators = mock(EntityInstantiators.class);
+
+		PersistentEntity mockEntity = mock(PersistentEntity.class);
+
+		doReturn(mockEntityInstantiators).when(this.pdxSerializer).getEntityInstantiators();
+		doReturn(mockEntityInstantiator).when(mockEntityInstantiators).getInstantiatorFor(eq(mockEntity));
+
+		assertThat(this.pdxSerializer.resolveEntityInstantiator(mockEntity)).isEqualTo(mockEntityInstantiator);
+
+		verify(this.pdxSerializer, times(1)).getEntityInstantiators();
+		verify(mockEntityInstantiators, times(1)).getInstantiatorFor(eq(mockEntity));
+		verifyNoInteractions(mockEntityInstantiator);
+		verifyNoInteractions(mockEntity);
+	}
+
+	@Test
+	@SuppressWarnings("rawtypes")
+	public void resolveEntityInstantiatorForNonManagedPersistentEntityWithNoEntityInstantiator() {
+
+		EntityInstantiator mockEntityInstantiator = mock(EntityInstantiator.class);
+
+		EntityInstantiators mockEntityInstantiators = mock(EntityInstantiators.class);
+
+		PersistentEntity mockEntity = mock(PersistentEntity.class);
+
+		doReturn(mockEntityInstantiators).when(this.pdxSerializer).getEntityInstantiators();
+
+		assertThat(this.pdxSerializer.resolveEntityInstantiator(mockEntity)).isNotEqualTo(mockEntityInstantiator);
+
+		verify(this.pdxSerializer, times(1)).getEntityInstantiators();
+		verify(mockEntityInstantiators, times(1)).getInstantiatorFor(eq(mockEntity));
+		verifyNoInteractions(mockEntityInstantiator);
+		verifyNoInteractions(mockEntity);
+	}
+
+	@Test
 	public void resolveTypeWithNonNullType() {
 		assertThat(this.pdxSerializer.resolveType("test")).isEqualTo(String.class);
 	}
@@ -478,9 +518,11 @@ public class MappingPdxSerializerUnitTests {
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	public void toFullyQualifiedPropertyName() {
 
 		PersistentEntity mockEntity = mock(PersistentEntity.class);
+
 		PersistentProperty mockProperty = mock(PersistentProperty.class);
 
 		when(mockProperty.getName()).thenReturn("mockProperty");
@@ -571,7 +613,7 @@ public class MappingPdxSerializerUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("all")
 	public void fromDataUsesRegisteredEntityInstantiator() {
 
 		Address address = new Address();

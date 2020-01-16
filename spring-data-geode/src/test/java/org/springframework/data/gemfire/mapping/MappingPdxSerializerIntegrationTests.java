@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.DataInput;
@@ -34,14 +35,13 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import org.apache.geode.DataSerializable;
 import org.apache.geode.Instantiator;
@@ -53,19 +53,23 @@ import org.apache.geode.pdx.PdxReader;
 import org.apache.geode.pdx.PdxSerializer;
 import org.apache.geode.pdx.PdxWriter;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.convert.EntityInstantiator;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.repository.sample.Address;
 import org.springframework.data.gemfire.repository.sample.Person;
+import org.springframework.data.mapping.PersistentEntity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
- * Integration tests for {@link MappingPdxSerializer}.
+ * Integration Tests for {@link MappingPdxSerializer}.
  *
  * @author Oliver Gierke
  * @author John Blum
@@ -97,7 +101,6 @@ public class MappingPdxSerializerIntegrationTests {
 	}
 
 	@AfterClass
-	@SuppressWarnings("all")
 	public static void tearDown() {
 		GemfireUtils.close(cache);
 	}
@@ -154,7 +157,66 @@ public class MappingPdxSerializerIntegrationTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
+	public void resolveEntityInstantiatorForManagedPersistentEntityWithEntityInstantiator() {
+
+		EntityInstantiator mockEntityInstantiator = mock(EntityInstantiator.class);
+
+		Map<Class<?>, EntityInstantiator> entityInstantiators =
+			Collections.singletonMap(Person.class, mockEntityInstantiator);
+
+		PersistentEntity mockEntity = mock(PersistentEntity.class);
+
+		when(mockEntity.getType()).thenReturn(Person.class);
+
+		assertThat(cache.getPdxSerializer()).isInstanceOf(MappingPdxSerializer.class);
+
+		MappingPdxSerializer serializer = ((MappingPdxSerializer) cache.getPdxSerializer());
+
+		try {
+			serializer.setEntityInstantiators(entityInstantiators);
+
+			assertThat(serializer.resolveEntityInstantiator(mockEntity)).isEqualTo(mockEntityInstantiator);
+		}
+		finally {
+			serializer.setEntityInstantiators(Collections.emptyMap());
+		}
+
+		verify(mockEntity, atLeast(1)).getType();
+		verifyNoInteractions(mockEntityInstantiator);
+	}
+
+	@Test
+	@SuppressWarnings("rawtypes")
+	public void resolveEntityInstantiatorForNonManagedPersistentEntityWithNoEntityInstantiator() {
+
+		EntityInstantiator mockEntityInstantiator = mock(EntityInstantiator.class);
+
+		Map<Class<?>, EntityInstantiator> entityInstantiators =
+			Collections.singletonMap(Person.class, mockEntityInstantiator);
+
+		PersistentEntity mockEntity = mock(PersistentEntity.class);
+
+		when(mockEntity.getType()).thenReturn(Address.class);
+
+		assertThat(cache.getPdxSerializer()).isInstanceOf(MappingPdxSerializer.class);
+
+		MappingPdxSerializer serializer = ((MappingPdxSerializer) cache.getPdxSerializer());
+
+		try {
+			serializer.setEntityInstantiators(entityInstantiators);
+
+			assertThat(serializer.resolveEntityInstantiator(mockEntity)).isNotEqualTo(mockEntityInstantiator);
+		}
+		finally {
+			serializer.setEntityInstantiators(Collections.emptyMap());
+		}
+
+		verify(mockEntity, atLeast(1)).getType();
+		verifyNoInteractions(mockEntityInstantiator);
+	}
+
+	@Test
 	public void serializesAndDeserializesEntity() {
 
 		Address address = new Address();
@@ -384,7 +446,7 @@ public class MappingPdxSerializerIntegrationTests {
 
 
 		@Override
-		public void fromData(DataInput dataInput) throws IOException, ClassNotFoundException {
+		public void fromData(DataInput dataInput) throws IOException {
 			this.value = dataInput.readUTF();
 
 		}
