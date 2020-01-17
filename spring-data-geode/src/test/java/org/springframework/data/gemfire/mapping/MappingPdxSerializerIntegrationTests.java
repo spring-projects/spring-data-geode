@@ -55,11 +55,11 @@ import org.apache.geode.pdx.PdxWriter;
 
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.convert.EntityInstantiator;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.repository.sample.Address;
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.data.mapping.model.EntityInstantiator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

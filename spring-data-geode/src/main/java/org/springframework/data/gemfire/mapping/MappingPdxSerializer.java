@@ -37,8 +37,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.data.convert.EntityInstantiator;
-import org.springframework.data.convert.EntityInstantiators;
 import org.springframework.data.gemfire.util.Filter;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.PersistentEntity;
@@ -46,6 +44,8 @@ import org.springframework.data.mapping.PersistentProperty;
 import org.springframework.data.mapping.PersistentPropertyAccessor;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
+import org.springframework.data.mapping.model.EntityInstantiator;
+import org.springframework.data.mapping.model.EntityInstantiators;
 import org.springframework.data.mapping.model.PersistentEntityParameterValueProvider;
 import org.springframework.data.mapping.model.SpELContext;
 import org.springframework.lang.NonNull;
@@ -66,8 +66,8 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.core.convert.ConversionService
- * @see org.springframework.data.convert.EntityInstantiator
- * @see org.springframework.data.convert.EntityInstantiators
+ * @see org.springframework.data.mapping.model.EntityInstantiator
+ * @see org.springframework.data.mapping.model.EntityInstantiators
  * @see org.springframework.data.gemfire.util.Filter
  * @see org.springframework.data.mapping.PersistentEntity
  * @see org.springframework.data.mapping.PersistentProperty
@@ -317,7 +317,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 *
 	 * @param entityInstantiators {@link EntityInstantiator EntityInstantiators} used to create the instances
 	 * read by this {@link PdxSerializer}; must not be {@literal null}.
-	 * @see org.springframework.data.convert.EntityInstantiator
+	 * @see org.springframework.data.mapping.model.EntityInstantiator
 	 */
 	public void setEntityInstantiators(@NonNull EntityInstantiators entityInstantiators) {
 
@@ -332,7 +332,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 *
 	 * @param gemfireInstantiators mapping of {@link Class types} to {@link EntityInstantiator} objects;
 	 * must not be {@literal null}.
-	 * @see org.springframework.data.convert.EntityInstantiator
+	 * @see org.springframework.data.mapping.model.EntityInstantiator
 	 * @see java.util.Map
 	 */
 	public void setEntityInstantiators(@NonNull Map<Class<?>, EntityInstantiator> gemfireInstantiators) {
@@ -343,7 +343,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 * Returns the configured {@link EntityInstantiators} handling instantiation for GemFire persistent entities.
 	 *
 	 * @return the configured {@link EntityInstantiators} handling instantiation for GemFire persistent entities.
-	 * @see org.springframework.data.convert.EntityInstantiators
+	 * @see org.springframework.data.mapping.model.EntityInstantiators
 	 */
 	protected EntityInstantiators getEntityInstantiators() {
 		return this.entityInstantiators;
@@ -409,6 +409,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 * by this {@link MappingPdxSerializer PDX serializer}.
 	 * @see java.util.function.Predicate
 	 */
+	@SuppressWarnings("unused")
 	public void setExcludeTypeFilters(@Nullable Predicate<Class<?>> excludeTypeFilters) {
 
 		this.excludeTypeFilters = excludeTypeFilters != null
@@ -569,7 +570,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 * @see org.apache.geode.pdx.PdxWriter
 	 * @see java.lang.Object
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	boolean doToData(Object value, PdxWriter writer) {
 
 		GemfirePersistentEntity<?> entity = getPersistentEntity(value);
@@ -673,6 +674,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 	 * @see org.springframework.data.convert.EntityInstantiator
 	 * @see org.springframework.data.mapping.PersistentEntity
 	 */
+	@SuppressWarnings("rawtypes")
 	protected EntityInstantiator resolveEntityInstantiator(PersistentEntity entity) {
 		return getEntityInstantiators().getInstantiatorFor(entity);
 	}
