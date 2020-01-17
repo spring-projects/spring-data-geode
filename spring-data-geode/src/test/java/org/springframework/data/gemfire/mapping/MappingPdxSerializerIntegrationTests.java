@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -35,7 +34,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -60,6 +58,7 @@ import org.springframework.data.gemfire.repository.sample.Address;
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.EntityInstantiator;
+import org.springframework.data.util.ClassTypeInformation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -73,6 +72,14 @@ import lombok.Setter;
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.pdx.PdxReader
+ * @see org.apache.geode.pdx.PdxSerializer
+ * @see org.apache.geode.pdx.PdxWriter
+ * @see org.springframework.data.gemfire.mapping.MappingPdxSerializer
+ * @see org.springframework.data.mapping.PersistentEntity
+ * @see org.springframework.data.mapping.model.EntityInstantiator
  */
 public class MappingPdxSerializerIntegrationTests {
 
@@ -104,6 +111,8 @@ public class MappingPdxSerializerIntegrationTests {
 	public static void tearDown() {
 		GemfireUtils.close(cache);
 	}
+
+	private final GemfireMappingContext mappingContext = new GemfireMappingContext();
 
 	@After
 	public void clearRegion() {
@@ -162,27 +171,21 @@ public class MappingPdxSerializerIntegrationTests {
 
 		EntityInstantiator mockEntityInstantiator = mock(EntityInstantiator.class);
 
-		Map<Class<?>, EntityInstantiator> entityInstantiators =
-			Collections.singletonMap(Person.class, mockEntityInstantiator);
-
-		PersistentEntity mockEntity = mock(PersistentEntity.class);
-
-		when(mockEntity.getType()).thenReturn(Person.class);
+		PersistentEntity entity = this.mappingContext.createPersistentEntity(ClassTypeInformation.from(Person.class));
 
 		assertThat(cache.getPdxSerializer()).isInstanceOf(MappingPdxSerializer.class);
 
 		MappingPdxSerializer serializer = ((MappingPdxSerializer) cache.getPdxSerializer());
 
 		try {
-			serializer.setEntityInstantiators(entityInstantiators);
+			serializer.setEntityInstantiators(Collections.singletonMap(Person.class, mockEntityInstantiator));
 
-			assertThat(serializer.resolveEntityInstantiator(mockEntity)).isEqualTo(mockEntityInstantiator);
+			assertThat(serializer.resolveEntityInstantiator(entity)).isEqualTo(mockEntityInstantiator);
 		}
 		finally {
 			serializer.setEntityInstantiators(Collections.emptyMap());
 		}
 
-		verify(mockEntity, atLeast(1)).getType();
 		verifyNoInteractions(mockEntityInstantiator);
 	}
 
@@ -192,27 +195,21 @@ public class MappingPdxSerializerIntegrationTests {
 
 		EntityInstantiator mockEntityInstantiator = mock(EntityInstantiator.class);
 
-		Map<Class<?>, EntityInstantiator> entityInstantiators =
-			Collections.singletonMap(Person.class, mockEntityInstantiator);
-
-		PersistentEntity mockEntity = mock(PersistentEntity.class);
-
-		when(mockEntity.getType()).thenReturn(Address.class);
+		PersistentEntity entity = this.mappingContext.createPersistentEntity(ClassTypeInformation.from(Address.class));
 
 		assertThat(cache.getPdxSerializer()).isInstanceOf(MappingPdxSerializer.class);
 
 		MappingPdxSerializer serializer = ((MappingPdxSerializer) cache.getPdxSerializer());
 
 		try {
-			serializer.setEntityInstantiators(entityInstantiators);
+			serializer.setEntityInstantiators(Collections.singletonMap(Person.class, mockEntityInstantiator));
 
-			assertThat(serializer.resolveEntityInstantiator(mockEntity)).isNotEqualTo(mockEntityInstantiator);
+			assertThat(serializer.resolveEntityInstantiator(entity)).isNotEqualTo(mockEntityInstantiator);
 		}
 		finally {
 			serializer.setEntityInstantiators(Collections.emptyMap());
 		}
 
-		verify(mockEntity, atLeast(1)).getType();
 		verifyNoInteractions(mockEntityInstantiator);
 	}
 
