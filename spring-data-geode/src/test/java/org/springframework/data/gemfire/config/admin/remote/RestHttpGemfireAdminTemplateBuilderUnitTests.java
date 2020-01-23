@@ -19,9 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate.FollowRedirectsSimpleClientHttpRequestFactory;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.apache.geode.cache.client.ClientCache;
 
@@ -30,11 +28,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.data.gemfire.tests.util.ReflectionUtils;
 import org.springframework.data.gemfire.util.NetworkUtils;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -56,22 +54,6 @@ public class RestHttpGemfireAdminTemplateBuilderUnitTests {
 
 	@Mock
 	private ClientCache mockClientCache;
-
-	@SuppressWarnings("unchecked")
-	private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
-
-		Field field = ReflectionUtils.findField(target.getClass(), fieldName, ClientHttpRequestFactory.class);
-
-		return Optional.ofNullable(field)
-			.map(it -> {
-				ReflectionUtils.makeAccessible(it);
-				return field;
-			})
-			.map(it -> (T) ReflectionUtils.getField(it, target))
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
-	}
 
 	@Test
 	public void buildSuccessfullyBuildsNewRestHttpGemfireAdminTemplate() throws NoSuchFieldException {
@@ -103,7 +85,7 @@ public class RestHttpGemfireAdminTemplateBuilderUnitTests {
 			.isInstanceOf(InterceptingClientHttpRequestFactory.class);
 
 		ClientHttpRequestFactory clientHttpRequestFactory =
-			getFieldValue(template.<RestTemplate>getRestOperations().getRequestFactory(), "requestFactory");
+				ReflectionUtils.getFieldValue(template.<RestTemplate>getRestOperations().getRequestFactory(), "requestFactory");
 
 		assertThat(clientHttpRequestFactory).isInstanceOf(FollowRedirectsSimpleClientHttpRequestFactory.class);
 		assertThat(((FollowRedirectsSimpleClientHttpRequestFactory) clientHttpRequestFactory).isFollowRedirects())

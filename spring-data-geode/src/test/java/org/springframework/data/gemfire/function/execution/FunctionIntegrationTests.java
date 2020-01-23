@@ -27,7 +27,6 @@ import javax.annotation.Resource;
 
 import org.apache.geode.cache.Region;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,10 +35,8 @@ import org.junit.runner.RunWith;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.annotation.RegionData;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.stereotype.Component;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -47,32 +44,16 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author John Blum
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings("unused")
-public class FunctionIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class FunctionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@Resource(name = "test-region")
 	private Region<String, Integer> region;
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(FunctionIntegrationTests.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
 	}
 
 	@Before

@@ -28,8 +28,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.data.gemfire.test.support.IOUtils;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.util.IOUtils;
 
 /**
  * Integration tests for {@link org.apache.geode.cache.client.ClientCache}.

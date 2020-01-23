@@ -38,7 +38,7 @@ import org.springframework.data.gemfire.DiskStoreFactoryBean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
  * The EnablePdxConfigurationIntegrationTests class...

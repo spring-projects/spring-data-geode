@@ -21,7 +21,7 @@
 		</prop>
 		<prop key="gemfire.cache.server.host">localhost</prop>
 		<prop key="gemfire.cache.server.port">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest.cache-server-port}
+			${spring.data.gemfire.cache.server.port}
 		</prop>
 	</util:properties>
 

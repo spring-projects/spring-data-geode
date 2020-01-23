@@ -33,7 +33,6 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,9 +44,7 @@ import org.springframework.data.gemfire.listener.ContinuousQueryListener;
 import org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer;
 import org.springframework.data.gemfire.listener.GemfireMDP;
 import org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ErrorHandler;
 
@@ -62,34 +59,18 @@ import org.springframework.util.ErrorHandler;
  * @see org.apache.geode.cache.query.CqListener
  * @see org.apache.geode.cache.query.CqQuery
  * @see org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer
- * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 1.4.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings("unused")
-public class ContinuousQueryListenerContainerNamespaceTest extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ContinuousQueryListenerContainerNamespaceTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(CqCacheServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		startGemFireServer(CqCacheServerProcess.class);
 	}
 
 	@Autowired

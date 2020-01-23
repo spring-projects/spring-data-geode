@@ -30,7 +30,7 @@ import java.util.List;
 import org.junit.Test;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 
 /**
  * The SnapshotServiceFactoryBeanIntegrationTest class is a test suite of test cases testing the file archive handling

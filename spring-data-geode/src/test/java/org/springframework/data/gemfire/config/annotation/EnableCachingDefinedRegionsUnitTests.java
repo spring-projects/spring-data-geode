@@ -52,8 +52,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.test.mock.GemFireMockObjectsSupport;
-import org.springframework.data.gemfire.test.support.MapBuilder;
+import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
+import org.springframework.data.gemfire.tests.support.MapBuilder;
 import org.springframework.stereotype.Service;
 
 /**

@@ -32,7 +32,7 @@ import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
  * Integration Tests for {@link LocatorApplication} and {@link LocatorApplicationConfiguration} asserting that
@@ -47,7 +47,7 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
  * @see org.springframework.data.gemfire.config.annotation.LocatorApplicationConfiguration
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.2.0
  */
 @SuppressWarnings("unused")

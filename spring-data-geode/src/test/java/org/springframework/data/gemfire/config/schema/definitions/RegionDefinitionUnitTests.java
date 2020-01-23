@@ -36,7 +36,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
 import org.springframework.data.gemfire.config.schema.SchemaObjectType;
-import org.springframework.data.gemfire.test.support.IOUtils;
+import org.springframework.data.gemfire.tests.util.IOUtils;
 
 /**
  * Unit tests for {@link RegionDefinition}.

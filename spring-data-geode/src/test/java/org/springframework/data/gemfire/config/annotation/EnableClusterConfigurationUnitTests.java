@@ -32,7 +32,6 @@ import static org.springframework.data.gemfire.config.admin.remote.RestHttpGemfi
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.ClusterSchemaObjectInitializer;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.SchemaObjectContext;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,9 +56,9 @@ import org.springframework.data.gemfire.config.admin.remote.FunctionGemfireAdmin
 import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.schema.support.ComposableSchemaObjectCollector;
 import org.springframework.data.gemfire.config.schema.support.ComposableSchemaObjectDefiner;
+import org.springframework.data.gemfire.tests.util.ReflectionUtils;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -102,22 +101,6 @@ public class EnableClusterConfigurationUnitTests {
 			})
 			.orElseThrow(() ->
 				new NoSuchFieldException(String.format("Field [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
-
-		Field field = ReflectionUtils.findField(target.getClass(), fieldName);
-
-		return Optional.ofNullable(field)
-			.map(it -> {
-				ReflectionUtils.makeAccessible(it);
-				return field;
-			})
-			.map(it -> (T) ReflectionUtils.getField(it, target))
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field with name [%s] was not found on Object of type [%s]",
 					fieldName, target.getClass().getName())));
 	}
 
@@ -562,7 +545,7 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).isEmpty();
@@ -603,7 +586,7 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).isEmpty();
@@ -652,14 +635,14 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).containsExactly(mockInterceptorOne, mockInterceptorTwo);
 		assertThat(restTemplate.getRequestFactory()).isInstanceOf(InterceptingClientHttpRequestFactory.class);
 
 		FollowRedirectsSimpleClientHttpRequestFactory clientHttpRequestFactory =
-			getFieldValue(restTemplate.getRequestFactory(), "requestFactory");
+				ReflectionUtils.getFieldValue(restTemplate.getRequestFactory(), "requestFactory");
 
 		assertThat(clientHttpRequestFactory.isFollowRedirects()).isTrue();
 
@@ -696,7 +679,7 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		assertThat(this.<String>getFieldValue(template, "managementRestApiUrl"))
+		assertThat(ReflectionUtils.getFieldValue(template, "managementRestApiUrl").toString())
 			.isEqualTo("https://skullbox/gemfire/v1");
 
 		verifyZeroInteractions(mockClientCache);

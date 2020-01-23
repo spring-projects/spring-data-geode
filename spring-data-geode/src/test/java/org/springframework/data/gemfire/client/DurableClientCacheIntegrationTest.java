@@ -41,7 +41,6 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -54,15 +53,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.AbstractGemFireClientServerIntegrationTest;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.fork.ServerProcess;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
-import org.springframework.util.SocketUtils;
 
 /**
  * The DurableClientCacheIntegrationTest class is a test suite of test cases testing GemFire's Durable Client
@@ -73,8 +71,7 @@ import org.springframework.util.SocketUtils;
  * @see org.junit.runner.RunWith
  * @see org.springframework.beans.factory.config.BeanPostProcessor
  * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.data.gemfire.process.ProcessWrapper
- * @see AbstractGemFireClientServerIntegrationTest
+ * @see org.springframework.data.gemfire.tests.process.ProcessWrapper
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.apache.geode.cache.client.ClientCache
@@ -86,7 +83,7 @@ import org.springframework.util.SocketUtils;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @ContextConfiguration
 @SuppressWarnings("all")
-public class DurableClientCacheIntegrationTest extends AbstractGemFireClientServerIntegrationTest {
+public class DurableClientCacheIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final boolean DEBUG = true;
 
@@ -96,11 +93,6 @@ public class DurableClientCacheIntegrationTest extends AbstractGemFireClientServ
 
 	private static List<Integer> regionCacheListenerEventValues =
 		Collections.synchronizedList(new ArrayList<Integer>());
-
-	private static ProcessWrapper serverProcess;
-
-	private static final String CACHE_SERVER_PORT =
-		DurableClientCacheIntegrationTest.class.getName().concat(".cache-server-port");
 
 	private static final String CLIENT_CACHE_INTERESTS_RESULT_POLICY =
 		DurableClientCacheIntegrationTest.class.getName().concat(".interests-result-policy");
@@ -113,15 +105,15 @@ public class DurableClientCacheIntegrationTest extends AbstractGemFireClientServ
 	@BeforeClass
 	public static void startGemFireServer() throws IOException {
 
-		serverPort = setSystemProperty(CACHE_SERVER_PORT, SocketUtils.findAvailableTcpPort());
-		serverProcess = startGemFireServer(DurableClientCacheIntegrationTest.class);
-	}
+		List<String> arguments = new ArrayList<>();
 
-	@AfterClass
-	public static void stopGemFireServer() {
+		arguments.add(String.format("-Dgemfire.name=%1$s", "DurableClientCacheIntegrationTest"));
 
-		stopGemFireServer(serverProcess);
-		clearTestClassSystemProperties(DurableClientCacheIntegrationTest.class);
+		arguments.add("/org/springframework/data/gemfire/client/DurableClientCacheIntegrationTest-server-context.xml");
+
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
+
+		serverPort = Integer.parseInt(System.getProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY));
 	}
 
 	private static boolean isAfterDirtiesContext() {

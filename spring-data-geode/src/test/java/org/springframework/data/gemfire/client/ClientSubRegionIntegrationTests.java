@@ -23,7 +23,6 @@ import javax.annotation.Resource;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +30,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -42,17 +39,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author John Blum
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 1.4.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings("unused")
-public class ClientSubRegionIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;
@@ -71,21 +65,8 @@ public class ClientSubRegionIntegrationTests extends ClientServerIntegrationTest
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(ClientSubRegionIntegrationTests.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
 	}
 
 	protected void assertRegion(Region<?, ?> region, String name) {

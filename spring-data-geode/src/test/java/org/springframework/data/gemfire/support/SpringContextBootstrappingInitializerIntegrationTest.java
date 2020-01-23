@@ -52,7 +52,7 @@ import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.support.sample.TestUserDao;
 import org.springframework.data.gemfire.support.sample.TestUserService;
-import org.springframework.data.gemfire.test.support.DataSourceAdapter;
+import org.springframework.data.gemfire.tests.support.DataSourceAdapter;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
 

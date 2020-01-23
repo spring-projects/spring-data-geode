@@ -26,7 +26,6 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,9 +40,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.util.CacheUtils;
 import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -58,38 +56,23 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.ClusterDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableClusterDefinedRegions
- * @see org.springframework.data.gemfire.process.ProcessWrapper
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.process.ProcessWrapper
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnableClusterDefinedRegionsIntegrationTests.ClientTestConfiguration.class)
 @SuppressWarnings("unused")
-public class EnableClusterDefinedRegionsIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
-
-	private static ProcessWrapper gemfireServer;
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerTestConfiguration.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		startGemFireServer(ServerTestConfiguration.class);
 	}
 
 	@Autowired

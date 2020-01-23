@@ -17,6 +17,8 @@
 package org.springframework.data.gemfire.test.support;
 
 import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.support.IdentifierSequence;
+import org.springframework.data.gemfire.tests.util.StackTraceUtils;
 import org.springframework.util.StringUtils;
 
 /**

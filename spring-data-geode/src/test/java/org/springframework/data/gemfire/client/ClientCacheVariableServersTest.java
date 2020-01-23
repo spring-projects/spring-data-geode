@@ -20,11 +20,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Resource;
@@ -34,19 +32,14 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessExecutor;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
 
 /**
  * The ClientCacheVariableServersTest class is a test suite of test cases testing the use of variable "servers"
@@ -62,9 +55,7 @@ import org.springframework.util.Assert;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @SuppressWarnings("all")
-public class ClientCacheVariableServersTest {
-
-	private static ProcessWrapper serverProcess;
+public class ClientCacheVariableServersTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<String, Integer> example;
@@ -73,40 +64,13 @@ public class ClientCacheVariableServersTest {
 	public static void setup() throws IOException {
 		String serverName = ClientCacheVariableServersTest.class.getSimpleName().concat("Server");
 
-		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
-
-		Assert.isTrue(serverWorkingDirectory.isDirectory() || serverWorkingDirectory.mkdirs());
-
 		List<String> arguments = new ArrayList<String>();
 
 		arguments.add(String.format("-Dgemfire.name=%1$s", serverName));
 		arguments.add("/".concat(ClientCacheVariableServersTest.class.getName().replace(".", "/")
 			.concat("-server-context.xml")));
 
-		serverProcess = ProcessExecutor.launch(serverWorkingDirectory, ServerProcess.class,
-			arguments.toArray(new String[arguments.size()]));
-
-		waitForServerToStart(TimeUnit.SECONDS.toMillis(20));
-	}
-
-	private static void waitForServerToStart(final long milliseconds) {
-		ThreadUtils.timedWait(milliseconds, TimeUnit.MILLISECONDS.toMillis(500), new ThreadUtils.WaitCondition() {
-			private File serverPidControlFile = new File(serverProcess.getWorkingDirectory(),
-				ServerProcess.getServerProcessControlFilename());
-
-			@Override public boolean waiting() {
-				return !serverPidControlFile.isFile();
-			}
-		});
-	}
-
-	@AfterClass
-	public static void tearDown() {
-		serverProcess.shutdown();
-
-		if (Boolean.valueOf(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			org.springframework.util.FileSystemUtils.deleteRecursively(serverProcess.getWorkingDirectory());
-		}
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
 	}
 
 	@Test

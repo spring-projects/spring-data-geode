@@ -14,17 +14,14 @@ package org.springframework.data.gemfire.repository.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -32,11 +29,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author John Blum
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings("unused")
-public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class RepositoryClientRegionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private PersonRepository repository;
@@ -44,24 +38,8 @@ public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrat
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		System.setProperty("gemfire.log-level", GEMFIRE_LOG_LEVEL);
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(RepositoryClientRegionIntegrationTests.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty("gemfire.log-level");
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
 	}
 
 	@Test

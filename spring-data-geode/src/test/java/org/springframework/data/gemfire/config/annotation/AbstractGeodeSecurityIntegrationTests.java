@@ -47,8 +47,6 @@ import org.apache.geode.cache.client.ServerOperationException;
 import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -62,13 +60,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAuthInitialize;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * Abstract base test class for implementing Apache Geode Integrated Security Integration Tests.
@@ -82,13 +78,13 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.support.AbstractAuthInitialize
- * @see org.springframework.data.gemfire.process.ProcessWrapper
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.process.ProcessWrapper
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 1.0.0
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @SuppressWarnings("unused")
-public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServerIntegrationTestsSupport {
+public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	protected static final int CACHE_SERVER_PORT = 13531;
 
@@ -101,40 +97,18 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServer
 
 	private static final AtomicInteger RUN_COUNT = new AtomicInteger(0);
 
-	private static ProcessWrapper geodeServerProcess;
-
-	@BeforeClass
-	public static void runGeodeServer() throws IOException {
-
-		String geodeSecurityProfile = System.getProperty(GEODE_SECURITY_PROFILE_PROPERTY);
-
-		if (StringUtils.hasText(geodeSecurityProfile)) {
-			runGeodeServer(geodeSecurityProfile);
-		}
-	}
-
-	protected static ProcessWrapper runGeodeServer(String geodeSecurityProfile) throws IOException {
+	protected static void runGeodeServer(String geodeSecurityProfile) throws IOException {
 
 		Assert.hasText(geodeSecurityProfile, String.format("[%s] System property is required",
 			GEODE_SECURITY_PROFILE_PROPERTY));
 
 		String debugEndpoint = Boolean.getBoolean(DEBUGGING_ENABLED_PROPERTY) ? DEBUG_ENDPOINT : null;
 
-		geodeServerProcess = run(GeodeServerConfiguration.class,
+		startGemFireServer(GeodeServerConfiguration.class,
 			String.format("-Dgemfire.log-file=%s", logFile()),
 			String.format("-Dgemfire.log-level=%s", logLevel(TEST_GEMFIRE_LOG_LEVEL)),
 			String.format("-Dspring.profiles.active=apache-geode-server,%s", geodeSecurityProfile),
 			debugEndpoint);
-
-		waitForServerToStart(CACHE_SERVER_HOST, CACHE_SERVER_PORT);
-
-		return geodeServerProcess;
-	}
-
-	@AfterClass
-	public static void stopGeodeServer() {
-		System.clearProperty(GEODE_SECURITY_PROFILE_PROPERTY);
-		stop(geodeServerProcess);
 	}
 
 	@Resource(name = "Echo")
@@ -215,8 +189,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServer
 		}
 	}
 
-	@ClientCacheApplication(name = "GeodeSecurityIntegrationTestsClient", logLevel = "error",
-		servers = { @ClientCacheApplication.Server(port = CACHE_SERVER_PORT) })
+	@ClientCacheApplication(name = "GeodeSecurityIntegrationTestsClient", logLevel = "error")
 	@EnableAuth(clientAuthenticationInitializer =
 		"org.springframework.data.gemfire.config.annotation.AbstractGeodeSecurityIntegrationTests$GeodeClientAuthInitialize.create")
 	@Profile("apache-geode-client")
@@ -235,8 +208,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ClientServer
 		}
 	}
 
-	@CacheServerApplication(name = "GeodeSecurityIntegrationTestsServer", logLevel = "error",
-		port = CACHE_SERVER_PORT)
+	@CacheServerApplication(name = "GeodeSecurityIntegrationTestsServer", logLevel = "error")
 	@Import({
 		ApacheShiroIniSecurityIntegrationTests.ApacheShiroIniConfiguration.class,
 		ApacheShiroRealmSecurityIntegrationTests.ApacheShiroRealmConfiguration.class,

@@ -23,16 +23,13 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.DistributionConfig;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -41,6 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * added {@link CacheServer CacheServers} using the {@link EnableCacheServer} annotation.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see org.junit.Test
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.server.CacheServer
@@ -49,43 +47,17 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.2.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = PeerCacheApplicationWithAddedCacheServerIntegrationTests.TestPeerCacheConfiguration.class)
-@SuppressWarnings("unused")
-// TODO: Convert to Unit Test once STDG is used by SDG.
-public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends ClientServerIntegrationTestsSupport {
+@ContextConfiguration(classes = PeerCacheApplicationWithAddedCacheServerUnitTests.TestPeerCacheConfiguration.class)
+public class PeerCacheApplicationWithAddedCacheServerUnitTests {
 
-	private static int cacheServerPort;
-	private static int locatorPort;
-
-	private static ProcessWrapper gemfireLocator;
-
-	private static final String GEMFIRE_LOG_LEVEL = "config";
+	private static int cacheServerPort = 77777;
+	private static int locatorPort = 55555;
 
 	@BeforeClass
-	public static void startGemFireLocator() throws Exception {
-
-		locatorPort = findAvailablePort();
-
-		gemfireLocator = run(TestLocatorConfiguration.class,
-			"-Dspring.data.gemfire.locator.port=" + locatorPort,
-						String.format("-Dgemfire.%s=%s", DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, false));
-
-		waitForServerToStart("localhost", locatorPort);
-
-		cacheServerPort = findAvailablePort();
+	public static void setSystemProperties() {
 
 		System.setProperty("spring.data.gemfire.cache.peer.locators", String.format("localhost[%d]", locatorPort));
 		System.setProperty("spring.data.gemfire.cache.server.port", String.valueOf(cacheServerPort));
-	}
-
-	@AfterClass
-	public static void stopGemFireLocator() {
-
-		stop(gemfireLocator);
-
-		System.getProperties().stringPropertyNames().stream()
-			.filter(propertyName -> propertyName.startsWith("spring.data.gemfire."))
-			.forEach(System::clearProperty);
 	}
 
 	@Autowired
@@ -95,13 +67,13 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 	public void setup() {
 
 		assertThat(this.cache).isNotNull();
-		assertThat(this.cache.getName()).isEqualTo("PeerCacheApplicationWithAddedCacheServerIntegrationTests");
+		assertThat(this.cache.getName()).isEqualTo("PeerCacheApplicationWithAddedCacheServerUnitTests");
 		assertThat(this.cache.getDistributedSystem()).isNotNull();
 		assertThat(this.cache.getDistributedSystem().getProperties()).isNotNull();
 		assertThat(this.cache.getDistributedSystem().getProperties().getProperty(DistributionConfig.LOCATORS_NAME))
 			.isEqualTo(String.format("localhost[%d]", locatorPort));
 		assertThat(this.cache.getDistributedSystem().getProperties().getProperty(DistributionConfig.NAME_NAME))
-			.isEqualTo("PeerCacheApplicationWithAddedCacheServerIntegrationTests");
+			.isEqualTo("PeerCacheApplicationWithAddedCacheServerUnitTests");
 	}
 
 	@Test
@@ -118,22 +90,9 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 		assertThat(cacheServer.getPort()).isEqualTo(cacheServerPort);
 	}
 
-	@LocatorApplication(logLevel = GEMFIRE_LOG_LEVEL)
-	static class TestLocatorConfiguration {
-
-		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(TestLocatorConfiguration.class);
-
-			applicationContext.registerShutdownHook();
-
-			block();
-		}
-	}
-
 	@EnableCacheServer
-	@PeerCacheApplication(name = "PeerCacheApplicationWithAddedCacheServerIntegrationTests")
+	@EnableGemFireMockObjects
+	@PeerCacheApplication(name = "PeerCacheApplicationWithAddedCacheServerUnitTests")
 	static class TestPeerCacheConfiguration { }
 
 }

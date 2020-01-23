@@ -28,16 +28,18 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.AbstractGemFireClientServerIntegrationTest;
+import org.springframework.data.gemfire.fork.ServerProcess;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Integration tests for {@link ClientCache} {@link Pool Pools}.
@@ -48,18 +50,17 @@ import org.springframework.util.Assert;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("all")
-public class ClientCachePoolTests extends AbstractGemFireClientServerIntegrationTest {
-
-	private static ProcessWrapper gemfireServerProcess;
+public class ClientCachePoolTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
-		gemfireServerProcess = startGemFireServer(ClientCachePoolTests.class);
-	}
 
-	@AfterClass
-	public static void tearDownGemFireServer() {
-		stopGemFireServer(gemfireServerProcess);
+		List<String> arguments = new ArrayList<>();
+
+		arguments.add(String.format("-Dgemfire.name=%1$s", "ClientCachePoolTests"));
+		arguments.add("/org/springframework/data/gemfire/client/ClientCachePoolTests-server-context.xml");
+
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
 	}
 
 	@Resource(name = "Factorials")

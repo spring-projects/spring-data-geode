@@ -39,10 +39,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.GemFireBasedServerProcess;
-import org.springframework.data.gemfire.process.ProcessExecutor;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.process.ProcessExecutor;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
@@ -64,6 +64,7 @@ import org.springframework.util.StringUtils;
 @ContextConfiguration
 @SuppressWarnings({ "rawtypes", "unused"})
 // TODO: slow test!
+// TODO: Use ForkingClientServerIntegrationTestsSupport when it supports custom classpath and working directory.
 public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTest {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";

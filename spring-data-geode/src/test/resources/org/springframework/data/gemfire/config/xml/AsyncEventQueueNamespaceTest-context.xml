@@ -12,7 +12,7 @@
 	   	http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<bean class="org.springframework.data.gemfire.test.mock.config.GemFireMockObjectsBeanPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.tests.mock.config.GemFireMockObjectsBeanPostProcessor"/>
 
 	<util:properties id="gemfireProperties">
 		<prop key="name">AsyncEventQueueNamespaceTest</prop>
