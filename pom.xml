@@ -11,7 +11,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-geode</artifactId>
-	<version>2.1.17.BUILD-SNAPSHOT</version>
+	<version>2.1.17.GEODE-1-8-BUILD-SNAPSHOT</version>
 
 	<name>Spring Data Geode</name>
 
