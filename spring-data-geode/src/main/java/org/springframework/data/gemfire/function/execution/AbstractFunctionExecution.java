@@ -40,11 +40,14 @@ import org.slf4j.LoggerFactory;
  * @author David Turanski
  * @author John Blum
  * @author Patrick Johnson
+<<<<<<< HEAD
  * @see java.util.concurrent.TimeUnit
  * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.apache.geode.cache.execute.ResultCollector
+=======
+>>>>>>> ae69760bf... DATAGEODE-295 - Functions return results from all servers.
  */
 @SuppressWarnings("unused")
 abstract class AbstractFunctionExecution {

@@ -13,12 +13,16 @@
 package org.springframework.data.gemfire.function.execution;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.data.gemfire.function.annotation.OnServers;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -43,24 +47,25 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 
 	private final Class<?> functionExecutionInterface;
 
-	private FunctionExecutionMethodMetadata<MethodMetadata> methodMetadata;
+	private final FunctionExecutionMethodMetadata<MethodMetadata> methodMetadata;
 
 	private final GemfireFunctionOperations gemfireFunctionOperations;
 
 	private volatile Object functionExecutionProxy;
 
 	/**
-	 * Constructs a new instance of the {@link GemfireFunctionProxyFactoryBean} initialized with the given
+	 * Constructs a new instance of {@link GemfireFunctionProxyFactoryBean} initialized with the given
 	 * {@link Class Function Excution Interface} and {@link GemfireFunctionOperations}.
 	 *
-	 * @param functionExecutionInterface {@link Class Function Execution Interface} to proxy.
-	 * @param gemfireFunctionOperations Template class used to delegate the Function invocation.
-	 * @see org.springframework.data.gemfire.function.execution.GemfireFunctionOperations
+	 * @param functionExecutionInterface {@link Class Function Execution Interface} to proxy;
+	 * must not be {@literal null}.
+	 * @param gemfireFunctionOperations template used to execute the {@link Function}.
 	 * @throws IllegalArgumentException if the {@link Class Function Execution Interface} is {@literal null}
 	 * or the {@link Class Function Execution Type} is not an actual interface.
+	 * @see org.springframework.data.gemfire.function.execution.GemfireFunctionOperations
 	 */
-	public GemfireFunctionProxyFactoryBean(Class<?> functionExecutionInterface,
-			GemfireFunctionOperations gemfireFunctionOperations) {
+	public GemfireFunctionProxyFactoryBean(@NonNull Class<?> functionExecutionInterface,
+			@NonNull GemfireFunctionOperations gemfireFunctionOperations) {
 
 		Assert.notNull(functionExecutionInterface, "Function Execution Interface must not be null");
 
@@ -73,8 +78,11 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 		this.methodMetadata = new DefaultFunctionExecutionMethodMetadata(functionExecutionInterface);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
-	public ClassLoader getBeanClassLoader() {
+	public @NonNull ClassLoader getBeanClassLoader() {
 
 		ClassLoader beanClassLoader = super.getBeanClassLoader();
 
@@ -85,16 +93,19 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 		return this.functionExecutionInterface;
 	}
 
-	protected FunctionExecutionMethodMetadata<MethodMetadata> getFunctionExecutionMethodMetadata() {
+	protected @NonNull FunctionExecutionMethodMetadata<MethodMetadata> getFunctionExecutionMethodMetadata() {
 		return this.methodMetadata;
 	}
 
-	protected GemfireFunctionOperations getGemfireFunctionOperations() {
+	protected @NonNull GemfireFunctionOperations getGemfireFunctionOperations() {
 		return this.gemfireFunctionOperations;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
-	public Object invoke(MethodInvocation invocation) {
+	public @Nullable Object invoke(@NonNull MethodInvocation invocation) {
 
 		if (AopUtils.isToStringMethod(invocation.getMethod())) {
 			return String.format("Function Proxy for interface [%s]", getFunctionExecutionInterface().getName());
@@ -107,13 +118,19 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 		return resolveResult(invocation, result);
 	}
 
-	protected Object invokeFunction(Method method, Object[] args) {
+	protected @Nullable Object invokeFunction(@NonNull Method method, @NonNull Object[] args) {
 
-		String functionId = getFunctionExecutionMethodMetadata()
-			.getMethodMetadata(method)
-			.getFunctionId();
+		GemfireFunctionOperations template = getGemfireFunctionOperations();
 
-		return getGemfireFunctionOperations().execute(functionId, args);
+		String functionId = getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId();
+
+		return isFunctionExecutionForAllServers(method)
+			? template.execute(functionId, args)
+			: template.executeAndExtract(functionId, args);
+	}
+
+	private boolean isFunctionExecutionForAllServers(Method method) {
+		return method.getDeclaringClass().isAnnotationPresent(OnServers.class);
 	}
 
 	protected Object resolveResult(MethodInvocation invocation, Object result) {
@@ -147,6 +164,9 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 		return value instanceof Iterable;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Object getObject() throws Exception {
 
@@ -158,6 +178,9 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 		return this.functionExecutionProxy;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Class<?> getObjectType() {
 		return getFunctionExecutionInterface();
