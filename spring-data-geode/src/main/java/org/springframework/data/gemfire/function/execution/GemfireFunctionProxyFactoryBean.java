@@ -18,12 +18,17 @@ import java.util.stream.StreamSupport;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.data.gemfire.function.annotation.OnServers;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+
+<<<<<<<HEAD
+=======
+	>>>>>>>DATAGEODE-295-Functions return results from all servers.
 
 /**
  * A Proxy {@link FactoryBean} for all non-Region Function Execution interfaces.
@@ -109,8 +114,11 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 
 	protected Object invokeFunction(Method method, Object[] args) {
 
-		return getGemfireFunctionOperations()
-			.executeAndExtract(getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId(), args);
+		GemfireFunctionOperations template = getGemfireFunctionOperations();
+
+		return method.getDeclaringClass().isAnnotationPresent(OnServers.class)
+			? template.execute(getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId(), args)
+			: template.executeAndExtract(getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId(), args);
 	}
 
 	protected Object resolveResult(MethodInvocation invocation, Object result) {

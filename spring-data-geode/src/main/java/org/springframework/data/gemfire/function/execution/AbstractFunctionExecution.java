@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  *
  * @author David Turanski
  * @author John Blum
+ * @author Patrick Johnson
  */
 @SuppressWarnings("unused")
 abstract class AbstractFunctionExecution {
@@ -137,7 +138,11 @@ abstract class AbstractFunctionExecution {
 				}
 			}
 			else {
-				results = (Iterable<T>) resultCollector.getResult();
+				if(resultCollector.getResult() instanceof Iterable) {
+					results = (Iterable<T>) resultCollector.getResult();
+				} else {
+					results = (Iterable<T>) Collections.singleton(resultCollector.getResult());
+				}
 			}
 
 			return replaceSingletonNullCollectionWithEmptyList(results);
