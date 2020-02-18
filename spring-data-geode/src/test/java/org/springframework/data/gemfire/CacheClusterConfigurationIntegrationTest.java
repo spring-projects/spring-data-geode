@@ -50,12 +50,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.fork.LocatorProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.test.support.FileUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
-import org.springframework.data.gemfire.test.support.ThrowableUtils;
-import org.springframework.data.gemfire.test.support.ZipUtils;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.integration.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.FileUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
+import org.springframework.data.gemfire.tests.util.ThrowableUtils;
+import org.springframework.data.gemfire.tests.util.ZipUtils;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
@@ -70,11 +70,12 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
  * @see org.springframework.core.io.ClassPathResource
  * @see org.springframework.data.gemfire.fork.LocatorProcess
- * @see org.springframework.data.gemfire.process.ProcessExecutor
- * @see org.springframework.data.gemfire.process.ProcessWrapper
+ * @see org.springframework.data.gemfire.tests.process.ProcessExecutor
+ * @see org.springframework.data.gemfire.tests.process.ProcessWrapper
  * @since 1.5.0
  */
 @SuppressWarnings("unused")
+// TODO: Use ForkingClientServerIntegrationTestsSupport when it supports starting locators.
 public class CacheClusterConfigurationIntegrationTest extends ClientServerIntegrationTestsSupport {
 
 	private static File locatorWorkingDirectory;

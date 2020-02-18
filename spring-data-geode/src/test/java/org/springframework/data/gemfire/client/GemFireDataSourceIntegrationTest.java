@@ -17,7 +17,6 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ import javax.annotation.Resource;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,10 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -56,57 +51,31 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 1.7.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings({ "rawtypes", "unused"})
-public class GemFireDataSourceIntegrationTest extends ClientServerIntegrationTestsSupport {
-
-	private static final String GEMFIRE_LOG_LEVEL = "error";
-
-	private static ProcessWrapper gemfireServer;
+public class GemFireDataSourceIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGemFireServer() throws IOException {
 
-		int availablePort = findAvailablePort();
-
 		String serverName = GemFireDataSourceIntegrationTest.class.getSimpleName().concat("Server");
-
-		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
 
 		List<String> arguments = new ArrayList<>();
 
 		arguments.add(String.format("-Dgemfire.name=%s", serverName));
 		arguments.add(String.format("-Dgemfire.log-level=%s", GEMFIRE_LOG_LEVEL));
-		arguments.add(String.format("-Dspring.data.gemfire.cache.server.port=%d", availablePort));
 		arguments.add(GemFireDataSourceIntegrationTest.class.getName()
 			.replace(".", "/").concat("-server-context.xml"));
 
-		gemfireServer = run(serverWorkingDirectory, ServerProcess.class, arguments.toArray(new String[0]));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		configureGemFireClient(availablePort);
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
 	}
 
 	private static void configureGemFireClient(int availablePort) {
 		System.setProperty("gemfire.log-level", "error");
 		System.setProperty("spring.data.gemfire.cache.server.port", String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-
-		stop(gemfireServer);
-
-		System.clearProperty("gemfire.log-level");
-		System.clearProperty("spring.data.gemfire.cache.server.port");
-
-		if (Boolean.valueOf(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			org.springframework.util.FileSystemUtils.deleteRecursively(gemfireServer.getWorkingDirectory());
-		}
 	}
 
 	@Autowired

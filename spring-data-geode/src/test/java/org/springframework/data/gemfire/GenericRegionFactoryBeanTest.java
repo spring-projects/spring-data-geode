@@ -18,7 +18,7 @@ package org.springframework.data.gemfire;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.springframework.data.gemfire.test.support.FileSystemUtils.FileExtensionFilter.newFileExtensionFilter;
+import static org.springframework.data.gemfire.tests.util.FileSystemUtils.FileExtensionFilter.newFileExtensionFilter;
 
 import java.io.FileFilter;
 
@@ -32,7 +32,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.CacheUtils;
 
 /**

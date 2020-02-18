@@ -26,12 +26,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate.FollowRedirectsSimpleClientHttpRequestFactory;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +46,7 @@ import org.springframework.data.gemfire.IndexType;
 import org.springframework.data.gemfire.config.schema.definitions.IndexDefinition;
 import org.springframework.data.gemfire.config.schema.definitions.RegionDefinition;
 import org.springframework.data.gemfire.config.support.RestTemplateConfigurer;
+import org.springframework.data.gemfire.tests.util.ReflectionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -58,7 +57,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -121,22 +119,6 @@ public class RestHttpGemfireAdminTemplateUnitTests {
 		when(this.mockIndex.getFromClause()).thenReturn("/Customers");
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
-
-		Field field = ReflectionUtils.findField(target.getClass(), fieldName, ClientHttpRequestFactory.class);
-
-		return Optional.ofNullable(field)
-			.map(it -> {
-				ReflectionUtils.makeAccessible(it);
-				return field;
-			})
-			.map(it -> (T) ReflectionUtils.getField(it, target))
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
-	}
-
 	@Test
 	public void constructDefaultRestHttpGemfireAdminTemplate() {
 
@@ -186,7 +168,7 @@ public class RestHttpGemfireAdminTemplateUnitTests {
 
 		assertThat(clientHttpRequestFactory).isInstanceOf(InterceptingClientHttpRequestFactory.class);
 
-		clientHttpRequestFactory = this.getFieldValue(clientHttpRequestFactory, "requestFactory");
+		clientHttpRequestFactory = ReflectionUtils.getFieldValue(clientHttpRequestFactory, "requestFactory");
 
 		assertThat(clientHttpRequestFactory).isInstanceOf(FollowRedirectsSimpleClientHttpRequestFactory.class);
 		assertThat(((FollowRedirectsSimpleClientHttpRequestFactory) clientHttpRequestFactory).isFollowRedirects())

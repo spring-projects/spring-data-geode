@@ -33,7 +33,6 @@ import org.apache.geode.pdx.PdxSerializer;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.pdx.internal.PdxInstanceEnum;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,9 +44,7 @@ import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.fork.SpringContainerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -63,20 +60,17 @@ import org.springframework.util.ObjectUtils;
  * @see SpringContainerProcess
  * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
  * @see org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions
- * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.pdx.PdxInstance
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.apache.geode.pdx.internal.PdxInstanceEnum
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 1.5.2
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings("unused")
-public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache gemfireClientCache;
@@ -87,21 +81,8 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(ClientCacheFunctionExecutionWithPdxIntegrationTest.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
 	}
 
 	private PdxInstance toPdxInstance(Map<String, Object> pdxData) {

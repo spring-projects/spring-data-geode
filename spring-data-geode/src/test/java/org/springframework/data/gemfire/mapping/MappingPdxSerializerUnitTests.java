@@ -68,7 +68,7 @@ import org.springframework.data.gemfire.repository.sample.Programmer;
 import org.springframework.data.gemfire.repository.sample.RootUser;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.test.model.Gender;
-import org.springframework.data.gemfire.test.support.MapBuilder;
+import org.springframework.data.gemfire.tests.support.MapBuilder;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PersistentProperty;

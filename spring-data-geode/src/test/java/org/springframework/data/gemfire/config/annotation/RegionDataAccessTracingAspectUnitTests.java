@@ -36,8 +36,8 @@ import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect;
-import org.springframework.data.gemfire.test.logging.slf4j.logback.TestAppender;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.logging.slf4j.logback.TestAppender;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ClassUtils;
@@ -51,8 +51,8 @@ import org.springframework.util.ClassUtils;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect
- * @see org.springframework.data.gemfire.test.logging.slf4j.logback.TestAppender
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.logging.slf4j.logback.TestAppender
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.2
@@ -62,6 +62,9 @@ import org.springframework.util.ClassUtils;
 public class RegionDataAccessTracingAspectUnitTests {
 
 	private static final String LOGBACK_LOGGER_CLASS_NAME = "ch.qos.logback.classic.Logger";
+
+	private static final String TEST_KEY = "testKey";
+	private static final String TEST_VALUE = "testValue";
 
 	@BeforeClass
 	public static void setupBeforeTestSuite() {
@@ -85,7 +88,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionCreate() {
 
-		this.region.create("testKey", "testValue");
+		this.region.create(TEST_KEY, TEST_VALUE);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -98,7 +101,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionCreateWithCallbackArgument() {
 
-		this.region.create("testKey", "testValue",
+		this.region.create(TEST_KEY, TEST_VALUE,
 			regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
@@ -112,7 +115,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionGet() {
 
-		this.region.get("testKey");
+		this.region.get(TEST_KEY);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -152,7 +155,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionGetEntry() {
 
-		this.region.getEntry("testKey");
+		this.region.getEntry(TEST_KEY);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -165,7 +168,9 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionInvalidate() {
 
-		this.region.invalidate("testKey");
+		try {
+			this.region.invalidate(TEST_KEY);
+		} catch (Exception e) { }
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -178,7 +183,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionInvalidateWithCallbackArgument() {
 
-		this.region.invalidate("testKey", regionCallbackArgument(new AtomicBoolean(false)));
+		this.region.invalidate(TEST_KEY, regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -230,7 +235,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionLocalDestroy() {
 
-		this.region.localDestroy("testKey");
+		this.region.localDestroy(TEST_KEY);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -243,7 +248,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionLocalDestroyWithCallbackArgument() {
 
-		this.region.localDestroy("testKey", regionCallbackArgument(new AtomicBoolean(false)));
+		this.region.localDestroy(TEST_KEY, regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -256,7 +261,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionLocalInvalidate() {
 
-		this.region.localInvalidate("testKey");
+		this.region.localInvalidate(TEST_KEY);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -269,7 +274,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionLocalInvalidateWithCallbackArgument() {
 
-		this.region.localInvalidate("testKey", regionCallbackArgument(new AtomicBoolean(false)));
+		this.region.localInvalidate(TEST_KEY, regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -282,7 +287,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionPut() {
 
-		this.region.put("testKey", "testValue");
+		this.region.put(TEST_KEY, TEST_VALUE);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -295,7 +300,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionPutWithCallbackArgument() {
 
-		this.region.put("testKey", "testValue", regionCallbackArgument(new AtomicBoolean(false)));
+		this.region.put(TEST_KEY, TEST_VALUE, regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -334,7 +339,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionPutIfAbsent() {
 
-		this.region.putIfAbsent("testKey", "testValue");
+		this.region.putIfAbsent(TEST_KEY, TEST_VALUE);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -360,7 +365,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionRemoveWithKey() {
 
-		this.region.remove("testKey");
+		this.region.remove(TEST_KEY);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -373,7 +378,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionRemoveWithKeyAndValue() {
 
-		this.region.remove("testKey", "testValue");
+		this.region.remove(TEST_KEY, TEST_VALUE);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -413,7 +418,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionReplace() {
 
-		this.region.replace("testKey", "testValue");
+		this.region.replace(TEST_KEY, TEST_VALUE);
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 
@@ -426,7 +431,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	@Test
 	public void logsRegionReplaceWithKeyOldValueNewValue() {
 
-		this.region.replace("testKey", "testOldValue", "testNewValue");
+		this.region.replace(TEST_KEY, "testOldValue", "testNewValue");
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
 

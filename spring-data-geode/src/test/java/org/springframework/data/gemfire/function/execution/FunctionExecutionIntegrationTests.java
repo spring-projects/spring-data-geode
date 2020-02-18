@@ -24,24 +24,20 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.springframework.data.gemfire.fork.FunctionCacheServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 
 /**
  * @author David Turanski
  * @author John Blum
  */
-public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class FunctionExecutionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static int availablePort;
-
-	private static ProcessWrapper gemfireServer;
 
 	private ClientCache gemfireCache = null;
 
@@ -52,20 +48,9 @@ public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTe
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		availablePort = findAvailablePort();
+		startGemFireServer(FunctionCacheServerProcess.class);
 
-		gemfireServer = run(FunctionCacheServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		availablePort = Integer.parseInt(System.getProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY));
 	}
 
 	@Before

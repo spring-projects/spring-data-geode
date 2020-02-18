@@ -36,8 +36,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.repository.sample.Person;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.util.FileCopyUtils;
 
 /**

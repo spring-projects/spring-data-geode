@@ -38,7 +38,7 @@ import org.apache.geode.cache.query.SelectResults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.data.gemfire.repository.sample.Person;
-import org.springframework.data.gemfire.test.support.MapBuilder;
+import org.springframework.data.gemfire.tests.support.MapBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 

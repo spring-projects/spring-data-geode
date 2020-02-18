@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.fork.FunctionCacheServerProcess;
-import org.springframework.data.gemfire.test.support.IOUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.util.IOUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.util.StringUtils;
 
 /**

@@ -26,7 +26,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
  * Integration Tests for {@link EnableBeanFactoryLocator} and {@link BeanFactoryLocatorConfiguration}.
@@ -38,7 +38,7 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.BeanFactoryLocatorConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableBeanFactoryLocator
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
 public class EnableBeanFactoryLocatorConfigurationIntegrationTests {

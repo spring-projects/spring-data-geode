@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.LocatorFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.lang.Nullable;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -51,7 +51,7 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.LocatorFactoryBean
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.mock.env.MockPropertySource
  * @since 2.2.0
  */

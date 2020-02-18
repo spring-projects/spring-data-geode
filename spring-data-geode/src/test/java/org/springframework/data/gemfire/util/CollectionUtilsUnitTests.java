@@ -37,8 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.junit.Test;
-
-import org.springframework.data.gemfire.test.support.MapBuilder;
+import org.springframework.data.gemfire.tests.support.MapBuilder;
 
 /**
  * Unit tests for {@link CollectionUtils}.

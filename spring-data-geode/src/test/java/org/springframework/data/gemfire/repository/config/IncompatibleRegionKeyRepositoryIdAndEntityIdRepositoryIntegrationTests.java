@@ -39,7 +39,7 @@ import org.springframework.data.gemfire.repository.sample.Animal;
 import org.springframework.data.gemfire.repository.sample.Plant;
 import org.springframework.data.gemfire.repository.sample.PlantRepository;
 import org.springframework.data.gemfire.repository.sample.RabbitRepository;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.repository.Repository;
 

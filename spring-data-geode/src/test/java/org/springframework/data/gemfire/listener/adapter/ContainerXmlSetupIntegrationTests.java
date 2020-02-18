@@ -22,7 +22,6 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.query.CqQuery;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -41,32 +38,15 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author John Blum
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
 @SuppressWarnings("unused")
 // TODO change this test to use mocks!!
-public class ContainerXmlSetupIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ContainerXmlSetupIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(CqCacheServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
+		startGemFireServer(CqCacheServerProcess.class);
 	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
-	}
-
 
 	@Autowired
 	private ApplicationContext applicationContext;

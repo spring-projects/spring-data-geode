@@ -31,7 +31,7 @@ import org.apache.geode.cache.DiskStore;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
  * Unit Tests for the {@link EnableDiskStore} and {@link EnableDiskStores} annotations as well as
@@ -45,7 +45,7 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStores
  * @see org.springframework.data.gemfire.config.annotation.DiskStoreConfiguration
  * @see org.springframework.data.gemfire.config.annotation.DiskStoresConfiguration
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 public class EnableDiskStoresConfigurationUnitTests {

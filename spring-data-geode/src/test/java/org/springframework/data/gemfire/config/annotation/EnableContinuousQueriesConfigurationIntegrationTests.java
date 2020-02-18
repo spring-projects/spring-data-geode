@@ -41,7 +41,6 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,9 +55,8 @@ import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer;
 import org.springframework.data.gemfire.listener.annotation.ContinuousQuery;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -74,40 +72,25 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.ContinuousQueryConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableContinuousQueries
  * @see org.springframework.data.gemfire.listener.annotation.ContinuousQuery
- * @see org.springframework.data.gemfire.process.ProcessWrapper
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.process.ProcessWrapper
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnableContinuousQueriesConfigurationIntegrationTests.TestConfiguration.class)
 @SuppressWarnings("unused")
-public class EnableContinuousQueriesConfigurationIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class EnableContinuousQueriesConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static AtomicInteger boilingTemperatureReadingsCounter = new AtomicInteger(0);
 	private static AtomicInteger freezingTemperatureReadingsCounter = new AtomicInteger(0);
 	private static AtomicInteger totalTemperatureReadingsCounter = new AtomicInteger(0);
 
-	private static ProcessWrapper gemfireServer;
-
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(GemFireServerConfiguration.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		startGemFireServer(GemFireServerConfiguration.class);
 	}
 
 	@Resource(name = "TemperatureReadings")

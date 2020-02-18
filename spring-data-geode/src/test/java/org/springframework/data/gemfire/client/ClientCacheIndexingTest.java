@@ -20,11 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
@@ -32,20 +30,15 @@ import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexType;
 import org.apache.geode.cache.query.QueryService;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessExecutor;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.Assert;
 
 /**
  * Integration tests for testing {@link ClientCache} {@link Index Indexes}.
@@ -65,9 +58,7 @@ import org.springframework.util.Assert;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ClientCacheIndexingTest {
-
-	private static ProcessWrapper serverProcess;
+public class ClientCacheIndexingTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;
@@ -80,44 +71,12 @@ public class ClientCacheIndexingTest {
 
 		String serverName = "GemFireIndexingCacheServer";
 
-		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
-
-		Assert.isTrue(serverWorkingDirectory.isDirectory() || serverWorkingDirectory.mkdirs(),
-			String.format("Server working directory [%s] does not exist and could not be created", serverWorkingDirectory));
-
 		List<String> arguments = new ArrayList<>();
 
 		arguments.add("-Dgemfire.name=" + serverName);
 		arguments.add("/org/springframework/data/gemfire/client/ClientCacheIndexingTest-server-context.xml");
 
-		serverProcess = ProcessExecutor.launch(serverWorkingDirectory, ServerProcess.class,
-			arguments.toArray(new String[0]));
-
-		waitForServerStart(TimeUnit.SECONDS.toMillis(20));
-	}
-
-	private static void waitForServerStart(final long milliseconds) {
-
-		ThreadUtils.timedWait(milliseconds, TimeUnit.MILLISECONDS.toMillis(500), new ThreadUtils.WaitCondition() {
-
-			private File serverPidControlFile =
-				new File(serverProcess.getWorkingDirectory(), ServerProcess.getServerProcessControlFilename());
-
-			@Override
-			public boolean waiting() {
-				return !serverPidControlFile.isFile();
-			}
-		});
-	}
-
-	@AfterClass
-	public static void tearDown() {
-
-		serverProcess.shutdown();
-
-		if (Boolean.valueOf(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			org.springframework.util.FileSystemUtils.deleteRecursively(serverProcess.getWorkingDirectory());
-		}
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
 	}
 
 	protected Index getIndex(final GemFireCache gemfireCache, final String indexName) {

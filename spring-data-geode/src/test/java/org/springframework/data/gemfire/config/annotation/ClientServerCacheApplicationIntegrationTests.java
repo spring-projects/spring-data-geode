@@ -29,7 +29,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -56,29 +54,23 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.server.CacheServer
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 1.9.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ClientServerCacheApplicationIntegrationTests.ClientTestConfiguration.class)
 @SuppressWarnings("all")
-public class ClientServerCacheApplicationIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class ClientServerCacheApplicationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
+
+	private static final String GEMFIRE_LOG_LEVEL = "error";
 
 	private static final int PORT = 12480;
-
-	private static ProcessWrapper gemfireServerProcess;
 
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
 
-		gemfireServerProcess = run(ServerTestConfiguration.class, String.format("-Dgemfire.name=%1$s",
+		startGemFireServer(ServerTestConfiguration.class, String.format("-Dgemfire.name=%1$s",
 			asApplicationName(ClientServerCacheApplicationIntegrationTests.class)));
-
-		waitForServerToStart("localhost", PORT);
-	}
-
-	@AfterClass
-	public static void tearDownGemFireServer() {
-		stop(gemfireServerProcess);
 	}
 
 	@Autowired
@@ -93,7 +85,7 @@ public class ClientServerCacheApplicationIntegrationTests extends ClientServerIn
 		assertThat(echo.get("Test")).isEqualTo("Test");
 	}
 
-	@ClientCacheApplication(logLevel = TEST_GEMFIRE_LOG_LEVEL, servers = { @ClientCacheApplication.Server(port = PORT)})
+	@ClientCacheApplication(logLevel = GEMFIRE_LOG_LEVEL, servers = { @ClientCacheApplication.Server(port = PORT)})
 	static class ClientTestConfiguration {
 
 		@Bean(name = "Echo")
@@ -110,7 +102,7 @@ public class ClientServerCacheApplicationIntegrationTests extends ClientServerIn
 	}
 
 	@CacheServerApplication(name = "ClientServerCacheApplicationIntegrationTests",
-		logLevel = TEST_GEMFIRE_LOG_LEVEL, port = PORT)
+		logLevel = GEMFIRE_LOG_LEVEL, port = PORT)
 	public static class ServerTestConfiguration {
 
 		public static void main(String[] args) {

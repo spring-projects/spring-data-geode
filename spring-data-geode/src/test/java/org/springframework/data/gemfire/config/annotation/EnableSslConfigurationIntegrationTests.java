@@ -26,7 +26,6 @@ import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,8 +35,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -49,16 +47,15 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
  * @see org.springframework.data.gemfire.config.annotation.SslConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnableSslConfigurationIntegrationTests.ClientTestConfiguration.class)
 @SuppressWarnings("all")
-public class EnableSslConfigurationIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class EnableSslConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final String LOG_LEVEL = "error";
-
-	private static ProcessWrapper gemfireServer;
 
 	@Resource(name = "Echo")
 	private Region<String, String> echo;
@@ -66,24 +63,9 @@ public class EnableSslConfigurationIntegrationTests extends ClientServerIntegrat
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
 
-		String hostname = "localhost";
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerTestConfiguration.class,
+		startGemFireServer(ServerTestConfiguration.class,
 			String.format("-Dgemfire.name=%s", asApplicationName(EnableSslConfigurationIntegrationTests.class)),
-			String.format("-Djavax.net.ssl.keyStore=%s", System.getProperty("javax.net.ssl.keyStore")),
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.format("%s[%d]", hostname, availablePort));
-		System.setProperty(GEMFIRE_POOL_SERVERS_PROPERTY, String.format("%s[%d]", hostname, availablePort));
-	}
-
-	@AfterClass
-	public static void tearDownGemFireServer() {
-		stop(gemfireServer);
+			String.format("-Djavax.net.ssl.keyStore=%s", System.getProperty("javax.net.ssl.keyStore:trusted.keystore")));
 	}
 
 	@Test

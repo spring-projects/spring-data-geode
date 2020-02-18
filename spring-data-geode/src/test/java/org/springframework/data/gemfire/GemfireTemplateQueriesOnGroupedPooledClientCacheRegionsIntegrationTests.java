@@ -52,12 +52,12 @@ import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.mapping.annotation.Region;
-import org.springframework.data.gemfire.process.ProcessExecutor;
-import org.springframework.data.gemfire.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.process.ProcessExecutor;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -85,12 +85,13 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see <a href="https://jira.spring.io/browse/SGF-555">Repository queries on client Regions associated with a Pool configured with a specified server group can lead to a RegionNotFoundException.</a>
  * @since 1.9.0
  */
+//TODO: Replace with STDG once STDG support starting multiple servers.
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes =
 	GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationTests.GemFireClientCacheConfiguration.class)
 @SuppressWarnings("unused")
 public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationTests
-		extends ClientServerIntegrationTestsSupport{
+		extends ClientServerIntegrationTestsSupport {
 
 	private static ProcessWrapper serverOne;
 	private static ProcessWrapper serverTwo;

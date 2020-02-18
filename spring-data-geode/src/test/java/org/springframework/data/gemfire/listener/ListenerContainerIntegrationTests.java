@@ -36,12 +36,13 @@ import org.junit.Test;
 
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 
 /**
  * @author Costin Leau
  */
+// TODO: Convert this to using ForkingClientServerIntegrationTestsSupport when signal() is possible.
 public class ListenerContainerIntegrationTests extends ClientServerIntegrationTestsSupport {
 
 	private static int availablePort;
@@ -79,7 +80,7 @@ public class ListenerContainerIntegrationTests extends ClientServerIntegrationTe
 	}
 
 	@Before
-	public void setupGemFireClient() throws Exception {
+	public void setupGemFireClient() {
 		gemfireCache = new ClientCacheFactory()
 			.set("name", "ListenerContainerIntegrationTests")
 			.set("log-level", "warning")
@@ -109,7 +110,7 @@ public class ListenerContainerIntegrationTests extends ClientServerIntegrationTe
 	}
 
 	@Test
-	public void testContainer() throws Exception {
+	public void testContainer() {
 		gemfireServer.signal();
 		waitOn(() -> cqEvents.size() == 3, TimeUnit.SECONDS.toMillis(5));
 		assertThat(cqEvents.size()).isEqualTo(3);

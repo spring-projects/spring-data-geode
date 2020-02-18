@@ -11,7 +11,7 @@
 
     <appender name="nop" class="ch.qos.logback.core.helpers.NOPAppender"/>
 
-    <appender name="testAppender" class="org.springframework.data.gemfire.test.logging.slf4j.logback.TestAppender">
+    <appender name="testAppender" class="org.springframework.data.gemfire.tests.logging.slf4j.logback.TestAppender">
         <encoder>
             <pattern>TEST - %m%n</pattern>
         </encoder>

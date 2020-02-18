@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.CacheFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
 import org.springframework.util.StringUtils;
@@ -51,7 +51,7 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.GemFireCache
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.core.env.PropertySource
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
 public class EnableGemFirePropertiesIntegrationTests {
@@ -282,19 +282,12 @@ public class EnableGemFirePropertiesIntegrationTests {
 		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
 		assertThat(this.applicationContext.containsBean("gemfireProperties")).isTrue();
 
-		Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
-
-
-		// TODO: uncomment when Spring Test for Apache Geode/Pivotal GemFire project replaces
-		// the test infrastructure classes in SDG.
-		/*
 		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
 
 		Properties gemfireProperties = gemfireCache.getDistributedSystem().getProperties();
-		*/
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.containsKey("name")).isTrue();

@@ -13,7 +13,7 @@
 
 	<bean class="org.springframework.data.gemfire.config.support.LuceneIndexRegionBeanFactoryPostProcessorIntegrationTests.BeanProcessingOrderRecordingBeanPostProcessor"/>
 
-	<bean id="MockLuceneService" class="org.springframework.data.gemfire.test.mock.GemFireMockObjectsSupport"
+	<bean id="MockLuceneService" class="org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport"
 		  factory-method="mockLuceneService">
 		<constructor-arg index="0" ref="gemfireCache"/>
 	</bean>

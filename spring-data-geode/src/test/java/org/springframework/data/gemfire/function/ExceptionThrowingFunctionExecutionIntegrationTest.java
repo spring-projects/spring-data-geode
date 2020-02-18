@@ -19,17 +19,14 @@ package org.springframework.data.gemfire.function;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.isA;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.cache.execute.FunctionAdapter;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionException;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,13 +36,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.sample.ExceptionThrowingFunctionExecution;
-import org.springframework.data.gemfire.process.ProcessExecutor;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.Assert;
 
 /**
  * The ExceptionThrowingFunctionExecutionIntegrationTest class is a test suite of test cases testing the invocation
@@ -59,8 +52,8 @@ import org.springframework.util.Assert;
  * @see org.springframework.data.gemfire.fork.ServerProcess
  * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
  * @see org.springframework.data.gemfire.function.sample.ExceptionThrowingFunctionExecution
- * @see org.springframework.data.gemfire.process.ProcessExecutor
- * @see org.springframework.data.gemfire.process.ProcessWrapper
+ * @see org.springframework.data.gemfire.tests.process.ProcessExecutor
+ * @see org.springframework.data.gemfire.tests.process.ProcessWrapper
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.7.0
@@ -68,9 +61,7 @@ import org.springframework.util.Assert;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ExceptionThrowingFunctionExecutionIntegrationTest {
-
-	private static ProcessWrapper gemfireServer;
+public class ExceptionThrowingFunctionExecutionIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -83,46 +74,14 @@ public class ExceptionThrowingFunctionExecutionIntegrationTest {
 
 		String serverName = ExceptionThrowingFunctionExecutionIntegrationTest.class.getSimpleName().concat("Server");
 
-		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
-
-		Assert.isTrue(serverWorkingDirectory.isDirectory() || serverWorkingDirectory.mkdirs(),
-			String.format("Failed to create working directory [%s]", serverWorkingDirectory));
-
-		List<String> arguments = new ArrayList<String>();
+		List<String> arguments = new ArrayList<>();
 
 		arguments.add("-Dgemfire.name=" + serverName);
 		arguments.add("-Dgemfire.log-level=error");
 		arguments.add(ExceptionThrowingFunctionExecutionIntegrationTest.class.getName().replace(".", "/")
 			.concat("-server-context.xml"));
 
-		gemfireServer = ProcessExecutor.launch(serverWorkingDirectory, ServerProcess.class,
-			arguments.toArray(new String[arguments.size()]));
-
-		waitForServerStart(TimeUnit.SECONDS.toMillis(20));
-	}
-
-	private static void waitForServerStart(final long milliseconds) {
-
-		ThreadUtils.timedWait(milliseconds, TimeUnit.MILLISECONDS.toMillis(500), new ThreadUtils.WaitCondition() {
-
-			private File serverPidControlFile = new File(gemfireServer.getWorkingDirectory(),
-				ServerProcess.getServerProcessControlFilename());
-
-			@Override
-			public boolean waiting() {
-				return !serverPidControlFile.isFile();
-			}
-		});
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-
-		gemfireServer.shutdown();
-
-		if (Boolean.valueOf(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			org.springframework.util.FileSystemUtils.deleteRecursively(gemfireServer.getWorkingDirectory());
-		}
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
 	}
 
 	@Test

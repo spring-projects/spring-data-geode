@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.gemfire.repository.sample.User;
-import org.springframework.data.gemfire.test.support.DataSourceAdapter;
+import org.springframework.data.gemfire.tests.support.DataSourceAdapter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;

@@ -180,6 +180,19 @@
 
 		<!-- Test -->
 		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-geode-test</artifactId>
+			<version>0.0.11.RELEASE</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.data</groupId>
+					<artifactId>spring-data-geode</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>javax.annotation-api</artifactId>
 			<version>${javax-annotation-api}</version>

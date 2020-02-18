@@ -21,8 +21,8 @@ import java.io.File;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.distributed.internal.DistributionConfig;
 
-import org.springframework.data.gemfire.process.support.ProcessUtils;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.process.ProcessUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 
 /**
  * The {@link GemFireBasedServerProcess} class is a main Java class used to launch a GemFire Server
