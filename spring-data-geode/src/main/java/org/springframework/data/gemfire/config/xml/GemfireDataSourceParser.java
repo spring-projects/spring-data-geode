@@ -71,11 +71,11 @@ class GemfireDataSourceParser extends AbstractBeanDefinitionParser {
 		BeanDefinition clientCacheDefinition = new ClientCacheParser().parse(element, parserContext);
 
 		parserContext.getRegistry()
-			.registerBeanDefinition(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME, clientCacheDefinition);
+			.registerBeanDefinition(SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME, clientCacheDefinition);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(String.format("Registered GemFire ClientCache bean [%1$s] of type [%2$s]%n",
-				GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME, clientCacheDefinition.getBeanClassName()));
+				SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME, clientCacheDefinition.getBeanClassName()));
 		}
 	}
 
@@ -90,7 +90,7 @@ class GemfireDataSourceParser extends AbstractBeanDefinitionParser {
 			poolProperties.add(SUBSCRIPTION_ENABLED_PROPERTY_NAME, true);
 		}
 
-		parserContext.getRegistry().registerBeanDefinition(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME, poolDefinition);
+		parserContext.getRegistry().registerBeanDefinition(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME, poolDefinition);
 	}
 
 	private void registerGemFireDataSourceBeanPostProcessor(@NonNull ParserContext parserContext) {

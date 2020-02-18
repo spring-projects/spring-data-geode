@@ -35,7 +35,7 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean;
 
 /**
@@ -144,11 +144,11 @@ public class GatewayReceiverConfiguration extends AbstractAnnotationConfigSuppor
 	private void configureBeanFromAnnotationAttributes(AnnotationAttributes enableGatewayReceiverAttributes,
 			BeanDefinitionBuilder gatewayReceiverBeanBuilder, String gatewayReceiverBeanName) {
 
-		gatewayReceiverBeanBuilder.addConstructorArgReference(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		gatewayReceiverBeanBuilder.addConstructorArgReference(SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		gatewayReceiverBeanBuilder.addPropertyValue("beanName", gatewayReceiverBeanName);
 
-		gatewayReceiverBeanBuilder.addPropertyReference("cache", GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		gatewayReceiverBeanBuilder.addPropertyReference("cache", SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		setPropertyValueIfNotDefault(gatewayReceiverBeanBuilder, START_PORT_LITERAL,
 			enableGatewayReceiverAttributes.<Integer>getNumber(START_PORT_LITERAL), DEFAULT_START_PORT);

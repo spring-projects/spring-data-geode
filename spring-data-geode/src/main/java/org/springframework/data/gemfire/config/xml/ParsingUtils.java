@@ -475,7 +475,7 @@ abstract class ParsingUtils {
 	}
 
 	static String resolveCacheReference(String cacheReference) {
-		return SpringUtils.defaultIfEmpty(cacheReference, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		return SpringUtils.defaultIfEmpty(cacheReference, SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 	}
 
 	static void setRegionReference(Element element, BeanDefinitionBuilder builder) {

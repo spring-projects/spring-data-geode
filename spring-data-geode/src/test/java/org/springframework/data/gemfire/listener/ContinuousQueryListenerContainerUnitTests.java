@@ -59,7 +59,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.data.gemfire.GemfireQueryException;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.client.PoolResolver;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.util.ErrorHandler;
 
 /**
@@ -105,10 +105,10 @@ public class ContinuousQueryListenerContainerUnitTests {
 
 		QueryService mockQueryService = mock(QueryService.class);
 
-		when(this.mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
-		when(this.mockBeanFactory.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
-		when(this.mockBeanFactory.getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(mockPool);
-		when(mockPoolResolver.resolve(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(mockPool);
+		when(this.mockBeanFactory.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
+		when(this.mockBeanFactory.getBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(mockPool);
+		when(mockPoolResolver.resolve(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(mockPool);
 		when(mockPool.getQueryService()).thenReturn(mockQueryService);
 
 		this.cqListenerContainer.setAutoStartup(true);
@@ -127,10 +127,10 @@ public class ContinuousQueryListenerContainerUnitTests {
 			assertThat(this.cqListenerContainer.getQueryService()).isEqualTo(mockQueryService);
 			assertThat(this.cqListenerContainer.getTaskExecutor()).isInstanceOf(Executor.class);
 
-			verify(this.mockBeanFactory, times(2)).containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
-			verify(this.mockBeanFactory, times(2)).isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
-			verify(this.mockBeanFactory, times(1)).getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
-			verify(mockPoolResolver, times(1)).resolve(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+			verify(this.mockBeanFactory, times(2)).containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+			verify(this.mockBeanFactory, times(2)).isTypeMatch(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
+			verify(this.mockBeanFactory, times(1)).getBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
+			verify(mockPoolResolver, times(1)).resolve(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME));
 			verify(mockPool, times(1)).getQueryService();
 			verifyNoInteractions(mockQueryService);
 		}
@@ -289,7 +289,7 @@ public class ContinuousQueryListenerContainerUnitTests {
 		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
 
 		verify(this.mockBeanFactory, times(1))
-			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+			.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME));
 		verify(this.mockBeanFactory, never()).isTypeMatch(anyString(), any(Class.class));
 	}
 
@@ -305,26 +305,26 @@ public class ContinuousQueryListenerContainerUnitTests {
 		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireUtils.DEFAULT_POOL_NAME);
 
 		verify(this.mockBeanFactory, times(1))
-			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+			.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME));
 		verify(this.mockBeanFactory, times(1))
-			.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), any(Class.class));
+			.isTypeMatch(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), any(Class.class));
 	}
 
 	@Test
 	public void resolvePoolNameReturnsSpringDataGemFireDefaultPoolName() {
 
-		when(this.mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
-		when(this.mockBeanFactory.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
+		when(this.mockBeanFactory.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME))).thenReturn(true);
+		when(this.mockBeanFactory.isTypeMatch(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class))).thenReturn(true);
 
 		this.cqListenerContainer.setBeanFactory(this.mockBeanFactory);
 		this.cqListenerContainer.setPoolName("  ");
 
-		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
+		assertThat(this.cqListenerContainer.resolvePoolName()).isEqualTo(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 
 		verify(this.mockBeanFactory, times(1))
-			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME));
+			.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME));
 		verify(this.mockBeanFactory, times(1))
-			.isTypeMatch(eq(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
+			.isTypeMatch(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME), eq(Pool.class));
 	}
 
 	@Test

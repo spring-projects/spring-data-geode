@@ -23,6 +23,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.repository.GemfireRepository;
@@ -46,7 +47,7 @@ import org.springframework.data.repository.config.XmlRepositoryConfigurationSour
  */
 public class GemfireRepositoryConfigurationExtension extends RepositoryConfigurationExtensionSupport {
 
-	private static final String GEMFIRE_MODULE_PREFIX = "gemfire";
+	private static final String GEMFIRE_MODULE_PREFIX = GemfireConstants.GEMFIRE_PREFIX;
 	private static final String MAPPING_CONTEXT_PROPERTY_NAME = "gemfireMappingContext";
 	private static final String MAPPING_CONTEXT_REF_ATTRIBUTE_NAME = "mappingContextRef";
 
@@ -98,7 +99,7 @@ public class GemfireRepositoryConfigurationExtension extends RepositoryConfigura
 
 		super.postProcess(builder, source);
 
-		builder.addPropertyReference("cache", GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		builder.addPropertyReference("cache", SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 	}
 
 	/*

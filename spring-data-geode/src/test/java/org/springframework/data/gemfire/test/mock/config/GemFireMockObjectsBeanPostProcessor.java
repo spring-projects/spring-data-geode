@@ -33,6 +33,8 @@ import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.test.mock.GemFireMockObjectsSupport;
 import org.springframework.lang.Nullable;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
+
 
 /**
  * The {@link GemFireMockObjectsBeanPostProcessor} class is a Spring {@link BeanPostProcessor} that applies
@@ -53,8 +55,6 @@ import org.springframework.lang.Nullable;
 public class GemFireMockObjectsBeanPostProcessor implements BeanPostProcessor {
 
 	private static final boolean DEFAULT_USE_SINGLETON_CACHE = false;
-
-	private static final String GEMFIRE_PROPERTIES_BEAN_NAME = "gemfireProperties";
 
 	private volatile boolean useSingletonCache;
 
@@ -96,7 +96,7 @@ public class GemFireMockObjectsBeanPostProcessor implements BeanPostProcessor {
 	}
 
 	private boolean isGemFireProperties(Object bean, String beanName) {
-		return (bean instanceof Properties && GEMFIRE_PROPERTIES_BEAN_NAME.equals(beanName));
+		return (bean instanceof Properties && SpringGemFireConstants.DEFAULT_GEMFIRE_PROPERTIES_BEAN_NAME.equals(beanName));
 	}
 
 	private Object set(Properties gemfireProperties) {

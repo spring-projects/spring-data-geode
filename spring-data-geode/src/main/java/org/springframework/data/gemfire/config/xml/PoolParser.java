@@ -270,7 +270,7 @@ class PoolParser extends AbstractSingleBeanDefinitionParser {
 	String resolveId(Element element) {
 
 		return Optional.ofNullable(element.getAttribute(ID_ATTRIBUTE)).filter(StringUtils::hasText)
-			.orElse(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
+			.orElse(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 	}
 
 	String resolveDereferencedId(Element element) {
@@ -284,8 +284,8 @@ class PoolParser extends AbstractSingleBeanDefinitionParser {
 		String id = super.resolveId(element, definition, parserContext);
 
 		if (!StringUtils.hasText(id)) {
-			id = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME;
-			parserContext.getRegistry().registerAlias(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME, "gemfire-pool");
+			id = SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME;
+			parserContext.getRegistry().registerAlias(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME, "gemfire-pool");
 		}
 
 		return id;

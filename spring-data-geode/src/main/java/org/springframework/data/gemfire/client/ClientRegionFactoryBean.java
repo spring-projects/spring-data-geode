@@ -43,7 +43,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.ConfigurableRegionFactoryBean;
 import org.springframework.data.gemfire.GemfireUtils;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.support.SmartLifecycleSupport;
@@ -79,7 +79,7 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 		implements SmartLifecycleSupport, EvictingRegionFactoryBean, ExpiringRegionFactoryBean<K, V>, DisposableBean {
 
 	public static final String DEFAULT_POOL_NAME = "DEFAULT";
-	public static final String GEMFIRE_POOL_NAME = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME;
+	public static final String GEMFIRE_POOL_NAME = SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME;
 
 	private boolean close = false;
 	private boolean destroy = false;

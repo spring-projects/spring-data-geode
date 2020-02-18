@@ -45,7 +45,7 @@ import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.client.support.DefaultableDelegatingPoolAdapter;
 import org.springframework.data.gemfire.client.support.DelegatingPoolAdapter;
 import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.util.SpringUtils;
@@ -362,7 +362,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 		return Optional.ofNullable(getPoolName())
 			.filter(StringUtils::hasText)
-			.orElse(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
+			.orElse(SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 	}
 
 	Pool findPool(String name) {

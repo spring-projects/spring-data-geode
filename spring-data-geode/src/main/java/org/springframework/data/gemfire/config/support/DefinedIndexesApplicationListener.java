@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 
 /**
  * {@link DefinedIndexesApplicationListener} is a Spring {@link ApplicationListener} used to create all
@@ -85,6 +85,6 @@ public class DefinedIndexesApplicationListener implements ApplicationListener<Co
 	}
 
 	private String getQueryServiceBeanName() {
-		return GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
+		return SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
 	}
 }

@@ -39,7 +39,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.DiskStoreFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.util.StringUtils;
 
 /**
@@ -117,7 +117,7 @@ public class DiskStoreConfiguration extends AbstractAnnotationConfigSupport
 
 		diskStoreFactoryBeanBuilder.addPropertyValue("beanName", diskStoreName);
 
-		diskStoreFactoryBeanBuilder.addPropertyReference("cache", GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		diskStoreFactoryBeanBuilder.addPropertyReference("cache", SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		diskStoreFactoryBeanBuilder.addPropertyValue("diskStoreConfigurers", resolveDiskStoreConfigurers());
 

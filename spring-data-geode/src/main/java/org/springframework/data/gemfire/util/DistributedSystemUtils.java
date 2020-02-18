@@ -27,6 +27,7 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 import org.apache.geode.internal.DistributionLocator;
 
+import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -49,7 +50,7 @@ public abstract class DistributedSystemUtils extends SpringUtils {
 
 	public static final String DURABLE_CLIENT_ID_PROPERTY_NAME = DistributionConfig.DURABLE_CLIENT_ID_NAME;
 	public static final String DURABLE_CLIENT_TIMEOUT_PROPERTY_NAME = DistributionConfig.DURABLE_CLIENT_TIMEOUT_NAME;
-	public static final String GEMFIRE_PREFIX = DistributionConfig.GEMFIRE_PREFIX;
+	public static final String GEMFIRE_PREFIX = GemfireConstants.GEMFIRE_PREFIX;
 	public static final String NAME_PROPERTY_NAME = DistributionConfig.NAME_NAME;
 
 	public static Properties configureDurableClient(Properties gemfireProperties,

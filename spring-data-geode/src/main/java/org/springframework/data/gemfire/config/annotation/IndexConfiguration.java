@@ -37,7 +37,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.IndexFactoryBean;
 import org.springframework.data.gemfire.IndexType;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.mapping.GemfirePersistentProperty;
 import org.springframework.data.gemfire.mapping.annotation.Indexed;
@@ -192,7 +192,7 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 			String indexName = resolveName(persistentEntity, persistentProperty, indexedAttributes, indexType);
 
-			indexFactoryBeanBuilder.addPropertyReference("cache", GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+			indexFactoryBeanBuilder.addPropertyReference("cache", SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 			indexFactoryBeanBuilder.addPropertyValue("define", resolveDefine(enableIndexingAttributes));
 
@@ -279,7 +279,7 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 				&& luceneIndexAttributes.getBoolean("destroy");
 
 			luceneIndexFactoryBeanBuilder.addPropertyReference("cache",
-				GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+				SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 			luceneIndexFactoryBeanBuilder.addPropertyValue("destroy", destroy);
 

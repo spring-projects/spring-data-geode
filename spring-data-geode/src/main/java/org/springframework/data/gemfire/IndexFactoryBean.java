@@ -41,7 +41,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.data.gemfire.config.annotation.IndexConfigurer;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -190,7 +190,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 	/* (non-Javadoc) */
 	QueryService lookupQueryService() {
 
-		String queryServiceBeanName = GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
+		String queryServiceBeanName = SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
 
 		return Optional.ofNullable(getBeanFactory())
 			.filter(beanFactory -> beanFactory.containsBean(queryServiceBeanName))

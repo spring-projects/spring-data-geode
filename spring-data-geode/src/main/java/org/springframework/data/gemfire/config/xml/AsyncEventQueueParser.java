@@ -128,7 +128,7 @@ class AsyncEventQueueParser extends AbstractSingleBeanDefinitionParser {
 	private void parseCache(Element element, BeanDefinitionBuilder builder) {
 
 		String cacheRefAttribute = element.getAttribute("cache-ref");
-		String cacheName = SpringUtils.defaultIfEmpty(cacheRefAttribute, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		String cacheName = SpringUtils.defaultIfEmpty(cacheRefAttribute, SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		builder.addConstructorArgReference(cacheName);
 	}
