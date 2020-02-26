@@ -103,9 +103,8 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 
 		super.setBeanFactory(Optional.ofNullable(beanFactory)
 			.filter(ListableBeanFactory.class::isInstance)
-			.orElseThrow(() -> newIllegalArgumentException(
-				"BeanFactory [%s] must be an instance of ListableBeanFactory",
-					ObjectUtils.nullSafeClassName(beanFactory))));
+			.orElseThrow(() -> newIllegalArgumentException("BeanFactory [%1$s] must be an instance of [%2$s]",
+				ObjectUtils.nullSafeClassName(beanFactory), ListableBeanFactory.class.getName())));
 	}
 
 	/**
@@ -243,7 +242,6 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 		 * @inheritDoc
 		 */
 		@Override
-		@SuppressWarnings("all")
 		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 			return ClassUtils.isPresent(APACHE_SHIRO_LIFECYCLE_BEAN_POST_PROCESSOR_CLASS_NAME,
 				context.getClassLoader());
