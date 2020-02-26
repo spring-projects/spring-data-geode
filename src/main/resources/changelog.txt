@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.2.5.RELEASE (2020-02-26)
+---------------------------------------------
+* DATAGEODE-296 - Uppercase fields are duplicated in lowercase when serialized with PDX.
+* DATAGEODE-290 - Release 2.2.5 (Moore SR5).
+
+
 Changes in version 2.1.16.RELEASE (2020-02-26)
 ----------------------------------------------
 * DATAGEODE-289 - Release 2.1.16 (Lovelace SR16).
@@ -664,6 +670,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
