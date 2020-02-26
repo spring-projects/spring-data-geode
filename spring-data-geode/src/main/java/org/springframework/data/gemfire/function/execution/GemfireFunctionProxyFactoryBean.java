@@ -15,20 +15,18 @@ package org.springframework.data.gemfire.function.execution;
 import java.lang.reflect.Method;
 import java.util.stream.StreamSupport;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 /**
- * A Proxy FactoryBean for all non-Region Function Execution interfaces.
+ * A Proxy {@link FactoryBean} for all non-Region Function Execution interfaces.
  *
  * @author David Turanski
  * @author John Blum
@@ -37,38 +35,58 @@ import org.springframework.util.ClassUtils;
  * @see org.aopalliance.intercept.MethodInterceptor
  * @see org.springframework.beans.factory.BeanClassLoaderAware
  * @see org.springframework.beans.factory.FactoryBean
+ * @see org.springframework.data.gemfire.support.AbstractFactoryBeanSupport
  */
-public class GemfireFunctionProxyFactoryBean implements BeanClassLoaderAware, FactoryBean<Object>, MethodInterceptor {
-
-	private volatile ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<Object> implements MethodInterceptor {
 
 	private volatile boolean initialized;
 
 	private final Class<?> functionExecutionInterface;
 
-	private volatile Object functionExecutionProxy;
+	private FunctionExecutionMethodMetadata<MethodMetadata> methodMetadata;
 
 	private final GemfireFunctionOperations gemfireFunctionOperations;
 
-	protected Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	private FunctionExecutionMethodMetadata<MethodMetadata> methodMetadata;
+	private volatile Object functionExecutionProxy;
 
 	/**
-	 * @param functionExecutionInterface the proxied interface
-	 * @param gemfireFunctionOperations an interface used to delegate the function invocation (typically a GemFire function template)
+	 * Constructs a new instance of the {@link GemfireFunctionProxyFactoryBean} initialized with the given
+	 * {@link Class Function Excution Interface} and {@link GemfireFunctionOperations}.
+	 *
+	 * @param functionExecutionInterface {@link Class Function Execution Interface} to proxy.
+	 * @param gemfireFunctionOperations Template class used to delegate the Function invocation.
+	 * @see org.springframework.data.gemfire.function.execution.GemfireFunctionOperations
+	 * @throws IllegalArgumentException if the {@link Class Function Execution Interface} is {@literal null}
+	 * or the {@link Class Function Execution Type} is not an actual interface.
 	 */
-	public GemfireFunctionProxyFactoryBean(Class<?> functionExecutionInterface, GemfireFunctionOperations gemfireFunctionOperations) {
+	public GemfireFunctionProxyFactoryBean(Class<?> functionExecutionInterface,
+			GemfireFunctionOperations gemfireFunctionOperations) {
 
-		Assert.notNull(functionExecutionInterface, "Function execution interface must not be null");
+		Assert.notNull(functionExecutionInterface, "Function Execution Interface must not be null");
 
 		Assert.isTrue(functionExecutionInterface.isInterface(),
-			String.format("Function execution type [%s] must be an interface",
-				functionExecutionInterface.getClass().getName()));
+			String.format("Function Execution type [%s] must be an interface",
+				functionExecutionInterface.getName()));
 
 		this.functionExecutionInterface = functionExecutionInterface;
 		this.gemfireFunctionOperations = gemfireFunctionOperations;
 		this.methodMetadata = new DefaultFunctionExecutionMethodMetadata(functionExecutionInterface);
+	}
+
+	@Override
+	public ClassLoader getBeanClassLoader() {
+
+		ClassLoader beanClassLoader = super.getBeanClassLoader();
+
+		return beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader();
+	}
+
+	protected Class<?> getFunctionExecutionInterface() {
+		return this.functionExecutionInterface;
+	}
+
+	protected FunctionExecutionMethodMetadata<MethodMetadata> getFunctionExecutionMethodMetadata() {
+		return this.methodMetadata;
 	}
 
 	protected GemfireFunctionOperations getGemfireFunctionOperations() {
@@ -76,37 +94,52 @@ public class GemfireFunctionProxyFactoryBean implements BeanClassLoaderAware, Fa
 	}
 
 	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
-	}
-
-	@Override
-	public Object invoke(MethodInvocation invocation) throws Throwable {
+	public Object invoke(MethodInvocation invocation) {
 
 		if (AopUtils.isToStringMethod(invocation.getMethod())) {
-			return String.format("Function Proxy for interface [%s]", this.functionExecutionInterface.getName());
+			return String.format("Function Proxy for interface [%s]", getFunctionExecutionInterface().getName());
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Invoking method {}", invocation.getMethod().getName());
-		}
+		logDebug("Invoking method {}", invocation.getMethod().getName());
 
 		Object result = invokeFunction(invocation.getMethod(), invocation.getArguments());
 
-		if(!invocation.getMethod().getReturnType().isAssignableFrom(result.getClass()) && result instanceof Iterable) {
-			Iterable iter = (Iterable)result;
-			if(StreamSupport.stream(iter.spliterator(), false).count() == 1) {
-				result = iter.iterator().next();
-			}
-		}
-
-		return result;
+		return resolveResult(invocation, result);
 	}
 
 	protected Object invokeFunction(Method method, Object[] args) {
 
-		return this.gemfireFunctionOperations
-			.executeAndExtract(this.methodMetadata.getMethodMetadata(method).getFunctionId(), args);
+		return getGemfireFunctionOperations()
+			.executeAndExtract(getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId(), args);
+	}
+
+	protected Object resolveResult(MethodInvocation invocation, Object result) {
+
+		// TODO: This conditional logic needs more work!  For instance, this conditional logic fails if the result
+		//  is a List, but the Function (Execution method) return type is a Set.
+		return isIterable(result) && isNotInstanceOfFunctionReturnType(invocation, result)
+			? resolveSingleResultIfPossible((Iterable<?>) result)
+			: result;
+	}
+
+	protected Object resolveSingleResultIfPossible(Iterable<?> results) {
+
+		// TODO: Determine whether to throw an IncorrectResultSizeDataAccessException if the cardinality does not match.
+		return StreamSupport.stream(results.spliterator(), false).count() == 1
+			? results.iterator().next()
+			: results;
+	}
+
+	protected boolean isInstanceOfFunctionReturnType(MethodInvocation invocation, Object value) {
+		return invocation.getMethod().getReturnType().isInstance(value);
+	}
+
+	protected boolean isNotInstanceOfFunctionReturnType(MethodInvocation invocation, Object value) {
+		return !isInstanceOfFunctionReturnType(invocation, value);
+	}
+
+	protected boolean isIterable(Object value) {
+		return value instanceof Iterable;
 	}
 
 	@Override
@@ -122,21 +155,16 @@ public class GemfireFunctionProxyFactoryBean implements BeanClassLoaderAware, Fa
 
 	@Override
 	public Class<?> getObjectType() {
-		return this.functionExecutionInterface;
-	}
-
-	@Override
-	public boolean isSingleton() {
-		return true;
+		return getFunctionExecutionInterface();
 	}
 
 	protected void onInit() {
 
 		if (!this.initialized) {
 
-			ProxyFactory proxyFactory = new ProxyFactory(this.functionExecutionInterface, this);
+			ProxyFactory proxyFactory = new ProxyFactory(getFunctionExecutionInterface(), this);
 
-			this.functionExecutionProxy = proxyFactory.getProxy(this.beanClassLoader);
+			this.functionExecutionProxy = proxyFactory.getProxy(getBeanClassLoader());
 			this.initialized = true;
 		}
 	}

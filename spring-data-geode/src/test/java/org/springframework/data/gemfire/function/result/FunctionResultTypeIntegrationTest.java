@@ -10,74 +10,55 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.result;
 
-import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.GemFireCache;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
-import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.config.annotation.CacheServerApplication;
-import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
+import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
 import org.springframework.data.gemfire.function.annotation.FunctionId;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.annotation.OnRegion;
 import org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions;
 import org.springframework.data.gemfire.function.config.EnableGemfireFunctions;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
+ * Integration Tests for Function Execution Return Types.
+ *
  * @author Patrick Johnson
+ * @author John Blum
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
+ * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
+ * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
+ * @see org.springframework.data.gemfire.function.annotation.OnRegion
+ * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions
+ * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctions
+ * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = FunctionResultTypeIntegrationTest.FunctionInvocationClientApplicationConfig.class)
+@ContextConfiguration(classes = FunctionResultTypeIntegrationTest.TestGeodeConfiguration.class)
+@SuppressWarnings("unused")
 public class FunctionResultTypeIntegrationTest extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper server;
 
 	@Autowired
 	private FunctionExecutions functionExecutions;
-
-	@BeforeClass
-	public static void startServer() throws IOException {
-
-		final String GEMFIRE_LOCALHOST_PORT = "localhost[%d]";
-
-		int availablePort = findAvailablePort();
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-		System.setProperty(GEMFIRE_POOL_SERVERS_PROPERTY, String.format(GEMFIRE_LOCALHOST_PORT, availablePort));
-
-		server = run(FunctionServerApplicationConfig.class,
-				String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-	}
-
-	@AfterClass
-	public static void stopServer() {
-		server.stop();
-		server = null;
-	}
 
 	@Test
 	public void singleResultFunctionsExecuteCorrectly() {
@@ -97,40 +78,20 @@ public class FunctionResultTypeIntegrationTest extends ClientServerIntegrationTe
 		assertThat(num).isEqualTo(7);
 	}
 
+	@PeerCacheApplication(name = "FunctionResultTypeIntegrationTest")
 	@EnableGemfireFunctionExecutions(basePackageClasses = FunctionExecutions.class)
-	@ClientCacheApplication(name = "SingleResultFunctionExecutionTest")
-	@EnableGemfireCacheTransactions
-	public static class FunctionInvocationClientApplicationConfig {
+	@EnableGemfireFunctions
+	public static class TestGeodeConfiguration {
 
 		@Bean("Numbers")
-		protected ClientRegionFactoryBean<Long, BigDecimal> configureProxyClientNumberRegion(GemFireCache gemFireCache) {
-			ClientRegionFactoryBean<Long, BigDecimal> clientRegionFactoryBean = new ClientRegionFactoryBean<>();
-			clientRegionFactoryBean.setCache(gemFireCache);
-			clientRegionFactoryBean.setName("Numbers");
-			clientRegionFactoryBean.setShortcut(ClientRegionShortcut.PROXY);
-			return clientRegionFactoryBean;
-		}
-	}
+		protected ReplicatedRegionFactoryBean<Long, BigDecimal> numbersRegion(GemFireCache gemFireCache) {
 
-	@EnableGemfireFunctions
-	@CacheServerApplication(name = "SingleResultFunctionExecutionTestServer")
-	public static class FunctionServerApplicationConfig {
+			ReplicatedRegionFactoryBean<Long, BigDecimal> numbersRegion = new ReplicatedRegionFactoryBean<>();
 
-		public static void main(String[] args) {
+			numbersRegion.setCache(gemFireCache);
+			numbersRegion.setPersistent(false);
 
-			AnnotationConfigApplicationContext applicationContext =
-					new AnnotationConfigApplicationContext(FunctionServerApplicationConfig.class);
-
-			applicationContext.registerShutdownHook();
-		}
-
-		@Bean
-		ReplicatedRegionFactoryBean<Long, BigDecimal> createNumberRegion(GemFireCache gemfireCache) {
-			ReplicatedRegionFactoryBean replicatedRegionFactoryBean = new ReplicatedRegionFactoryBean();
-			replicatedRegionFactoryBean.setCache(gemfireCache);
-			replicatedRegionFactoryBean.setRegionName("Numbers");
-			replicatedRegionFactoryBean.setDataPolicy(DataPolicy.REPLICATE);
-			return replicatedRegionFactoryBean;
+			return numbersRegion;
 		}
 
 		@GemfireFunction(id = "returnSingleObject", hasResult = true)
@@ -161,4 +122,5 @@ interface FunctionExecutions {
 
 	@FunctionId("returnPrimitive")
 	int returnPrimitive();
+
 }
