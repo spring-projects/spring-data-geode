@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.fork;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -28,9 +24,12 @@ import org.springframework.data.gemfire.process.support.ProcessUtils;
 import org.springframework.data.gemfire.test.support.FileSystemUtils;
 import org.springframework.util.Assert;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * The ServerProcess class is a main Java class using Spring Data GemFire to configure and bootstrap
- * a GemFire Cache Server process.
+ * The {@link ServerProcess} class is a main Java class using Spring Data for Apache Geode to configure and bootstrap
+ * an Apache Geode Server process.
  *
  * @author John Blum
  * @see org.springframework.context.ConfigurableApplicationContext
@@ -42,15 +41,16 @@ public class ServerProcess {
 	private static final Logger logger = LoggerFactory.getLogger(ServerProcess.class);
 
 	public static void main(String[] args) throws Throwable {
+
 		ConfigurableApplicationContext applicationContext = null;
 
 		try {
 			applicationContext = newApplicationContext(args);
 			waitForShutdown();
 		}
-		catch (Throwable e) {
-			logger.debug("", e);
-			throw e;
+		catch (Throwable cause) {
+			logger.debug("", cause);
+			throw cause;
 		}
 		finally {
 			close(applicationContext);
@@ -58,6 +58,7 @@ public class ServerProcess {
 	}
 
 	private static ConfigurableApplicationContext newApplicationContext(String[] configLocations) {
+
 		Assert.notEmpty(configLocations, String.format("Usage: >java -cp ... %1$s %2$s",
 			ServerProcess.class.getName(), "classpath:/to/applicationContext.xml"));
 
@@ -69,8 +70,11 @@ public class ServerProcess {
 	}
 
 	private static boolean close(ConfigurableApplicationContext applicationContext) {
+
 		if (applicationContext != null) {
+
 			applicationContext.close();
+
 			return !(applicationContext.isRunning() || applicationContext.isActive());
 		}
 
@@ -78,9 +82,10 @@ public class ServerProcess {
 	}
 
 	private static void waitForShutdown() throws IOException {
-		ProcessUtils.writePid(new File(FileSystemUtils.WORKING_DIRECTORY, getServerProcessControlFilename()),
-			ProcessUtils.currentPid());
 
+		File serverProcessControlFile = new File(FileSystemUtils.WORKING_DIRECTORY, getServerProcessControlFilename());
+
+		ProcessUtils.writePid(serverProcessControlFile, ProcessUtils.currentPid());
 		ProcessUtils.waitForStopSignal();
 	}
 

@@ -116,7 +116,10 @@ public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTe
 
 	private void verifyFunctionExecution(AbstractFunctionExecution functionExecution) {
 
-		Iterable<String> results = functionExecution.setArgs("1", "2", "3").setFunctionId("echoFunction").execute();
+		Iterable<String> results = functionExecution
+			.setArguments("1", "2", "3")
+			.setFunctionId("echoFunction")
+			.execute();
 
 		int count = 1;
 

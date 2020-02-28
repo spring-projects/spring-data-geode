@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.apache.geode.GemFireCheckedException;
 import org.apache.geode.GemFireException;
@@ -426,7 +425,7 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 		if (RegionUtils.isLocal(region)) {
 
-			Supplier<Boolean> hasServerProxyMethod = () ->
+			SpringUtils.ValueReturningThrowableOperation<Boolean> hasServerProxyMethod = () ->
 				Optional.ofNullable(ReflectionUtils.findMethod(region.getClass(), "hasServerProxy"))
 					.map(method -> ReflectionUtils.invokeMethod(method, region))
 					.map(Boolean.FALSE::equals)

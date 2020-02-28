@@ -152,22 +152,23 @@ public abstract class SpringUtils {
 		}
 	}
 
-	public static <T> T safeGetValue(Supplier<T> valueSupplier) {
-		return safeGetValue(valueSupplier, (T) null);
+	public static <T> T safeGetValue(ValueReturningThrowableOperation<T> operation) {
+		return safeGetValue(operation, (T) null);
 	}
 
-	public static <T> T safeGetValue(Supplier<T> valueSupplier, T defaultValue) {
-		return safeGetValue(valueSupplier, (Supplier<T>) () -> defaultValue);
+	public static <T> T safeGetValue(ValueReturningThrowableOperation<T> operation, T defaultValue) {
+		return safeGetValue(operation, (Supplier<T>) () -> defaultValue);
 	}
 
-	public static <T> T safeGetValue(Supplier<T> valueSupplier, Supplier<T> defaultValueSupplier) {
-		return safeGetValue(valueSupplier, (Function<Throwable, T>) exception -> defaultValueSupplier.get());
+	public static <T> T safeGetValue(ValueReturningThrowableOperation<T> operation, Supplier<T> defaultValueSupplier) {
+		return safeGetValue(operation, (Function<Throwable, T>) exception -> defaultValueSupplier.get());
 	}
 
-	public static <T> T safeGetValue(Supplier<T> valueSupplier, Function<Throwable, T> exceptionHandler) {
+	public static <T> T safeGetValue(ValueReturningThrowableOperation<T> operation,
+			Function<Throwable, T> exceptionHandler) {
 
 		try {
-			return valueSupplier.get();
+			return operation.get();
 		}
 		catch (Throwable cause) {
 			return exceptionHandler.apply(cause);
@@ -187,6 +188,11 @@ public abstract class SpringUtils {
 		catch (Throwable cause) {
 			throw exceptionConverter.apply(cause);
 		}
+	}
+
+	@FunctionalInterface
+	public interface ValueReturningThrowableOperation<T> {
+		T get() throws Throwable;
 	}
 
 	/**

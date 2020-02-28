@@ -759,7 +759,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @see #getCacheXmlFile()
 	 */
 	private boolean isCacheXmlAvailable() {
-		return SpringUtils.safeGetValue(() -> getCacheXml() != null, false);
+		return getCacheXml() != null;
 	}
 
 	/**

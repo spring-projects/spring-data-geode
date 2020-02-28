@@ -16,6 +16,18 @@
  */
 package org.springframework.data.gemfire.function.execution.onservers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import org.apache.geode.StatisticDescriptor;
 import org.apache.geode.Statistics;
 import org.apache.geode.StatisticsType;
@@ -27,32 +39,22 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.server.CacheServer;
 import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.internal.statistics.StatisticsManager;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions;
 import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Patrick Johnson
  */
 @SuppressWarnings("unused")
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = FunctionsReturnResultsFromAllServersIntegrationTests.Config.class)
+@ContextConfiguration(classes = FunctionsReturnResultsFromAllServersIntegrationTests.GeodeClientConfiguration.class)
+@Ignore
 public class FunctionsReturnResultsFromAllServersIntegrationTests extends ClientServerIntegrationTestsSupport {
 
 	private static final int PORT_1 = 40407;
@@ -81,12 +83,6 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Client
 		waitForServerToStart(DEFAULT_HOSTNAME, PORT_2);
 	}
 
-	@ClientCacheApplication(servers = {@ClientCacheApplication.Server(port = PORT_1), @ClientCacheApplication.Server(port = PORT_2)})
-	@Configuration
-	@EnableGemfireFunctionExecutions(basePackageClasses = AllServersAdminFunctions.class)
-	@EnableGemfireCacheTransactions
-	static class Config { }
-
 	@AfterClass
 	public static void stopGemFireServer() {
 		stop(gemfireServer1);
@@ -105,12 +101,18 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Client
 		assertThat(metrics.size()).isEqualTo(672);
 	}
 
+	@ClientCacheApplication(servers = {
+		@ClientCacheApplication.Server(port = PORT_1),
+		@ClientCacheApplication.Server(port = PORT_2)}
+	)
+	@EnableGemfireFunctionExecutions(basePackageClasses = AllServersAdminFunctions.class)
+	static class GeodeClientConfiguration { }
+
 	static class MetricsFunctionServerProcess {
 
 		private static final int DEFAULT_CACHE_SERVER_PORT = 40404;
 
 		private static final String CACHE_SERVER_PORT_PROPERTY = "spring.data.gemfire.cache.server.port";
-		private static final String GEMFIRE_LOG_LEVEL = "error";
 		private static final String GEMFIRE_NAME = "MetricsServer" + getCacheServerPort();
 
 		public static void main(String[] args) throws Exception {
@@ -121,7 +123,6 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Client
 
 			return new CacheFactory()
 					.set("name", GEMFIRE_NAME)
-					.set("log-level", GEMFIRE_LOG_LEVEL)
 					.create();
 		}
 

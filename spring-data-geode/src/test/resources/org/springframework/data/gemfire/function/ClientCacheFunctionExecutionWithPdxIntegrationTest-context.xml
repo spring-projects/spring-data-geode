@@ -32,10 +32,10 @@
 		</property>
 	</bean>
 
-	<gfe:client-cache properties-ref="gemfireProperties" pool-name="serverConnectionPool"
+	<gfe:client-cache properties-ref="gemfireProperties" pool-name="serverPool"
 					  pdx-serializer-ref="domainBasedPdxSerializer"/>
 
-	<gfe:pool id="serverConnectionPool">
+	<gfe:pool id="serverPool">
 		<gfe:server host="localhost" port="${spring.data.gemfire.cache.server.port:40404}"/>
 	</gfe:pool>
 

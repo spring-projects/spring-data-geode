@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
 import static org.junit.Assert.assertEquals;
@@ -25,13 +24,14 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.execute.Function;
 
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
@@ -53,11 +53,12 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 
 	private static ProcessWrapper gemfireServer;
 
-	@Resource(name = "test-region")
+	@Resource(name = "TestRegion")
 	private Region<String, Integer> region;
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
+
 		int availablePort = findAvailablePort();
 
 		gemfireServer = run(ServerProcess.class,
@@ -77,22 +78,23 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 
 	@Before
 	public void initializeRegion() {
-		region.put("one", 1);
-		region.put("two", 2);
-		region.put("three", 3);
+
+		this.region.put("one", 1);
+		this.region.put("two", 2);
+		this.region.put("three", 3);
 	}
 
 	@Test
-	//@Ignore
-	public void testVoidReturnType() {
-		GemfireOnRegionOperations template = new GemfireOnRegionFunctionTemplate(region);
+	public void withVoidReturnType() {
+
+		GemfireOnRegionOperations template = new GemfireOnRegionFunctionTemplate(this.region);
+
 		// Should work either way but the first invocation traps an exception if there is a result.
-		template.execute("noResult");
 		template.executeWithNoResult("noResult");
+		template.execute("noResult");
 	}
 
 	@Test
-	//@Ignore
 	@SuppressWarnings("unchecked")
 	public void testCollectionReturnTypes() {
 		GemfireOnRegionOperations template = new GemfireOnRegionFunctionTemplate(region);
@@ -126,7 +128,8 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 	@Test
 	@SuppressWarnings("all")
 	public void testArrayReturnTypes() {
-		Object result = new GemfireOnRegionFunctionTemplate(region)
+
+		Object result = new GemfireOnRegionFunctionTemplate(this.region)
 			.executeAndExtract("arrays", new int[] { 1, 2, 3, 4, 5 });
 
 		assertTrue(result.getClass().getName(), result instanceof int[]);
@@ -136,7 +139,8 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 	@Test
 	//@Ignore
 	public void testOnRegionFunctionExecution() {
-		GemfireOnRegionOperations template = new GemfireOnRegionFunctionTemplate(region);
+
+		GemfireOnRegionOperations template = new GemfireOnRegionFunctionTemplate(this.region);
 
 		assertEquals(2, template.<Integer>execute("oneArg", "two").iterator().next().intValue());
 		assertFalse(template.<Integer>execute("oneArg", Collections.singleton("one"), "two").iterator().hasNext());
@@ -144,8 +148,8 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 		assertEquals(5, template.<Integer>executeAndExtract("twoArg", "two", "three").intValue());
 	}
 
-	/*
-	 * This gets wrapped in a GemFire Function and registered on the forked server.
+	/**
+	 * This {@link Component} class gets wrapped in an Apache Geode {@link Function} and registered on the forked server.
 	 */
 	@Component
 	@SuppressWarnings("unused")
@@ -158,6 +162,7 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 
 		@GemfireFunction(id = "twoArg")
 		public Integer twoArg(String keyOne, String keyTwo, @RegionData Map<String, Integer> region) {
+
 			if (region.get(keyOne) != null && region.get(keyTwo) != null) {
 				return region.get(keyOne) + region.get(keyTwo);
 			}
@@ -172,11 +177,12 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 
 		@GemfireFunction(id = "getMapWithNoArgs")
 		public Map<String, Integer> getMapWithNoArgs(@RegionData Map<String, Integer> region) {
+
 			if (region.size() == 0) {
 				return null;
 			}
 
-			return new HashMap<String, Integer>(region);
+			return new HashMap<>(region);
 		}
 
 		@GemfireFunction(id = "arrays")
@@ -187,8 +193,7 @@ public class FunctionIntegrationTests extends ClientServerIntegrationTestsSuppor
 		}
 
 		@GemfireFunction
-		public void noResult() {
-		}
-	}
+		public void noResult() { }
 
+	}
 }

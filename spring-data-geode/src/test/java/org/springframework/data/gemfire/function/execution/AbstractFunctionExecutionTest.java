@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.isA;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -33,17 +33,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultCollector;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * The AbstractFunctionExecutionTest class is a test suite of test cases testing the contract and functionality
@@ -59,10 +57,8 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @since 1.7.0
  */
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("rawtypes")
 public class AbstractFunctionExecutionTest {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	private Execution mockExecution;
@@ -91,7 +87,7 @@ public class AbstractFunctionExecutionTest {
 		};
 
 		Iterable<Object> actualResults = functionExecution.setFunction(mockFunction)
-			.setArgs(args).setTimeout(500).execute();
+			.setArguments(args).setTimeout(500).execute();
 
 		assertThat(actualResults).isNotNull();
 		assertThat(actualResults).isEqualTo(results);
@@ -157,7 +153,6 @@ public class AbstractFunctionExecutionTest {
 				return mockExecution;
 			}
 
-			@SuppressWarnings("unchecked")
 			@Override <T> Iterable<T> execute() {
 				return null;
 			}
@@ -176,8 +171,8 @@ public class AbstractFunctionExecutionTest {
 				return mockExecution;
 			}
 
-			@SuppressWarnings("unchecked")
-			@Override <T> Iterable<T> execute() {
+			@Override
+			<T> Iterable<T> execute() {
 				return Collections.emptyList();
 			}
 		};
@@ -185,26 +180,28 @@ public class AbstractFunctionExecutionTest {
 		assertThat((Object) functionExecution.executeAndExtract()).isNull();
 	}
 
-	@Test
+	@Test(expected = FunctionException.class)
 	public void executeAndExtractWithThrowsException() {
 
-		AbstractFunctionExecution functionExecution = new AbstractFunctionExecution() {
+		AbstractFunctionExecution functionExecution = mock(AbstractFunctionExecution.class);
 
-			@Override
-			protected Execution getExecution() {
-				return mockExecution;
-			}
+		doReturn(Collections.singleton(new IllegalArgumentException("test"))).when(functionExecution).execute();
+		doCallRealMethod().when(functionExecution).setFunctionId(anyString());
+		doCallRealMethod().when(functionExecution).getFunctionId();
+		doCallRealMethod().when(functionExecution).executeAndExtract();
 
-			@SuppressWarnings("unchecked")
-			@Override <T> Iterable<T> execute() {
-				return Collections.singletonList((T) new IllegalArgumentException("test"));
-			}
-		};
+		try {
+			functionExecution.setFunctionId("TestFunction").executeAndExtract();
+		}
+		catch (Exception expected) {
 
-		exception.expect(FunctionException.class);
-		exception.expectCause(isA(IllegalArgumentException.class));
-		exception.expectMessage(containsString("Execution of Function with ID [TestFunction] failed"));
+			assertThat(expected).isInstanceOf(FunctionException.class);
+			assertThat(expected).hasMessage("Execution of Function [with ID [TestFunction]] failed");
+			assertThat(expected).hasCauseInstanceOf(IllegalArgumentException.class);
+			assertThat(expected.getCause()).hasMessage("test");
+			assertThat(expected.getCause()).hasNoCause();
 
-		functionExecution.setFunctionId("TestFunction").executeAndExtract();
+			throw expected;
+		}
 	}
 }

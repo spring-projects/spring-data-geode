@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,28 +27,29 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.geode.cache.execute.Function;
-import org.apache.geode.cache.execute.ResultCollector;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.apache.geode.cache.execute.Function;
+import org.apache.geode.cache.execute.ResultCollector;
+
 /**
- * The AbstractFunctionTemplateTest class is a test suite of test cases testing the contract and functionality
- * of the AbstractFunctionTemplate class.
+ * Unit Tests for {@link AbstractFunctionTemplate}.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.mockito.Mock
  * @see org.mockito.Mockito
- * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
- * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
  * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.cache.execute.ResultCollector
+ * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
+ * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
  * @since 1.7.0
  */
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("rawtypes")
 public class AbstractFunctionTemplateTest {
 
 	@Mock
@@ -63,17 +63,20 @@ public class AbstractFunctionTemplateTest {
 
 	@Test
 	public void executeWithFunctionAndArgs() {
+
 		Object[] args = { "test", "testing", "tested" };
 		List<Object> results = Arrays.asList(args);
 
-		when(mockFunctionExecution.setArgs(args)).thenReturn(mockFunctionExecution);
+		when(mockFunctionExecution.setArguments(args)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setFunction(mockFunction)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setResultCollector(mockResultCollector)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setTimeout(500)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.execute()).thenReturn(results);
 
 		AbstractFunctionTemplate functionTemplate = new AbstractFunctionTemplate() {
-			@Override protected AbstractFunctionExecution getFunctionExecution() {
+
+			@Override
+			protected AbstractFunctionExecution getFunctionExecution() {
 				return mockFunctionExecution;
 			}
 		};
@@ -85,9 +88,9 @@ public class AbstractFunctionTemplateTest {
 
 		assertThat(functionTemplate.getResultCollector(), is(equalTo(mockResultCollector)));
 		assertThat(actualResults, is(notNullValue()));
-		assertThat(actualResults, is(equalTo((Iterable<Object>) results)));
+		assertThat(actualResults, is(equalTo((results))));
 
-		verify(mockFunctionExecution, times(1)).setArgs(args);
+		verify(mockFunctionExecution, times(1)).setArguments(args);
 		verify(mockFunctionExecution, times(1)).setFunction(mockFunction);
 		verify(mockFunctionExecution, times(1)).setResultCollector(eq(mockResultCollector));
 		verify(mockFunctionExecution, times(1)).setTimeout(500);
@@ -96,16 +99,19 @@ public class AbstractFunctionTemplateTest {
 
 	@Test
 	public void executeAndExtractWithFunctionAndArgs() {
+
 		Object[] args = { "test", "testing", "tested" };
 
-		when(mockFunctionExecution.setArgs(args)).thenReturn(mockFunctionExecution);
+		when(mockFunctionExecution.setArguments(args)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setFunction(mockFunction)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setResultCollector(mockResultCollector)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setTimeout(500)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.executeAndExtract()).thenReturn(args[0]);
 
 		AbstractFunctionTemplate functionTemplate = new AbstractFunctionTemplate() {
-			@Override protected AbstractFunctionExecution getFunctionExecution() {
+
+			@Override
+			protected AbstractFunctionExecution getFunctionExecution() {
 				return mockFunctionExecution;
 			}
 		};
@@ -119,7 +125,7 @@ public class AbstractFunctionTemplateTest {
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(equalTo("test")));
 
-		verify(mockFunctionExecution, times(1)).setArgs(args);
+		verify(mockFunctionExecution, times(1)).setArguments(args);
 		verify(mockFunctionExecution, times(1)).setFunction(mockFunction);
 		verify(mockFunctionExecution, times(1)).setResultCollector(eq(mockResultCollector));
 		verify(mockFunctionExecution, times(1)).setTimeout(500);
@@ -128,17 +134,20 @@ public class AbstractFunctionTemplateTest {
 
 	@Test
 	public void executeWithFunctionIdAndArgs() {
+
 		Object[] args = { "test", "testing", "tested" };
 		List<Object> results = Arrays.asList(args);
 
-		when(mockFunctionExecution.setArgs(args)).thenReturn(mockFunctionExecution);
+		when(mockFunctionExecution.setArguments(args)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setFunctionId("TestFunction")).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setResultCollector(mockResultCollector)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setTimeout(500)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.execute()).thenReturn(results);
 
 		AbstractFunctionTemplate functionTemplate = new AbstractFunctionTemplate() {
-			@Override protected AbstractFunctionExecution getFunctionExecution() {
+
+			@Override
+			protected AbstractFunctionExecution getFunctionExecution() {
 				return mockFunctionExecution;
 			}
 		};
@@ -150,9 +159,9 @@ public class AbstractFunctionTemplateTest {
 
 		assertThat(functionTemplate.getResultCollector(), is(equalTo(mockResultCollector)));
 		assertThat(actualResults, is(notNullValue()));
-		assertThat(actualResults, is(equalTo((Iterable<Object>) results)));
+		assertThat(actualResults, is(equalTo(results)));
 
-		verify(mockFunctionExecution, times(1)).setArgs(args);
+		verify(mockFunctionExecution, times(1)).setArguments(args);
 		verify(mockFunctionExecution, times(1)).setFunctionId("TestFunction");
 		verify(mockFunctionExecution, times(1)).setResultCollector(eq(mockResultCollector));
 		verify(mockFunctionExecution, times(1)).setTimeout(500);
@@ -161,16 +170,19 @@ public class AbstractFunctionTemplateTest {
 
 	@Test
 	public void executeAndExtractWithFunctionIdAndArgs() {
+
 		Object[] args = { "test", "testing", "tested" };
 
-		when(mockFunctionExecution.setArgs(args)).thenReturn(mockFunctionExecution);
+		when(mockFunctionExecution.setArguments(args)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setFunctionId("TestFunction")).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setResultCollector(mockResultCollector)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setTimeout(500)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.executeAndExtract()).thenReturn(args[0]);
 
 		AbstractFunctionTemplate functionTemplate = new AbstractFunctionTemplate() {
-			@Override protected AbstractFunctionExecution getFunctionExecution() {
+
+			@Override
+			protected AbstractFunctionExecution getFunctionExecution() {
 				return mockFunctionExecution;
 			}
 		};
@@ -184,7 +196,7 @@ public class AbstractFunctionTemplateTest {
 		assertThat(result, is(notNullValue()));
 		assertThat(result, is(equalTo("test")));
 
-		verify(mockFunctionExecution, times(1)).setArgs(args);
+		verify(mockFunctionExecution, times(1)).setArguments(args);
 		verify(mockFunctionExecution, times(1)).setFunctionId("TestFunction");
 		verify(mockFunctionExecution, times(1)).setResultCollector(eq(mockResultCollector));
 		verify(mockFunctionExecution, times(1)).setTimeout(500);
@@ -193,16 +205,19 @@ public class AbstractFunctionTemplateTest {
 
 	@Test
 	public void executeWithNoResultWithFunctionIdAndArgs() {
+
 		Object[] args = { "test", "testing", "tested" };
 
-		when(mockFunctionExecution.setArgs(args)).thenReturn(mockFunctionExecution);
+		when(mockFunctionExecution.setArguments(args)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setFunctionId("TestFunction")).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setResultCollector(mockResultCollector)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.setTimeout(500)).thenReturn(mockFunctionExecution);
 		when(mockFunctionExecution.execute(eq(false))).thenReturn(null);
 
 		AbstractFunctionTemplate functionTemplate = new AbstractFunctionTemplate() {
-			@Override protected AbstractFunctionExecution getFunctionExecution() {
+
+			@Override
+			protected AbstractFunctionExecution getFunctionExecution() {
 				return mockFunctionExecution;
 			}
 		};
@@ -214,11 +229,10 @@ public class AbstractFunctionTemplateTest {
 
 		assertThat(functionTemplate.getResultCollector(), is(equalTo(mockResultCollector)));
 
-		verify(mockFunctionExecution, times(1)).setArgs(args);
+		verify(mockFunctionExecution, times(1)).setArguments(args);
 		verify(mockFunctionExecution, times(1)).setFunctionId("TestFunction");
 		verify(mockFunctionExecution, times(1)).setResultCollector(eq(mockResultCollector));
 		verify(mockFunctionExecution, times(1)).setTimeout(500);
 		verify(mockFunctionExecution, times(1)).execute(eq(false));
 	}
-
 }

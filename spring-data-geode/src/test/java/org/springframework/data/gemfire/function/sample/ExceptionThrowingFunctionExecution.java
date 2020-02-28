@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.sample;
+
+import org.apache.geode.cache.execute.Function;
 
 import org.springframework.data.gemfire.function.annotation.OnServer;
 
 /**
- * The ExceptionThrowingFunctionExecution interface defines a GemFire Function that throws a RuntimeException.
+ * The {@link ExceptionThrowingFunctionExecution} interface defines a GemFire {@link Function}
+ * that throws a {@link RuntimeException}.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.execute.Function
  * @see org.springframework.data.gemfire.function.annotation.OnServer
  * @since 1.7.0
  */

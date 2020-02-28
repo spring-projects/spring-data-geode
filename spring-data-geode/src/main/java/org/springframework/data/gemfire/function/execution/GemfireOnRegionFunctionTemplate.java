@@ -20,8 +20,14 @@ import org.apache.geode.cache.execute.Function;
 import org.springframework.util.Assert;
 
 /**
+ * An {@link AbstractFunctionTemplate} implementation for executing a {@link Function} on a target {@link Region}.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
+ * @see org.springframework.data.gemfire.function.execution.GemfireOnRegionOperations
  */
 public class GemfireOnRegionFunctionTemplate extends AbstractFunctionTemplate implements GemfireOnRegionOperations {
 
@@ -31,7 +37,7 @@ public class GemfireOnRegionFunctionTemplate extends AbstractFunctionTemplate im
 	 * Constructs a new instance of the {@link GemfireOnRegionFunctionTemplate} initialized with
 	 * the given {@link Region}.
 	 *
-	 * @param region the {@link Region} upon which the {@link Function} will be executed.
+	 * @param region {@link Region} on which the {@link Function} will be executed.
 	 * @throws IllegalArgumentException if {@link Region} is {@literal null}.
 	 * @see org.apache.geode.cache.Region
 	 */
@@ -44,7 +50,11 @@ public class GemfireOnRegionFunctionTemplate extends AbstractFunctionTemplate im
 
 	@Override
 	protected RegionFunctionExecution getFunctionExecution() {
-		return new RegionFunctionExecution(this.region);
+		return new RegionFunctionExecution(getRegion());
+	}
+
+	protected Region<?, ?> getRegion() {
+		return this.region;
 	}
 
 	@Override
@@ -52,9 +62,9 @@ public class GemfireOnRegionFunctionTemplate extends AbstractFunctionTemplate im
 
 		return execute(getFunctionExecution()
 			.setKeys(keys)
+			.setArguments(args)
 			.setFunctionId(functionId)
-			.setTimeout(this.timeout)
-			.setArgs(args));
+			.setTimeout(getTimeout()));
 	}
 
 	@Override
@@ -63,7 +73,7 @@ public class GemfireOnRegionFunctionTemplate extends AbstractFunctionTemplate im
 		return executeAndExtract(getFunctionExecution()
 			.setKeys(keys)
 			.setFunctionId(functionId)
-			.setTimeout(this.timeout).setArgs(args));
+			.setTimeout(getTimeout()).setArguments(args));
 	}
 
 	@Override
@@ -71,8 +81,8 @@ public class GemfireOnRegionFunctionTemplate extends AbstractFunctionTemplate im
 
 		execute(getFunctionExecution()
 			.setKeys(keys)
+			.setArguments(args)
 			.setFunctionId(functionId)
-			.setTimeout(this.timeout)
-			.setArgs(args), false);
+			.setTimeout(getTimeout()), false);
 	}
 }

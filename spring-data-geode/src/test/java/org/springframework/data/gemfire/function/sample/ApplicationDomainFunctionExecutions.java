@@ -35,15 +35,15 @@ import org.springframework.data.gemfire.function.annotation.OnServer;
 @SuppressWarnings("unused")
 public interface ApplicationDomainFunctionExecutions {
 
-	Class[] captureConvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
+	Class<?>[] captureConvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
 		ClientCacheFunctionExecutionWithPdxIntegrationTest.Person person,
 			ClientCacheFunctionExecutionWithPdxIntegrationTest.Gender gender);
 
-	Class[] captureUnconvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
+	Class<?>[] captureUnconvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
 		Object person, Object gender);
 
 	String getAddressField(ClientCacheFunctionExecutionWithPdxIntegrationTest.Address address, String fieldName);
 
-	Object getDataField(PdxInstance data, String fieldName);
+	Integer getDataField(PdxInstance data, String fieldName);
 
 }

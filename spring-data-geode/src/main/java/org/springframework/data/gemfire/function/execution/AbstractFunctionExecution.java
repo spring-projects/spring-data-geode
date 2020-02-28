@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -14,6 +14,7 @@ package org.springframework.data.gemfire.function.execution;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -23,167 +24,323 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 
+import org.springframework.data.gemfire.function.ExecutionTimeoutFunctionException;
+import org.springframework.data.gemfire.function.UncategorizedFunctionException;
+import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowableOperation;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.util.Assert;
-
 /**
- * Base class for * Creating a GemFire {@link Execution} using {@link FunctionService}.  Protected setters support
- * method chaining.
+ * Abstract base class for creating a {@link Function} {@link Execution} using the {@link FunctionService}.
  *
  * @author David Turanski
  * @author John Blum
  * @author Patrick Johnson
+ * @see java.util.concurrent.TimeUnit
+ * @see org.apache.geode.cache.execute.Execution
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.apache.geode.cache.execute.FunctionService
+ * @see org.apache.geode.cache.execute.ResultCollector
  */
 @SuppressWarnings("unused")
 abstract class AbstractFunctionExecution {
 
-	private final static String NO_RESULT_MESSAGE = "Cannot return any result as the Function#hasResult() is false";
+	private static final boolean DEFAULT_RETURN_RESULT = true;
+
+	private static final String FUNCTION_EXECUTION_TIMEOUT_ERROR_MESSAGE =
+		"Failed to collect Function [%1$s] results in the configured timeout [%2$d ms]";
+
+	private static final String NO_RESULT_ERROR_MESSAGE =
+		"Cannot return any result as the Function#hasResult() is false";
 
 	private long timeout;
 
+	@SuppressWarnings("rawtypes")
 	private Function function;
 
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private Object[] args;
+	private Object[] arguments;
 
 	private volatile ResultCollector<?, ?> resultCollector;
 
 	private String functionId;
 
-	public AbstractFunctionExecution(Function function, Object... args) {
+	@SuppressWarnings("rawtypes")
+	public AbstractFunctionExecution(Function function, Object... arguments) {
 
 		Assert.notNull(function, "Function cannot be null");
 
 		this.function = function;
 		this.functionId = function.getId();
-		this.args = args;
+		this.arguments = arguments;
 	}
 
-	public AbstractFunctionExecution(String functionId, Object... args) {
+	public AbstractFunctionExecution(String functionId, Object... arguments) {
 
 		Assert.hasText(functionId, "Function ID must not be null or empty");
 
+		this.function = null;
 		this.functionId = functionId;
-		this.args = args;
+		this.arguments = arguments;
 	}
 
 	AbstractFunctionExecution() { }
 
-	Object[] getArgs() {
-		return this.args;
+	protected Object[] getArguments() {
+		return this.arguments;
 	}
 
-	ResultCollector<?, ?> getCollector() {
-		return this.resultCollector;
-	}
+	@SuppressWarnings("rawtypes")
+	protected abstract Execution getExecution();
 
-	Function getFunction() {
+	@SuppressWarnings("rawtypes")
+	protected Function getFunction() {
 		return this.function;
 	}
 
-	String getFunctionId() {
+	protected String getFunctionId() {
 		return this.functionId;
 	}
 
-	long getTimeout() {
+	protected Set<?> getKeys() {
+		return null;
+	}
+
+	protected Logger getLogger() {
+		return this.logger;
+	}
+
+	protected ResultCollector<?, ?> getResultCollector() {
+		return this.resultCollector;
+	}
+
+	protected long getTimeout() {
 		return this.timeout;
 	}
 
-	<T> Iterable<T> execute() {
-		return execute(true);
+	String resolveFunctionIdentifier() {
+
+		return Optional.ofNullable(getFunction())
+			.map(ObjectUtils::nullSafeClassName)
+			.orElseGet(() -> getFunctionId());
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Executes the configured {@link Function}.
+	 *
+	 * @param <T> {@link Class type} of the result.
+	 * @return an {@link Iterable} containing the results from the {@link Function} {@link Execution}.
+	 * @see java.lang.Iterable
+	 * @see #execute(Boolean)
+	 */
+	<T> Iterable<T> execute() {
+		return execute(DEFAULT_RETURN_RESULT);
+	}
+
+	/**
+	 * Executes the configured {@link Function}.
+	 *
+	 * @param <T> {@link Class type} of the result.
+	 * @param returnResult boolean value indicating whether the {@link Function} should return a result
+	 * from the {@link Execution}.
+	 * @return an {@link Iterable} containing the results from the {@link Function} {@link Execution}.
+	 * @see java.lang.Iterable
+	 * @see #getExecution()
+	 * @see #getFunction()
+	 * @see #getFunctionId()
+	 * @see #getTimeout()
+	 * @see #prepare(Execution)
+	 */
+	@SuppressWarnings({ "rawtypes" })
 	<T> Iterable<T> execute(Boolean returnResult) {
 
-		Execution execution = getExecution();
+		Execution execution = prepare(getExecution());
 
-		execution = execution.setArguments(getArgs());
-		execution = getCollector() != null ? execution.withCollector(getCollector()) : execution;
-		execution = getKeys() != null ? execution.withFilter(getKeys()) : execution;
+		Function function = getFunction();
 
-		ResultCollector<?, ?> resultCollector;
+		ResultCollector<?, ?> resultCollector = function != null
+			? execution.execute(function)
+			: execution.execute(getFunctionId());
 
-		if (isRegisteredFunction()) {
-			resultCollector = execution.execute(this.functionId);
-		}
-		else {
-			resultCollector = execution.execute(this.function);
-
-			if (!this.function.hasResult()) {
-				return null;
-			}
-		}
-
-		if (!returnResult) {
+		if (hasNoResult(returnResult, function, resultCollector)) {
 			return null;
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Using ResultsCollector " + resultCollector.getClass().getName());
-		}
+		long timeout = getTimeout();
+
+		logDebug("Configured timeout is [{} ms]", timeout);
+		logDebug("Using ResultCollector [{}]", ObjectUtils.nullSafeClassName(resultCollector));
 
 		Iterable<T> results = null;
 
 		try {
-			if (this.timeout > 0) {
-				try {
-					results = (Iterable<T>) resultCollector.getResult(this.timeout, TimeUnit.MILLISECONDS);
-				}
-				catch (FunctionException | InterruptedException cause) {
-					throw new RuntimeException(cause);
-				}
-			}
-			else {
-				if(resultCollector.getResult() instanceof Iterable) {
-					results = (Iterable<T>) resultCollector.getResult();
-				} else {
-					results = (Iterable<T>) Collections.singleton(resultCollector.getResult());
-				}
-			}
 
-			return replaceSingletonNullCollectionWithEmptyList(results);
+			Object result = timeout > 0
+				? SpringUtils.<T>safeGetValue(getResultWithTimeoutThrowableOperation(resultCollector, timeout),
+					newFunctionAndInterruptedExceptionHandler(timeout))
+				: resultCollector.getResult();
+
+			results = processResult(result);
+
+			return results;
 		}
 		catch (FunctionException cause) {
-			// TODO Come up with a better way to determine that the function should not return a result;
-			if (!cause.getMessage().equals(NO_RESULT_MESSAGE)) {
+
+			// TODO: Use a more reliable way to determine that the Function does not return a result!
+			//  This only applies to Functions registered by ID!
+			if (!cause.getMessage().contains(NO_RESULT_ERROR_MESSAGE)) {
 				throw cause;
+			}
+
+			return results;
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected Execution prepare(Execution execution) {
+
+		execution = execution.setArguments(getArguments());
+		execution = getResultCollector() != null ? execution.withCollector(getResultCollector()) : execution;
+		execution = getKeys() != null ? execution.withFilter(getKeys()) : execution;
+
+		return execution;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean hasResult(boolean returnResult, Function function, ResultCollector resultCollector) {
+		return returnResult && (function == null || function.hasResult());
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean hasNoResult(boolean returnResult, Function function, ResultCollector resultCollector) {
+		return !hasResult(returnResult, function, resultCollector);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private <T> ValueReturningThrowableOperation<T> getResultWithTimeoutThrowableOperation(
+		ResultCollector resultCollector, long timeout) {
+
+		return () -> (T) resultCollector.getResult(timeout, TimeUnit.MILLISECONDS);
+	}
+
+	private <T> java.util.function.Function<Throwable, T> newFunctionAndInterruptedExceptionHandler(long timeout) {
+
+		return cause -> {
+
+			if (cause instanceof FunctionException) {
+				throw (FunctionException) cause;
+			}
+			else if (cause instanceof InterruptedException) {
+
+				String message =
+					String.format(FUNCTION_EXECUTION_TIMEOUT_ERROR_MESSAGE, resolveFunctionIdentifier(), timeout);
+
+				throw new ExecutionTimeoutFunctionException(message, cause);
+			}
+
+			throw new UncategorizedFunctionException(cause);
+		};
+	}
+
+	private <T> Iterable<T> processResult(Object result) {
+
+		return replaceSingleNullElementIterableWithEmptyIterable(throwOnExceptionOrReturn(toIterable(
+			throwOnExceptionOrReturn(result))));
+	}
+
+	private <T> Iterable<T> replaceSingleNullElementIterableWithEmptyIterable(Iterable<T> results) {
+
+		if (results != null) {
+
+			Iterator<T> it = results.iterator();
+
+			if (!it.hasNext()) {
+				return results;
+			}
+
+			if (it.next() == null && !it.hasNext()) {
+				return Collections::emptyIterator;
 			}
 		}
 
 		return results;
 	}
 
+	private <T> Iterable<T> throwOnExceptionOrReturn(Iterable<T> result) {
+
+		Iterator<T> resultIterator = result.iterator();
+
+		if (resultIterator.hasNext()) {
+			throwOnExceptionOrReturn(resultIterator.next());
+		}
+
+		return result;
+	}
+
 	@SuppressWarnings("unchecked")
+	private <T> Iterable<T> toIterable(Object result) {
+
+		return result instanceof Iterable
+			? (Iterable<T>) result
+			: (Iterable<T>) Collections.singleton(result);
+	}
+
+	/**
+	 * Executes the configured {@link Function} and extracts the result as a single value.
+	 *
+	 * @param <T> {@link Class type} of the result.
+	 * @return the result of the {@link Function} {@link Execution} as a single value.
+	 * @see #execute()
+	 */
 	<T> T executeAndExtract() {
 
 		Iterable<T> results = execute();
 
-		if (results == null || !results.iterator().hasNext()) {
+		if (isEmpty(results)) {
 			return null;
 		}
 
-		Object result = results.iterator().next();
+		T result = results.iterator().next();
 
-		if (result instanceof Throwable) {
-			throw new FunctionException(String.format("Execution of Function %s failed",
-				(this.function != null ? this.function.getClass().getName()
-					: String.format("with ID [%s]", this.functionId))), (Throwable) result);
-		}
-
-		return (T) result;
+		return throwOnExceptionOrReturn(result);
 	}
 
-	protected abstract Execution getExecution();
+	private boolean isEmpty(Iterable<?> iterable) {
+		return iterable == null || !iterable.iterator().hasNext();
+	}
 
+	private <T> T throwOnExceptionOrReturn(T result) {
+
+		if (result instanceof Throwable) {
+
+			Function<?> function = getFunction();
+
+			String message = String.format("Execution of Function [%s] failed", function != null
+				? function.getClass().getName()
+				: String.format("with ID [%s]", getFunctionId()));
+
+			throw new FunctionException(message, (Throwable) result);
+		}
+
+		return result;
+	}
+
+	@Deprecated
 	protected AbstractFunctionExecution setArgs(Object... args) {
-		this.args = args;
+		return setArguments(args);
+	}
+
+	protected AbstractFunctionExecution setArguments(Object... arguments) {
+		this.arguments = arguments;
 		return this;
 	}
 
+	@SuppressWarnings("rawtypes")
 	protected AbstractFunctionExecution setFunction(Function function) {
 		this.function = function;
 		return this;
@@ -204,29 +361,12 @@ abstract class AbstractFunctionExecution {
 		return this;
 	}
 
-	protected Set<?> getKeys() {
-		return null;
-	}
+	protected void logDebug(String message, Object... arguments) {
 
-	private boolean isRegisteredFunction() {
-		return this.function == null;
-	}
+		Logger logger = getLogger();
 
-	private <T> Iterable<T> replaceSingletonNullCollectionWithEmptyList(Iterable<T> results) {
-
-		if (results != null) {
-
-			Iterator<T> it = results.iterator();
-
-			if (!it.hasNext()) {
-				return results;
-			}
-
-			if (it.next() == null && !it.hasNext()) {
-				return Collections.emptyList();
-			}
+		if (logger.isDebugEnabled()) {
+			logger.debug(message, arguments);
 		}
-
-		return results;
 	}
 }

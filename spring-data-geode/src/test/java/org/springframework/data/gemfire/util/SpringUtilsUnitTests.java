@@ -50,11 +50,14 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowableOperation;
 
 /**
  * Unit Tests for {@link SpringUtils}.
  *
  * @author John Blum
+ * @see java.util.function.Function
+ * @see java.util.function.Supplier
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
@@ -415,16 +418,19 @@ public class SpringUtilsUnitTests {
 	@Test
 	public void safeGetValueReturnsSuppliedDefaultValue() {
 
-		Supplier<String> exceptionThrowingSupplier = () -> { throw newRuntimeException("error"); };
+		ValueReturningThrowableOperation<String> exceptionThrowingOperation =
+			() -> { throw newRuntimeException("error"); };
+
 		Supplier<String> defaultValueSupplier = () -> "test";
 
-		assertThat(SpringUtils.safeGetValue(exceptionThrowingSupplier, defaultValueSupplier)).isEqualTo("test");
+		assertThat(SpringUtils.safeGetValue(exceptionThrowingOperation, defaultValueSupplier)).isEqualTo("test");
 	}
 
 	@Test
 	public void safeGetValueHandlesExceptionReturnsValue() {
 
-		Supplier<String> exceptionThrowingSupplier = () -> { throw newRuntimeException("error"); };
+		ValueReturningThrowableOperation<String> exceptionThrowingOperation =
+			() -> { throw newRuntimeException("error"); };
 
 		Function<Throwable, String> exceptionHandler = exception -> {
 
@@ -435,13 +441,14 @@ public class SpringUtilsUnitTests {
 			return "test";
 		};
 
-		assertThat(SpringUtils.safeGetValue(exceptionThrowingSupplier, exceptionHandler)).isEqualTo("test");
+		assertThat(SpringUtils.safeGetValue(exceptionThrowingOperation, exceptionHandler)).isEqualTo("test");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void safeGetValueHandlesExceptionAndCanThrowException() {
 
-		Supplier<String> exceptionThrowingSupplier = () -> { throw newRuntimeException("error"); };
+		ValueReturningThrowableOperation<String> exceptionThrowingOperation =
+			() -> { throw newRuntimeException("error"); };
 
 		Function<Throwable, String> exceptionHandler = exception -> {
 
@@ -453,7 +460,7 @@ public class SpringUtilsUnitTests {
 		};
 
 		try {
-			SpringUtils.safeGetValue(exceptionThrowingSupplier, exceptionHandler);
+			SpringUtils.safeGetValue(exceptionThrowingOperation, exceptionHandler);
 		}
 		catch (IllegalStateException expected) {
 

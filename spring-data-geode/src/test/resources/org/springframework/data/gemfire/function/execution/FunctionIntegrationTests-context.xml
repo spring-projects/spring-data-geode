@@ -17,12 +17,12 @@
 		<prop key="log-level">error</prop>
 	</util:properties>
 
-	<gfe:client-cache properties-ref="gemfireProperties" pool-name="serverBasedPool"/>
+	<gfe:client-cache properties-ref="gemfireProperties" pool-name="serverPool"/>
 
-	<gfe:pool id="serverBasedPool">
+	<gfe:pool id="serverPool">
 		<gfe:server host="localhost" port="${spring.data.gemfire.cache.server.port:40404}"/>
 	</gfe:pool>
 
-	<gfe:client-region id="test-region" pool-name="serverBasedPool" shortcut="PROXY"/>
+	<gfe:client-region id="TestRegion" pool-name="serverPool" shortcut="PROXY"/>
 
 </beans>

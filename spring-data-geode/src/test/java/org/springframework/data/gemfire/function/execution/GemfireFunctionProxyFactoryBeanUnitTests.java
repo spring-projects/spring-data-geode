@@ -21,20 +21,24 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.data.gemfire.function.annotation.FunctionId;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 /**
- * Unit tests for {@link GemfireFunctionProxyFactoryBean}.
+ * Unit Tests for {@link GemfireFunctionProxyFactoryBean}.
  *
  * @author David Turanski
  * @author John Blum
+ * @see java.lang.reflect.AccessibleObject
+ * @see java.lang.reflect.Method
  * @see org.junit.Test
  * @see org.mockito.Mockito
  * @see org.aopalliance.intercept.MethodInvocation
@@ -50,34 +54,37 @@ public class GemfireFunctionProxyFactoryBeanUnitTests {
 	}
 
 	@Test
-	public void invoke() throws Throwable {
+	public void invoke() {
 
 		MethodInvocation invocation = new TestMethodInvocation(IFoo.class)
-			.withMethodNameAndArgTypes("collections",List.class);
+			.withMethodNameAndArgTypes("collections", List.class);
 
-		when(this.functionOperations.executeAndExtract("collections",invocation.getArguments()))
+		when(this.functionOperations.execute("collections", invocation.getArguments()))
 			.thenReturn(Arrays.asList(1, 2, 3));
 
-		GemfireFunctionProxyFactoryBean proxy = new GemfireFunctionProxyFactoryBean(IFoo.class, this.functionOperations);
+		GemfireFunctionProxyFactoryBean proxy =
+			new GemfireFunctionProxyFactoryBean(IFoo.class, this.functionOperations);
 
 		Object result = proxy.invoke(invocation);
 
 		assertThat(result).isInstanceOf(List.class);
-		assertThat((List) result).hasSize(3);
+		assertThat((List<?>) result).hasSize(3);
 
 		verify(this.functionOperations, times(1))
-			.executeAndExtract("collections",invocation.getArguments());
+			.execute("collections", invocation.getArguments());
 	}
 
 	@Test
-	public void invokeAndExtractWithAnnotatedFunctionId() throws Throwable {
+	public void invokeAndExtractWithAnnotatedFunctionId() {
 
 		MethodInvocation invocation = new TestMethodInvocation(IFoo.class)
 			.withMethodNameAndArgTypes("oneArg", String.class);
 
-		when(this.functionOperations.executeAndExtract("oneArg",invocation.getArguments())).thenReturn(1);
+		when(this.functionOperations.execute("oneArg", invocation.getArguments()))
+			.thenReturn(Collections.singleton(1));
 
-		GemfireFunctionProxyFactoryBean proxy = new GemfireFunctionProxyFactoryBean(IFoo.class, this.functionOperations);
+		GemfireFunctionProxyFactoryBean proxy =
+			new GemfireFunctionProxyFactoryBean(IFoo.class, this.functionOperations);
 
 		Object result = proxy.invoke(invocation);
 
@@ -85,7 +92,7 @@ public class GemfireFunctionProxyFactoryBeanUnitTests {
 		assertThat(result).isEqualTo(1);
 
 		verify(this.functionOperations, times(1))
-			.executeAndExtract("oneArg", invocation.getArguments());
+			.execute("oneArg", invocation.getArguments());
 	}
 
 	@SuppressWarnings("unused")
@@ -93,7 +100,7 @@ public class GemfireFunctionProxyFactoryBeanUnitTests {
 
 		private Class<?> type;
 
-		private Class<?>[] argTypes;
+		private Class<?>[] argumentTypes;
 
 		private Object[] arguments;
 
@@ -110,54 +117,39 @@ public class GemfireFunctionProxyFactoryBeanUnitTests {
 			return this;
 		}
 
-		public TestMethodInvocation withMethodNameAndArgTypes(String methodName,Class<?>... argTypes) {
+		public TestMethodInvocation withMethodNameAndArgTypes(String methodName, Class<?>... argTypes) {
 
 			this.methodName = methodName;
-			this.argTypes = argTypes;
+			this.argumentTypes = argTypes;
 
 			return this;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.aopalliance.intercept.Invocation#getArguments()
-		 */
 		@Override
 		public Object[] getArguments() {
 			return this.arguments;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.aopalliance.intercept.Joinpoint#proceed()
-		 */
 		@Override
-		public Object proceed() throws Throwable {
+		public Object proceed() {
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.aopalliance.intercept.Joinpoint#getThis()
-		 */
 		@Override
 		public Object getThis() {
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.aopalliance.intercept.Joinpoint#getStaticPart()
-		 */
 		@Override
 		public AccessibleObject getStaticPart() {
 			return null;
 		}
 
-		/* (non-Javadoc)
-		 * @see org.aopalliance.intercept.MethodInvocation#getMethod()
-		 */
 		@Override
 		public Method getMethod() {
 
 			try {
-				return this.type.getMethod(methodName, argTypes);
+				return this.type.getMethod(this.methodName, this.argumentTypes);
 			}
 			catch (NoSuchMethodException | SecurityException cause) {
 				return null;

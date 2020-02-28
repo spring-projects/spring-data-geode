@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.pdx.PdxInstance;
@@ -33,16 +36,10 @@ import org.apache.geode.pdx.PdxSerializer;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.pdx.internal.PdxInstanceEnum;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.fork.SpringContainerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions;
 import org.springframework.data.gemfire.process.ProcessWrapper;
@@ -53,27 +50,30 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
- * The ClientCacheFunctionExecutionWithPdxIntegrationTest class is a test suite of test cases testing Spring Data
- * GemFire's Function annotation support and interaction between a GemFire client and server Cache
- * when PDX is configured and read-serialized is set to true.
+ * Integration Test for SDG's Function annotation support and interaction between an Apache Geode client
+ * and server cache when PDX is configured and read-serialized is set to {@literal true}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
- * @see SpringContainerProcess
- * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
- * @see org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringRunner
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.pdx.PdxInstance
+ * @see org.apache.geode.pdx.PdxInstanceFactory
+ * @see org.apache.geode.pdx.PdxReader
  * @see org.apache.geode.pdx.PdxSerializer
+ * @see org.apache.geode.pdx.PdxWriter
  * @see org.apache.geode.pdx.internal.PdxInstanceEnum
+ * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
+ * @see org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions
+ * @see org.springframework.data.gemfire.process.ProcessWrapper
+ * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.5.2
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
+// TODO: Convert to a ClientCache test.
 public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientServerIntegrationTestsSupport {
 
 	private static ProcessWrapper gemfireServer;
@@ -107,7 +107,7 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 	private PdxInstance toPdxInstance(Map<String, Object> pdxData) {
 
 		PdxInstanceFactory pdxInstanceFactory =
-			gemfireClientCache.createPdxInstanceFactory(pdxData.get("@type").toString());
+			this.gemfireClientCache.createPdxInstanceFactory(pdxData.get("@type").toString());
 
 		for (Map.Entry<String, Object> entry : pdxData.entrySet()) {
 			pdxInstanceFactory.writeObject(entry.getKey(), entry.getValue());
@@ -119,79 +119,80 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 	@Test
 	public void convertedFunctionArgumentTypes() {
 
-		Class[] argumentTypes = functionExecutions.captureConvertedArgumentTypes("test", 1,
-			Boolean.TRUE, new Person("Jon", "Doe"), Gender.MALE);
+		Class<?>[] argumentTypes = this.functionExecutions
+			.captureConvertedArgumentTypes("test", 1, Boolean.TRUE, new Person("Jon", "Doe"),
+				Gender.MALE);
 
-		assertNotNull(argumentTypes);
-		assertEquals(5, argumentTypes.length);
-		assertEquals(String.class, argumentTypes[0]);
-		assertEquals(Integer.class, argumentTypes[1]);
-		assertEquals(Boolean.class, argumentTypes[2]);
-		assertEquals(Person.class, argumentTypes[3]);
-		assertEquals(Gender.class, argumentTypes[4]);
+		assertThat(argumentTypes).isNotNull();
+		assertThat(argumentTypes.length).isEqualTo(5);
+		assertThat(argumentTypes[0]).isEqualTo(String.class);
+		assertThat(argumentTypes[1]).isEqualTo(Integer.class);
+		assertThat(argumentTypes[2]).isEqualTo(Boolean.class);
+		assertThat(argumentTypes[3]).isEqualTo(Person.class);
+		assertThat(argumentTypes[4]).isEqualTo(Gender.class);
 	}
 
 	@Test
 	public void unconvertedFunctionArgumentTypes() {
 
-		Class[] argumentTypes = functionExecutions.captureUnconvertedArgumentTypes("test", 2,
-			Boolean.FALSE, new Person("Jane", "Doe"), Gender.FEMALE);
+		Class<?>[] argumentTypes = this.functionExecutions
+			.captureUnconvertedArgumentTypes("test", 2, Boolean.FALSE, new Person("Jane", "Doe"),
+				Gender.FEMALE);
 
-		assertNotNull(argumentTypes);
-		assertEquals(5, argumentTypes.length);
-		assertEquals(String.class, argumentTypes[0]);
-		assertEquals(Integer.class, argumentTypes[1]);
-		assertEquals(Boolean.class, argumentTypes[2]);
-		assertTrue(PdxInstance.class.isAssignableFrom(argumentTypes[3]));
-		assertEquals(PdxInstanceEnum.class, argumentTypes[4]);
+		assertThat(argumentTypes).isNotNull();
+		assertThat(argumentTypes.length).isEqualTo(5);
+		assertThat(argumentTypes[0]).isEqualTo(String.class);
+		assertThat(argumentTypes[1]).isEqualTo(Integer.class);
+		assertThat(argumentTypes[2]).isEqualTo(Boolean.class);
+		assertThat(PdxInstance.class).isAssignableFrom(argumentTypes[3]);
+		assertThat(argumentTypes[4]).isEqualTo(PdxInstanceEnum.class);
 	}
 
 	@Test
 	public void getAddressFieldValue() {
-		assertEquals("Portland", functionExecutions.getAddressField(new Address(
-			"100 Main St.", "Portland", "OR", "97205"), "city"));
+
+		Address address = new Address("100 Main St.", "Portland", "OR", "97205");
+
+		assertThat(this.functionExecutions.getAddressField(address, "city")).isEqualTo("Portland");
 	}
 
 	@Test
 	public void pdxDataFieldValue() {
 
-		Map<String, Object> pdxData = new HashMap<String, Object>(3);
+		Map<String, Object> pdxData = new HashMap<>(3);
 
 		pdxData.put("@type", "x.y.z.domain.MyApplicationDomainType");
 		pdxData.put("booleanField", Boolean.TRUE);
 		pdxData.put("integerField", 123);
 		pdxData.put("stringField", "test");
 
-		Integer value = (Integer) functionExecutions.getDataField(toPdxInstance(pdxData), "integerField");
+		Integer value = this.functionExecutions.getDataField(toPdxInstance(pdxData), "integerField");
 
-		assertEquals(pdxData.get("integerField"), value);
+		assertThat(value).isEqualTo(pdxData.get("integerField"));
 	}
 
 	public static class ApplicationDomainFunctions {
 
-		private Class[] getArgumentTypes(final Object... arguments) {
+		private Class<?>[] getArgumentTypes(Object... arguments) {
 
-			Class[] argumentTypes = new Class[arguments.length];
-
-			int index = 0;
+			List<Class<?>> argumentTypes = new ArrayList<>();
 
 			for (Object argument : arguments) {
-				argumentTypes[index] = arguments[index].getClass();
-				index++;
+				argumentTypes.add(argument.getClass());
 			}
 
-			return argumentTypes;
+			return argumentTypes.toArray(new Class[0]);
 		}
 
 		@GemfireFunction
-		public Class[] captureConvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
+		public Class<?>[] captureConvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
 				Person person, Gender gender) {
 
 			return getArgumentTypes(stringValue, integerValue, booleanValue, person, gender);
 		}
 
 		@GemfireFunction
-		public Class[] captureUnconvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
+		public Class<?>[] captureUnconvertedArgumentTypes(String stringValue, Integer integerValue, Boolean booleanValue,
 				Object domainObject, Object enumValue) {
 
 			return getArgumentTypes(stringValue, integerValue, booleanValue, domainObject, enumValue);
@@ -199,7 +200,10 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 
 		@GemfireFunction
 		public String getAddressField(PdxInstance address, String fieldName) {
-			Assert.isTrue(Address.class.getName().equals(address.getClassName()), "Address is not the correct type");
+
+			Assert.isTrue(Address.class.getName().equals(address.getClassName()),
+				"Address is not the correct type");
+
 			return String.valueOf(address.getField(fieldName));
 		}
 
@@ -213,14 +217,15 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 
 		private final String street;
 		private final String city;
-		private final String state; // refactor; use Enum!
+		private final String state; // Refactor; use Enum!
 		private final String zipCode;
 
 		public Address(String street, String city, String state, String zipCode) {
-			Assert.hasText("The Address 'street' must be specified", street);
-			Assert.hasText("The Address 'city' must be specified", city);
-			Assert.hasText("The Address 'state' must be specified", state);
-			Assert.hasText("The Address 'zipCode' must be specified", zipCode);
+
+			Assert.hasText("Street is required", street);
+			Assert.hasText("City is required", city);
+			Assert.hasText("State is required", state);
+			Assert.hasText("ZipCode is required", zipCode);
 
 			this.street = street;
 			this.city = city;
@@ -293,8 +298,9 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 		private final String lastName;
 
 		public Person(String firstName, String lastName) {
-			Assert.hasText(firstName, "The person's first name must be specified!");
-			Assert.hasText(lastName, "The person's last name must be specified!");
+
+			Assert.hasText(firstName, "First name is required");
+			Assert.hasText(lastName, "Last name is required");
 
 			this.firstName = firstName;
 			this.lastName = lastName;
@@ -352,10 +358,11 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 
 		public static PdxSerializer compose(PdxSerializer... pdxSerializers) {
 
-			return pdxSerializers == null ? null
-				: (pdxSerializers.length == 1
+			return pdxSerializers == null
+				? null
+				: pdxSerializers.length == 1
 				? pdxSerializers[0]
-				: new ComposablePdxSerializer(pdxSerializers));
+				: new ComposablePdxSerializer(pdxSerializers);
 		}
 
 		@Override
@@ -392,23 +399,23 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 
 		private PdxSerializer pdxSerializer;
 
-		public void setPdxSerializers(final List<PdxSerializer> pdxSerializers) {
+		public void setPdxSerializers(List<PdxSerializer> pdxSerializers) {
 			this.pdxSerializers = pdxSerializers;
 		}
 
 		@Override
-		public void afterPropertiesSet() throws Exception {
-			pdxSerializer = ComposablePdxSerializer.compose(pdxSerializers.toArray(new PdxSerializer[0]));
+		public void afterPropertiesSet() {
+			this.pdxSerializer = ComposablePdxSerializer.compose(this.pdxSerializers.toArray(new PdxSerializer[0]));
 		}
 
 		@Override
-		public PdxSerializer getObject() throws Exception {
-			return pdxSerializer;
+		public PdxSerializer getObject() {
+			return this.pdxSerializer;
 		}
 
 		@Override
 		public Class<?> getObjectType() {
-			return pdxSerializer != null ? pdxSerializer.getClass() : PdxSerializer.class;
+			return this.pdxSerializer != null ? this.pdxSerializer.getClass() : PdxSerializer.class;
 		}
 
 		@Override

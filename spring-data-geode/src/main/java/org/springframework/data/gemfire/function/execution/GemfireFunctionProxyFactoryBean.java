@@ -18,17 +18,12 @@ import java.util.stream.StreamSupport;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.data.gemfire.function.annotation.OnServers;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
-<<<<<<<HEAD
-=======
-	>>>>>>>DATAGEODE-295-Functions return results from all servers.
 
 /**
  * A Proxy {@link FactoryBean} for all non-Region Function Execution interfaces.
@@ -105,7 +100,7 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 			return String.format("Function Proxy for interface [%s]", getFunctionExecutionInterface().getName());
 		}
 
-		logDebug("Invoking method {}", invocation.getMethod().getName());
+		logDebug("Invoking method [{}]", invocation.getMethod().getName());
 
 		Object result = invokeFunction(invocation.getMethod(), invocation.getArguments());
 
@@ -114,17 +109,19 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 
 	protected Object invokeFunction(Method method, Object[] args) {
 
-		GemfireFunctionOperations template = getGemfireFunctionOperations();
+		String functionId = getFunctionExecutionMethodMetadata()
+			.getMethodMetadata(method)
+			.getFunctionId();
 
-		return method.getDeclaringClass().isAnnotationPresent(OnServers.class)
-			? template.execute(getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId(), args)
-			: template.executeAndExtract(getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId(), args);
+		return getGemfireFunctionOperations().execute(functionId, args);
 	}
 
 	protected Object resolveResult(MethodInvocation invocation, Object result) {
 
-		// TODO: This conditional logic needs more work!  For instance, this conditional logic fails if the result
-		//  is a List, but the Function (Execution method) return type is a Set.
+		// TODO: The conditional logic needs more work!
+		//  For example, this conditional logic will fail if the result is a List but the Function (Execution method)
+		//  return type is a Set.
+		// TODO: Apply Spring Converters here???
 		return isIterable(result) && isNotInstanceOfFunctionReturnType(invocation, result)
 			? resolveSingleResultIfPossible((Iterable<?>) result)
 			: result;

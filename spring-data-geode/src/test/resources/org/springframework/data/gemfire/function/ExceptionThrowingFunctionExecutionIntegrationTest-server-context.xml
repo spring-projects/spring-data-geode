@@ -26,7 +26,7 @@
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<gfe:cache-server auto-startup="true" bind-address="${server.bind-address}" port="${server.port}"
+	<gfe:cache-server bind-address="${server.bind-address}" port="${server.port}"
 					  host-name-for-clients="${server.hostname-for-clients}" max-connections="${server.max-connections}"/>
 
 	<gfe:function-service>

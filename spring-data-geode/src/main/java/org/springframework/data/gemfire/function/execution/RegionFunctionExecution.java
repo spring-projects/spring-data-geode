@@ -16,14 +16,24 @@ import java.util.Set;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
+import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
+
+import org.apache.shiro.util.Assert;
 
 import org.springframework.util.CollectionUtils;
 
 /**
- * Creates a GemFire {@link Execution} using {code}FunctionService.onRegion(Region region){code}
- * @author David Turanski
+ * {@link RegionFunctionExecution} creates a {@link Function} {@link Execution}
+ * using {@link FunctionService#onRegion(Region)}.
  *
+ * @author David Turanski
+ * @author John Blum
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.execute.Execution
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.apache.geode.cache.execute.FunctionService
+ * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
  */
 class RegionFunctionExecution extends AbstractFunctionExecution {
 
@@ -32,6 +42,9 @@ class RegionFunctionExecution extends AbstractFunctionExecution {
 	private volatile Set<?> keys;
 
 	public RegionFunctionExecution(Region<?, ?> region) {
+
+		Assert.notNull(region, "Region must not be null");
+
 		this.region = region;
 	}
 
@@ -44,20 +57,19 @@ class RegionFunctionExecution extends AbstractFunctionExecution {
 		return this.keys;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.FunctionExecution#getExecution()
-	 */
+	protected Region<?, ?> getRegion() {
+		return this.region;
+	}
+
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Execution getExecution() {
 
-		Execution execution = FunctionService.onRegion(this.region);
+		Execution execution = FunctionService.onRegion(getRegion());
 
 		Set<?> keys = getKeys();
 
-		if (!CollectionUtils.isEmpty(keys) ) {
-			execution = execution.withFilter(keys);
-		}
+		execution = CollectionUtils.isEmpty(keys) ? execution : execution.withFilter(keys);
 
 		return execution;
 	}

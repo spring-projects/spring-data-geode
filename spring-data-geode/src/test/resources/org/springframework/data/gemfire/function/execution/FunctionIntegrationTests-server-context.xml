@@ -23,7 +23,7 @@
 
 	<gfe:cache-server port="${spring.data.gemfire.cache.server.port:40404}"/>
 
-	<gfe:partitioned-region id="test-region"/>
+	<gfe:partitioned-region id="TestRegion"/>
 
 	<gfe:annotation-driven/>
 
