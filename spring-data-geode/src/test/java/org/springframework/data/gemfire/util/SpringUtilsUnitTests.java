@@ -61,6 +61,7 @@ import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowable
  *
  * @author John Blum
  * @see java.util.function.Function
+ * @see java.util.function.Supplier
  * @see org.junit.Test
  * @see org.mockito.Mock
  * @see org.mockito.Mockito

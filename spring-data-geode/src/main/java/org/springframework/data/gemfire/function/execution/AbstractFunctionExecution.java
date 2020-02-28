@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright 2020-2021 the original author or authors.
+=======
+ * Copyright 2020 the original author or authors.
+>>>>>>> 9eae72c6a... DATAGEODE-295 - Polish.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -40,14 +44,11 @@ import org.slf4j.LoggerFactory;
  * @author David Turanski
  * @author John Blum
  * @author Patrick Johnson
-<<<<<<< HEAD
  * @see java.util.concurrent.TimeUnit
  * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.apache.geode.cache.execute.ResultCollector
-=======
->>>>>>> ae69760bf... DATAGEODE-295 - Functions return results from all servers.
  */
 @SuppressWarnings("unused")
 abstract class AbstractFunctionExecution {

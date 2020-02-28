@@ -18,23 +18,24 @@ package org.springframework.data.gemfire.function.execution.onservers;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * @author Patrick Johnson
  */
+@Getter
+@ToString
+@AllArgsConstructor
 public class Metric implements Serializable {
 
-	private String name;
+	private final String name;
 
-	private Number value;
+	private final Number value;
 
-	private String category;
+	private final String category;
 
-	private String type;
+	private final String type;
 
-	public Metric(String name, Number value, String category, String type) {
-		this.name = name;
-		this.value = value;
-		this.category = category;
-		this.type = type;
-	}
 }
