@@ -19,9 +19,8 @@ import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 
-import org.apache.shiro.util.Assert;
-
-import org.springframework.util.CollectionUtils;
+import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.util.Assert;
 
 /**
  * Creates an {@literal OnRegion} {@link Function} {@link Execution} initialized with a {@link Region}

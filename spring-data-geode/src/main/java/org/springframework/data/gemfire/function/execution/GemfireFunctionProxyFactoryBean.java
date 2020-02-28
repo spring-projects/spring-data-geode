@@ -122,7 +122,9 @@ public class GemfireFunctionProxyFactoryBean extends AbstractFactoryBeanSupport<
 
 		GemfireFunctionOperations template = getGemfireFunctionOperations();
 
-		String functionId = getFunctionExecutionMethodMetadata().getMethodMetadata(method).getFunctionId();
+		String functionId = getFunctionExecutionMethodMetadata()
+			.getMethodMetadata(method)
+			.getFunctionId();
 
 		return isFunctionExecutionForAllServers(method)
 			? template.execute(functionId, args)
