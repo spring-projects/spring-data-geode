@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
-
 package org.springframework.data.gemfire.serialization.json;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
@@ -38,14 +36,14 @@ import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.pdx.JSONFormatter;
 import org.apache.geode.pdx.PdxInstance;
 
+import org.springframework.data.gemfire.GemfireTemplate;
+import org.springframework.util.CollectionUtils;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.data.gemfire.GemfireTemplate;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Spring/AspectJ AOP Aspect adapting a {@link Region} to handle JSON data.
