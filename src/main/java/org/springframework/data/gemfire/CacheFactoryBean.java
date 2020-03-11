@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static java.util.stream.StreamSupport.stream;
@@ -54,6 +53,7 @@ import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxSerializer;
 import org.apache.geode.security.SecurityManager;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -61,6 +61,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Phased;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
@@ -584,7 +585,13 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 					type, Arrays.toString(JndiDataSourceType.values())));
 
 			jndiDataSource.getAttributes().put("type", jndiDataSourceType.getName());
-			JNDIInvoker.mapDatasource(jndiDataSource.getAttributes(), jndiDataSource.getProps());
+
+			try {
+				JNDIInvoker.mapDatasource(jndiDataSource.getAttributes(), jndiDataSource.getProps());
+			}
+			catch (Exception cause) {
+				throw new InvalidDataAccessApiUsageException("Failed to run operation", cause);
+			}
 		});
 
 		return cache;
@@ -625,14 +632,13 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	/**
 	 * Destroys the {@link Cache} bean on Spring container shutdown.
 	 *
-	 * @throws Exception if an error occurs while closing the cache.
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 * @see #destroyBeanFactoryLocator()
 	 * @see #close(GemFireCache)
 	 * @see #isClose()
 	 */
 	@Override
-	public void destroy() throws Exception {
+	public void destroy() {
 
 		if (isClose()) {
 			close(fetchCache());
@@ -791,7 +797,6 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @see #getCache()
 	 */
 	@Override
-	@SuppressWarnings("all")
 	public GemFireCache getObject() throws Exception {
 		return Optional.<GemFireCache>ofNullable(getCache()).orElseGet(this::init);
 	}
@@ -803,7 +808,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Class<? extends GemFireCache> getObjectType() {
 		return Optional.ofNullable(this.<Cache>getCache()).<Class>map(Object::getClass).orElse(Cache.class);
 	}
@@ -815,6 +820,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @param cacheFactoryInitializer {@link CacheFactoryInitializer} configured to initialize the cache factory.
 	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer
 	 */
+	@SuppressWarnings("rawtypes")
 	public void setCacheFactoryInitializer(CacheFactoryInitializer cacheFactoryInitializer) {
 		this.cacheFactoryInitializer = cacheFactoryInitializer;
 	}
@@ -826,6 +832,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the {@link CacheFactoryInitializer} configured to initialize the cache factory.
 	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer
 	 */
+	@SuppressWarnings("rawtypes")
 	public CacheFactoryInitializer getCacheFactoryInitializer() {
 		return this.cacheFactoryInitializer;
 	}
