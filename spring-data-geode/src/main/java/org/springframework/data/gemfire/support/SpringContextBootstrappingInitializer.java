@@ -25,9 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Declarable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ApplicationListener;
@@ -45,6 +42,9 @@ import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link SpringContextBootstrappingInitializer} class is a GemFire configuration initializer used to bootstrap

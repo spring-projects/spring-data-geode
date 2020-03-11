@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.newBeanFactoryLocator;
@@ -26,8 +25,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 
 /**
- * Convenience class for Spring-aware GemFire {@link Declarable} components.  Provides subclasses with a reference
- * to the current Spring {@link BeanFactory} in orde to perform Spring bean lookups or resource loading.
+ * Convenience class for Spring aware, Apache Geode {@link Declarable} components.  Provides subclasses with a reference
+ * to the current Spring {@link BeanFactory} in order to perform Spring bean lookups or resource loading.
  *
  * Note, in most cases, the developer should just declare the same components as Spring beans in the Spring container,
  * through {@link PeerRegionFactoryBean}, which gives access to the full Spring container capabilities and does not
@@ -103,6 +102,6 @@ public abstract class DeclarableSupport implements CacheCallback, Declarable {
 	 * @inheritDoc
 	 */
 	@Override
-	public void close() {
-	}
+	public void close() { }
+
 }
