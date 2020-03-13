@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.springframework.data.gemfire.function.execution.onservers;
+package org.springframework.data.gemfire.function.sample;
 
 import org.springframework.data.gemfire.function.annotation.FunctionId;
 import org.springframework.data.gemfire.function.annotation.OnServers;
