@@ -14,28 +14,20 @@
  * limitations under the License.
  *
  */
-package org.springframework.data.gemfire.function.execution.onservers;
+package org.springframework.data.gemfire.function.sample;
 
-import java.io.Serializable;
+import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import org.springframework.data.gemfire.function.annotation.FunctionId;
+import org.springframework.data.gemfire.function.annotation.OnServers;
 
 /**
  * @author Patrick Johnson
  */
-@Getter
-@ToString
-@AllArgsConstructor
-public class Metric implements Serializable {
+@OnServers
+public interface AllServersAdminFunctions {
 
-	private final String name;
-
-	private final Number value;
-
-	private final String category;
-
-	private final String type;
+	@FunctionId("GetAllMetricsFunction")
+	List<List<Metric>> getAllMetrics();
 
 }
