@@ -26,10 +26,6 @@ import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
@@ -53,6 +49,10 @@ import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * {@link FactoryBean} adapter for {@link GemfireRepositoryFactory}.
@@ -101,6 +101,7 @@ public class GemfireRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 	 * @see org.springframework.context.ApplicationContext
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
 		this.applicationContext = applicationContext;
@@ -238,6 +239,7 @@ public class GemfireRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 
 		private Iterable<QueryPostProcessorMetadata> queryPostProcessorsMetadata;
 
+		@SuppressWarnings("rawtypes")
 		public QueryPostProcessorRegistrationOnQueryCreationListener(ApplicationContext applicationContext) {
 
 			Assert.notNull(applicationContext, "ApplicationContext must not be null");
@@ -281,7 +283,7 @@ public class GemfireRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 				key -> new QueryPostProcessorMetadata(key.getQueryPostProcessor()));
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		QueryPostProcessorMetadata(@NonNull QueryPostProcessor<?, ?> queryPostProcessor) {
 
 			Assert.notNull(queryPostProcessor, "QueryPostProcessor must not be null");
