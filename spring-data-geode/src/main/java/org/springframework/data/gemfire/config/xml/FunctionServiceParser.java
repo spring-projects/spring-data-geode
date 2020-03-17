@@ -71,6 +71,6 @@ class FunctionServiceParser extends AbstractSimpleBeanDefinitionParser {
 
 		String resolvedId = super.resolveId(element, beanDefinition, parserContext);
 
-		return SpringUtils.defaultIfEmpty(resolvedId, GemfireConstants.DEFAULT_GEMFIRE_FUNCTION_SERVICE_NAME);
+		return SpringUtils.defaultIfEmpty(resolvedId, SpringGemFireConstants.DEFAULT_GEMFIRE_FUNCTION_SERVICE_NAME);
 	}
 }

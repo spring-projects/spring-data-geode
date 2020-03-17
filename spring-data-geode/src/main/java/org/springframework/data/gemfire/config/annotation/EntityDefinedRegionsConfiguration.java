@@ -60,7 +60,7 @@ import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.config.annotation.support.CacheTypeAwareRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.GemFireComponentClassTypeScanner;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.mapping.GemfirePersistentProperty;
@@ -336,7 +336,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 
 		BeanDefinitionBuilder regionFactoryBeanBuilder =
 			BeanDefinitionBuilder.genericBeanDefinition(CacheTypeAwareRegionFactoryBean.class)
-				.addPropertyReference("cache", GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME)
+				.addPropertyReference("cache", SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME)
 				.addPropertyValue("close", false)
 				.addPropertyValue("regionConfigurers", resolveRegionConfigurers());
 

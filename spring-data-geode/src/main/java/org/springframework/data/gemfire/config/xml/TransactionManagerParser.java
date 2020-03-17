@@ -65,9 +65,9 @@ class TransactionManagerParser extends AbstractSingleBeanDefinitionParser {
 		String name = super.resolveId(element, definition, parserContext);
 
 		if (!StringUtils.hasText(name)) {
-			name = GemfireConstants.DEFAULT_GEMFIRE_TRANSACTION_MANAGER_NAME;
+			name = SpringGemFireConstants.DEFAULT_GEMFIRE_TRANSACTION_MANAGER_NAME;
 			//For backward compatibility
-			parserContext.getRegistry().registerAlias(GemfireConstants.DEFAULT_GEMFIRE_TRANSACTION_MANAGER_NAME,
+			parserContext.getRegistry().registerAlias(SpringGemFireConstants.DEFAULT_GEMFIRE_TRANSACTION_MANAGER_NAME,
 				"gemfire-transaction-manager");
 		}
 

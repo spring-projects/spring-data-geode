@@ -65,7 +65,7 @@ class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
 		String cacheRefAttribute = element.getAttribute(ParsingUtils.CACHE_REF_ATTRIBUTE_NAME);
 
 		builder.addPropertyReference("cache", SpringUtils.defaultIfEmpty(
-			cacheRefAttribute, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
+			cacheRefAttribute, SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
 
 		String groupsAttribute = element.getAttribute("groups");
 

@@ -59,7 +59,7 @@ import org.springframework.data.gemfire.client.support.DefaultableDelegatingPool
 import org.springframework.data.gemfire.client.support.DelegatingPoolAdapter;
 import org.springframework.data.gemfire.client.support.PoolManagerPoolResolver;
 import org.springframework.data.gemfire.config.annotation.ContinuousQueryListenerContainerConfigurer;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
@@ -219,8 +219,8 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 			.filter(StringUtils::hasText)
 			.orElseGet(() ->
 				Optional.ofNullable(getBeanFactory())
-					.filter(it -> SpringUtils.isMatchingBean(it, GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME, Pool.class))
-					.map(it -> GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
+					.filter(it -> SpringUtils.isMatchingBean(it, SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME, Pool.class))
+					.map(it -> SpringGemFireConstants.DEFAULT_GEMFIRE_POOL_NAME)
 					.orElse(GemfireUtils.DEFAULT_POOL_NAME));
 	}
 

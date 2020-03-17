@@ -40,6 +40,7 @@ import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.config.annotation.AbstractCacheConfiguration;
 import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -297,8 +298,6 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 	 */
 	protected static class GemFirePropertiesBeanPostProcessor implements BeanPostProcessor {
 
-		protected static final String GEMFIRE_PROPERTIES_BEAN_NAME = "gemfireProperties";
-
 		private final Properties gemfireProperties;
 
 		/**
@@ -322,7 +321,7 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		@Override
 		public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
-			if (bean instanceof Properties && GEMFIRE_PROPERTIES_BEAN_NAME.equals(beanName)) {
+			if (bean instanceof Properties && SpringGemFireConstants.DEFAULT_GEMFIRE_PROPERTIES_BEAN_NAME.equals(beanName)) {
 
 				Properties gemfirePropertiesBean = (Properties) bean;
 

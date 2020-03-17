@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 
 /**
  * Unit tests for {@link DefinedIndexesApplicationListener}.
@@ -58,7 +58,7 @@ import org.springframework.data.gemfire.config.xml.GemfireConstants;
 public class DefinedIndexesApplicationListenerUnitTests {
 
 	private static final String QUERY_SERVICE_BEAN_NAME =
-		GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
+		SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
 
 	@Mock
 	private ApplicationContext mockApplicationContext;

@@ -52,7 +52,7 @@ class GatewaySenderParser extends AbstractSimpleBeanDefinitionParser {
 		String cacheRef = element.getAttribute(ParsingUtils.CACHE_REF_ATTRIBUTE_NAME);
 
 		builder.addConstructorArgReference(SpringUtils.defaultIfEmpty(
-			cacheRef, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
+			cacheRef, SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
 
 		ParsingUtils.setPropertyValue(element, builder, NAME_ATTRIBUTE);
 		ParsingUtils.setPropertyValue(element, builder, "alert-threshold");

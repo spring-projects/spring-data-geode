@@ -32,7 +32,7 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.server.SubscriptionEvictionPolicy;
 import org.springframework.util.StringUtils;
@@ -101,7 +101,7 @@ public class AddCacheServerConfiguration extends AbstractAnnotationConfigSupport
 		String beanName = registerCacheServerFactoryBeanDefinition(builder.getBeanDefinition(),
 			enableCacheServerAttributes.getString("name"), registry);
 
-		builder.addPropertyReference("cache", GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		builder.addPropertyReference("cache", SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 		builder.addPropertyValue("cacheServerConfigurers", resolveCacheServerConfigurers());
 
 		builder.addPropertyValue("autoStartup",

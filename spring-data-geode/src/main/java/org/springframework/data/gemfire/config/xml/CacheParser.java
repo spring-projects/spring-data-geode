@@ -244,7 +244,7 @@ class CacheParser extends AbstractSingleBeanDefinitionParser {
 		String name = Optional.of(super.resolveId(element, definition, parserContext))
 			.filter(StringUtils::hasText)
 			.map(StringUtils::trimWhitespace)
-			.orElse(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+			.orElse(SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		if (!"gemfire-cache".equals(name)) {
 			parserContext.getRegistry().registerAlias(name, "gemfire-cache");

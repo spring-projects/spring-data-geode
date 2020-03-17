@@ -56,7 +56,7 @@ import org.slf4j.Logger;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 
 /**
  * Unit tests for {@link IndexFactoryBean}.
@@ -402,9 +402,9 @@ public class IndexFactoryBeanTest {
 		QueryService mockQueryService =
 			mockQueryService("testLookupQueryServiceFromBeanFactory.MockQueryService");
 
-		when(mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE)))
+		when(mockBeanFactory.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE)))
 			.thenReturn(true);
-		when(mockBeanFactory.getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE),
+		when(mockBeanFactory.getBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE),
 			eq(QueryService.class))).thenReturn(mockQueryService);
 
 		IndexFactoryBean indexFactoryBean = newIndexFactoryBean();
@@ -412,9 +412,9 @@ public class IndexFactoryBeanTest {
 		assertThat(indexFactoryBean.lookupQueryService()).isSameAs(mockQueryService);
 
 		verify(mockBeanFactory, times(1)).containsBean(
-			eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
+			eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
 		verify(mockBeanFactory, times(1)).getBean(
-			eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
+			eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
 		verify(mockCache, never()).getQueryService();
 	}
 
@@ -423,7 +423,7 @@ public class IndexFactoryBeanTest {
 
 		QueryService mockQueryService = mockQueryService("testLookupQueryServiceFromCache.MockQueryService");
 
-		when(mockBeanFactory.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE)))
+		when(mockBeanFactory.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE)))
 			.thenReturn(false);
 		when(mockCache.getQueryService()).thenReturn(mockQueryService);
 
@@ -435,9 +435,9 @@ public class IndexFactoryBeanTest {
 		assertThat(indexFactoryBean.lookupQueryService()).isSameAs(mockQueryService);
 
 		verify(mockBeanFactory, times(1)).containsBean(
-			eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
+			eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
 		verify(mockBeanFactory, never()).getBean(
-			eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
+			eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
 		verify(mockCache, times(1)).getQueryService();
 	}
 
@@ -1651,20 +1651,20 @@ public class IndexFactoryBeanTest {
 		AtomicReference<QueryService> queryServiceReference = new AtomicReference<>(null);
 
 		doAnswer(invocation -> (queryServiceReference.get() != null)).when(mockBeanFactory)
-			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
+			.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
 
 		doAnswer(invocation -> queryServiceReference.get()).when(mockBeanFactory)
-			.getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
+			.getBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
 
 		doAnswer(invocation -> {
 
-			assertEquals(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE,
+			assertEquals(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE,
 				invocation.getArgument(0));
 
 			queryServiceReference.compareAndSet(null, invocation.getArgument(1));
 
 			return null;
-		}).when(mockBeanFactory).registerSingleton(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE),
+		}).when(mockBeanFactory).registerSingleton(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE),
 			any(QueryService.class));
 
 		when(mockCacheOne.getQueryService()).thenReturn(mockQueryService);
@@ -1693,13 +1693,13 @@ public class IndexFactoryBeanTest {
 		indexFactoryBeanTwo.afterPropertiesSet();
 
 		verify(mockBeanFactory, times(2))
-			.containsBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
+			.containsBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE));
 
 		verify(mockBeanFactory, times(1))
-			.getBean(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
+			.getBean(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE), eq(QueryService.class));
 
 		verify(mockBeanFactory, times(1))
-			.registerSingleton(eq(GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE),
+			.registerSingleton(eq(SpringGemFireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE),
 				same(mockQueryService));
 
 		verify(mockCacheOne, times(1)).getQueryService();

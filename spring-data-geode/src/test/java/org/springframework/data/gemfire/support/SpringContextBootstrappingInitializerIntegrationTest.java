@@ -48,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.support.sample.TestUserDao;
 import org.springframework.data.gemfire.support.sample.TestUserService;
@@ -174,7 +174,7 @@ public class SpringContextBootstrappingInitializerIntegrationTest {
 			SpringContextBootstrappingInitializer.getApplicationContext();
 
 		assertNotNull(applicationContext);
-		assertTrue(applicationContext.containsBean(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
+		assertTrue(applicationContext.containsBean(SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
 		assertTrue(applicationContext.containsBean("TestRegion"));
 		assertFalse(applicationContext.containsBean("Users")); // Region 'Users' is defined in Pivotal GemFire cache.xml
 		assertTrue(applicationContext.containsBean("userDataSource"));

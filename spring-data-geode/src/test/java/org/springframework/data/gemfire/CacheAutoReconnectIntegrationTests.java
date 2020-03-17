@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 
 /**
  * The CacheAutoReconnectIntegrationTests class is a tests suite of test cases testing Spring Data GemFire's support
@@ -54,7 +54,7 @@ public class CacheAutoReconnectIntegrationTests {
 		String baseConfigLocation = File.separator.concat(
 			getClass().getPackage().getName().replace('.', File.separatorChar));
 		applicationContext = new ClassPathXmlApplicationContext(baseConfigLocation.concat(File.separator).concat(configLocation));
-		return applicationContext.getBean(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME, Cache.class);
+		return applicationContext.getBean(SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME, Cache.class);
 	}
 
 	@Test

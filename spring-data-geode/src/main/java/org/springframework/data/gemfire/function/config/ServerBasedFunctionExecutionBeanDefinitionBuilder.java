@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.SpringGemFireConstants;
 import org.springframework.data.gemfire.function.annotation.OnServer;
 import org.springframework.data.gemfire.function.annotation.OnServers;
 import org.springframework.data.gemfire.function.execution.GemfireFunctionProxyFactoryBean;
@@ -52,7 +52,7 @@ abstract class ServerBasedFunctionExecutionBeanDefinitionBuilder
 		String resolvedCacheBeanName = Optional.ofNullable(this.configuration.getAttribute("cache"))
 			.map(String::valueOf)
 			.filter(StringUtils::hasText)
-			.orElse(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+			.orElse(SpringGemFireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		Optional<String> poolBeanName = Optional.ofNullable(this.configuration.getAttribute("pool"))
 			.map(String::valueOf)
