@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function;
 
 import static org.junit.Assert.assertEquals;
@@ -21,10 +20,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
@@ -37,10 +41,6 @@ import org.apache.geode.pdx.PdxSerializer;
 import org.apache.geode.pdx.PdxWriter;
 import org.apache.geode.pdx.internal.PdxInstanceEnum;
 import org.apache.geode.pdx.internal.PdxInstanceFactoryImpl;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -60,7 +60,7 @@ import org.springframework.util.ObjectUtils;
  * @see org.apache.geode.pdx.internal.PdxInstanceEnum
  * @since 1.5.2
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("rawtypes")
 public class PdxFunctionArgumentResolverTest {
 
 	private static Cache gemfireCache;
@@ -84,24 +84,26 @@ public class PdxFunctionArgumentResolverTest {
 		gemfireCache = null;
 	}
 
-	protected Method getMethod(final Class<?> type, final String methodName, final Class<?>... parameterTypes) {
+	protected Method getMethod(Class<?> type, String methodName, Class<?>... parameterTypes) {
+
 		try {
 			return type.getDeclaredMethod(methodName, parameterTypes);
 		}
-		catch (NoSuchMethodException e) {
-			throw new RuntimeException(String.format(
-				"Failed to get method (%1$s) with signature (%2$s) on Class type (%3$s)!", methodName,
-					getMethodSignature(methodName, parameterTypes), type.getClass().getName()));
+		catch (NoSuchMethodException cause) {
+			throw newRuntimeException("Failed to get method [%1$s] with signature [%2$s] on Class type [%3$s]!",
+				methodName, getMethodSignature(methodName, parameterTypes), type.getName());
 		}
 	}
 
 	protected Object getMethodSignature(final String methodName, final Class<?>... parameterTypes) {
+
 		StringBuilder methodSignature = new StringBuilder(methodName);
+
 		int count = 0;
 
 		methodSignature.append("(");
 
-		for (Class parameterType : parameterTypes) {
+		for (Class<?> parameterType : parameterTypes) {
 			methodSignature.append(count++ > 0 ? ", :" : ":").append(parameterType.getSimpleName());
 		}
 
@@ -111,6 +113,7 @@ public class PdxFunctionArgumentResolverTest {
 	}
 
 	protected void assertArguments(final Object[] expectedArguments, final Object[] actualArguments) {
+
 		assertNotNull(actualArguments);
 		assertNotSame(expectedArguments, actualArguments);
 		assertEquals(expectedArguments.length, actualArguments.length);
@@ -125,14 +128,18 @@ public class PdxFunctionArgumentResolverTest {
 	}
 
 	protected PdxInstance toPdxInstance(final Person person) {
+
 		PdxInstanceFactory pdxInstanceFactory = gemfireCache.createPdxInstanceFactory(person.getClass().getName());
+
 		pdxInstanceFactory.writeString("firstName", person.getFirstName());
 		pdxInstanceFactory.writeString("lastName", person.getLastName());
 		pdxInstanceFactory.writeObject("gender", person.getGender());
+
 		return pdxInstanceFactory.create();
 	}
 
 	protected PdxInstance toPdxInstance(final Map<String, Object> objectData) {
+
 		PdxInstanceFactory pdxInstanceFactory = gemfireCache.createPdxInstanceFactory(objectData.get("@type").toString());
 
 		for (Map.Entry<String, Object> entry : objectData.entrySet()) {
@@ -144,13 +151,15 @@ public class PdxFunctionArgumentResolverTest {
 		return pdxInstanceFactory.create();
 	}
 
-	protected PdxInstance toPdxInstance(final Enum enumeratedType) {
+	protected PdxInstance toPdxInstance(Enum<?> enumeratedType) {
+
 		return PdxInstanceFactoryImpl.createPdxEnum(enumeratedType.getClass().getName(), enumeratedType.name(),
 			enumeratedType.ordinal(), (GemFireCacheImpl) gemfireCache);
 	}
 
 	@Test
 	public void testResolveSimpleFunctionArguments() {
+
 		functionArgumentResolver = new PdxFunctionArgumentResolver() {
 			@Override public Method getFunctionAnnotatedMethod() {
 				return getMethod(FunctionExecutions.class, "simpleMethod", Boolean.class, Character.class,
@@ -243,7 +252,7 @@ public class PdxFunctionArgumentResolverTest {
 			}
 		};
 
-		Map<String, Object> addressData = new HashMap<String, Object>(5);
+		Map<String, Object> addressData = new HashMap<>(5);
 
 		addressData.put("@type", "org.example.Address");
 		addressData.put("street", "100 Main St.");
@@ -262,7 +271,8 @@ public class PdxFunctionArgumentResolverTest {
 		assertArguments(expectedArguments, actualArguments);
 	}
 
-	public static interface FunctionExecutions {
+	@SuppressWarnings("unused")
+	public interface FunctionExecutions {
 
 		void simpleMethod(Boolean value1, Character value2, Integer value3, Double value4, String value5);
 
@@ -273,9 +283,10 @@ public class PdxFunctionArgumentResolverTest {
 		void unnecessaryDeserializationMethod(Boolean value1, Object person, String value2, PdxInstanceEnum gender);
 
 		void unresolvableMethod(String value, Object pdxInstance);
+
 	}
 
-	public static enum Gender {
+	public enum Gender {
 		FEMALE,
 		MALE
 	}
@@ -309,7 +320,8 @@ public class PdxFunctionArgumentResolverTest {
 		}
 
 		@Override
-		public boolean equals(final Object obj) {
+		public boolean equals(Object obj) {
+
 			if (obj == this) {
 				return true;
 			}
@@ -344,6 +356,7 @@ public class PdxFunctionArgumentResolverTest {
 
 		@Override
 		public boolean toData(final Object obj, final PdxWriter out) {
+
 			if (obj instanceof Person) {
 				Person person = (Person) obj;
 				out.writeString("firstName", person.getFirstName());
@@ -357,6 +370,7 @@ public class PdxFunctionArgumentResolverTest {
 
 		@Override
 		public Object fromData(final Class<?> type, final PdxReader in) {
+
 			if (Person.class.isAssignableFrom(type)) {
 				return new Person(in.readString("firstName"), in.readString("lastName"),
 					(Gender) in.readObject("gender"));
@@ -365,5 +379,4 @@ public class PdxFunctionArgumentResolverTest {
 			return null;
 		}
 	}
-
 }

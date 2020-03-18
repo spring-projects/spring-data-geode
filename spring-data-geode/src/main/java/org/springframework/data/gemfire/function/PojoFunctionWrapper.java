@@ -25,12 +25,12 @@ import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.management.internal.security.ResourcePermissions;
 import org.apache.geode.security.ResourcePermission;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Invokes a given {@link Object POJO} {@link Method} as a (remote) GemFire/Geode {@link Function}.
@@ -49,7 +49,7 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.execute.Function
  * @since 1.2.0
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "rawtypes", "serial"})
 public class PojoFunctionWrapper implements Function {
 
 	private static transient Logger logger = LoggerFactory.getLogger(PojoFunctionWrapper.class);

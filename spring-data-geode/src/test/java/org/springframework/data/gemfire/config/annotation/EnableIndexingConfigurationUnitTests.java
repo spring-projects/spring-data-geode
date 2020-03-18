@@ -14,13 +14,12 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,10 +27,16 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.After;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.GemFireCache;
@@ -46,13 +51,8 @@ import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.IndexExistsException;
 import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.QueryService;
-import org.apache.geode.internal.concurrent.ConcurrentHashSet;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.junit.After;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -70,7 +70,7 @@ import org.springframework.data.gemfire.config.annotation.test.entities.NonEntit
 import org.springframework.data.gemfire.config.annotation.test.entities.ReplicateRegionEntity;
 
 /**
- * Unit tests for the {@link EnableIndexing} and {@link IndexConfiguration} class.
+ * Unit Tests for the {@link EnableIndexing} and {@link IndexConfiguration} class.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -90,10 +90,10 @@ import org.springframework.data.gemfire.config.annotation.test.entities.Replicat
  * @see org.springframework.data.gemfire.mapping.annotation.LuceneIndexed
  * @since 1.9.0
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "rawtypes", "unused" })
 public class EnableIndexingConfigurationUnitTests {
 
-	private static final Set<Index> indexes = new ConcurrentHashSet<>();
+	private static final Set<Index> indexes = Collections.synchronizedSet(new HashSet<>());
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -104,7 +104,7 @@ public class EnableIndexingConfigurationUnitTests {
 	}
 
 	private static String[] asArray(List<String> list) {
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	private static String[] toStringArray(Object[] array) {
@@ -236,7 +236,6 @@ public class EnableIndexingConfigurationUnitTests {
 	static class GemFireConfiguration {
 
 		@Bean
-		@SuppressWarnings("unchecked")
 		Cache gemfireCache() throws Exception {
 			return mockQueryService(mockRegionFactory(mock(Cache.class, "MockGemFireCache")));
 		}
@@ -271,7 +270,7 @@ public class EnableIndexingConfigurationUnitTests {
 			return mockCache;
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		Cache mockRegionFactory(Cache mockCache) {
 
 			RegionFactory mockRegionFactory = mock(RegionFactory.class);

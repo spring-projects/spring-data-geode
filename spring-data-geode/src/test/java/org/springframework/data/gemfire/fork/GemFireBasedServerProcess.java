@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.fork;
 
 import java.io.File;
 
 import org.apache.geode.distributed.ServerLauncher;
-import org.apache.geode.distributed.internal.DistributionConfig;
 
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.process.support.ProcessUtils;
 import org.springframework.data.gemfire.test.support.FileSystemUtils;
 
@@ -68,14 +67,12 @@ public class GemFireBasedServerProcess {
 			.setCommand(ServerLauncher.Command.START)
 			.setDisableDefaultServer(true)
 			.setRedirectOutput(false)
-			.set(DistributionConfig.HTTP_SERVICE_PORT_NAME,
+			.set(GemFireProperties.HTTP_SERVICE_PORT.getName(),
 				getProperty("spring.data.gemfire.http-service-port", GEMFIRE_HTTP_SERVICE_PORT))
-			.set(DistributionConfig.JMX_MANAGER_NAME, Boolean.TRUE.toString())
-			.set(DistributionConfig.JMX_MANAGER_START_NAME, Boolean.FALSE.toString())
-			.set(DistributionConfig.LOG_LEVEL_NAME,
-				getProperty("spring.data.gemfire.log-level", GEMFIRE_LOG_LEVEL))
-			.set(DistributionConfig.USE_CLUSTER_CONFIGURATION_NAME,
-				getProperty("spring.data.gemfire.use-cluster-configuration", GEMFIRE_USE_CLUSTER_CONFIGURATION))
+			.set(GemFireProperties.JMX_MANAGER.getName(), Boolean.TRUE.toString())
+			.set(GemFireProperties.JMX_MANAGER_START.getName(), Boolean.FALSE.toString())
+			.set(GemFireProperties.LOG_LEVEL.getName(), getProperty("spring.data.gemfire.log-level", GEMFIRE_LOG_LEVEL))
+			.set(GemFireProperties.USE_CLUSTER_CONFIGURATION.getName(), getProperty("spring.data.gemfire.use-cluster-configuration", GEMFIRE_USE_CLUSTER_CONFIGURATION))
 			.build();
 	}
 

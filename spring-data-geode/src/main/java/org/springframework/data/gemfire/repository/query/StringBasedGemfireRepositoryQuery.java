@@ -226,7 +226,7 @@ public class StringBasedGemfireRepositoryQuery extends GemfireRepositoryQuery {
 	Collection<?> toCollection(Object source) {
 
 		if (source instanceof SelectResults) {
-			return ((SelectResults) source).asList();
+			return ((SelectResults<?>) source).asList();
 		}
 
 		if (source instanceof Collection) {
@@ -240,6 +240,7 @@ public class StringBasedGemfireRepositoryQuery extends GemfireRepositoryQuery {
 		return source.getClass().isArray() ? CollectionUtils.arrayToList(source) : Collections.singletonList(source);
 	}
 
+	@SuppressWarnings("rawtypes")
 	enum ProvidedQueryPostProcessors implements QueryPostProcessor<Repository, String> {
 
 		HINT {
@@ -283,7 +284,7 @@ public class StringBasedGemfireRepositoryQuery extends GemfireRepositoryQuery {
 			@Override
 			public String postProcess(QueryMethod queryMethod, String query, Object... arguments) {
 
-				if (queryMethod instanceof  GemfireQueryMethod) {
+				if (queryMethod instanceof GemfireQueryMethod) {
 
 					GemfireQueryMethod gemfireQueryMethod = (GemfireQueryMethod) queryMethod;
 

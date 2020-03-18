@@ -19,18 +19,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.server.CacheServer;
-import org.apache.geode.distributed.internal.DistributionConfig;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.server.CacheServer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,7 +44,6 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.server.CacheServer
- * @see org.apache.geode.distributed.internal.DistributionConfig
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.2.0
  */
@@ -68,7 +67,8 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 
 		gemfireLocator = run(TestLocatorConfiguration.class,
 			"-Dspring.data.gemfire.locator.port=" + locatorPort,
-						String.format("-Dgemfire.%s=%s", DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME, false));
+						String.format("-D%1$s%2$s=%3$s", GemFireProperties.PROPERTY_NAME_PREFIX,
+							GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(), false));
 
 		waitForServerToStart("localhost", locatorPort);
 
@@ -98,9 +98,9 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 		assertThat(this.cache.getName()).isEqualTo("PeerCacheApplicationWithAddedCacheServerIntegrationTests");
 		assertThat(this.cache.getDistributedSystem()).isNotNull();
 		assertThat(this.cache.getDistributedSystem().getProperties()).isNotNull();
-		assertThat(this.cache.getDistributedSystem().getProperties().getProperty(DistributionConfig.LOCATORS_NAME))
+		assertThat(this.cache.getDistributedSystem().getProperties().getProperty(GemFireProperties.LOCATORS.getName()))
 			.isEqualTo(String.format("localhost[%d]", locatorPort));
-		assertThat(this.cache.getDistributedSystem().getProperties().getProperty(DistributionConfig.NAME_NAME))
+		assertThat(this.cache.getDistributedSystem().getProperties().getProperty(GemFireProperties.NAME.getName()))
 			.isEqualTo("PeerCacheApplicationWithAddedCacheServerIntegrationTests");
 	}
 

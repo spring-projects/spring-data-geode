@@ -113,7 +113,7 @@ public abstract class RegionUtils extends CacheUtils {
 	 * @return a boolean indicating whether the target {@link Region} is a {@literal client} {@link Region}.
 	 * @see org.apache.geode.cache.Region
 	 */
-	public static boolean isClient(Region region) {
+	public static boolean isClient(Region<?, ?> region) {
 
 		return Optional.ofNullable(region)
 			.map(Region::getAttributes)

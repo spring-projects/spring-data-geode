@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.fork;
 
 import java.io.File;
@@ -23,9 +22,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.distributed.Locator;
 import org.apache.geode.distributed.LocatorLauncher;
-import org.apache.geode.distributed.internal.DistributionConfig;
 import org.apache.geode.distributed.internal.InternalLocator;
 
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.process.support.ProcessUtils;
 import org.springframework.data.gemfire.test.support.FileSystemUtils;
@@ -81,17 +80,17 @@ public class LocatorProcess {
 
 		Properties distributedSystemProperties = new Properties();
 
-		distributedSystemProperties.setProperty(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME,
+		distributedSystemProperties.setProperty(GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(),
 			String.valueOf(Boolean.getBoolean("spring.data.gemfire.enable-cluster-configuration")));
-		distributedSystemProperties.setProperty(DistributionConfig.HTTP_SERVICE_PORT_NAME,
+		distributedSystemProperties.setProperty(GemFireProperties.HTTP_SERVICE_PORT.getName(),
 			System.getProperty("spring.data.gemfire.http-service-port", HTTP_SERVICE_PORT));
-		distributedSystemProperties.setProperty(DistributionConfig.JMX_MANAGER_NAME,
+		distributedSystemProperties.setProperty(GemFireProperties.JMX_MANAGER.getName(),
 			System.getProperty("spring.data.gemfire.jmx-manager", Boolean.TRUE.toString()));
-		distributedSystemProperties.setProperty(DistributionConfig.JMX_MANAGER_START_NAME,
+		distributedSystemProperties.setProperty(GemFireProperties.JMX_MANAGER_START.getName(),
 			System.getProperty("spring.data.gemfire.jmx-manager-start", Boolean.FALSE.toString()));
-		distributedSystemProperties.setProperty(DistributionConfig.LOAD_CLUSTER_CONFIG_FROM_DIR_NAME,
+		distributedSystemProperties.setProperty(GemFireProperties.LOAD_CLUSTER_CONFIGURATION_FROM_DIR.getName(),
 			String.valueOf(loadClusterConfigurationFromDirectory));
-		distributedSystemProperties.setProperty(DistributionConfig.LOG_LEVEL_NAME,
+		distributedSystemProperties.setProperty(GemFireProperties.LOG_LEVEL.getName(),
 			System.getProperty("spring.data.gemfire.log-level", GEMFIRE_LOG_LEVEL));
 
 		return InternalLocator.startLocator(locatorPort, null, null, null,
@@ -116,15 +115,15 @@ public class LocatorProcess {
 			.setHostnameForClients(getProperty("spring.data.gemfire.hostname-for-clients", HOSTNAME_FOR_CLIENTS))
 			.setPort(getInteger("spring.data.gemfire.locator.port", DEFAULT_LOCATOR_PORT))
 			.setRedirectOutput(false)
-			.set(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME,
+			.set(GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(),
 				String.valueOf(getBoolean("spring.data.gemfire.enable-cluster-configuration")))
-			.set(DistributionConfig.HTTP_SERVICE_PORT_NAME,
+			.set(GemFireProperties.HTTP_SERVICE_PORT.getName(),
 				getProperty("spring.data.gemfire.http-service-port", HTTP_SERVICE_PORT))
-			.set(DistributionConfig.JMX_MANAGER_NAME, Boolean.TRUE.toString())
-			.set(DistributionConfig.JMX_MANAGER_START_NAME, Boolean.FALSE.toString())
-			.set(DistributionConfig.LOAD_CLUSTER_CONFIG_FROM_DIR_NAME,
+			.set(GemFireProperties.JMX_MANAGER.getName(), Boolean.TRUE.toString())
+			.set(GemFireProperties.JMX_MANAGER_START.getName(), Boolean.FALSE.toString())
+			.set(GemFireProperties.LOAD_CLUSTER_CONFIGURATION_FROM_DIR.getName(),
 				String.valueOf(getBoolean("spring.data.gemfire.load-cluster-configuration")))
-			.set(DistributionConfig.LOG_LEVEL_NAME,
+			.set(GemFireProperties.LOG_LEVEL.getName(),
 				getProperty("spring.data.gemfire.log-level", GEMFIRE_LOG_LEVEL))
 			.build();
 	}
@@ -153,7 +152,7 @@ public class LocatorProcess {
 		}));
 	}
 
-	private static void waitForLocatorStart(final long milliseconds) {
+	private static void waitForLocatorStart(long milliseconds) {
 
 		InternalLocator locator = InternalLocator.getLocator();
 
@@ -166,9 +165,9 @@ public class LocatorProcess {
 		}
 	}
 
-	private static boolean isClusterConfigurationEnabled(final InternalLocator locator) {
+	private static boolean isClusterConfigurationEnabled(Locator locator) {
 
-		return locator != null && Boolean.valueOf(locator.getDistributedSystem().getProperties()
-			.getProperty(DistributionConfig.ENABLE_CLUSTER_CONFIGURATION_NAME));
+		return locator != null && Boolean.parseBoolean(locator.getDistributedSystem().getProperties()
+			.getProperty("enable-cluster-configuration"));
 	}
 }

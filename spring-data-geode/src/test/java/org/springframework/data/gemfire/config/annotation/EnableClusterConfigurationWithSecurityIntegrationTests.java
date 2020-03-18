@@ -37,8 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.management.internal.security.ResourceConstants;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -88,6 +86,9 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = EnableClusterConfigurationWithSecurityIntegrationTests.SecurityConfigurationApplicationContextInitializer.class)
 public class EnableClusterConfigurationWithSecurityIntegrationTests {
+
+	private static final String SECURITY_USERNAME = "security-username";
+	private static final String SECURITY_PASSWORD = "security-password";
 
 	@Autowired
 	@Qualifier("GemFireSecurityAuthenticator")
@@ -171,9 +172,9 @@ public class EnableClusterConfigurationWithSecurityIntegrationTests {
 
 		this.configuration.securityAwareClientHttpRequestInterceptor().intercept(mockHttpRequest, body, mockClientHttpRequestExecution);
 
-		assertThat(httpHeaders).containsKeys(ResourceConstants.USER_NAME, ResourceConstants.PASSWORD);
-		assertThat(httpHeaders.getFirst(ResourceConstants.USER_NAME)).isEqualTo("skeletor");
-		assertThat(httpHeaders.getFirst(ResourceConstants.PASSWORD)).isEqualTo("s3cr3t");
+		assertThat(httpHeaders).containsKeys(SECURITY_USERNAME, SECURITY_PASSWORD);
+		assertThat(httpHeaders.getFirst(SECURITY_USERNAME)).isEqualTo("skeletor");
+		assertThat(httpHeaders.getFirst(SECURITY_PASSWORD)).isEqualTo("s3cr3t");
 
 		verify(mockClientHttpRequestExecution, times(1)).execute(eq(mockHttpRequest), eq(body));
 		verify(mockHttpRequest, times(1)).getHeaders();

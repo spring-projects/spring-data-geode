@@ -25,6 +25,9 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.GemFireCache;
@@ -34,17 +37,10 @@ import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-import org.apache.geode.distributed.internal.DistributionAdvisor;
-import org.apache.geode.internal.cache.EntryEventImpl;
-import org.apache.geode.internal.cache.wan.AbstractGatewaySender;
-
-import org.junit.After;
-import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
@@ -57,15 +53,16 @@ import org.springframework.mock.env.MockPropertySource;
  * Tests for {@link EnableGatewaySenders} and {@link EnableGatewaySender} to test the configuration of {@link GatewaySender} using properties.
  *
  * @author Udo Kohlmeyer
- * @see Test
- * @see Configuration
+ * @author John Blum
+ * @see org.junit.Test
  * @see org.mockito.Mockito
- * @see GatewaySenderConfigurer
- * @see GatewaySenderConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfigurer
  * @see org.apache.geode.cache.server.CacheServer
+ * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
- * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
  * @since 2.2.0
  */
 public class GatewaySenderPropertiesTests {
@@ -528,6 +525,7 @@ public class GatewaySenderPropertiesTests {
 	})
 	static class TestConfigurationWithMultipleGatewaySenderAnnotations { }
 
+	@SuppressWarnings("unused")
 	@EnableGatewaySender(name = "TestGatewaySender")
 	static class TestConfigurationWithProperties {
 
@@ -545,16 +543,18 @@ public class GatewaySenderPropertiesTests {
 
 	private static class TestGatewaySenderConfigurer implements GatewaySenderConfigurer {
 
-		private final Map<String, List> beanNames = new TreeMap<>();
+		private final Map<String, List<?>> beanNames = new TreeMap<>();
 
 		@Override
 		public void configure(String beanName, GatewaySenderFactoryBean bean) {
-			beanNames.put(beanName, bean.getTransportFilters().stream()
+
+			this.beanNames.put(beanName, bean.getTransportFilters().stream()
 				.map(transportFilter -> ((TestGatewayTransportFilter) transportFilter).name)
 				.collect(Collectors.toList()));
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static class TestGatewayEventSubstitutionFilter implements GatewayEventSubstitutionFilter {
 
 		private String name;
@@ -594,6 +594,10 @@ public class GatewaySenderPropertiesTests {
 		@Override
 		public void afterAcknowledgement(GatewayQueueEvent gatewayQueueEvent) { }
 
+		@Override
+		public String toString() {
+			return this.name;
+		}
 	}
 
 	private static class TestGatewayTransportFilter implements GatewayTransportFilter {
@@ -620,29 +624,15 @@ public class GatewaySenderPropertiesTests {
 		}
 
 		@Override
+		@SuppressWarnings("all")
 		public boolean equals(Object obj) {
 			return this.name.equals(((TestGatewayTransportFilter) obj).name);
 		}
 	}
 
-	private static class TestGatewaySender extends AbstractGatewaySender implements GatewaySender {
-
-		@Override
-		public void start() { }
-
-		@Override
-		public void stop() { }
-
-		@Override
-		public void setModifiedEventId(EntryEventImpl entryEvent) { }
-
-		@Override
-		public void fillInProfile(DistributionAdvisor.Profile profile) { }
-
-	}
-
 	@PeerCacheApplication
 	@EnableGemFireMockObjects
+	@SuppressWarnings({ "rawtypes", "unused" })
 	static class BaseGatewaySenderTestConfiguration {
 
 		@Bean("Region1")
@@ -681,10 +671,12 @@ public class GatewaySenderPropertiesTests {
 		}
 
 		public PartitionedRegionFactoryBean createRegion(String name, GemFireCache gemFireCache) {
-			final PartitionedRegionFactoryBean regionFactoryBean = new PartitionedRegionFactoryBean();
+
+			PartitionedRegionFactoryBean regionFactoryBean = new PartitionedRegionFactoryBean();
 			regionFactoryBean.setCache(gemFireCache);
 			regionFactoryBean.setDataPolicy(DataPolicy.PARTITION);
 			regionFactoryBean.setName(name);
+
 			return regionFactoryBean;
 		}
 	}

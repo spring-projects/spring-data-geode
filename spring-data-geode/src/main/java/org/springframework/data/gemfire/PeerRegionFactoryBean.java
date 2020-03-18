@@ -48,7 +48,6 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.compression.Compressor;
-import org.apache.geode.internal.cache.UserSpecifiedRegionAttributes;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -59,6 +58,7 @@ import org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.RegionUtils;
+import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
@@ -365,7 +365,7 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	 * @see org.apache.geode.cache.RegionAttributes#getDataPolicy
 	 * @see org.apache.geode.cache.DataPolicy
 	 */
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
 	DataPolicy getDataPolicy(RegionFactory regionFactory, RegionShortcut regionShortcut) {
 
 		return getFieldValue(regionFactory, "attrsFactory", AttributesFactory.class)
@@ -471,6 +471,7 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	 * @see org.apache.geode.cache.RegionAttributes
 	 * @see org.apache.geode.cache.RegionFactory
 	 */
+	@SuppressWarnings("rawtypes")
 	protected <K, V> void mergePartitionAttributes(RegionFactory<K, V> regionFactory,
 			RegionAttributes<K, V> regionAttributes) {
 
@@ -520,15 +521,19 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	 *
 	 * This method is not part of the PeerRegionFactoryBean API and is strictly used for testing purposes!
 	 *
-	 * NOTE unfortunately, must resort to using a GemFire internal class, ugh!
-	 *
 	 * @see org.apache.geode.internal.cache.UserSpecifiedRegionAttributes#hasEvictionAttributes
 	 */
+	boolean isUserSpecifiedEvictionAttributes(RegionAttributes<?, ?> regionAttributes) {
 
-	boolean isUserSpecifiedEvictionAttributes(final RegionAttributes regionAttributes) {
+		SpringUtils.ValueReturningThrowableOperation<Boolean> hasEvictionAttributes = () ->
+			Optional.ofNullable(regionAttributes)
+				.map(Object::getClass)
+				.map(type -> ReflectionUtils.findMethod(type, "hasEvictionAttributes"))
+				.map(method -> ReflectionUtils.invokeMethod(method, regionAttributes))
+				.map(Boolean.TRUE::equals)
+				.orElse(false);
 
-		return regionAttributes instanceof UserSpecifiedRegionAttributes
-			&& ((UserSpecifiedRegionAttributes) regionAttributes).hasEvictionAttributes();
+		return SpringUtils.safeGetValue(hasEvictionAttributes, false);
 	}
 
 	/*
@@ -538,7 +543,7 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	 *
 	 * @see org.apache.geode.cache.AttributesFactory#validateAttributes(:RegionAttributes)
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "rawtypes" })
 	void validateRegionAttributes(RegionAttributes regionAttributes) {
 		org.apache.geode.cache.AttributesFactory.validateAttributes(regionAttributes);
 	}
@@ -631,6 +636,7 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private DataPolicy getDataPolicy(RegionAttributes regionAttributes, DataPolicy defaultDataPolicy) {
 
 		return Optional.ofNullable(regionAttributes)

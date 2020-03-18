@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.junit.Assert.assertEquals;
@@ -23,12 +22,12 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyFloat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -36,6 +35,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.junit.After;
+import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CustomExpiry;
@@ -50,16 +52,12 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.SubscriptionAttributes;
-import org.apache.geode.internal.cache.GemFireCacheImpl;
-
-import org.junit.After;
-import org.junit.Test;
 
 import org.springframework.data.gemfire.test.support.AbstractRegionFactoryBeanTests;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
 /**
- * Unit tests for {@link PeerRegionFactoryBean}.
+ * Unit Tests for {@link PeerRegionFactoryBean}.
  *
  * @author David Turanski
  * @author John Blum
@@ -73,23 +71,24 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  * @see PeerRegionFactoryBean
  * @see org.springframework.data.gemfire.test.support.AbstractRegionFactoryBeanTests
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 	private final PeerRegionFactoryBean factoryBean = new TestRegionFactoryBean();
 
 	@After
 	public void tearDown() {
-		factoryBean.setDataPolicy((DataPolicy) null);
+
+		factoryBean.setDataPolicy(null);
 		factoryBean.setShortcut(null);
 	}
 
-	@SuppressWarnings("rawtypes")
 	private RegionFactoryBeanConfig defaultConfig() {
+
 		return new RegionFactoryBeanConfig(new TestRegionFactoryBean(), "default") {
+
 			@Override
-			public void configureRegionFactoryBean() {
-			}
+			public void configureRegionFactoryBean() { }
 
 			@Override
 			public void verify() {
@@ -99,9 +98,10 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		};
 	}
 
-	@SuppressWarnings("rawtypes")
 	private RegionFactoryBeanConfig persistentConfig() {
+
 		return new RegionFactoryBeanConfig(new TestRegionFactoryBean(), "persistent") {
+
 			@Override
 			public void configureRegionFactoryBean() {
 				regionFactoryBean.setPersistent(true);
@@ -115,7 +115,6 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		};
 	}
 
-	@SuppressWarnings({ "deprecation", "rawtypes" })
 	private RegionFactoryBeanConfig invalidPersistentConfig() {
 
 		return new RegionFactoryBeanConfig(new TestRegionFactoryBean(), "invalid-persistence") {
@@ -883,7 +882,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		RegionFactory mockRegionFactory = createMockRegionFactory();
 
 		factoryBean.setAttributes(createMockRegionAttributes(DataPolicy.PRELOADED));
-		factoryBean.setDataPolicy((DataPolicy) null);
+		factoryBean.setDataPolicy(null);
 		factoryBean.resolveDataPolicy(mockRegionFactory, null, (String) null);
 
 		verify(mockRegionFactory, times(1)).setDataPolicy(eq(DataPolicy.PRELOADED));
@@ -896,7 +895,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		RegionFactory mockRegionFactory = createMockRegionFactory();
 
 		factoryBean.setAttributes(createMockRegionAttributes(DataPolicy.PARTITION));
-		factoryBean.setDataPolicy((DataPolicy) null);
+		factoryBean.setDataPolicy(null);
 		factoryBean.setPersistent(false);
 		factoryBean.resolveDataPolicy(mockRegionFactory, false, (String) null);
 
@@ -910,7 +909,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		RegionFactory mockRegionFactory = createMockRegionFactory();
 
 		factoryBean.setAttributes(createMockRegionAttributes(DataPolicy.PERSISTENT_PARTITION));
-		factoryBean.setDataPolicy((DataPolicy) null);
+		factoryBean.setDataPolicy(null);
 		factoryBean.setPersistent(true);
 		factoryBean.resolveDataPolicy(mockRegionFactory, true, (String) null);
 
@@ -1084,12 +1083,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		verify(mockRegionFactory).setDataPolicy(eq(DataPolicy.PERSISTENT_REPLICATE));
 	}
 
-	protected static class TestRegionFactory extends RegionFactory {
-
-		protected TestRegionFactory() {
-			super((GemFireCacheImpl) null);
-		}
-	}
+	protected static class TestRegionFactory extends RegionFactory { }
 
 	protected static class TestRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> { }
 

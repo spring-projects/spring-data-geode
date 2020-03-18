@@ -24,16 +24,16 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.distributed.internal.DistributionConfig;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.geode.cache.GemFireCache;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.util.StringUtils;
@@ -45,14 +45,13 @@ import org.springframework.util.StringUtils;
  * @see java.util.Properties
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
- * @see org.apache.geode.distributed.internal.DistributionConfig
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.core.env.PropertiesPropertySource
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableLogging
  * @see org.springframework.data.gemfire.util.PropertiesBuilder
- * @since 1.0.0
+ * @since 1.9.0
  */
 public class LoggingConfigurationIntegrationTests {
 
@@ -89,8 +88,8 @@ public class LoggingConfigurationIntegrationTests {
 		Properties distributedSystemProperties = gemfireCache.getDistributedSystem().getProperties();
 
 		assertThat(distributedSystemProperties).isNotNull();
-		assertThat(distributedSystemProperties.getProperty(DistributionConfig.LOG_LEVEL_NAME)).isEqualTo(logLevel);
-		assertThat(distributedSystemProperties.getProperty(DistributionConfig.LOG_FILE_NAME)).isEqualTo(logFile);
+		assertThat(distributedSystemProperties.getProperty(GemFireProperties.LOG_LEVEL.getName())).isEqualTo(logLevel);
+		assertThat(distributedSystemProperties.getProperty(GemFireProperties.LOG_FILE.getName())).isEqualTo(logFile);
 	}
 
 	private void deleteLogFiles() {
@@ -111,10 +110,9 @@ public class LoggingConfigurationIntegrationTests {
 		applicationContext.registerShutdownHook();
 
 		Optional.ofNullable(this.propertiesReference.get())
-			.ifPresent(properties -> {
-				applicationContext.getEnvironment().getPropertySources()
-					.addFirst(new PropertiesPropertySource("Test Properties", properties));
-			});
+			.ifPresent(properties -> applicationContext.getEnvironment()
+				.getPropertySources()
+				.addFirst(new PropertiesPropertySource("Test Properties", properties)));
 
 		applicationContext.refresh();
 

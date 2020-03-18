@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -37,14 +36,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.geode.cache.query.SelectResults;
-import org.apache.geode.cache.query.internal.ResultsBag;
-
 import org.junit.Test;
 
+import org.apache.geode.cache.query.SelectResults;
+
 /**
- * The SpringBasedGemfireRepositoryQueryTest class is a test suite of test cases testing the contract and functionality
- * of the StringBasedGemfireRepositoryQuery class.
+ * Unit Tests for {@link StringBasedGemfireRepositoryQuery}
  *
  * @author John Blum
  * @see org.mockito.Mockito
@@ -57,29 +54,16 @@ public class StringBasedGemfireRepositoryQueryTest {
 	private final StringBasedGemfireRepositoryQuery repositoryQuery = new StringBasedGemfireRepositoryQuery();
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testToCollectionWithSelectResults() {
 
-		SelectResults mockSelectResults = mock(SelectResults.class, "testToCollectionWithSelectResults.SelectResults");
+		SelectResults<String> mockSelectResults = mock(SelectResults.class);
 
 		List<String> expectedList = Arrays.asList("one", "two", "three");
 
 		when(mockSelectResults.asList()).thenReturn(expectedList);
 
-		Collection<?> actualList = repositoryQuery.toCollection(mockSelectResults);
-
-		assertSame(expectedList, actualList);
-	}
-
-	@Test
-	public void testToCollectionWithResultsBag() {
-
-		ResultsBag mockResultsBag = mock(ResultsBag.class, "testToCollectionWithResultsBag.ResultsBag");
-
-		List<String> expectedList = Arrays.asList("a", "b", "c");
-
-		when(mockResultsBag.asList()).thenReturn(expectedList);
-
-		Collection<?> actualList = repositoryQuery.toCollection(mockResultsBag);
+		Collection<?> actualList = this.repositoryQuery.toCollection(mockSelectResults);
 
 		assertSame(expectedList, actualList);
 	}
@@ -89,7 +73,7 @@ public class StringBasedGemfireRepositoryQueryTest {
 
 		List<String> expectedList = Arrays.asList("x", "y", "z");
 
-		Collection<?> actualList = repositoryQuery.toCollection(expectedList);
+		Collection<?> actualList = this.repositoryQuery.toCollection(expectedList);
 
 		assertSame(expectedList, actualList);
 	}
@@ -116,7 +100,7 @@ public class StringBasedGemfireRepositoryQueryTest {
 		assertTrue(list instanceof List);
 		assertFalse(list.isEmpty());
 		assertEquals(1, list.size());
-		assertEquals("test", ((List) list).get(0));
+		assertEquals("test", ((List<?>) list).get(0));
 	}
 
 	@Test

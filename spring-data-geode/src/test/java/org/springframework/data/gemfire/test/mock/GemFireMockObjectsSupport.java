@@ -127,7 +127,6 @@ import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.distributed.DistributedMember;
 import org.apache.geode.distributed.DistributedSystem;
-import org.apache.geode.internal.concurrent.ConcurrentHashSet;
 import org.apache.geode.pdx.PdxSerializer;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -1587,8 +1586,8 @@ public abstract class GemFireMockObjectsSupport extends MockObjectsSupport {
 
 		QueryService mockQueryService = mock(QueryService.class);
 
-		Set<CqQuery> cqQueries = new ConcurrentHashSet<>();
-		Set<Index> indexes = new ConcurrentHashSet<>();
+		Set<CqQuery> cqQueries = Collections.synchronizedSet(new HashSet<>());
+		Set<Index> indexes = Collections.synchronizedSet(new HashSet<>());
 
 		try {
 			when(mockQueryService.getCqs()).thenAnswer(invocation -> cqQueries.toArray(new CqQuery[cqQueries.size()]));
