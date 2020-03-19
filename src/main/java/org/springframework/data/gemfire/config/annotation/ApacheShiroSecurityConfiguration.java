@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package org.springframework.data.gemfire.config.annotation;
 
@@ -42,6 +43,7 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.OrderComparator;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
@@ -102,9 +104,8 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 
 		super.setBeanFactory(Optional.ofNullable(beanFactory)
 			.filter(ListableBeanFactory.class::isInstance)
-			.orElseThrow(() -> newIllegalArgumentException(
-				"BeanFactory [%s] must be an instance of ListableBeanFactory",
-					ObjectUtils.nullSafeClassName(beanFactory))));
+			.orElseThrow(() -> newIllegalArgumentException("BeanFactory [%1$s] must be an instance of [%2$s]",
+				ObjectUtils.nullSafeClassName(beanFactory), ListableBeanFactory.class.getName())));
 	}
 
 	/**
@@ -238,14 +239,24 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 		protected static final String APACHE_SHIRO_LIFECYCLE_BEAN_POST_PROCESSOR_CLASS_NAME =
 			"org.apache.shiro.spring.LifecycleBeanPostProcessor";
 
+		public static final String SPRING_DATA_GEMFIRE_SECURITY_SHIRO_ENABLED =
+			"spring.data.gemfire.security.shiro.enabled";
+
+		private boolean isApacheShiroPresent(ConditionContext context) {
+			return ClassUtils.isPresent(APACHE_SHIRO_LIFECYCLE_BEAN_POST_PROCESSOR_CLASS_NAME,
+				context.getClassLoader());
+		}
+
+		private boolean isEnabled(Environment environment) {
+			return environment.getProperty(SPRING_DATA_GEMFIRE_SECURITY_SHIRO_ENABLED, Boolean.class, true);
+		}
+
 		/**
 		 * @inheritDoc
 		 */
 		@Override
-		@SuppressWarnings("all")
 		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			return ClassUtils.isPresent(APACHE_SHIRO_LIFECYCLE_BEAN_POST_PROCESSOR_CLASS_NAME,
-				context.getClassLoader());
+			return isEnabled(context.getEnvironment()) && isApacheShiroPresent(context);
 		}
 	}
 }
