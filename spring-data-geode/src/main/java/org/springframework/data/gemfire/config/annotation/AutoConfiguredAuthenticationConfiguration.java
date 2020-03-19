@@ -206,9 +206,19 @@ public class AutoConfiguredAuthenticationConfiguration {
 
 	public static class AutoConfiguredAuthenticationCondition implements Condition {
 
+		public static final String SPRING_DATA_GEMFIRE_SECURITY_AUTH_ENABLED =
+			"spring.data.gemfire.security.auth.auto-configure.enabled";
+
+		private static boolean isEnabled(Environment environment) {
+			return environment.getProperty(SPRING_DATA_GEMFIRE_SECURITY_AUTH_ENABLED, Boolean.class, true);
+		}
+
 		@Override
 		public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-			return isMatch(conditionContext.getEnvironment());
+
+			Environment environment = conditionContext.getEnvironment();
+
+			return isEnabled(environment) && isMatch(environment);
 		}
 	}
 }
