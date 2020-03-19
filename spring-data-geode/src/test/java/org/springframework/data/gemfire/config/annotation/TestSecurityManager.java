@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.springframework.data.gemfire.config.annotation.TestSecurityManager.TestPrincipal.newPrincipal;
@@ -32,8 +31,8 @@ import org.apache.geode.security.AuthenticationFailedException;
 import org.springframework.util.StringUtils;
 
 /**
- * The {@link TestSecurityManager} class is an Apache Geode / Pivotal GemFire
- * {@link org.apache.geode.security.SecurityManager} implementation used for testing purposes.
+ * The {@link TestSecurityManager} class is an Apache Geode {@link org.apache.geode.security.SecurityManager}
+ * implementation used for testing purposes.
  *
  * @author John Blum
  * @see java.security.Principal
@@ -72,7 +71,7 @@ public final class TestSecurityManager implements org.apache.geode.security.Secu
 	}
 
 	private Principal identify(String username, String password) {
-		return (isIdentified(username, password) ? newPrincipal(username) : null);
+		return isIdentified(username, password) ? newPrincipal(username) : null;
 	}
 
 	private boolean isIdentified(String username, String password) {
@@ -84,6 +83,7 @@ public final class TestSecurityManager implements org.apache.geode.security.Secu
 			.orElse(false);
 	}
 
+	@SuppressWarnings("unused")
 	public static final class TestPrincipal implements java.security.Principal, java.io.Serializable {
 
 		private final String name;
