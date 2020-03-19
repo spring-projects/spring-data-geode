@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package org.springframework.data.gemfire.config.annotation.support;
 
@@ -35,9 +36,11 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.CacheFactoryBean;
+import org.springframework.data.gemfire.LocatorFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.config.annotation.AbstractCacheConfiguration;
 import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
+import org.springframework.data.gemfire.config.annotation.LocatorConfigurer;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.util.Assert;
@@ -104,7 +107,7 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 	}
 
 	@SuppressWarnings("unused")
-	protected void registerBeanDefinitions(AnnotationMetadata importingClassMetaData,
+	protected void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
 			Map<String, Object> annotationAttributes, BeanDefinitionRegistry registry) {
 
 	}
@@ -133,42 +136,45 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 	}
 
 	protected void registerGemFirePropertiesBeanPostProcessor(BeanDefinitionRegistry registry,
-			Properties customGemFireProperties) {
+			Properties gemFireProperties) {
 
-		BeanDefinitionBuilder builder =
-			BeanDefinitionBuilder.genericBeanDefinition(GemFirePropertiesBeanPostProcessor.class);
-
-		builder.addConstructorArgValue(customGemFireProperties);
-
-		BeanDefinitionReaderUtils.registerBeanDefinition(newBeanDefinitionHolder(builder), registry);
+		registerBeanDefinition(registry, GemFirePropertiesBeanPostProcessor.class, gemFireProperties);
 	}
 
 	protected void registerGemFirePropertiesConfigurer(BeanDefinitionRegistry registry, Properties gemfireProperties) {
 
 		registerClientGemFirePropertiesConfigurer(registry, gemfireProperties);
+		registerLocatorGemFirePropertiesConfigurer(registry, gemfireProperties);
 		registerPeerGemFirePropertiesConfigurer(registry, gemfireProperties);
+	}
+
+	private void registerBeanDefinition(BeanDefinitionRegistry registry, Class<?> beanType,
+		Properties gemfireProperties) {
+
+		BeanDefinitionBuilder builder =
+			BeanDefinitionBuilder.genericBeanDefinition(beanType);
+
+		builder.addConstructorArgValue(gemfireProperties);
+
+		BeanDefinitionReaderUtils.registerBeanDefinition(newBeanDefinitionHolder(builder), registry);
 	}
 
 	protected void registerClientGemFirePropertiesConfigurer(BeanDefinitionRegistry registry,
 			Properties gemfireProperties) {
 
-		BeanDefinitionBuilder builder =
-			BeanDefinitionBuilder.genericBeanDefinition(ClientGemFirePropertiesConfigurer.class);
+		registerBeanDefinition(registry, ClientGemFirePropertiesConfigurer.class, gemfireProperties);
+	}
 
-		builder.addConstructorArgValue(gemfireProperties);
+	protected void registerLocatorGemFirePropertiesConfigurer(BeanDefinitionRegistry registry,
+		Properties gemfireProperties) {
 
-		BeanDefinitionReaderUtils.registerBeanDefinition(newBeanDefinitionHolder(builder), registry);
+		registerBeanDefinition(registry, LocatorGemFirePropertiesConfigurer.class, gemfireProperties);
 	}
 
 	protected void registerPeerGemFirePropertiesConfigurer(BeanDefinitionRegistry registry,
 			Properties gemfireProperties) {
 
-		BeanDefinitionBuilder builder =
-			BeanDefinitionBuilder.genericBeanDefinition(PeerGemFirePropertiesConfigurer.class);
-
-		builder.addConstructorArgValue(gemfireProperties);
-
-		BeanDefinitionReaderUtils.registerBeanDefinition(newBeanDefinitionHolder(builder), registry);
+		registerBeanDefinition(registry, PeerGemFirePropertiesConfigurer.class, gemfireProperties);
 	}
 
 	protected BeanDefinitionHolder newBeanDefinitionHolder(BeanDefinitionBuilder builder) {
@@ -272,6 +278,28 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		@Override
 		public void configure(String beanName, ClientCacheFactoryBean bean) {
 			configureGemFireProperties(bean);
+		}
+	}
+
+	protected static class LocatorGemFirePropertiesConfigurer implements LocatorConfigurer {
+
+		private final Properties gemfireProperties;
+
+		public LocatorGemFirePropertiesConfigurer(Properties gemfireProperties) {
+
+			Assert.notEmpty(gemfireProperties, "GemFire Properties are required");
+
+			this.gemfireProperties = gemfireProperties;
+		}
+
+		@Override
+		public void configure(String beanName, LocatorFactoryBean bean) {
+
+			Properties gemfireProperties = bean.getGemFireProperties();
+
+			gemfireProperties.putAll(this.gemfireProperties);
+
+			bean.setGemFireProperties(gemfireProperties);
 		}
 	}
 
