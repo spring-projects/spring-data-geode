@@ -126,6 +126,7 @@ public enum GemFireProperties {
 	SSL_GATEWAY_ALIAS(ConfigurationProperties.SSL_GATEWAY_ALIAS, String.class),
 	SSL_JMX_ALIAS(ConfigurationProperties.SSL_JMX_ALIAS, String.class),
 	SSL_LOCATOR_ALIAS(ConfigurationProperties.SSL_LOCATOR_ALIAS, String.class),
+	SSL_PARAMETER_EXTENSION(ConfigurationProperties.SSL_PARAMETER_EXTENSION, String.class),
 	SSL_SERVER_ALIAS(ConfigurationProperties.SSL_SERVER_ALIAS, String.class),
 	SSL_WEB_ALIAS(ConfigurationProperties.SSL_WEB_ALIAS, String.class),
 	SSL_WEB_SERVICE_REQUIRE_AUTHENTICATION(ConfigurationProperties.SSL_WEB_SERVICE_REQUIRE_AUTHENTICATION, Boolean.class, false),
