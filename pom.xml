@@ -62,7 +62,7 @@
 		<repository>
 			<id>geode-snapshot</id>
 			<name>Apache Geode Snapshots</name>
-			<url>http://maven.apachegeode-ci.info/snapshots</url>
+			<url>https://maven.apachegeode-ci.info/snapshots</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
