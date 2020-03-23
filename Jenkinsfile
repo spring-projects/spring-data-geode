@@ -29,6 +29,12 @@ pipeline {
 			options { timeout(time: 30, unit: 'MINUTES') }
 			steps {
 				sh 'rm -rf ?'
+				sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+				sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+				sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+				sh 'rm -Rf `find . -name "newDB"`'
+				sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+				sh 'rm -Rf `find . -name "*.log"`'
 				sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw clean dependency:list test -Dsort -U -B'
 			}
 		}
@@ -52,6 +58,12 @@ pipeline {
 					options { timeout(time: 30, unit: 'MINUTES') }
 					steps {
 						sh 'rm -rf ?'
+						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "newDB"`'
+						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "*.log"`'
 						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
 					}
 				}
@@ -67,6 +79,12 @@ pipeline {
 					options { timeout(time: 30, unit: 'MINUTES') }
 					steps {
 						sh 'rm -rf ?'
+						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "newDB"`'
+						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "*.log"`'
 						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
 					}
 				}
@@ -95,6 +113,12 @@ pipeline {
 
 			steps {
 				sh 'rm -rf ?'
+				sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+				sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+				sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+				sh 'rm -Rf `find . -name "newDB"`'
+				sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+				sh 'rm -Rf `find . -name "*.log"`'
 				sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -Pci,artifactory ' +
 						'-Dartifactory.server=https://repo.spring.io ' +
 						"-Dartifactory.username=${ARTIFACTORY_USR} " +
