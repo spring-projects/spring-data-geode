@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -24,27 +24,24 @@ import org.springframework.data.gemfire.function.annotation.Filter;
  * @author John Blum
  * @see org.springframework.data.gemfire.function.execution.FunctionExecutionMethodMetadata
  */
-class OnRegionExecutionMethodMetadata extends FunctionExecutionMethodMetadata<OnRegionMethodMetadata>  {
+class RegionFunctionExecutionMethodMetadata extends FunctionExecutionMethodMetadata<RegionMethodMetadata>  {
 
-	/**
-	 * @param serviceInterface
-	 */
-	public OnRegionExecutionMethodMetadata(Class<?> serviceInterface) {
+	public RegionFunctionExecutionMethodMetadata(Class<?> serviceInterface) {
 		super(serviceInterface);
 	}
 
 	@Override
-	protected OnRegionMethodMetadata newMetadataInstance(Method method) {
-		return new OnRegionMethodMetadata(method);
+	protected RegionMethodMetadata newMetadataInstance(Method method) {
+		return new RegionMethodMetadata(method);
 	}
 
 }
 
-class OnRegionMethodMetadata extends MethodMetadata {
+class RegionMethodMetadata extends MethodMetadata {
 
 	private final int filterArgPosition;
 
-	public OnRegionMethodMetadata(Method method) {
+	public RegionMethodMetadata(Method method) {
 
 		super(method);
 

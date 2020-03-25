@@ -12,111 +12,45 @@
  */
 package org.springframework.data.gemfire.function.execution;
 
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
-
-import java.util.Optional;
-
 import org.apache.geode.cache.RegionService;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 
-import org.springframework.data.gemfire.GemfireUtils;
-import org.springframework.data.gemfire.util.CacheUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 /**
  * Creates an {@literal OnServer} {@link Function} {@link Execution} initialized with
- * either a {@link RegionService cache} or a {@link Pool}.
+ * either a {@link RegionService} or a {@link Pool}.
  *
  * @author David Turanski
  * @author John Blum
  * @see org.apache.geode.cache.RegionService
- * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
- * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
+ * @see org.springframework.data.gemfire.function.execution.AbstractClientFunctionTemplate
  */
 @SuppressWarnings("unused")
-public class GemfireOnServerFunctionTemplate extends AbstractFunctionTemplate {
-
-	private Pool pool;
-
-	private final RegionService cache;
-
-	private String poolName;
+public class GemfireOnServerFunctionTemplate extends AbstractClientFunctionTemplate {
 
 	public GemfireOnServerFunctionTemplate(RegionService cache) {
-
-		Assert.notNull(cache, "RegionService must not be null");
-
-		this.cache = cache;
+		super(cache);
 	}
 
 	public GemfireOnServerFunctionTemplate(Pool pool) {
-		this.cache = resolveClientCache();
-		this.pool = pool;
+		super(pool);
 	}
 
 	public GemfireOnServerFunctionTemplate(String poolName) {
-		this.cache = resolveClientCache();
-		this.poolName = poolName;
-	}
-
-	public void setPool(Pool pool) {
-		this.pool = pool;
-	}
-
-	public void setPoolName(String poolName) {
-		this.poolName = poolName;
+		super(poolName);
 	}
 
 	@Override
-	protected AbstractFunctionExecution getFunctionExecution() {
-
-		Object gemfireObject = resolveRequiredGemFireObject();
-
-		return gemfireObject instanceof Pool
-			? new PoolServerFunctionExecution((Pool) gemfireObject)
-			: new ServerFunctionExecution((RegionService) gemfireObject);
+	protected AbstractFunctionExecution newFunctionExecutionUsingPool(Pool pool) {
+		return new OnServerUsingPoolFunctionExecution(pool);
 	}
 
-	private Object resolveRequiredGemFireObject() {
-		return Optional.<Object>ofNullable(resolvePool()).orElseGet(this::resolveClientCache);
-	}
-
-	protected ClientCache resolveClientCache() {
-
-		return Optional.ofNullable(CacheUtils.getClientCache())
-			.orElseThrow(() -> newIllegalStateException("No ClientCache instance is present"));
-	}
-
-	protected Pool resolveDefaultPool() {
-
-		return Optional.ofNullable(PoolManager.find(GemfireUtils.DEFAULT_POOL_NAME))
-			.orElseThrow(() -> newIllegalStateException("No Pool was configured"));
-	}
-
-	protected Pool resolveNamedPool() {
-
-		if (StringUtils.hasText(this.poolName)) {
-			this.pool = Optional.ofNullable(PoolManager.find(this.poolName))
-				.orElseThrow(() -> newIllegalStateException("No Pool with name [%s] exists",
-					this.poolName));
-		}
-
-		return this.pool;
-	}
-
-	protected Pool resolvePool() {
-
-		this.pool = Optional.ofNullable(this.pool)
-			.orElseGet(this::resolveNamedPool);
-
-		return this.pool;
+	@Override
+	protected AbstractFunctionExecution newFunctionExecutionUsingRegionService(RegionService regionService) {
+		return new OnServerUsingRegionServiceFunctionExecution(regionService);
 	}
 }

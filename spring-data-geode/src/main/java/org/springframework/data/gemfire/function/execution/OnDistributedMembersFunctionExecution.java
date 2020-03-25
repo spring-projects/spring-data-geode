@@ -12,65 +12,42 @@
  */
 package org.springframework.data.gemfire.function.execution;
 
+import java.util.Collections;
 import java.util.Set;
 
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
-
-import org.apache.shiro.util.Assert;
-
-import org.springframework.util.CollectionUtils;
+import org.apache.geode.distributed.DistributedMember;
 
 /**
- * {@link RegionFunctionExecution} creates a {@link Function} {@link Execution}
- * using {@link FunctionService#onRegion(Region)}.
+ * Creates an {@literal OnMembers} {@link Function} {@link Execution} initialized with a {@link Set}
+ * of {@link DistributedMember DistributedMembers} using {@link FunctionService#onMembers(Set)}.
  *
  * @author David Turanski
  * @author John Blum
- * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.cache.execute.FunctionService
- * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
+ * @see org.apache.geode.distributed.DistributedMember
  */
-class RegionFunctionExecution extends AbstractFunctionExecution {
+class OnDistributedMembersFunctionExecution extends AbstractFunctionExecution {
 
-	private final Region<?, ?> region;
+	private final Set<DistributedMember> distributedMembers;
 
-	private volatile Set<?> keys;
-
-	public RegionFunctionExecution(Region<?, ?> region) {
-
-		Assert.notNull(region, "Region must not be null");
-
-		this.region = region;
+	public OnDistributedMembersFunctionExecution(Set<DistributedMember> distributedMembers ) {
+		this.distributedMembers = distributedMembers;
 	}
 
-	public RegionFunctionExecution setKeys(Set<?> keys) {
-		this.keys = keys;
-		return this;
-	}
-
-	protected Set<?> getKeys() {
-		return this.keys;
-	}
-
-	protected Region<?, ?> getRegion() {
-		return this.region;
+	protected Set<DistributedMember> getDistributedMembers() {
+		return this.distributedMembers != null
+			? Collections.unmodifiableSet(this.distributedMembers)
+			: Collections.emptySet();
 	}
 
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("rawtypes")
 	protected Execution getExecution() {
-
-		Execution execution = FunctionService.onRegion(getRegion());
-
-		Set<?> keys = getKeys();
-
-		execution = CollectionUtils.isEmpty(keys) ? execution : execution.withFilter(keys);
-
-		return execution;
+		return FunctionService.onMembers(getDistributedMembers());
 	}
 }

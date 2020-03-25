@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
 import org.apache.geode.cache.execute.Execution;
@@ -20,7 +19,8 @@ import org.apache.geode.cache.execute.FunctionService;
 import org.springframework.util.Assert;
 
 /**
- * Constructs an {@link Execution} using {@link FunctionService#onMembers(String...)}.
+ * Creates an {@literal OnMember} {@link Function} {@link Execution} initialized with an array of {@link String groups}
+ * using {@link FunctionService#onMember(String...)}.
  *
  * @author David Turanski
  * @author John Blum
@@ -29,19 +29,19 @@ import org.springframework.util.Assert;
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
  */
-class GroupMembersFunctionExecution extends AbstractFunctionExecution {
+class OnMemberInGroupsFunctionExecution extends AbstractFunctionExecution {
 
 	private final String[] groups;
 
 	/**
-	 * Constructs a new instance of {@link GroupMembersFunctionExecution} initialized to execute a data independent
-	 * {@link Function} on all members from each of the specified {@link String groups}.
+	 * Constructs a new instance of the {@link OnMemberInGroupsFunctionExecution} initialized to execute a data independent
+	 * {@link Function} on a single member from each of the specified groups.
 	 *
-	 * @param groups array of {@link String groups} indicating the members on which to execute
-	 * the data independent {@link Function}.
+	 * @param groups array of {@link String groups} from which to pick a member from each group
+	 * on which to execute the data independent {@link Function}.
 	 * @throws IllegalArgumentException if {@link String groups} is {@literal null} or empty.
 	 */
-	public GroupMembersFunctionExecution(String... groups) {
+	public OnMemberInGroupsFunctionExecution(String... groups) {
 
 		Assert.notEmpty(groups, "Groups must not be null or empty");
 
@@ -53,13 +53,14 @@ class GroupMembersFunctionExecution extends AbstractFunctionExecution {
 	}
 
 	/**
-	 * Executes the data independent Function on all members from each of the specified groups.
+	 * Executes the data independent Function on a single member from each of the specified groups.
 	 *
 	 * @return an Execution to execute the Function.
-	 * @see org.apache.geode.cache.execute.FunctionService#onMembers(String...)
+	 * @see org.apache.geode.cache.execute.FunctionService#onMember(String...)
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected Execution getExecution() {
-		return FunctionService.onMembers(getGroups());
+		return FunctionService.onMember(getGroups());
 	}
 }

@@ -1,9 +1,5 @@
 /*
-<<<<<<< Updated upstream
- * Copyright 2002-2020 the original author or authors.
-=======
- * Copyright 2002-2020 the original author or authors.
->>>>>>> Stashed changes
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -27,7 +23,7 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  */
 public class OnRegionFunctionProxyFactoryBean extends GemfireFunctionProxyFactoryBean {
 
-	private final OnRegionExecutionMethodMetadata methodMetadata;
+	private final RegionFunctionExecutionMethodMetadata methodMetadata;
 
 	/**
 	 * @param serviceInterface the Service class interface specifying the operations to proxy.
@@ -38,7 +34,7 @@ public class OnRegionFunctionProxyFactoryBean extends GemfireFunctionProxyFactor
 
 		super(serviceInterface, gemfireOnRegionOperations);
 
-		this.methodMetadata = new OnRegionExecutionMethodMetadata(serviceInterface);
+		this.methodMetadata = new RegionFunctionExecutionMethodMetadata(serviceInterface);
 	}
 
 	@Override
@@ -47,11 +43,11 @@ public class OnRegionFunctionProxyFactoryBean extends GemfireFunctionProxyFactor
 		GemfireOnRegionOperations gemfireOnRegionOperations =
 			(GemfireOnRegionOperations) getGemfireFunctionOperations();
 
-		OnRegionMethodMetadata onRegionMethodMetadata = this.methodMetadata.getMethodMetadata(method);
+		RegionMethodMetadata regionMethodMetadata = this.methodMetadata.getMethodMetadata(method);
 
-		int filterArgPosition = onRegionMethodMetadata.getFilterArgPosition();
+		int filterArgPosition = regionMethodMetadata.getFilterArgPosition();
 
-		String functionId = onRegionMethodMetadata.getFunctionId();
+		String functionId = regionMethodMetadata.getFunctionId();
 
 		Set<?> filter = null;
 

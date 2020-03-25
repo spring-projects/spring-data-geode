@@ -724,7 +724,10 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	 * @see org.springframework.data.gemfire.client.PoolResolver
 	 */
 	public PoolResolver getPoolResolver() {
-		return this.poolResolver != null ? this.poolResolver : DEFAULT_POOL_RESOLVER;
+
+		PoolResolver poolResolver = this.poolResolver;
+
+		return poolResolver != null ? poolResolver : DEFAULT_POOL_RESOLVER;
 	}
 
 	public void setPrSingleHopEnabled(boolean prSingleHopEnabled) {

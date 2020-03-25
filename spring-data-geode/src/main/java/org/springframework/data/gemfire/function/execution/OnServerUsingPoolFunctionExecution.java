@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
 import org.apache.geode.cache.client.Pool;
@@ -29,11 +28,11 @@ import org.springframework.util.Assert;
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
  */
-class PoolServerFunctionExecution extends AbstractFunctionExecution {
+class OnServerUsingPoolFunctionExecution extends AbstractFunctionExecution {
 
 	private final Pool pool;
 
-	PoolServerFunctionExecution(Pool pool) {
+	OnServerUsingPoolFunctionExecution(Pool pool) {
 
 		Assert.notNull(pool, "Pool must not be null");
 
@@ -45,6 +44,7 @@ class PoolServerFunctionExecution extends AbstractFunctionExecution {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected Execution getExecution() {
 		return FunctionService.onServer(getPool());
 	}

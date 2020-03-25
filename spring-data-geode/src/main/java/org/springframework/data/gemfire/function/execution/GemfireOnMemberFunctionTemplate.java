@@ -45,10 +45,10 @@ public class GemfireOnMemberFunctionTemplate  extends AbstractFunctionTemplate {
 		if (distributedMember == null && groups == null) {
 			return new DefaultMemberFunctionExecution();
 		} else if (distributedMember == null) {
-			return new GroupMemberFunctionExecution(this.groups);
+			return new OnMemberInGroupsFunctionExecution(this.groups);
 		}
 
-		return new DistributedMemberFunctionExecution(this.distributedMember);
+		return new OnDistributedMemberFunctionExecution(this.distributedMember);
 	}
 
 }

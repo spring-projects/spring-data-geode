@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
 import org.apache.geode.cache.RegionService;
@@ -29,11 +28,11 @@ import org.springframework.util.Assert;
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
  */
-class ServersFunctionExecution extends AbstractFunctionExecution {
+class OnServersUsingRegionServiceFunctionExecution extends AbstractFunctionExecution {
 
 	private final RegionService regionService;
 
-	ServersFunctionExecution(RegionService regionService) {
+	OnServersUsingRegionServiceFunctionExecution(RegionService regionService) {
 
 		Assert.notNull(regionService, "RegionService must not be null");
 
@@ -45,6 +44,7 @@ class ServersFunctionExecution extends AbstractFunctionExecution {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected Execution getExecution() {
 		return FunctionService.onServers(getRegionService());
 	}

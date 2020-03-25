@@ -28,11 +28,11 @@ import org.springframework.util.Assert;
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
  */
-class ServerFunctionExecution extends AbstractFunctionExecution {
+class OnServerUsingRegionServiceFunctionExecution extends AbstractFunctionExecution {
 
 	private final RegionService regionService;
 
-	ServerFunctionExecution(RegionService regionService) {
+	OnServerUsingRegionServiceFunctionExecution(RegionService regionService) {
 
 		Assert.notNull(regionService, "RegionService must not be null");
 
@@ -44,6 +44,7 @@ class ServerFunctionExecution extends AbstractFunctionExecution {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected Execution getExecution() {
 		return FunctionService.onServer(getRegionService());
 	}

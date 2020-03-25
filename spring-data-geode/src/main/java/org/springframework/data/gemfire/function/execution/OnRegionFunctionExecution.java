@@ -10,56 +10,67 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.execution;
 
+import java.util.Set;
+
+import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 
-import org.springframework.util.Assert;
+import org.apache.shiro.util.Assert;
+
+import org.springframework.util.CollectionUtils;
 
 /**
- * Constructs an {@link Execution} using {@link FunctionService#onMember(String...)}.
+ * Creates an {@literal OnRegion} {@link Function} {@link Execution} initialized with a {@link Region}
+ * using {@link FunctionService#onRegion(Region)}.
  *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.springframework.data.gemfire.function.execution.AbstractFunctionExecution
  */
-class GroupMemberFunctionExecution extends AbstractFunctionExecution {
+class OnRegionFunctionExecution extends AbstractFunctionExecution {
 
-	private final String[] groups;
+	private final Region<?, ?> region;
 
-	/**
-	 * Constructs a new instance of the {@link GroupMemberFunctionExecution} initialized to execute a data independent
-	 * {@link Function} on a single member from each of the specified groups.
-	 *
-	 * @param groups array of {@link String groups} from which to pick a member from each group
-	 * on which to execute the data independent {@link Function}.
-	 * @throws IllegalArgumentException if {@link String groups} is {@literal null} or empty.
-	 */
-	public GroupMemberFunctionExecution(String... groups) {
+	private volatile Set<?> keys;
 
-		Assert.notEmpty(groups, "Groups must not be null or empty");
+	public OnRegionFunctionExecution(Region<?, ?> region) {
 
-		this.groups = groups;
+		Assert.notNull(region, "Region must not be null");
+
+		this.region = region;
 	}
 
-	protected String[] getGroups() {
-		return this.groups;
+	public OnRegionFunctionExecution setKeys(Set<?> keys) {
+		this.keys = keys;
+		return this;
 	}
 
-	/**
-	 * Executes the data independent Function on a single member from each of the specified groups.
-	 *
-	 * @return an Execution to execute the Function.
-	 * @see org.apache.geode.cache.execute.FunctionService#onMember(String...)
-	 */
+	protected Set<?> getKeys() {
+		return this.keys;
+	}
+
+	protected Region<?, ?> getRegion() {
+		return this.region;
+	}
+
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Execution getExecution() {
-		return FunctionService.onMember(getGroups());
+
+		Execution execution = FunctionService.onRegion(getRegion());
+
+		Set<?> keys = getKeys();
+
+		execution = CollectionUtils.isEmpty(keys) ? execution : execution.withFilter(keys);
+
+		return execution;
 	}
 }
