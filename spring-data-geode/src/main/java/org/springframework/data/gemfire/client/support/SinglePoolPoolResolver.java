@@ -15,6 +15,7 @@
  */
 package org.springframework.data.gemfire.client.support;
 
+import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 
 import org.springframework.data.gemfire.client.PoolResolver;
@@ -31,6 +32,25 @@ import org.springframework.util.Assert;
  * @since 2.3.0
  */
 public class SinglePoolPoolResolver implements PoolResolver {
+
+	/**
+	 * Factory method used to construct a new instance of {@link SinglePoolPoolResolver} from an instance of
+	 * {@link ClientCache} using the {@link ClientCache#getDefaultPool()}  DEFAULT} {@link Pool}.
+	 *
+	 * @param clientCache {@link ClientCache} instance used to resolve the {@link ClientCache#getDefaultPool() DEFAULT}
+	 * {@link Pool}.
+	 * @return a new {@link SinglePoolPoolResolver} initialized with the {@literal DEFAULT} {@link Pool}.
+	 * @throws IllegalArgumentException if the {@link ClientCache} or the {@link ClientCache#getDefaultPool()} DEFAULT}
+	 * {@link Pool} is {@literal null}.
+	 * @see org.apache.geode.cache.client.ClientCache
+	 * @see org.apache.geode.cache.client.ClientCache#getDefaultPool()
+	 */
+	public static SinglePoolPoolResolver from(@NonNull ClientCache clientCache) {
+
+		Assert.notNull(clientCache, "ClientCache must not be null");
+
+		return new SinglePoolPoolResolver(clientCache.getDefaultPool());
+	}
 
 	private final Pool pool;
 

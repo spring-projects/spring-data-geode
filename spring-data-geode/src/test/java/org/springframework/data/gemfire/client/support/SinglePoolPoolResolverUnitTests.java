@@ -16,6 +16,7 @@
 package org.springframework.data.gemfire.client.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 
 import org.springframework.data.gemfire.client.PoolResolver;
@@ -66,6 +68,57 @@ public class SinglePoolPoolResolverUnitTests {
 		catch (IllegalArgumentException expected) {
 
 			assertThat(expected).hasMessage("Pool must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
+	@Test
+	public void fromClientCacheWithDefaultPool() {
+
+		ClientCache mockClientCache = mock(ClientCache.class);
+
+		when(mockClientCache.getDefaultPool()).thenReturn(this.mockPool);
+
+		SinglePoolPoolResolver poolResolver = SinglePoolPoolResolver.from(mockClientCache);
+
+		assertThat(poolResolver).isNotNull();
+		assertThat(poolResolver.getPool()).isEqualTo(this.mockPool);
+
+		verify(mockClientCache, times(1)).getDefaultPool();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromClientCacheWithNoDefaultPoolThrowsIllegalArgumentException() {
+
+		ClientCache mockClientCache = mock(ClientCache.class);
+
+		try {
+			SinglePoolPoolResolver.from(mockClientCache);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Pool must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+		finally {
+			verify(mockClientCache, times(1)).getDefaultPool();
+		}
+	}
+
+	@SuppressWarnings("all")
+	@Test(expected = IllegalArgumentException.class)
+	public void fromNullClientCacheThrowsIllegalArgumentException() {
+
+		try {
+			SinglePoolPoolResolver.from(null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("ClientCache must not be null");
 			assertThat(expected).hasNoCause();
 
 			throw expected;
