@@ -21,7 +21,9 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.Pool;
 
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -76,4 +78,23 @@ public interface PoolResolver {
 	 */
 	@Nullable Pool resolve(@Nullable String poolName);
 
+	/**
+	 * Requires a {@link Pool} object with the given {@link String name} to exist.
+	 *
+	 * @param poolName {@link String name} of the required {@link Pool} to resolve.
+	 * @return the required {@link Pool} with the given {@link String name} or throw an {@link IllegalStateException}
+	 * if a {@link Pool} with {@link String name} does not exist!
+	 * @throws IllegalStateException if a {@link Pool} with the given {@link String name} does not exist.
+	 * @see org.apache.geode.cache.client.Pool
+	 * @see #resolve(String)
+	 */
+	default @NonNull Pool require(@NonNull String poolName) {
+
+		Pool pool = resolve(poolName);
+
+		Assert.state(pool != null,
+			() -> String.format("Pool with name [%s] not found", poolName));
+
+		return pool;
+	}
 }

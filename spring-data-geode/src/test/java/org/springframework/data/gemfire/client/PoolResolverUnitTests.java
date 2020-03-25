@@ -17,6 +17,7 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -48,6 +49,7 @@ import org.apache.geode.cache.client.Pool;
  * @since 2.3.0
  */
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("rawtypes")
 public class PoolResolverUnitTests {
 
 	@Mock
@@ -123,6 +125,39 @@ public class PoolResolverUnitTests {
 		assertThat(this.testPoolResolver.resolve(mockRegion)).isNull();
 
 		verify(mockRegion, times(1)).getAttributes();
+	}
+
+	@Test
+	public void requireExistingPoolReturnsPool() {
+
+		Pool mockPool = mock(Pool.class);
+
+		when(this.testPoolResolver.resolve(anyString())).thenReturn(mockPool);
+		when(this.testPoolResolver.require(anyString())).thenCallRealMethod();
+
+		assertThat(this.testPoolResolver.require("TestPool")).isEqualTo(mockPool);
+
+		verify(this.testPoolResolver, times(1)).resolve(eq("TestPool"));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void requireNonExistingPoolThrowsIllegalStateException() {
+
+		when(this.testPoolResolver.require(anyString())).thenCallRealMethod();
+
+		try {
+			this.testPoolResolver.require("MockPool");
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("Pool with name [MockPool] not found");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+		finally {
+			verify(this.testPoolResolver, times(1)).resolve(eq("MockPool"));
+		}
 	}
 
 	private static abstract class TestPoolResolver implements PoolResolver { }
