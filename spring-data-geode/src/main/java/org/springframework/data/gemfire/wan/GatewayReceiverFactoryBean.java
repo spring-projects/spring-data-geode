@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} for creating a GemFire {@link GatewayReceiver}.
+ * Spring {@link FactoryBean} used to construct, configure and initialize a {@link GatewayReceiver}.
  *
  * @author David Turanski
  * @author John Blum
@@ -43,7 +43,9 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.wan.GatewayReceiver
  * @see org.apache.geode.cache.wan.GatewayReceiverFactory
  * @see org.apache.geode.cache.wan.GatewayTransportFilter
+ * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.context.SmartLifecycle
+ * @see org.springframework.data.gemfire.config.annotation.GatewayReceiverConfigurer
  * @see org.springframework.data.gemfire.wan.AbstractWANComponentFactoryBean
  * @since 1.2.2
  */

@@ -95,7 +95,7 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 
 	private LuceneIndex luceneIndex;
 
-	private LuceneSerializer luceneSerializer;
+	private LuceneSerializer<?> luceneSerializer;
 
 	private LuceneService luceneService;
 
@@ -127,10 +127,10 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 	 * @param indexName {@link String} containing the name of the {@link LuceneIndex}.
 	 * @see org.springframework.data.gemfire.config.annotation.IndexConfigurer
 	 * @see #applyIndexConfigurers(String, IndexConfigurer...)
-	 * @see #getCompositeRegionConfigurer()
+	 * @see #getCompositeIndexConfigurer()
 	 */
 	private void applyIndexConfigurers(String indexName) {
-		applyIndexConfigurers(indexName, getCompositeRegionConfigurer());
+		applyIndexConfigurers(indexName, getCompositeIndexConfigurer());
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 	 * @see java.util.List#toArray(Object[])
 	 */
 	private String[] asArray(List<String> list) {
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	/**
@@ -460,7 +460,7 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 	 * @return the Composite {@link IndexConfigurer}.
 	 * @see org.springframework.data.gemfire.config.annotation.IndexConfigurer
 	 */
-	protected IndexConfigurer getCompositeRegionConfigurer() {
+	protected IndexConfigurer getCompositeIndexConfigurer() {
 		return this.compositeIndexConfigurer;
 	}
 
@@ -622,7 +622,7 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 	 * to Lucene documents for the {@link LuceneIndex}.
 	 * @see org.apache.geode.cache.lucene.LuceneSerializer
 	 */
-	public void setLuceneSerializer(LuceneSerializer luceneSerializer) {
+	public void setLuceneSerializer(LuceneSerializer<?> luceneSerializer) {
 		this.luceneSerializer = luceneSerializer;
 	}
 
@@ -634,7 +634,7 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 	 * to Lucene documents for the {@link LuceneIndex}.
 	 * @see org.apache.geode.cache.lucene.LuceneSerializer
 	 */
-	protected LuceneSerializer getLuceneSerializer() {
+	protected LuceneSerializer<?> getLuceneSerializer() {
 		return this.luceneSerializer;
 	}
 

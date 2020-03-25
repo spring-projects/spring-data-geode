@@ -49,18 +49,21 @@ import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.support.SmartLifecycleSupport;
 import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import lombok.NonNull;
-
 /**
- * Spring {@link FactoryBean} used to construct, configure and initialize a client {@link Region}.
+ * Spring {@link FactoryBean} used to construct, configure and initialize a {@literal client} {@link Region}.
  *
  * @author Costin Leau
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.CacheListener
+ * @see org.apache.geode.cache.CacheLoader
+ * @see org.apache.geode.cache.CacheWriter
+ * @see org.apache.geode.cache.CustomExpiry
  * @see org.apache.geode.cache.DataPolicy
  * @see org.apache.geode.cache.EvictionAttributes
  * @see org.apache.geode.cache.ExpirationAttributes

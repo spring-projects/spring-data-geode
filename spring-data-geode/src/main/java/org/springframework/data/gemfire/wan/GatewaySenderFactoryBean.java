@@ -39,15 +39,21 @@ import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} for creating a parallel or serial GemFire {@link GatewaySender}.
+ * Spring {@link FactoryBean} used to construct, configure and initialize parallel and serial
+ * {@link GatewaySender GatewaySenders}.
  *
  * @author David Turanski
  * @author John Blum
  * @author Udo Kohlmeyer
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.wan.GatewayEventFilter
+ * @see org.apache.geode.cache.wan.GatewayEventSubstitutionFilter
  * @see org.apache.geode.cache.wan.GatewaySender
  * @see org.apache.geode.cache.wan.GatewaySenderFactory
+ * @see org.apache.geode.cache.wan.GatewayTransportFilter
+ * @see org.springframework.beans.factory.FactoryBean
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfigurer
  * @see org.springframework.data.gemfire.wan.AbstractWANComponentFactoryBean
  * @since 1.2.2
  */
@@ -71,6 +77,7 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 	private GatewaySender.OrderPolicy orderPolicy;
 
+	@SuppressWarnings("rawtypes")
 	private GatewayEventSubstitutionFilter eventSubstitutionFilter;
 
 	private Integer alertThreshold;
@@ -255,18 +262,22 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 		return this.eventFilters;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void setEventSubstitutionFilter(GatewayEventSubstitutionFilter eventSubstitutionFilter) {
 		this.eventSubstitutionFilter = eventSubstitutionFilter;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public GatewayEventSubstitutionFilter getEventSubstitutionFilter() {
 		return this.eventSubstitutionFilter;
 	}
 
+	@Deprecated
 	public void setManualStart(boolean manualStart) {
 		this.manualStart = manualStart;
 	}
 
+	@Deprecated
 	public void setManualStart(Boolean manualStart) {
 		setManualStart(Boolean.TRUE.equals(manualStart));
 	}

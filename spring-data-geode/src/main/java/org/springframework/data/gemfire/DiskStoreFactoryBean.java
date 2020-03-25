@@ -40,10 +40,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} used to create {@link DiskStore}.
+ * Spring {@link FactoryBean} used to create a {@link DiskStore}.
  *
  * @author David Turanski
  * @author John Blum
+ * @see java.io.File
  * @see org.apache.geode.cache.DiskStore
  * @see org.apache.geode.cache.DiskStoreFactory
  * @see org.apache.geode.cache.GemFireCache
@@ -247,9 +248,8 @@ public class DiskStoreFactoryBean extends AbstractFactoryBeanSupport<DiskStore> 
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Class<?> getObjectType() {
-		return Optional.ofNullable(this.diskStore).map(DiskStore::getClass).orElse((Class) DiskStore.class);
+		return this.diskStore != null ? this.diskStore.getClass() : DiskStore.class;
 	}
 
 	public void setCache(GemFireCache cache) {

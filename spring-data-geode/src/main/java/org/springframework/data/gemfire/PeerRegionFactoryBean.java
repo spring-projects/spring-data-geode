@@ -65,11 +65,11 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Abstract Spring {@link FactoryBean} base class extended by other SDG {@link FactoryBean FactoryBeans} used to
- * construct, configure and initialize peer {@link Region Regions}.
+ * Spring {@link FactoryBean} and abstract base class extended by other SDG {@link FactoryBean FactoryBeans}
+ * used to construct, configure and initialize {@literal peer} {@link Region Regions}.
  *
- * This {@link FactoryBean} allows for very easy and flexible creation of peer {@link Region}.
- * For client {@link Region Regions}, however, see the {@link ClientRegionFactoryBean}.
+ * This {@link FactoryBean} allows for very easy and flexible creation of {@literal peer} {@link Region Regions}.
+ * For {@literal client} {@link Region Regions}, see the {@link ClientRegionFactoryBean}.
  *
  * @author Costin Leau
  * @author David Turanski
@@ -78,8 +78,11 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.CacheListener
  * @see org.apache.geode.cache.CacheLoader
  * @see org.apache.geode.cache.CacheWriter
+ * @see org.apache.geode.cache.CustomExpiry
  * @see org.apache.geode.cache.DataPolicy
+ * @see org.apache.geode.cache.DiskStore
  * @see org.apache.geode.cache.EvictionAttributes
+ * @see org.apache.geode.cache.ExpirationAttributes
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.PartitionAttributes
  * @see org.apache.geode.cache.Region
@@ -88,10 +91,14 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.RegionShortcut
  * @see org.apache.geode.cache.Scope
  * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
+ * @see org.apache.geode.cache.wan.GatewaySender
+ * @see org.apache.geode.compression.Compressor
  * @see org.springframework.beans.factory.DisposableBean
  * @see org.springframework.context.SmartLifecycle
  * @see org.springframework.data.gemfire.ResolvableRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
+ * @see org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean
+ * @see org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.RegionConfigurer
  */
 @SuppressWarnings("unused")

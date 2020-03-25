@@ -26,18 +26,20 @@ import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring-friendly bean for creating {@link RegionAttributes}. Eliminates the need of using a XML 'factory-method' tag.
+ * Spring {@link FactoryBean} used to create {@link RegionAttributes}.
+ *
+ * Eliminates the need of using a XML bean 'factory-method' tag.
  *
  * @author Costin Leau
  * @author John Blum
- * @see org.springframework.beans.factory.FactoryBean
- * @see org.springframework.beans.factory.InitializingBean
  * @see org.apache.geode.cache.AttributesFactory
  * @see org.apache.geode.cache.RegionAttributes
+ * @see org.springframework.beans.factory.FactoryBean
+ * @see org.springframework.beans.factory.InitializingBean
  */
 @SuppressWarnings({ "unused" })
 public class RegionAttributesFactoryBean<K, V> extends AttributesFactory<K, V>
-		implements FactoryBean<RegionAttributes>, InitializingBean {
+		implements FactoryBean<RegionAttributes<K, V>>, InitializingBean {
 
 	private RegionAttributes<K, V> regionAttributes;
 

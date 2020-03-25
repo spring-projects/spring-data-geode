@@ -34,14 +34,17 @@ import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
 
 /**
- * Spring {@link FactoryBean} for creating Apache Geode/Pivotal GemFire {@link AsyncEventQueue AsyncEventQueues}.
+ * Spring {@link FactoryBean} for constructing, configuring and initializing {@link AsyncEventQueue AsyncEventQueues}.
  *
  * @author David Turanski
  * @author John Blum
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.asyncqueue.AsyncEvent
  * @see org.apache.geode.cache.asyncqueue.AsyncEventListener
  * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
+ * @see org.apache.geode.cache.asyncqueue.AsyncEventQueueFactory
+ * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.data.gemfire.wan.AbstractWANComponentFactoryBean
  */
 @SuppressWarnings("unused")
@@ -63,6 +66,7 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 	private Integer dispatcherThreads;
 	private Integer maximumQueueMemory;
 
+	@SuppressWarnings("rawtypes")
 	private GatewayEventSubstitutionFilter gatewayEventSubstitutionFilter;
 
 	private GatewaySender.OrderPolicy orderPolicy;

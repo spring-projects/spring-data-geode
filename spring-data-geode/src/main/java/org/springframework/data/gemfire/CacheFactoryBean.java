@@ -70,10 +70,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} used to construct, configure and initialize a Pivotal GemFire/Apache Geode
- * {@link Cache peer cache).
+ * Spring {@link FactoryBean} used to construct, configure and initialize a {@literal peer} {@link Cache).
  *
- * Allows either retrieval of an existing, open {@link Cache} or creation of a new {@link Cache}.
+ * Allows either the retrieval of an existing, open {@link Cache} or the creation of a new {@link Cache}.
  *
  * This class implements the {@link PersistenceExceptionTranslator} interface and is auto-detected by Spring's
  * {@link org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor} for AOP-based translation
@@ -782,9 +781,11 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public Class<? extends GemFireCache> getObjectType() {
-		return Optional.ofNullable(this.<Cache>getCache()).<Class>map(Object::getClass).orElse(Cache.class);
+
+		Cache cache = getCache();
+
+		return cache != null ? cache.getClass() : Cache.class;
 	}
 
 	/**
@@ -794,6 +795,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @param cacheFactoryInitializer {@link CacheFactoryInitializer} configured to initialize the cache factory.
 	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer
 	 */
+	@SuppressWarnings("rawtypes")
 	public void setCacheFactoryInitializer(CacheFactoryInitializer cacheFactoryInitializer) {
 		this.cacheFactoryInitializer = cacheFactoryInitializer;
 	}
@@ -805,6 +807,7 @@ public class CacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 	 * @return the {@link CacheFactoryInitializer} configured to initialize the cache factory.
 	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer
 	 */
+	@SuppressWarnings("rawtypes")
 	public CacheFactoryInitializer getCacheFactoryInitializer() {
 		return this.cacheFactoryInitializer;
 	}

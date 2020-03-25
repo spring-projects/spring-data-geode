@@ -48,7 +48,7 @@ import org.springframework.data.gemfire.util.DistributedSystemUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} to construct, configure and initialize a {@link Pool}.
+ * Spring {@link FactoryBean} used to construct, configure and initialize a {@link Pool}.
  *
  * If a new {@link Pool} is created, its lifecycle is bound to that of this declaring {@link FactoryBean}
  * and indirectly, the Spring container.
@@ -214,7 +214,7 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 */
 	@Override
-	public void destroy() throws Exception {
+	public void destroy() {
 
 		Optional.ofNullable(this.pool)
 			.filter(this::isSpringManagedPool)
@@ -791,17 +791,16 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 		this.subscriptionTimeoutMultiplier = subscriptionTimeoutMultiplier;
 	}
 
+	@Deprecated
 	public void setThreadLocalConnections(boolean threadLocalConnections) {
 		this.threadLocalConnections = threadLocalConnections;
 	}
 
 	// Internal framework use only.
-	public final void setLocatorsConfiguration(Object locatorsConfiguration) {
-	}
+	public final void setLocatorsConfiguration(Object locatorsConfiguration) { }
 
 	// Internal framework use only.
-	public final void setServersConfiguration(Object serversConfiguration) {
-	}
+	public final void setServersConfiguration(Object serversConfiguration) { }
 
 	/**
 	 * Callback interface to initialize the {@link PoolFactory} used by this {@link PoolFactoryBean}

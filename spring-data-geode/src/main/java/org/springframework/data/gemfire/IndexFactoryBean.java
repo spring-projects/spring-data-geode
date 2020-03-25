@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionService;
@@ -48,8 +49,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} used to construct, configure and initialize {@link Index Indexes}
- * using a declarative approach.
+ * Spring {@link FactoryBean} used to construct, configure and initialize an {@link Index}.
  *
  * @author Costin Leau
  * @author David Turanski
@@ -57,6 +57,7 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.RegionService
  * @see org.apache.geode.cache.query.Index
+ * @see org.apache.geode.cache.query.IndexStatistics
  * @see org.apache.geode.cache.query.QueryService
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.beans.factory.InitializingBean
@@ -119,9 +120,8 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		registerAlias(getBeanName(), this.indexName);
 	}
 
-	/* (non-Javadoc) */
 	private void applyIndexConfigurers(String indexName) {
-		applyIndexConfigurers(indexName, getCompositeRegionConfigurer());
+		applyIndexConfigurers(indexName, getCompositeIndexConfigurer());
 	}
 
 	/**
@@ -152,7 +152,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 			.forEach(indexConfigurer -> indexConfigurer.configure(indexName, this));
 	}
 
-	/* (non-Javadoc) */
 	private void assertIndexDefinitionConfiguration() {
 
 		Assert.hasText(this.expression, "Index expression is required");
@@ -163,31 +162,31 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 	}
 
-	/* (non-Javadoc) */
 	RegionService resolveCache() {
 
-		return Optional.ofNullable(this.cache)
-			.orElseGet(() -> Optional.ofNullable(GemfireUtils.resolveGemFireCache())
-				.orElseThrow(() -> newIllegalStateException("Cache is required")));
+		RegionService resolvedCache = this.cache != null ? this.cache : GemfireUtils.resolveGemFireCache();
+
+		return Optional.ofNullable(resolvedCache)
+			.orElseThrow(() -> newIllegalStateException("Cache is required"));
 	}
 
-	/* (non-Javadoc) */
 	String resolveIndexName() {
 
-		return Optional.ofNullable(this.name).filter(StringUtils::hasText)
-			.orElseGet(() -> Optional.ofNullable(getBeanName()).filter(StringUtils::hasText)
-				.orElseThrow(() -> newIllegalArgumentException("Index name is required")));
+		String resolvedIndexName = StringUtils.hasText(this.name) ? this.name : getBeanName();
+
+		return Optional.ofNullable(resolvedIndexName)
+			.filter(StringUtils::hasText)
+			.orElseThrow(() -> newIllegalArgumentException("Index name is required"));
 	}
 
-	/* (non-Javadoc) */
 	QueryService resolveQueryService() {
 
-		return Optional.ofNullable(this.queryService)
-			.orElseGet(() -> Optional.ofNullable(lookupQueryService())
-				.orElseThrow(() -> newIllegalStateException("QueryService is required to create an Index")));
+		QueryService resolvedQueryService = this.queryService != null ? this.queryService : lookupQueryService();
+
+		return Optional.ofNullable(resolvedQueryService)
+			.orElseThrow(() -> newIllegalStateException("QueryService is required to create an Index"));
 	}
 
-	/* (non-Javadoc) */
 	QueryService lookupQueryService() {
 
 		String queryServiceBeanName = GemfireConstants.DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE;
@@ -198,17 +197,16 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 			.orElseGet(() -> registerQueryServiceBean(queryServiceBeanName, doLookupQueryService()));
 	}
 
-	/* (non-Javadoc) */
 	QueryService doLookupQueryService() {
 
-		return Optional.ofNullable(this.queryService).orElseGet(() ->
-			(this.cache instanceof ClientCache ? ((ClientCache) this.cache).getLocalQueryService()
-				: this.cache.getQueryService()));
+		Supplier<QueryService> queryServiceSupplier = () -> this.cache instanceof ClientCache
+			? ((ClientCache) this.cache).getLocalQueryService()
+			: this.cache.getQueryService();
+
+		return Optional.ofNullable(this.queryService)
+			.orElseGet(queryServiceSupplier);
 	}
 
-
-
-	/* (non-Javadoc) */
 	QueryService registerQueryServiceBean(String beanName, QueryService queryService) {
 
 		if (isDefine()) {
@@ -218,21 +216,20 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		return queryService;
 	}
 
-	/* (non-Javadoc) */
 	void registerAlias(String beanName, String indexName) {
 
-		Optional.ofNullable(getBeanFactory()).filter(it -> it instanceof ConfigurableBeanFactory)
-			.filter(it -> (beanName != null && !beanName.equals(indexName)))
-			.ifPresent(it -> ((ConfigurableBeanFactory) it).registerAlias(beanName, indexName));
+		Optional.ofNullable(getBeanFactory())
+			.filter(ConfigurableBeanFactory.class::isInstance)
+			.filter(it -> beanName != null && !beanName.equals(indexName))
+			.map(ConfigurableBeanFactory.class::cast)
+			.ifPresent(it -> it.registerAlias(beanName, indexName));
 	}
 
-	/* (non-Javadoc) */
-	Index createIndex(QueryService queryService, String indexName) throws Exception {
+	Index createIndex(QueryService queryService, String indexName) {
 		return createIndex(queryService, indexName, false);
 	}
 
-	/* (non-Javadoc) */
-	private Index createIndex(QueryService queryService, String indexName, boolean retryAttempted) throws Exception {
+	private Index createIndex(QueryService queryService, String indexName, boolean retryAttempted) {
 
 		IndexType indexType = this.indexType;
 
@@ -253,12 +250,13 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 		catch (IndexExistsException cause) {
 
-			// Same definition, different name
+			// Same definition, Different name
 
 			Optional<Index> existingIndexByDefinition =
 				tryToFindExistingIndexByDefinition(queryService, expression, from, indexType);
 
-			return existingIndexByDefinition.filter(existingIndex -> isIgnoreIfExists())
+			return existingIndexByDefinition
+				.filter(existingIndex -> isIgnoreIfExists())
 				.map(existingIndex -> {
 
 					logWarning("WARNING! You are choosing to ignore this Index [%1$s] and return the existing"
@@ -270,7 +268,8 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 
 				}).orElseGet(() ->
 
-					existingIndexByDefinition.filter(it -> !retryAttempted && isOverride())
+					existingIndexByDefinition
+						.filter(it -> !retryAttempted && isOverride())
 						.map(existingIndex -> {
 
 							// Log an informational warning to caution the user about using the override
@@ -286,7 +285,8 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 
 						}).orElseThrow(() -> {
 
-							String existingIndexName = existingIndexByDefinition.map(Index::getName)
+							String existingIndexName = existingIndexByDefinition
+								.map(Index::getName)
 								.orElse("unknown");
 
 							return new GemfireIndexException(String.format(
@@ -300,11 +300,12 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 		catch (IndexNameConflictException cause) {
 
-			// Same name; possibly different definition
+			// Same name; Possibly different definition
 
  			Optional<Index> existingIndexByName = tryToFindExistingIndexByName(queryService, indexName);
 
-			return existingIndexByName.filter(existingIndex -> isIgnoreIfExists())
+			return existingIndexByName
+				.filter(existingIndex -> isIgnoreIfExists())
 				.map(existingIndex ->
 
 					handleIgnore(warnOnIndexDefinitionMismatch(existingIndex, indexName, "Returning"))
@@ -334,12 +335,13 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 				);
 		}
 		catch (Exception cause) {
-			throw new GemfireIndexException(String.format("Failed to create Index [%s]",
-				toDetailedIndexDefinition()), cause);
+
+			String message = String.format("Failed to create Index [%s]", toDetailedIndexDefinition());
+
+			throw new GemfireIndexException(message , cause);
 		}
 	}
 
-	/* (non-Javadoc) */
 	@SuppressWarnings("all")
 	private boolean isIndexDefinitionMatch(Index index) {
 
@@ -357,12 +359,10 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 			.orElse(false);
 	}
 
-	/* (non-Javadoc) */
 	private boolean isNotIndexDefinitionMatch(Index index) {
 		return !isIndexDefinitionMatch(index);
 	}
 
-	/* (non-Javadoc) */
 	private Index warnOnIndexDefinitionMismatch(Index existingIndex, String indexName, String action) {
 
 		if (isNotIndexDefinitionMatch(existingIndex)) {
@@ -378,7 +378,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		return existingIndex;
 	}
 
-	/* (non-Javadoc) */
 	private Index handleIgnore(Index existingIndex) {
 
 		registerAlias(getBeanName(), existingIndex.getName());
@@ -386,7 +385,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		return existingIndex;
 	}
 
-	/* (non-Javadoc) */
 	private Index handleOverride(Index existingIndex, QueryService queryService, String indexName) {
 		try {
 			// No way to tell whether the QueryService.remove(:Index) was successful or not! o.O
@@ -404,7 +402,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 	}
 
-	/* (non-Javadoc) */
 	private Index handleSmartOverride(Index existingIndex, QueryService queryService, String indexName) {
 
 		return Optional.of(existingIndex)
@@ -413,18 +410,15 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 			.orElseGet(() -> handleOverride(existingIndex, queryService, indexName));
 	}
 
-	/* (non-Javadoc) */
 	String toBasicIndexDefinition() {
 		return String.format(BASIC_INDEX_DEFINITION, this.expression, this.from, this.indexType);
 	}
 
-	/* (non-Javadoc) */
 	String toDetailedIndexDefinition() {
 		return String.format(DETAILED_INDEX_DEFINITION,
 			this.name, this.expression, this.from, this.imports, this.indexType);
 	}
 
-	/* (non-Javadoc) */
 	Index createKeyIndex(QueryService queryService, String indexName, String expression, String from) throws Exception {
 
 		if (isDefine()) {
@@ -436,7 +430,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 	}
 
-	/* (non-Javadoc) */
 	Index createHashIndex(QueryService queryService, String indexName, String expression, String from, String imports)
 			throws Exception {
 
@@ -462,7 +455,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 	}
 
-	/* (non-Javadoc) */
 	Index createFunctionalIndex(QueryService queryService, String indexName, String expression, String from,
 			String imports) throws Exception {
 
@@ -488,7 +480,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		}
 	}
 
-	/* (non-Javadoc) */
 	Optional<Index> tryToFindExistingIndexByDefinition(QueryService queryService,
 			String expression, String fromClause, IndexType indexType) {
 
@@ -504,7 +495,6 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		return Optional.empty();
 	}
 
-	/* (non-Javadoc) */
 	Optional<Index> tryToFindExistingIndexByName(QueryService queryService, String indexName) {
 
 		for (Index index : nullSafeCollection(queryService.getIndexes())) {
@@ -523,7 +513,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 	 * @return the Composite {@link IndexConfigurer}.
 	 * @see org.springframework.data.gemfire.config.annotation.IndexConfigurer
 	 */
-	protected IndexConfigurer getCompositeRegionConfigurer() {
+	protected IndexConfigurer getCompositeIndexConfigurer() {
 		return this.compositeIndexConfigurer;
 	}
 
@@ -542,17 +532,20 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 	 */
 	@Override
 	public Index getObject() {
-		return Optional.ofNullable(getIndex()).orElseGet(() ->
-			this.index = tryToFindExistingIndexByName(resolveQueryService(), resolveIndexName()).orElse(null));
+		return Optional.ofNullable(getIndex())
+			.orElseGet(() -> this.index =
+				tryToFindExistingIndexByName(resolveQueryService(), resolveIndexName()).orElse(null));
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public Class<?> getObjectType() {
-		return Optional.ofNullable(getIndex()).map(Index::getClass).orElse((Class) Index.class);
+
+		Index index = getIndex();
+
+		return index != null ? index.getClass() : Index.class;
 	}
 
 	/**
@@ -706,6 +699,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 	 * @see org.springframework.data.gemfire.config.annotation.IndexConfigurer
 	 * @see #setIndexConfigurers(List)
 	 */
+	@SuppressWarnings("unused")
 	public void setIndexConfigurers(IndexConfigurer... indexConfigurers) {
 		setIndexConfigurers(Arrays.asList(nullSafeArray(indexConfigurers, IndexConfigurer.class)));
 	}
@@ -923,7 +917,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 				return true;
 			}
 
-			if (!(obj instanceof IndexWrapper || obj instanceof Index)) {
+			if (!(obj instanceof Index)) {
 				return false;
 			}
 
@@ -940,7 +934,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 			int hashValue = 37;
 
 			hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(getIndexName());
-			hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(index);
+			hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(this.index);
 
 			return hashValue;
 		}
@@ -948,7 +942,8 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 		@Override
 		public String toString() {
 
-			return Optional.ofNullable(getIndex()).map(String::valueOf)
+			return Optional.ofNullable(getIndex())
+				.map(String::valueOf)
 				.orElseGet(this::getIndexName);
 		}
 	}

@@ -35,6 +35,7 @@ import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.distributed.DistributedSystem;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationContextEvent;
@@ -49,34 +50,32 @@ import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
-import lombok.NonNull;
-
 /**
- * Spring {@link org.springframework.beans.factory.FactoryBean} used to create a Pivotal GemFire/Apache Geode
- * {@link ClientCache}.
+ * Spring {@link FactoryBean} used to construct, configure and initialize a {@link ClientCache}.
  *
  * @author Costin Leau
  * @author Lyndon Adams
  * @author John Blum
  * @see java.net.InetSocketAddress
+ * @see java.util.Properties
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.ClientCacheFactory
  * @see org.apache.geode.cache.client.Pool
- * @see org.apache.geode.cache.client.PoolManager
  * @see org.apache.geode.distributed.DistributedSystem
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationListener
  * @see org.springframework.context.event.ContextRefreshedEvent
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
- * @see org.springframework.data.gemfire.support.ConnectionEndpoint
- * @see org.springframework.data.gemfire.support.ConnectionEndpointList
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class ClientCacheFactoryBean extends CacheFactoryBean implements ApplicationListener<ContextRefreshedEvent> {
@@ -121,7 +120,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	private String serverGroup;
 
 	private final ClientCacheConfigurer compositeClientCacheConfigurer = (beanName, bean) ->
-		nullSafeCollection(clientCacheConfigurers).forEach(clientCacheConfigurer ->
+		nullSafeCollection(this.clientCacheConfigurers).forEach(clientCacheConfigurer ->
 			clientCacheConfigurer.configure(beanName, bean));
 
 	/**
