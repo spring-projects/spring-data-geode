@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import org.apache.geode.GemFireCheckedException;
 import org.apache.geode.GemFireException;
 import org.apache.geode.cache.Region;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * {@link GemfireAccessor} is a base class for {@link GemfireTemplate} defining common operations and properties,
- * such as {@link Region}.
+ * {@link GemfireAccessor} is a base class for {@link GemfireTemplate} to encapsulate common operations and properties,
+ * such as accessors to a {@link Region}.
  *
  * This class is not intended to be used directly.
  *
@@ -42,6 +41,7 @@ public class GemfireAccessor implements InitializingBean {
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+	@SuppressWarnings("rawtypes")
 	private Region region;
 
 	/**
@@ -54,7 +54,7 @@ public class GemfireAccessor implements InitializingBean {
 	 */
 	@SuppressWarnings("unchecked")
 	public <K, V> Region<K, V> getRegion() {
-		return region;
+		return this.region;
 	}
 
 	/**
@@ -67,6 +67,9 @@ public class GemfireAccessor implements InitializingBean {
 		this.region = region;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public void afterPropertiesSet() {
 		Assert.notNull(getRegion(), "Region is required");
 	}
