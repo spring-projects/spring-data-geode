@@ -3,6 +3,22 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.3.0.RC1 (2020-03-31)
+-----------------------------------------
+* DATAGEODE-320 - Upgrade to Pivotal GemFire 9.10.0.
+* DATAGEODE-319 - Improve @LocatorApplication to configure the Apache Geode locators property.
+* DATAGEODE-318 - Introduce a CacheResolver Strategy interface for resolving GemFireCache instances.
+* DATAGEODE-317 - Extend PoolResolver with require() method and additional implementations.
+* DATAGEODE-314 - Replace remaining uses of Apache Geode's PoolManager with PoolResolver.
+* DATAGEODE-313 - Downgrade (Neumann) to Apache Geode 1.10.
+* DATAGEODE-312 - Upgrade to Apache Geode 1.12.0.
+* DATAGEODE-311 - Allow Security configuration applied by Annotations to be used in LocatorApplications.
+* DATAGEODE-310 - Use Environment accessible properties to enable/disable Apache Shiro and Authentication Auto-configuration.
+* DATAGEODE-308 - Add test for Repository data access on Region configured with CacheLoader.
+* DATAGEODE-307 - Release 2.3 RC1 (Neumann).
+* DATAGEODE-297 - Create SDG CI builds covering Apache Geode 1.7, 1.8, 1.10, and 1.11.
+
+
 Changes in version 2.2.6.RELEASE (2020-03-25)
 ---------------------------------------------
 * DATAGEODE-314 - Replace remaining uses of Apache Geode's PoolManager with PoolResolver.
@@ -685,6 +701,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
