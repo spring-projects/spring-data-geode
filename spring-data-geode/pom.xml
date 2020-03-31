@@ -54,6 +54,13 @@
 
 		<dependency>
 			<groupId>org.apache.geode</groupId>
+			<artifactId>geode-gfsh</artifactId>
+			<version>${geode.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.geode</groupId>
 			<artifactId>geode-lucene</artifactId>
 			<version>${geode.version}</version>
 		</dependency>
