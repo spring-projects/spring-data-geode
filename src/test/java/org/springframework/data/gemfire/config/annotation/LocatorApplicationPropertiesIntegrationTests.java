@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,8 @@ public class LocatorApplicationPropertiesIntegrationTests {
 			.withProperty("spring.data.gemfire.locator.hostname-for-clients", "skullbox")
 			.withProperty("spring.data.gemfire.locator.log-level", "error")
 			.withProperty("spring.data.gemfire.locator.name", "MockLocator")
-			.withProperty("spring.data.gemfire.locator.port", 54321);
+			.withProperty("spring.data.gemfire.locator.port", 54321)
+			.withProperty("spring.data.gemfire.locators", "host1[1234],host2[6789]");
 
 		this.applicationContext = newApplicationContext(testPropertySource, TestConfiguration.class);
 
@@ -100,6 +101,7 @@ public class LocatorApplicationPropertiesIntegrationTests {
 		assertThat(locatorFactoryBean).isNotNull();
 		assertThat(locatorFactoryBean.getBindAddress().orElse(null)).isEqualTo("10.120.240.32");
 		assertThat(locatorFactoryBean.getHostnameForClients().orElse(null)).isEqualTo("skullbox");
+		assertThat(locatorFactoryBean.getLocators().orElse(null)).isEqualTo("host1[1234],host2[6789]");
 		assertThat(locatorFactoryBean.getLogLevel()).isEqualTo("error");
 		assertThat(locatorFactoryBean.getName().orElse(null)).isEqualTo("MockLocator");
 		assertThat(locatorFactoryBean.getPort()).isEqualTo(54321);
