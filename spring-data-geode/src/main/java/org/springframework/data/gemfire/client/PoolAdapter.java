@@ -14,13 +14,13 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.client;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 
 /**
@@ -106,6 +106,11 @@ public abstract class PoolAdapter implements Pool {
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
 	}
 
+	@Override
+	public int getServerConnectionTimeout() {
+		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+	}
+
 	public String getServerGroup() {
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
 	}
@@ -119,6 +124,10 @@ public abstract class PoolAdapter implements Pool {
 	}
 
 	public int getSocketConnectTimeout() {
+		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+	}
+
+	public SocketFactory getSocketFactory() {
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
 	}
 
