@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import java.lang.annotation.Documented;
@@ -117,7 +116,7 @@ public @interface PeerCacheApplication {
 	/**
 	 * Configures the list of Locators defining the cluster to which this Spring cache application will connect.
 	 *
-	 * Use {@literal spring.data.gemfire.cache.peer.locators} property in {@literal application.properties}.
+	 * Use {@literal spring.data.gemfire.locators} property in {@literal application.properties}.
 	 */
 	String locators() default "";
 
