@@ -59,6 +59,17 @@
 			<id>spring-libs-snapshot</id>
 			<url>https://repo.spring.io/libs-snapshot</url>
 		</repository>
+		<repository>
+			<id>geode-snapshot</id>
+			<name>Apache Geode Snapshots</name>
+			<url>https://maven.apachegeode-ci.info/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 <!--
 		<repository>
 			<id>apache-snapshots</id>
