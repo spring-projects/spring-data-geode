@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import org.junit.Test;
 import org.springframework.data.gemfire.test.support.MapBuilder;
 
 /**
- * Unit tests for {@link CollectionUtils}.
+ * Unit Tests for {@link CollectionUtils}.
  *
  * @author John Blum
  * @see java.lang.Iterable
@@ -245,7 +245,6 @@ public class CollectionUtilsUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void iterableOfNullEnumeration() {
 
 		Iterable<?> iterable = CollectionUtils.iterable((Enumeration<?>) null);
@@ -323,7 +322,7 @@ public class CollectionUtilsUnitTests {
 	@Test
 	public void nullSafeCollectionWithNullCollection() {
 
-		Collection collection = CollectionUtils.nullSafeCollection(null);
+		Collection<?> collection = CollectionUtils.nullSafeCollection(null);
 
 		assertThat(collection).isNotNull();
 		assertThat(collection.isEmpty()).isTrue();
@@ -508,6 +507,39 @@ public class CollectionUtilsUnitTests {
 	}
 
 	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void nullSafeIsEmptyIterableWithNonNullNonEmptyIterableReturnsFalse() {
+
+		Iterator mockIterator = mock(Iterator.class);
+
+		when(mockIterator.hasNext()).thenReturn(true);
+
+		assertThat(CollectionUtils.nullSafeIsEmpty(() -> mockIterator)).isFalse();
+
+		verify(mockIterator, times(1)).hasNext();
+		verifyNoMoreInteractions(mockIterator);
+	}
+
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void nullSafeIsEmptyIterableWithEmptyIterableReturnsTrue() {
+
+		Iterator mockIterator = mock(Iterator.class);
+
+		when(mockIterator.hasNext()).thenReturn(false);
+
+		assertThat(CollectionUtils.nullSafeIsEmpty(() -> mockIterator)).isTrue();
+
+		verify(mockIterator, times(1)).hasNext();
+		verifyNoMoreInteractions(mockIterator);
+	}
+
+	@Test
+	public void nullSafeIsEmptyWithNullIterableReturnsTrue() {
+		assertThat(CollectionUtils.nullSafeIsEmpty((Iterable<?>) null)).isTrue();
+	}
+
+	@Test
 	public void nullSafeIsEmptyMapWithNonNullNonEmptyMapReturnsFalse() {
 		assertThat(CollectionUtils.isEmpty(Collections.singletonMap("key", "value"))).isFalse();
 	}
@@ -537,6 +569,35 @@ public class CollectionUtilsUnitTests {
 	@Test
 	public void nullSafeCollectionSizeWithNullCollectionReturnsZero() {
 		assertThat(CollectionUtils.nullSafeSize((Collection<?>) null)).isZero();
+	}
+
+	@Test
+	public void nullSafeIterableSizeWithNonNullNonEmptyIterable() {
+
+		Iterable<String> iterable = () -> Arrays.asList("test", "testing", "tested").iterator();
+
+		assertThat(CollectionUtils.nullSafeSize(iterable)).isEqualTo(3);
+	}
+
+	@Test
+	public void nullSafeIterableSizeWithSingleElementIterable() {
+
+		Iterable<String> iterable = () -> Collections.singleton("mock").iterator();
+
+		assertThat(CollectionUtils.nullSafeSize(iterable)).isOne();
+	}
+
+	@Test
+	public void nullSafeIterableSizeWithEmptyIterable() {
+
+		Iterable<?> iterable = () -> Collections.emptyIterator();
+
+		assertThat(CollectionUtils.nullSafeSize(iterable)).isZero();
+	}
+
+	@Test
+	public void nullSafeIterableSizeWithNullIterable() {
+		assertThat(CollectionUtils.nullSafeSize((Iterable<?>) null)).isZero();
 	}
 
 	@Test

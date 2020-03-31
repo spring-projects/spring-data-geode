@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.StreamSupport;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -285,6 +286,18 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	}
 
 	/**
+	 * Determines whether the given {@link Iterable} is empty.
+	 *
+	 * @param iterable {@link Iterable} to evaluate.
+	 * @return a boolean value indicating whether the given {@link Iterable} is empty.
+	 * @see java.lang.Iterable
+	 * @see #nullSafeIterable(Iterable)
+	 */
+	public static boolean nullSafeIsEmpty(@Nullable Iterable<?> iterable) {
+		return !nullSafeIterable(iterable).iterator().hasNext();
+	}
+
+	/**
 	 * Determines whether the given {@link Map} is {@link Map#isEmpty() empty}.
 	 *
 	 * @param map {@link Map} to evaluate.
@@ -306,6 +319,19 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 */
 	public static int nullSafeSize(@Nullable Collection<?> collection) {
 		return nullSafeCollection(collection).size();
+	}
+
+	/**
+	 * Determines the {@link Long size} of the give {@link Iterable}.
+	 *
+	 * @param iterable {@link Iterable} to evaluate.
+	 * @return the {@link Long size} indicating the number of elements contained by the given {@link Iterable}.
+	 * If {@link Iterable} is {@literal null}, then returns {@literal 0}.
+	 * @see java.lang.Iterable
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static long nullSafeSize(@Nullable Iterable iterable) {
+		return StreamSupport.stream(nullSafeIterable(iterable).spliterator(), false).count();
 	}
 
 	/**
