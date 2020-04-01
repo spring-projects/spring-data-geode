@@ -15,16 +15,19 @@ package org.springframework.data.gemfire.function.execution;
 import java.util.Set;
 
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.Function;
 
 import org.springframework.util.Assert;
 
 /**
- * An {@link AbstractFunctionTemplate} implementation for executing a {@link Function} on a target {@link Region}.
+ * An {@link AbstractFunctionTemplate} implementation for {@link Execution executing} a {@link Function}
+ * on a target {@link Region}.
  *
  * @author David Turanski
  * @author John Blum
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
  * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
  * @see org.springframework.data.gemfire.function.execution.GemfireOnRegionOperations

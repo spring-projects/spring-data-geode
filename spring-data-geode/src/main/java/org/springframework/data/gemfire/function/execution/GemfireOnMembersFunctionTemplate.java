@@ -17,38 +17,42 @@ import java.util.Set;
 import org.apache.geode.distributed.DistributedMember;
 
 /**
+ *
  * @author David Turanski
- * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
+ * @author John Blum
  * @see org.apache.geode.distributed.DistributedMember
+ * @see org.springframework.data.gemfire.function.execution.AbstractFunctionTemplate
  */
-public class GemfireOnMembersFunctionTemplate  extends AbstractFunctionTemplate {
+public class GemfireOnMembersFunctionTemplate extends AbstractFunctionTemplate {
 
 	private final Set<DistributedMember> distributedMembers;
+
     private final String[] groups;
 
-	public GemfireOnMembersFunctionTemplate (Set<DistributedMember> distributedMembers) {
+	public GemfireOnMembersFunctionTemplate() {
+		this.distributedMembers = null;
+		this.groups = null;
+	}
+
+	public GemfireOnMembersFunctionTemplate(Set<DistributedMember> distributedMembers) {
 		this.distributedMembers = distributedMembers;
 		this.groups = null;
 	}
 
-	public GemfireOnMembersFunctionTemplate (String[] groups) {
+	public GemfireOnMembersFunctionTemplate(String[] groups) {
 		this.distributedMembers = null;
 		this.groups = groups;
 	}
 
-	public GemfireOnMembersFunctionTemplate () {
-		this.distributedMembers = null;
-		this.groups = null;
-	}
-
 	protected AbstractFunctionExecution getFunctionExecution() {
-		if (distributedMembers == null && groups == null) {
+
+		if (this.distributedMembers == null && this.groups == null) {
 			return new OnAllMembersFunctionExecution();
-		} else if (distributedMembers == null) {
+		}
+		else if (this.distributedMembers == null) {
 			return new OnMembersInGroupsFunctionExecution(this.groups);
 		}
 
 		return new OnDistributedMembersFunctionExecution(this.distributedMembers);
 	}
-
 }
