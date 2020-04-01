@@ -19,8 +19,10 @@ import java.util.Optional;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 
+import org.springframework.data.gemfire.util.CacheUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -41,6 +43,21 @@ import org.springframework.util.StringUtils;
  */
 @FunctionalInterface
 public interface PoolResolver {
+
+	String DEFAULT_POOL_NAME = CacheUtils.DEFAULT_POOL_NAME;
+
+	/**
+	 * Resolves the {@literal DEFAULT} {@link Pool} from the given {@link ClientCache} instance.
+	 *
+	 * @param clientCache {@link ClientCache} instance from which to resolve the {@literal DEFAULT} {@link Pool}.
+	 * @return the configured {@literal DEFAULT} {@link Pool} from the given {@link ClientCache} instance.
+	 * @see org.apache.geode.cache.client.ClientCache#getDefaultPool()
+	 * @see org.apache.geode.cache.client.ClientCache
+	 * @see org.apache.geode.cache.client.Pool
+	 */
+	default @Nullable Pool resolve(@Nullable ClientCache clientCache) {
+		return clientCache != null ? clientCache.getDefaultPool() : null;
+	}
 
 	/**
 	 * Resolves the {@link Pool} instance used by the given {@link Region}.

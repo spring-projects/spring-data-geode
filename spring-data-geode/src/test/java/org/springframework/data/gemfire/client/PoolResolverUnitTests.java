@@ -34,6 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 
 /**
@@ -58,10 +59,30 @@ public class PoolResolverUnitTests {
 	@Before
 	public void setup() {
 		when(this.testPoolResolver.resolve(any(Region.class))).thenCallRealMethod();
+		when(this.testPoolResolver.resolve(any(ClientCache.class))).thenCallRealMethod();
 	}
 
 	@Test
-	public void resolvePoolFromRegionWithPoolReturnsPool() {
+	public void resolvePoolFromClientCacheHavingDefaultPoolReturnsDefaultPool() {
+
+		ClientCache mockClientCache = mock(ClientCache.class);
+
+		Pool mockDefaultPool = mock(Pool.class, "DEFAULT");
+
+		when(mockClientCache.getDefaultPool()).thenReturn(mockDefaultPool);
+
+		assertThat(this.testPoolResolver.resolve(mockClientCache)).isEqualTo(mockDefaultPool);
+
+		verify(mockClientCache, times(1)).getDefaultPool();
+	}
+
+	@Test
+	public void resolvePoolFromNullClientCacheIsNullSafe() {
+		assertThat(this.testPoolResolver.resolve((ClientCache) null)).isNull();
+	}
+
+	@Test
+	public void resolvePoolFromRegionWithConfiguredPoolNameReturnsPool() {
 
 		Pool mockPool = mock(Pool.class);
 
@@ -94,22 +115,30 @@ public class PoolResolverUnitTests {
 
 		verify(mockRegion, times(1)).getAttributes();
 		verify(mockRegionAttributes, times(1)).getPoolName();
-		verify(this.testPoolResolver, never()).resolve(eq(poolName));
 	}
 
 	@Test
 	public void resolvePoolWithRegionWithBlankPoolNameReturnsNull() {
 		testResolvePoolFromRegionWithNoPoolReturnsNull("  ");
+		verify(this.testPoolResolver, never()).resolve(anyString());
 	}
 
 	@Test
 	public void resolvePoolWithRegionWithEmptyPoolNameReturnsNull() {
 		testResolvePoolFromRegionWithNoPoolReturnsNull("");
+		verify(this.testPoolResolver, never()).resolve(anyString());
 	}
 
 	@Test
 	public void resolvePoolWithRegionWithNullPoolNameReturnsNull() {
 		testResolvePoolFromRegionWithNoPoolReturnsNull(null);
+		verify(this.testPoolResolver, never()).resolve(any(String.class));
+	}
+
+	@Test
+	public void resolvePoolWithRegionWithNonExistingPoolForNameReturnsNull() {
+		testResolvePoolFromRegionWithNoPoolReturnsNull("NonExistingPool");
+		verify(this.testPoolResolver, times(1)).resolve(eq("NonExistingPool"));
 	}
 
 	@Test
