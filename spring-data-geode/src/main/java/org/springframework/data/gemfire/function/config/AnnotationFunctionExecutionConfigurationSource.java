@@ -13,6 +13,7 @@
 package org.springframework.data.gemfire.function.config;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
+import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -48,12 +49,13 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 	private final AnnotationMetadata metadata;
 	private final AnnotationAttributes attributes;
 
-
 	/**
-	 * Creates a new {@link AnnotationFunctionExecutionConfigurationSource} from the given {@link AnnotationMetadata} and
-	 * annotation.
+	 * Creates a new instance of {@link AnnotationFunctionExecutionConfigurationSource} from
+	 * the given {@link AnnotationMetadata} and {@link EnableGemfireFunctionExecutions} annotation.
 	 *
-	 * @param metadata must not be {@literal null}.
+	 * @param metadata {@link AnnotationMetadata} for the {@link EnableGemfireFunctionExecutions} annotation;
+	 * must not be {@literal null}.
+	 * @see org.springframework.core.type.AnnotationMetadata
 	 */
 	 public AnnotationFunctionExecutionConfigurationSource(AnnotationMetadata metadata) {
 
@@ -64,8 +66,6 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 
 		this.metadata = metadata;
 	}
-
-
 
 	/* (non-Javadoc)
 	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getSource()
@@ -108,7 +108,7 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 
 	private boolean areAllEmpty(Object[]... arrays) {
 
-		for (Object[] array : arrays) {
+		for (Object[] array : ArrayUtils.nullSafeArray(arrays, Object[].class)) {
 			if (!ArrayUtils.isEmpty(array)) {
 				return false;
 			}
@@ -129,12 +129,13 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 
 	private Set<TypeFilter> parseFilters(String attributeName) {
 
-		Set<TypeFilter> result = new HashSet<TypeFilter>();
-		AnnotationAttributes[] filters = attributes.getAnnotationArray(attributeName);
+		Set<TypeFilter> result = new HashSet<>();
 
-		for (AnnotationAttributes filter : filters) {
-			result.addAll(typeFiltersFor(filter));
-		}
+		AnnotationAttributes[] filters = this.attributes.getAnnotationArray(attributeName);
+
+		Arrays.stream(ArrayUtils.nullSafeArray(filters, AnnotationAttributes.class))
+			.map(this::typeFiltersFor)
+			.forEach(result::addAll);
 
 		return result;
 	}
@@ -142,19 +143,23 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 	/**
 	 * Copy of {@code ComponentScanAnnotationParser#typeFiltersFor}.
 	 *
-	 * @param filterAttributes
-	 * @return
+	 * @param filterAttributes {@link AnnotationAttributes} for the {@literal include} and {@literal exclude} filters.
+	 * @return a {@link List} of {@link TypeFilter TypeFilters} based on the configuration of the {@literal include}
+	 * and {@literal exclude} attributes.
+	 * @see org.springframework.core.annotation.AnnotationAttributes
 	 */
+	@SuppressWarnings("unchecked")
 	private List<TypeFilter> typeFiltersFor(AnnotationAttributes filterAttributes) {
-		List<TypeFilter> typeFilters = new ArrayList<TypeFilter>();
+
+		List<TypeFilter> typeFilters = new ArrayList<>();
+
 		FilterType filterType = filterAttributes.getEnum("type");
 
 		for (Class<?> filterClass : filterAttributes.getClassArray("value")) {
 			switch (filterType) {
 			case ANNOTATION:
-				Assert.isAssignable(Annotation.class, filterClass, "An error occured when processing a @ComponentScan "
-						+ "ANNOTATION type filter: ");
-				@SuppressWarnings("unchecked")
+				String message = "An error occured when processing a @ComponentScan ANNOTATION type filter: ";
+				Assert.isAssignable(Annotation.class, filterClass, message);
 				Class<Annotation> annoClass = (Class<Annotation>) filterClass;
 				typeFilters.add(new AnnotationTypeFilter(annoClass));
 				break;
@@ -162,15 +167,15 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 				typeFilters.add(new AssignableTypeFilter(filterClass));
 				break;
 			case CUSTOM:
-				Assert.isAssignable(TypeFilter.class, filterClass, "An error occured when processing a @ComponentScan "
-						+ "CUSTOM type filter: ");
+				message = "An error occurred when processing a @ComponentScan CUSTOM type filter: ";
+				Assert.isAssignable(TypeFilter.class, filterClass, message);
 				typeFilters.add(BeanUtils.instantiateClass(filterClass, TypeFilter.class));
 				break;
 			default:
-				throw new IllegalArgumentException("unknown filter type " + filterType);
+				throw newIllegalArgumentException("Unknown filter type [%s]", filterType);
 			}
 		}
+
 		return typeFilters;
 	}
-
 }

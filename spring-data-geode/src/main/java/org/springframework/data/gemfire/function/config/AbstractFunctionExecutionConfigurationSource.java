@@ -16,8 +16,6 @@
  */
 package org.springframework.data.gemfire.function.config;
 
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
-
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,9 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
@@ -37,15 +32,13 @@ import org.springframework.data.gemfire.function.annotation.OnMembers;
 import org.springframework.data.gemfire.function.annotation.OnRegion;
 import org.springframework.data.gemfire.function.annotation.OnServer;
 import org.springframework.data.gemfire.function.annotation.OnServers;
+import org.springframework.data.gemfire.util.CollectionUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
-<<<<<<< Updated upstream
- * Annotation based configuration source for function executions
- *
- * @author David Turanski
-=======
  * Abstract base class and configuration source for Function Executions.
->>>>>>> Stashed changes
  *
  * @author David Turanski
  * @author John Blum
@@ -73,7 +66,10 @@ public abstract class AbstractFunctionExecutionConfigurationSource implements Fu
 	}
 
 	public static Set<String> getFunctionExecutionAnnotationTypeNames() {
-		return getFunctionExecutionAnnotationTypes().stream().map(Class::getName).collect(Collectors.toSet());
+
+		return getFunctionExecutionAnnotationTypes().stream()
+			.map(Class::getName)
+			.collect(Collectors.toSet());
 	}
 
 	protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -85,19 +81,19 @@ public abstract class AbstractFunctionExecutionConfigurationSource implements Fu
 
 		scanner.setResourceLoader(loader);
 
-		StreamSupport.stream(nullSafeIterable(getExcludeFilters()).spliterator(), false)
+		StreamSupport.stream(CollectionUtils.nullSafeIterable(getExcludeFilters()).spliterator(), false)
 			.forEach(scanner::addExcludeFilter);
 
 		Set<ScannedGenericBeanDefinition> result = new HashSet<>();
 
 		for (String basePackage : getBasePackages()) {
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("scanning package " + basePackage);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug("Scanning Package [{}]", basePackage);
 			}
 
 			scanner.findCandidateComponents(basePackage).stream()
-				.map(beanDefinition -> (ScannedGenericBeanDefinition) beanDefinition)
+				.map(ScannedGenericBeanDefinition.class::cast)
 				.forEach(result::add);
 		}
 

@@ -35,7 +35,7 @@ class FunctionExecutionConfiguration  {
 
 	private final String annotationType;
 
-	/* constructor for testing purposes only */
+	/* Constructor used for testing purposes only! */
 	FunctionExecutionConfiguration() {
 		this.annotationType = null;
 		this.annotationAttributes = null;

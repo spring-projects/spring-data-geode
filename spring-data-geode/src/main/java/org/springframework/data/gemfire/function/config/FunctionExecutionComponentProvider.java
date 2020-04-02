@@ -26,6 +26,7 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import org.springframework.core.type.filter.TypeFilter;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -36,7 +37,6 @@ import org.springframework.util.Assert;
  */
 class FunctionExecutionComponentProvider extends ClassPathScanningCandidateComponentProvider {
 
-
 	private final Set<Class<? extends Annotation>> functionExecutionAnnotationTypes;
 
 	/**
@@ -46,41 +46,48 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 	 * @param includeFilters the {@link TypeFilter}s to select function execution interfaces to consider, must not be
 	 *          {@literal null}.
 	 */
-	public FunctionExecutionComponentProvider(Iterable<? extends TypeFilter> includeFilters , Set<Class<? extends Annotation>> functionExecutionAnnotationTypes) {
+	public FunctionExecutionComponentProvider(Iterable<? extends TypeFilter> includeFilters ,
+			Set<Class<? extends Annotation>> functionExecutionAnnotationTypes) {
 
 		super(false);
 
 		this.functionExecutionAnnotationTypes = functionExecutionAnnotationTypes;
-		Assert.notNull(includeFilters);
 
-		if (includeFilters.iterator().hasNext()) {
+		if (!CollectionUtils.nullSafeIsEmpty(includeFilters)) {
 			for (TypeFilter filter : includeFilters) {
 				addIncludeFilter(filter);
 			}
-		} else {
-			for (Class<? extends Annotation> annotation: this.functionExecutionAnnotationTypes) {
+		}
+		else {
+			for (Class<? extends Annotation> annotation : this.functionExecutionAnnotationTypes) {
 				super.addIncludeFilter(new AnnotationTypeFilter(annotation, true, true));
 			}
 		}
 	}
 
 	/**
-	 * Custom extension of {@link #addIncludeFilter(TypeFilter)} to extend the added {@link TypeFilter}. For the
-	 * {@link TypeFilter} handed we'll have two filters registered: one additionally enforcing the
-	 * {@link FunctionExecutionDefinition} annotation, the other one forcing the extension of {@link AbstractFunctionExecution}.
+	 * Custom extension of {@link ClassPathScanningCandidateComponentProvider#addIncludeFilter(TypeFilter)}
+	 * to extend the added {@link TypeFilter}.
+	 *
+	 * For the {@link TypeFilter} handed, we will have two filters registered: one additionally enforcing the
+	 * annotation and the other one forcing the extension of {@literal AbstractFunctionExecution}.
 	 *
 	 * @see ClassPathScanningCandidateComponentProvider#addIncludeFilter(TypeFilter)
 	 */
 	@Override
 	public void addIncludeFilter(TypeFilter includeFilter) {
 
-		List<TypeFilter> filterPlusInterface = new ArrayList<TypeFilter>();
+		List<TypeFilter> filterPlusInterface = new ArrayList<>();
+
+		// TODO: What about the interface?
 		filterPlusInterface.add(includeFilter);
 
 		super.addIncludeFilter(new AllTypeFilter(filterPlusInterface));
 
-		List<TypeFilter> filterPlusAnnotation = new ArrayList<TypeFilter>();
+		List<TypeFilter> filterPlusAnnotation = new ArrayList<>();
+
 		filterPlusAnnotation.add(includeFilter);
+
 		for (Class<? extends Annotation> annotation: this.functionExecutionAnnotationTypes) {
 			filterPlusAnnotation.add(new AnnotationTypeFilter(annotation, true, true));
 		}
@@ -150,27 +157,34 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 		 */
 		public AnnotationTypeFilter(Class<? extends Annotation> annotationType, boolean considerMetaAnnotations,
 				boolean considerInterfaces) {
+
 			super(annotationType.isAnnotationPresent(Inherited.class), considerInterfaces);
+
 			this.annotationType = annotationType;
 			this.considerMetaAnnotations = considerMetaAnnotations;
 		}
 
 		@Override
 		protected boolean matchSelf(MetadataReader metadataReader) {
+
 			AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
+
 			return metadata.hasAnnotation(this.annotationType.getName())
 					|| (this.considerMetaAnnotations && metadata.hasMetaAnnotation(this.annotationType.getName()));
 		}
 
 		@Override
 		protected Boolean matchSuperClass(String superClassName) {
+
 			if (Object.class.getName().equals(superClassName)) {
 				return Boolean.FALSE;
-			} else if (superClassName.startsWith("java.")) {
+			}
+			else if (superClassName.startsWith("java.")) {
 				try {
-					Class<?> clazz = getClass().getClassLoader().loadClass(superClassName);
-					return (clazz.getAnnotation(this.annotationType) != null);
-				} catch (ClassNotFoundException ex) {
+					Class<?> type = getClass().getClassLoader().loadClass(superClassName);
+					return type.getAnnotation(this.annotationType) != null;
+				}
+				catch (ClassNotFoundException ignore) {
 					// Class not found - can't determine a match that way.
 				}
 			}
@@ -194,7 +208,8 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 		 */
 		public AllTypeFilter(List<TypeFilter> delegates) {
 
-			Assert.notNull(delegates);
+			Assert.notNull(delegates, "Delegate TypeFilters must not be null");
+
 			this.delegates = delegates;
 		}
 
@@ -204,7 +219,7 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 		 */
 		public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
 
-			for (TypeFilter filter : delegates) {
+			for (TypeFilter filter : this.delegates) {
 				if (!filter.match(metadataReader, metadataReaderFactory)) {
 					return false;
 				}
@@ -214,4 +229,3 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 		}
 	}
 }
-

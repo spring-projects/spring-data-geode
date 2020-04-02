@@ -14,15 +14,12 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.config;
 
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
 import java.util.Optional;
 import java.util.Set;
-
-import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -39,6 +36,8 @@ import org.springframework.data.gemfire.function.annotation.OnServer;
 import org.springframework.data.gemfire.function.annotation.OnServers;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import org.w3c.dom.Element;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} for {@link EnableGemfireFunctionExecutions}, which scans for interfaces
@@ -101,8 +100,8 @@ public class FunctionExecutionBeanDefinitionRegistrar implements ImportBeanDefin
 
 			String functionExecutionAnnotation =
 				Optional.ofNullable(getFunctionExecutionAnnotation(beanDefinition, functionExecutionAnnotationTypeNames))
-					.orElseThrow(() -> newIllegalStateException(String.format("No Function Execution Annotation [%1$s] found for type [%2$s]",
-						functionExecutionAnnotationTypeNames, beanDefinition.getBeanClassName())));
+					.orElseThrow(() -> newIllegalStateException("No Function Execution Annotation [%1$s] found for type [%2$s]",
+						functionExecutionAnnotationTypeNames, beanDefinition.getBeanClassName()));
 
 			String beanName = Optional.of(beanDefinition.getMetadata())
 				.map(annotationMetadata -> annotationMetadata.getAnnotationAttributes(functionExecutionAnnotation))
