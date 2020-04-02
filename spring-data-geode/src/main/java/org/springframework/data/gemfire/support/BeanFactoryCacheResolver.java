@@ -15,6 +15,8 @@
  */
 package org.springframework.data.gemfire.support;
 
+import java.util.Optional;
+
 import org.apache.geode.cache.GemFireCache;
 
 import org.springframework.beans.BeansException;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.data.gemfire.CacheResolver;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Cacheable {@link CacheResolver} implementation capable of resolving a {@link GemFireCache} instance
@@ -39,6 +42,8 @@ import org.springframework.util.Assert;
 public class BeanFactoryCacheResolver extends AbstractCachingCacheResolver<GemFireCache> implements BeanFactoryAware {
 
 	private BeanFactory beanFactory;
+
+	private String cacheBeanName;
 
 	/**
 	 * Constructs a new instance of {@link BeanFactoryCacheResolver} initialized with the given, required
@@ -80,6 +85,28 @@ public class BeanFactoryCacheResolver extends AbstractCachingCacheResolver<GemFi
 	}
 
 	/**
+	 * Sets (configures) the {@link String bean name} used to further qualify the resolution of
+	 * the {@link GemFireCache} object reference in a Spring context.
+	 *
+	 * @param cacheBeanName {@link String name} of the {@link GemFireCache} bean in the Spring context.
+	 */
+	public void setCacheBeanName(String cacheBeanName) {
+		this.cacheBeanName = cacheBeanName;
+	}
+
+	/**
+	 * Returns the optionally configured {@link String bean name} used to further qualify the resolution of
+	 * the {@link GemFireCache} object reference in a Spring context.
+	 *
+	 * @return the configured {@link String name} of the {@link GemFireCache} bean in the Spring context.
+	 */
+	public Optional<String> getCacheBeanName() {
+
+		return Optional.ofNullable(this.cacheBeanName)
+			.filter(StringUtils::hasText);
+	}
+
+	/**
 	 * Uses the configured Spring {@link BeanFactory} to resolve a reference to
 	 * the single {@link GemFireCache} instance.
 	 *
@@ -90,6 +117,9 @@ public class BeanFactoryCacheResolver extends AbstractCachingCacheResolver<GemFi
 	 */
 	@Override
 	protected GemFireCache doResolve() {
-		return getBeanFactory().getBean(GemFireCache.class);
+
+		return getCacheBeanName()
+			.map(cacheBeanName -> getBeanFactory().getBean(cacheBeanName, GemFireCache.class))
+			.orElse(getBeanFactory().getBean(GemFireCache.class));
 	}
 }
