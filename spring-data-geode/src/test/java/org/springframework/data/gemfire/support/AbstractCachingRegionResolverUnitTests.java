@@ -85,6 +85,33 @@ public class AbstractCachingRegionResolverUnitTests {
 		verifyNoMoreInteractions(mockRegion);
 	}
 
+	public void testResolveWithInvalidRegionName(String regionName) {
+
+		AbstractCachingRegionResolver regionResolver = spy(AbstractCachingRegionResolver.class);
+
+		when(regionResolver.resolve(any())).thenCallRealMethod();
+
+		assertThat(regionResolver.resolve(regionName)).isNull();
+
+		verify(regionResolver, never()).doResolveAndRegisterResolverAsCacheListener(anyString());
+		verify(regionResolver, never()).doResolve(anyString());
+	}
+
+	@Test
+	public void resolveWithBlankRegionNameReturnsNull() {
+		testResolveWithInvalidRegionName("  ");
+	}
+
+	@Test
+	public void resolveWithEmptyRegionNameReturnsNull() {
+		testResolveWithInvalidRegionName("");
+	}
+
+	@Test
+	public void resolveWithNullRegionNameReturnsNull() {
+		testResolveWithInvalidRegionName(null);
+	}
+
 	@Test
 	public void afterRegionDestroyClearsCacheEntryForCachedRegionWithName() {
 

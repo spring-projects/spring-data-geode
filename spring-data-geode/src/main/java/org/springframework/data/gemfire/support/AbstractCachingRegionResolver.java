@@ -63,7 +63,10 @@ public abstract class AbstractCachingRegionResolver extends CacheListenerAdapter
 	 */
 	@Nullable @Override @SuppressWarnings("unchecked")
 	public synchronized <K, V> Region<K, V> resolve(@Nullable String regionName) {
-		return this.nameToRegionCache.computeIfAbsent(regionName, this::doResolveAndRegisterResolverAsCacheListener);
+
+		return StringUtils.hasText(regionName)
+			? this.nameToRegionCache.computeIfAbsent(regionName, this::doResolveAndRegisterResolverAsCacheListener)
+			: null;
 	}
 
 	/**
