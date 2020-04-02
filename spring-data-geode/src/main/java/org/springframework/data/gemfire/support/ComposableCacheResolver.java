@@ -48,7 +48,7 @@ public class ComposableCacheResolver<T extends GemFireCache> extends AbstractCac
 	private final CacheResolver<T> cacheResolverTwo;
 
 	/**
-	 * Null-safe factory method to compose an array of {@link CacheResolver} objects in a composition.
+	 * Factory method used to compose an array of {@link CacheResolver CacheResolvers} in a composition.
 	 *
 	 * @param <T> {@link Class subclass} of {@link GemFireCache}.
 	 * @param cacheResolvers array of {@link CacheResolver CacheResolvers} to compose; may be {@literal null}.
@@ -63,14 +63,17 @@ public class ComposableCacheResolver<T extends GemFireCache> extends AbstractCac
 	}
 
 	/**
-	 * Null-safe factory method to compose an {@link Iterable} of {@link CacheResolver} objects in a composition.
+	 * Factory method used to compose an {@link Iterable} collection of {@link CacheResolver CacheResolvers}
+	 * in a composition.
 	 *
 	 * @param <T> {@link Class subclass} of {@link GemFireCache}.
-	 * @param cacheResolvers {@link Iterable} of {@link CacheResolver CacheResolvers} to compose; may be {@literal null}.
-	 * @return a composition from the {@link Iterable} of {@link CacheResolver CacheResolvers}; may be {@literal null}.
+	 * @param cacheResolvers {@link Iterable} collection of {@link CacheResolver CacheResolvers} to compose;
+	 * may be {@literal null}.
+	 * @return a composition from the {@link Iterable} collection of {@link CacheResolver CacheResolvers};
+	 * may be {@literal null}.
+	 * @see #compose(CacheResolver, CacheResolver)
 	 * @see org.springframework.data.gemfire.CacheResolver
 	 * @see java.lang.Iterable
-	 * @see #compose(CacheResolver, CacheResolver)
 	 */
 	@Nullable
 	public static <T extends GemFireCache> CacheResolver<T> compose(@Nullable Iterable<CacheResolver<T>> cacheResolvers) {
@@ -105,14 +108,15 @@ public class ComposableCacheResolver<T extends GemFireCache> extends AbstractCac
 
 	/**
 	 * Constructs a new instance of {@link ComposableCacheResolver} initialized and composed with
-	 * the given {@link CacheResolver} objects/arguments.
+	 * the given {@link CacheResolver CacheResolvers} forming the composition.
 	 *
 	 * @param cacheResolverOne first {@link CacheResolver} in the composition.
 	 * @param cacheResolverTwo second {@link CacheResolver} in the composition.
 	 * @throws IllegalArgumentException if either {@link CacheResolver} argument is {@literal null}.
 	 * @see org.springframework.data.gemfire.CacheResolver
 	 */
-	protected ComposableCacheResolver(CacheResolver<T> cacheResolverOne, CacheResolver<T> cacheResolverTwo) {
+	protected ComposableCacheResolver(@NonNull CacheResolver<T> cacheResolverOne,
+			@NonNull CacheResolver<T> cacheResolverTwo) {
 
 		Assert.notNull(cacheResolverOne, "CacheResolver 1 must not be null");
 		Assert.notNull(cacheResolverTwo, "CacheResolver 2 must not be null");
@@ -137,13 +141,13 @@ public class ComposableCacheResolver<T extends GemFireCache> extends AbstractCac
 	 * @return a reference to the second {@link CacheResolver} in the composition.
 	 * @see org.springframework.data.gemfire.CacheResolver
 	 */
-	protected CacheResolver<T> getCacheResolverTwo() {
+	protected @NonNull CacheResolver<T> getCacheResolverTwo() {
 		return this.cacheResolverTwo;
 	}
 
 	/**
 	 * Resolves the first, single reference to a {@link GemFireCache}, handling any {@link Exception Exceptions}
-	 * throwing by composed {@link CacheResolver CacheResolvers}, such as a {@link CacheClosedException}.
+	 * throwing by the composed {@link CacheResolver CacheResolvers}, such as a {@link CacheClosedException}.
 	 *
 	 * This method may ultimately still result in a thrown {@link Exception}, but it will make a best effort to
 	 * exhaustively consult all composed {@link CacheResolver CacheResolvers}.
