@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.util;
 
 import java.util.function.Predicate;
@@ -25,9 +24,11 @@ import org.springframework.lang.Nullable;
  *
  * @author John Blum
  * @param <T> {@link Class type} of {@link Object objects} being filtered.
+ * @see java.lang.FunctionalInterface
  * @see java.util.function.Predicate
  * @since 1.0.0
  */
+@FunctionalInterface
 public interface Filter<T> extends Predicate<T> {
 
 	/**
