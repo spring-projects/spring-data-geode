@@ -815,7 +815,6 @@ public abstract class AbstractAnnotationConfigSupport
 	 * For non-{@link String} values, this means the value must not be {@literal null}.
 	 * @see #resolveProperty(String, Class, Object)
 	 */
-	@SuppressWarnings("all")
 	protected <T> T requireProperty(String propertyName, Class<T> type) {
 
 		return Optional.of(propertyName)
