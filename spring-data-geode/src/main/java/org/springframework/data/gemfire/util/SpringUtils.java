@@ -21,17 +21,30 @@ import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.annotation.OrderUtils;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -75,6 +88,90 @@ public abstract class SpringUtils {
 		beanDefinition.setDependsOn(dependsOnList.toArray(new String[0]));
 
 		return beanDefinition;
+	}
+
+	@NonNull
+	public static <T> List<T> getBeansOfTypeOrdered(@NonNull ConfigurableListableBeanFactory beanFactory,
+			@NonNull Class<T> beanType) {
+
+		return getBeansOfTypeOrdered(beanFactory, beanType, true, true);
+	}
+
+	@NonNull
+	public static <T> List<T> getBeansOfTypeOrdered(@NonNull ConfigurableListableBeanFactory beanFactory,
+			@NonNull Class<T> beanType, boolean includeNonSingletons, boolean allowEagerInit) {
+
+		Assert.notNull(beanFactory, "BeanFactory must not be null");
+		Assert.notNull(beanType, "Bean type must not be null");
+
+		Map<String, T> beansOfType = beanFactory.getBeansOfType(beanType, includeNonSingletons, allowEagerInit);
+
+		Set<String> beanNamesOfType = new HashSet<>(beansOfType.keySet());
+
+		// Handles @Order annotated beans and beans implementing the Ordered interface
+		List<OrderedBeanWrapper<T>> orderedBeansOfType =
+			CollectionUtils.nullSafeMap(beansOfType).entrySet().stream()
+				.map(SpringUtils::toOrderedBeanWrapper)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+
+		Set<String> orderedBeanNamesOfType = orderedBeansOfType.stream()
+			.map(OrderedBeanWrapper::getBeanName)
+			.collect(Collectors.toSet());
+
+		Set<String> unorderedBeanNamesOfType = new HashSet<>(beanNamesOfType);
+
+		// Set Difference
+		unorderedBeanNamesOfType.removeAll(orderedBeanNamesOfType);
+
+		orderedBeansOfType.addAll(orderUnorderedBeans(beanFactory, beansOfType, unorderedBeanNamesOfType));
+		orderedBeansOfType.sort(AnnotationAwareOrderComparator.INSTANCE);
+
+		return orderedBeansOfType.stream()
+			.map(OrderedBeanWrapper::getBean)
+			.collect(Collectors.toList());
+	}
+
+	private static <T> List<OrderedBeanWrapper<T>> orderUnorderedBeans(@NonNull ConfigurableListableBeanFactory beanFactory,
+			@NonNull Map<String, T> beansOfType, @NonNull Set<String> unorderedBeanNames) {
+
+		List<OrderedBeanWrapper<T>> orderedBeanWrappers = new ArrayList<>(unorderedBeanNames.size());
+
+		for (String beanName : unorderedBeanNames) {
+
+			Integer order = Optional.ofNullable(beanName)
+				.filter(StringUtils::hasText)
+				.map(beanFactory::getBeanDefinition)
+				.filter(AnnotatedBeanDefinition.class::isInstance)
+				.map(AnnotatedBeanDefinition.class::cast)
+				.map(AnnotatedBeanDefinition::getFactoryMethodMetadata)
+				.filter(methodMetadata -> methodMetadata.isAnnotated(Order.class.getName()))
+				.map(methodMetadata -> methodMetadata.getAnnotationAttributes(Order.class.getName()))
+				.map(annotationAttributes -> annotationAttributes.getOrDefault("value", Ordered.LOWEST_PRECEDENCE))
+				.map(Integer.class::cast)
+				.orElse(Ordered.LOWEST_PRECEDENCE);
+
+			orderedBeanWrappers.add(DefaultOrderedBeanWrapper.from(beanName, beansOfType.get(beanName), order));
+		}
+
+		return orderedBeanWrappers;
+	}
+
+	@Nullable
+	private static <T> OrderedBeanWrapper<T> toOrderedBeanWrapper(@NonNull Map.Entry<String, T> beanEntry) {
+
+		T bean = beanEntry.getValue();
+
+		Integer order = bean instanceof Ordered
+			? ((Ordered) bean).getOrder()
+			: Optional.ofNullable(bean)
+				.map(Object::getClass)
+				.map(OrderUtils::getOrder)
+				.orElse(null);
+
+		return order != null
+			? DefaultOrderedBeanWrapper.from(beanEntry.getKey(), bean, order)
+			: null;
 	}
 
 	public static Optional<Object> getPropertyValue(BeanDefinition beanDefinition, String propertyName) {
@@ -188,6 +285,56 @@ public abstract class SpringUtils {
 		catch (Throwable cause) {
 			throw exceptionConverter.apply(cause);
 		}
+	}
+
+	private static class DefaultOrderedBeanWrapper<T> implements OrderedBeanWrapper<T> {
+
+		private static <T> OrderedBeanWrapper<T> from(String beanName, T bean) {
+			return from(beanName, bean, Ordered.LOWEST_PRECEDENCE);
+		}
+
+		private static <T> OrderedBeanWrapper<T> from(String beanName, T bean, int order) {
+			return new DefaultOrderedBeanWrapper<>(beanName, bean, order);
+		}
+
+		private final int order;
+
+		private final T bean;
+
+		private final String beanName;
+
+		private DefaultOrderedBeanWrapper(String beanName, T bean, int order) {
+
+			Assert.notNull(bean, "Bean must not be null");
+			Assert.hasText(beanName, "Bean name is required");
+
+			this.order = order;
+			this.bean = bean;
+			this.beanName = beanName;
+		}
+
+		@Override
+		public T getBean() {
+			return this.bean;
+		}
+
+		@Override
+		public String getBeanName() {
+			return this.beanName;
+		}
+
+		@Override
+		public int getOrder() {
+			return this.order;
+		}
+	}
+
+	public interface OrderedBeanWrapper<T> extends Ordered {
+
+		T getBean();
+
+		String getBeanName();
+
 	}
 
 	@FunctionalInterface
