@@ -107,6 +107,26 @@ public class StreamUtilsUnitTests {
 	}
 
 	@Test
+	public void isEmptyWithNullStream() {
+		assertThat(StreamUtils.nullSafeIsEmpty(null)).isTrue();
+	}
+
+	@Test
+	public void isEmptyWithEmptyStream() {
+		assertThat(StreamUtils.nullSafeIsEmpty(Stream.empty())).isTrue();
+	}
+
+	@Test
+	public void isEmptyWithOneElementStream() {
+		assertThat(StreamUtils.nullSafeIsEmpty(Stream.of(1))).isFalse();
+	}
+
+	@Test
+	public void isEmptyWithTwoElementStream() {
+		assertThat(StreamUtils.nullSafeIsEmpty(Stream.of(1, 2))).isFalse();
+	}
+
+	@Test
 	public void nullSafeStreamWithStream() {
 
 		Stream<?> mockStream = mock(Stream.class);

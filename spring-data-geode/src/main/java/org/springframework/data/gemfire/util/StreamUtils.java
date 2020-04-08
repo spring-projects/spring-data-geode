@@ -62,6 +62,18 @@ public abstract class StreamUtils {
 	}
 
 	/**
+	 * Null-safe utility method used to determine whether the given {@link Stream} is empty.
+	 *
+	 * @param stream {@link Stream} to evalute.
+	 * @return a boolean value indicating whether the given {@link Stream} is empty.
+	 * @see java.util.stream.Stream
+	 * @see #nullSafeCount(Stream)
+	 */
+	public static boolean nullSafeIsEmpty(Stream<?> stream) {
+		return nullSafeCount(stream) == 0L;
+	}
+
+	/**
 	 * Utility method used to guard against {@literal null} {@link Stream Streams}.
 	 *
 	 * @param <T> {@link Class type} of the {@link Object elements} in the {@link Stream}.
