@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.util;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
@@ -47,5 +46,17 @@ public abstract class StreamUtils {
 		}
 
 		return concatenatedStream;
+	}
+
+	/**
+	 * Utility method used to guard against {@literal null} {@link Stream Streams}.
+	 *
+	 * @param <T> {@link Class type} of the {@link Object elements} in the {@link Stream}.
+	 * @param stream {@link Stream} to evaluate.
+	 * @return the given {@link Stream} if not {@literal null} or an {@link Stream#empty() empty} {@link Stream}.
+	 * @see java.util.stream.Stream
+	 */
+	public static <T> Stream<T> nullSafeStream(Stream<T> stream) {
+		return stream != null ? stream : Stream.empty();
 	}
 }

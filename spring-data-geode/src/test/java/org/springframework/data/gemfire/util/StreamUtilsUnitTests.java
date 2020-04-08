@@ -33,7 +33,7 @@ import org.junit.Test;
  * @see org.springframework.data.gemfire.util.StreamUtils
  * @since 2.0.0
  */
-public class StreamUtilsTests {
+public class StreamUtilsUnitTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
@@ -86,6 +86,10 @@ public class StreamUtilsTests {
 
 	@Test
 	public void nullSafeStreamWithNull() {
-		assertThat(StreamUtils.nullSafeStream(null)).isEqualTo(Stream.empty());
+
+		Stream<?> stream = StreamUtils.nullSafeStream(null);
+
+		assertThat(stream).isNotNull();
+		assertThat(stream.count()).isZero();
 	}
 }
