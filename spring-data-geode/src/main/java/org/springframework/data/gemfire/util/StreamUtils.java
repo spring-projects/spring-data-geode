@@ -49,6 +49,19 @@ public abstract class StreamUtils {
 	}
 
 	/**
+	 * Null-safe utility method used to return a {@link Long count} of the number of {@link Object elements}
+	 * in the given {@link Stream}.
+	 *
+	 * @param stream {@link Stream} of {@link Object elements} to count.
+	 * @return a {@link Long count} of the number of {@link Object elements} in the {@link Stream}.
+	 * @see java.util.stream.Stream#count()
+	 * @see #nullSafeStream(Stream)
+	 */
+	public static long nullSafeCount(Stream<?> stream) {
+		return nullSafeStream(stream).count();
+	}
+
+	/**
 	 * Utility method used to guard against {@literal null} {@link Stream Streams}.
 	 *
 	 * @param <T> {@link Class type} of the {@link Object elements} in the {@link Stream}.

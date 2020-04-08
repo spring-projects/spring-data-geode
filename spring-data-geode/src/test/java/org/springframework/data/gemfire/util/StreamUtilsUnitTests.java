@@ -36,13 +36,23 @@ import org.junit.Test;
 public class StreamUtilsUnitTests {
 
 	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void concatNullStreamArray() {
+
+		Stream stream = StreamUtils.concat((Stream[]) null);
+
+		assertThat(stream).isNotNull();
+		assertThat(stream.count()).isZero();
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	public void concatNoStreams() {
 
 		Stream<Object> stream = StreamUtils.concat();
 
 		assertThat(stream).isNotNull();
-		assertThat(stream.count()).isEqualTo(0);
+		assertThat(stream.count()).isZero();
 	}
 
 	@Test
@@ -74,6 +84,26 @@ public class StreamUtilsUnitTests {
 
 		assertThat(stream).isNotNull();
 		assertThat(stream.collect(Collectors.toList())).containsExactly(1, 2, 3, 4, 5, 6, 7, 8, 9);
+	}
+
+	@Test
+	public void countNullStream() {
+		assertThat(StreamUtils.nullSafeCount(null)).isZero();
+	}
+
+	@Test
+	public void countEmptyStream() {
+		assertThat(StreamUtils.nullSafeCount(Stream.empty())).isZero();
+	}
+
+	@Test
+	public void countOneElementStream() {
+		assertThat(StreamUtils.nullSafeCount(Stream.of(1))).isOne();
+	}
+
+	@Test
+	public void countTwoElementStream() {
+		assertThat(StreamUtils.nullSafeCount(Stream.of(1, 2))).isEqualTo(2);
 	}
 
 	@Test
