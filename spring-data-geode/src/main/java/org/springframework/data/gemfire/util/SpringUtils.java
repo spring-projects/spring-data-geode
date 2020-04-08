@@ -30,9 +30,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -70,7 +72,7 @@ public abstract class SpringUtils {
 	 * @param beanName {@link String name} of the bean.
 	 * @param beanType {@link Class type} of the bean.
 	 * @return a boolean value indicating whether the {@link BeanFactory Spring container} contains a bean
-	 * matching by both {@link String name} as well as {@link Class type}.
+	 * matching by both {@link String name} and {@link Class type}.
 	 * @see org.springframework.beans.factory.BeanFactory
 	 * @see java.lang.Class
 	 * @see java.lang.String
@@ -79,7 +81,16 @@ public abstract class SpringUtils {
 		return beanFactory.containsBean(beanName) && beanFactory.isTypeMatch(beanName, beanType);
 	}
 
-	public static BeanDefinition addDependsOn(BeanDefinition beanDefinition, String... beanNames) {
+	/**
+	 * Adds an array of bean dependencies (by name) to the given {@link BeanDefinition}.
+	 *
+	 * @param beanDefinition {@link BeanDefinition} to add the bean dependencies to.
+	 * @param beanNames {@link String} array containing names of beans to which the {@link BeanDefinition}
+	 * has a dependency.
+	 * @return the given {@link BeanDefinition}.
+	 * @see org.springframework.beans.factory.config.BeanDefinition
+	 */
+	public static BeanDefinition addDependsOn(@NonNull BeanDefinition beanDefinition, @Nullable String... beanNames) {
 
 		List<String> dependsOnList = new ArrayList<>();
 
@@ -90,6 +101,18 @@ public abstract class SpringUtils {
 		return beanDefinition;
 	}
 
+	/**
+	 * Returns a {@link List} of beans by the given {@link Class type} in order.
+	 *
+	 * @param <T> {@link Class type} of the bean.
+	 * @param beanFactory {@link ConfigurableListableBeanFactory Spring container} used to acquire the ordered beans.
+	 * @param beanType {@link Class type} of beans to acquire.
+	 * @return a {@link List} of beans of the given {@link Class type} in order.
+	 * @see #getBeansOfTypeOrdered(ConfigurableListableBeanFactory, Class, boolean, boolean)
+	 * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+	 * @see java.lang.Class
+	 * @see java.util.List
+	 */
 	@NonNull
 	public static <T> List<T> getBeansOfTypeOrdered(@NonNull ConfigurableListableBeanFactory beanFactory,
 			@NonNull Class<T> beanType) {
@@ -97,6 +120,19 @@ public abstract class SpringUtils {
 		return getBeansOfTypeOrdered(beanFactory, beanType, true, true);
 	}
 
+	/**
+	 * Returns a {@link List} of beans by the given {@link Class type} in order.
+	 *
+	 * @param <T> {@link Class type} of the bean.
+	 * @param beanFactory {@link ConfigurableListableBeanFactory Spring container} used to acquire the ordered beans.
+	 * @param beanType {@link Class type} of beans to acquire.
+	 * @param includeNonSingletons boolean indicating whether to include non-Singleton beans from the Spring container.
+	 * @param allowEagerInit boolean indicating whether to eagerly initialize {@link FactoryBean FactoryBeans}.
+	 * @return a {@link List} of beans of the given {@link Class type} in order.
+	 * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+	 * @see java.lang.Class
+	 * @see java.util.List
+	 */
 	@NonNull
 	public static <T> List<T> getBeansOfTypeOrdered(@NonNull ConfigurableListableBeanFactory beanFactory,
 			@NonNull Class<T> beanType, boolean includeNonSingletons, boolean allowEagerInit) {
@@ -104,13 +140,13 @@ public abstract class SpringUtils {
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
 		Assert.notNull(beanType, "Bean type must not be null");
 
-		Map<String, T> beansOfType = beanFactory.getBeansOfType(beanType, includeNonSingletons, allowEagerInit);
+		Map<String, T> beansOfType =
+			CollectionUtils.nullSafeMap(beanFactory.getBeansOfType(beanType, includeNonSingletons, allowEagerInit));
 
 		Set<String> beanNamesOfType = new HashSet<>(beansOfType.keySet());
 
 		// Handles @Order annotated beans and beans implementing the Ordered interface
-		List<OrderedBeanWrapper<T>> orderedBeansOfType =
-			CollectionUtils.nullSafeMap(beansOfType).entrySet().stream()
+		List<OrderedBeanWrapper<T>> orderedBeansOfType = beansOfType.entrySet().stream()
 				.map(SpringUtils::toOrderedBeanWrapper)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
@@ -132,6 +168,7 @@ public abstract class SpringUtils {
 			.collect(Collectors.toList());
 	}
 
+	// No Javadoc
 	private static <T> List<OrderedBeanWrapper<T>> orderUnorderedBeans(@NonNull ConfigurableListableBeanFactory beanFactory,
 			@NonNull Map<String, T> beansOfType, @NonNull Set<String> unorderedBeanNames) {
 
@@ -157,6 +194,7 @@ public abstract class SpringUtils {
 		return orderedBeanWrappers;
 	}
 
+	// No Javadoc
 	@Nullable
 	private static <T> OrderedBeanWrapper<T> toOrderedBeanWrapper(@NonNull Map.Entry<String, T> beanEntry) {
 
@@ -172,6 +210,25 @@ public abstract class SpringUtils {
 		return order != null
 			? DefaultOrderedBeanWrapper.from(beanEntry.getKey(), bean, order)
 			: null;
+	}
+
+	/**
+	 * Returns bean of the given {@link Class type} in an ordered {@link Stream}.
+	 *
+	 * @param <T> {@link Class type} of the beans.
+	 * @param beanFactory {@link BeanFactory} from which to acquire the beans.
+	 * @param beanType {@link Class type} of the beans.
+	 * @return an ordered {@link Stream} of beans from the {@link BeanFactory} of the given {@link Class type}.
+	 * @see org.springframework.beans.factory.BeanFactory
+	 * @see java.util.stream.Stream
+	 * @see java.lang.Class
+	 */
+	public static <T> Stream<T> getOrderedStreamOfBeansByType(BeanFactory beanFactory, Class<T> beanType) {
+
+		Assert.notNull(beanFactory, "BeanFactory must not be null");
+		Assert.notNull(beanType,"Bean type must not be null");
+
+		return beanFactory.getBeanProvider(beanType).orderedStream();
 	}
 
 	public static Optional<Object> getPropertyValue(BeanDefinition beanDefinition, String propertyName) {
@@ -308,9 +365,9 @@ public abstract class SpringUtils {
 			Assert.notNull(bean, "Bean must not be null");
 			Assert.hasText(beanName, "Bean name is required");
 
-			this.order = order;
 			this.bean = bean;
 			this.beanName = beanName;
+			this.order = order;
 		}
 
 		@Override

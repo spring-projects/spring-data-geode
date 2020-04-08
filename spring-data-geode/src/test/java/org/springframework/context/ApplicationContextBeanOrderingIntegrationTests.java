@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +43,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.annotation.OrderUtils;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.StreamUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
@@ -126,6 +129,18 @@ public class ApplicationContextBeanOrderingIntegrationTests {
 		assertThat(beanNames)
 			.describedAs("Expected [A, B, C, D, U, X, Y, Z]; but was %s", beanNames)
 			.containsExactly("A", "B", "C", "D", "U", "X", "Y", "Z");
+	}
+
+	@Test
+	public void expectBeansToBeOrderedByOrderAnnotationAndOrderedInterfaceUsingBeanProviderOrderedStream() {
+
+		List<String> beanNames = this.applicationContext.getBeanProvider(NamedBean.class).orderedStream()
+			.map(Object::toString)
+			.collect(Collectors.toList());
+
+		assertThat(beanNames)
+			.describedAs("Expected [Y, X, Z, B, C, A, D, U]; but was %s", beanNames)
+			.containsExactly("Y", "X", "Z", "B", "C", "A", "D", "U");
 	}
 
 	/**
@@ -215,10 +230,14 @@ public class ApplicationContextBeanOrderingIntegrationTests {
 	@Test
 	public void expectBeansToBeOrderedByOrderAnnotationAndOrderedInterfaceUsingSpringUtils() {
 
-		List<String> beanNames =
-			SpringUtils.getBeansOfTypeOrdered(this.applicationContext.getBeanFactory(), NamedBean.class).stream()
-				.map(Object::toString)
-				.collect(Collectors.toList());
+		List<NamedBean> orderedBeans = CollectionUtils
+			.nullSafeList(SpringUtils.getBeansOfTypeOrdered(this.applicationContext.getBeanFactory(), NamedBean.class));
+
+		Stream<NamedBean> orderedBeanStream = StreamUtils.nullSafeStream(orderedBeans.stream());
+
+		List<String> beanNames = orderedBeanStream
+			.map(Object::toString)
+			.collect(Collectors.toList());
 
 		assertThat(beanNames)
 			.describedAs("Expected [Y, X, Z, B, C, A, D, U]; but was %s", beanNames)
