@@ -56,9 +56,15 @@ import org.springframework.util.StringUtils;
  * @author John Blum
  * @see java.lang.Class
  * @see java.lang.Object
+ * @see java.util.function.Function
+ * @see java.util.stream.Stream
  * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.beans.factory.config.BeanDefinition
  * @see org.springframework.beans.factory.config.RuntimeBeanReference
+ * @see org.springframework.core.Ordered
+ * @see org.springframework.core.annotation.AnnotationAwareOrderComparator
+ * @see org.springframework.core.annotation.Order
  * @since 1.8.0
  */
 @SuppressWarnings("unused")
@@ -77,7 +83,7 @@ public abstract class SpringUtils {
 	 * @see java.lang.Class
 	 * @see java.lang.String
 	 */
-	public static boolean isMatchingBean(BeanFactory beanFactory, String beanName, Class<?> beanType) {
+	public static boolean isMatchingBean(@NonNull BeanFactory beanFactory, String beanName, Class<?> beanType) {
 		return beanFactory.containsBean(beanName) && beanFactory.isTypeMatch(beanName, beanType);
 	}
 
@@ -90,11 +96,12 @@ public abstract class SpringUtils {
 	 * @return the given {@link BeanDefinition}.
 	 * @see org.springframework.beans.factory.config.BeanDefinition
 	 */
+	@NonNull
 	public static BeanDefinition addDependsOn(@NonNull BeanDefinition beanDefinition, @Nullable String... beanNames) {
 
 		List<String> dependsOnList = new ArrayList<>();
 
-		Collections.addAll(dependsOnList, nullSafeArray(beanDefinition.getDependsOn(), String.class));
+		Collections.addAll(dependsOnList, ArrayUtils.nullSafeArray(beanDefinition.getDependsOn(), String.class));
 		dependsOnList.addAll(Arrays.asList(nullSafeArray(beanNames, String.class)));
 		beanDefinition.setDependsOn(dependsOnList.toArray(new String[0]));
 
@@ -169,6 +176,7 @@ public abstract class SpringUtils {
 	}
 
 	// No Javadoc
+	@NonNull
 	private static <T> List<OrderedBeanWrapper<T>> orderUnorderedBeans(@NonNull ConfigurableListableBeanFactory beanFactory,
 			@NonNull Map<String, T> beansOfType, @NonNull Set<String> unorderedBeanNames) {
 
@@ -200,16 +208,28 @@ public abstract class SpringUtils {
 
 		T bean = beanEntry.getValue();
 
-		Integer order = bean instanceof Ordered
-			? ((Ordered) bean).getOrder()
-			: Optional.ofNullable(bean)
-				.map(Object::getClass)
-				.map(OrderUtils::getOrder)
-				.orElse(null);
+		Integer order = getOrder(bean);
+
+		if (order == null) {
+			order = bean != null ? OrderUtils.getOrder(bean.getClass()) : null;
+		}
 
 		return order != null
 			? DefaultOrderedBeanWrapper.from(beanEntry.getKey(), bean, order)
 			: null;
+	}
+
+	/**
+	 * Null-safe operation to return the {@link Integer order} of the given {@link Object} if it is {@link Ordered}
+	 * or {@literal null} if the given {@link Object} is not {@link Ordered}.
+	 *
+	 * @param target {@link Object} to evaluate; may be {@literal null}.
+	 * @return the {@link Integer order} of the given {@link Object} if {@link Ordered},
+	 * otherwise return {@literal null}.
+	 * @see org.springframework.core.Ordered
+	 */
+	public static @Nullable Integer getOrder(@Nullable Object target) {
+		return target instanceof Ordered ? ((Ordered) target).getOrder() : null;
 	}
 
 	/**
@@ -223,7 +243,8 @@ public abstract class SpringUtils {
 	 * @see java.util.stream.Stream
 	 * @see java.lang.Class
 	 */
-	public static <T> Stream<T> getOrderedStreamOfBeansByType(BeanFactory beanFactory, Class<T> beanType) {
+	public static <T> Stream<T> getOrderedStreamOfBeansByType(@NonNull BeanFactory beanFactory,
+			@NonNull Class<T> beanType) {
 
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
 		Assert.notNull(beanType,"Bean type must not be null");
@@ -293,6 +314,14 @@ public abstract class SpringUtils {
 
 	public static String nullSafeSimpleName(Class<?> type) {
 		return type != null ? type.getSimpleName() : null;
+	}
+
+	public static Class<?> nullSafeType(Object target) {
+		return nullSafeType(target, null);
+	}
+
+	public static Class<?> nullSafeType(Object target, Class<?> defaultType) {
+		return target != null ? target.getClass() : defaultType;
 	}
 
 	public static boolean safeDoOperation(VoidReturningThrowableOperation operation) {
