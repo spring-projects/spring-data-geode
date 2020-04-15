@@ -112,4 +112,56 @@ public class GemFirePropertiesUnitTests {
 				GemFireProperties.class.getName(), ConfigurationProperties.class.getName(), missingGemFireProperties)
 			.isEmpty();
 	}
+
+	@Test
+	public void fromValidGemFireProperty() {
+
+		assertThat(GemFireProperties.from("cache-xml-file")).isEqualTo(GemFireProperties.CACHE_XML_FILE);
+		//assertThat(GemFireProperties.from("gemfire.locators")).isEqualTo(GemFireProperties.LOCATORS);
+		//assertThat(GemFireProperties.from("  gemfire.remote-locators ")).isEqualTo(GemFireProperties.REMOTE_LOCATORS);
+	}
+
+	private void testFromInvalidGemFireProperty(String propertyName) {
+
+		try {
+			GemFireProperties.from(propertyName);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[%s] is not a valid Apache Geode property", propertyName);
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromInvalidGemFireDotPrefixedProperty() {
+		testFromInvalidGemFireProperty("gemfire.invalid-property");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromInvalidGemFireProperty() {
+		testFromInvalidGemFireProperty("non-existing-property");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromValidGeodeDotPrefixedProperty() {
+		testFromInvalidGemFireProperty("geode.log-level");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromBlankProperty() {
+		testFromInvalidGemFireProperty("  ");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromEmptyProperty() {
+		testFromInvalidGemFireProperty("");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromNullProperty() {
+		testFromInvalidGemFireProperty(null);
+	}
 }

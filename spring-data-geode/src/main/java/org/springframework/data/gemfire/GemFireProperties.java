@@ -160,12 +160,25 @@ public enum GemFireProperties {
 		return Arrays.stream(values())
 			.filter(it -> equals(it, propertyName))
 			.findFirst()
-			.orElseThrow(() -> newIllegalArgumentException("[%s] is not a valid Apache Geode property"));
+			.orElseThrow(() -> newIllegalArgumentException("[%s] is not a valid Apache Geode property", propertyName));
 	}
 
 	private static boolean equals(GemFireProperties property, String propertyName) {
 		return property != null && property.getName().equals(propertyName);
 	}
+
+	/*
+	private static String normalizePropertyName(@Nullable String propertyName) {
+
+		String safePropertyName = String.valueOf(propertyName).trim();
+
+		boolean gemfireDotPrefixed = safePropertyName.startsWith(PROPERTY_NAME_PREFIX);
+
+		int index = safePropertyName.lastIndexOf(".");
+
+		return index > -1 && gemfireDotPrefixed ? safePropertyName.substring(index + 1) : propertyName;
+	}
+	*/
 
 	private Class<?> nullSafeType(Object target, Class<?> defaultType) {
 		return target != null ? target.getClass() : defaultType;
