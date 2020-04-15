@@ -24,6 +24,7 @@ import org.apache.geode.distributed.ConfigurationProperties;
 
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -164,10 +165,9 @@ public enum GemFireProperties {
 	}
 
 	private static boolean equals(GemFireProperties property, String propertyName) {
-		return property != null && property.getName().equals(propertyName);
+		return property != null && property.getName().equals(normalizePropertyName(propertyName));
 	}
 
-	/*
 	private static String normalizePropertyName(@Nullable String propertyName) {
 
 		String safePropertyName = String.valueOf(propertyName).trim();
@@ -178,7 +178,6 @@ public enum GemFireProperties {
 
 		return index > -1 && gemfireDotPrefixed ? safePropertyName.substring(index + 1) : propertyName;
 	}
-	*/
 
 	private Class<?> nullSafeType(Object target, Class<?> defaultType) {
 		return target != null ? target.getClass() : defaultType;

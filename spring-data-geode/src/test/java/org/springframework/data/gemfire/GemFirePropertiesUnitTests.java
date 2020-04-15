@@ -117,8 +117,8 @@ public class GemFirePropertiesUnitTests {
 	public void fromValidGemFireProperty() {
 
 		assertThat(GemFireProperties.from("cache-xml-file")).isEqualTo(GemFireProperties.CACHE_XML_FILE);
-		//assertThat(GemFireProperties.from("gemfire.locators")).isEqualTo(GemFireProperties.LOCATORS);
-		//assertThat(GemFireProperties.from("  gemfire.remote-locators ")).isEqualTo(GemFireProperties.REMOTE_LOCATORS);
+		assertThat(GemFireProperties.from("gemfire.locators")).isEqualTo(GemFireProperties.LOCATORS);
+		assertThat(GemFireProperties.from("  gemfire.remote-locators ")).isEqualTo(GemFireProperties.REMOTE_LOCATORS);
 	}
 
 	private void testFromInvalidGemFireProperty(String propertyName) {
