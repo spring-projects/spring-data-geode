@@ -28,7 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate.FollowRedirectsSimpleClientHttpRequestFactory;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.ClusterSchemaObjectInitializer;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.SchemaObjectContext;
 
@@ -40,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.geode.management.api.ClusterManagementService;
+import org.apache.geode.management.api.ClusterManagementServiceTransport;
 import org.junit.After;
 import org.junit.Test;
 
@@ -53,19 +54,21 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
+import org.springframework.data.gemfire.config.admin.remote.ClusterManagementServiceGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.admin.remote.FunctionGemfireAdminTemplate;
-import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.schema.support.ComposableSchemaObjectCollector;
 import org.springframework.data.gemfire.config.schema.support.ComposableSchemaObjectDefiner;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriTemplateHandler;
 
 /**
  * Unit Tests for {@link EnableClusterConfiguration} annotation and the {@link ClusterConfigurationConfiguration} class.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see org.junit.Test
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
@@ -558,20 +561,16 @@ public class EnableClusterConfigurationUnitTests {
 		GemfireAdminOperations operations =
 			configuration.resolveGemfireAdminOperations(mockEnvironment, mockClientCache);
 
-		assertThat(operations).isInstanceOf(RestHttpGemfireAdminTemplate.class);
+		assertThat(operations).isInstanceOf(ClusterManagementServiceGemfireAdminTemplate.class);
 
-		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
+		ClusterManagementServiceGemfireAdminTemplate template = (ClusterManagementServiceGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		ClusterManagementService clusterManagementService = getFieldValue(template, "clusterManagementService");
+		ClusterManagementServiceTransport transport = getFieldValue(clusterManagementService, "transport");
+		RestTemplate restTemplate = getFieldValue(transport, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).isEmpty();
-		assertThat(restTemplate.getRequestFactory()).isInstanceOf(FollowRedirectsSimpleClientHttpRequestFactory.class);
-
-		FollowRedirectsSimpleClientHttpRequestFactory clientHttpRequestFactory =
-			(FollowRedirectsSimpleClientHttpRequestFactory) restTemplate.getRequestFactory();
-
-		assertThat(clientHttpRequestFactory.isFollowRedirects()).isFalse();
 
 		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(false));
@@ -599,20 +598,16 @@ public class EnableClusterConfigurationUnitTests {
 
 		GemfireAdminOperations operations = configuration.resolveGemfireAdminOperations(environment, mockClientCache);
 
-		assertThat(operations).isInstanceOf(RestHttpGemfireAdminTemplate.class);
+		assertThat(operations).isInstanceOf(ClusterManagementServiceGemfireAdminTemplate.class);
 
-		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
+		ClusterManagementServiceGemfireAdminTemplate template = (ClusterManagementServiceGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		ClusterManagementService clusterManagementService = getFieldValue(template, "clusterManagementService");
+		ClusterManagementServiceTransport transport = getFieldValue(clusterManagementService, "transport");
+		RestTemplate restTemplate = getFieldValue(transport, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).isEmpty();
-		assertThat(restTemplate.getRequestFactory()).isInstanceOf(FollowRedirectsSimpleClientHttpRequestFactory.class);
-
-		FollowRedirectsSimpleClientHttpRequestFactory clientHttpRequestFactory =
-			(FollowRedirectsSimpleClientHttpRequestFactory) restTemplate.getRequestFactory();
-
-		assertThat(clientHttpRequestFactory.isFollowRedirects()).isTrue();
 
 		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(false));
@@ -648,20 +643,17 @@ public class EnableClusterConfigurationUnitTests {
 
 		GemfireAdminOperations operations = configuration.resolveGemfireAdminOperations(environment, mockClientCache);
 
-		assertThat(operations).isInstanceOf(RestHttpGemfireAdminTemplate.class);
+		assertThat(operations).isInstanceOf(ClusterManagementServiceGemfireAdminTemplate.class);
 
-		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
+		ClusterManagementServiceGemfireAdminTemplate template = (ClusterManagementServiceGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		ClusterManagementService clusterManagementService = getFieldValue(template, "clusterManagementService");
+		ClusterManagementServiceTransport transport = getFieldValue(clusterManagementService, "transport");
+		RestTemplate restTemplate = getFieldValue(transport, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).containsExactly(mockInterceptorOne, mockInterceptorTwo);
 		assertThat(restTemplate.getRequestFactory()).isInstanceOf(InterceptingClientHttpRequestFactory.class);
-
-		FollowRedirectsSimpleClientHttpRequestFactory clientHttpRequestFactory =
-			getFieldValue(restTemplate.getRequestFactory(), "requestFactory");
-
-		assertThat(clientHttpRequestFactory.isFollowRedirects()).isTrue();
 
 		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(true));
@@ -692,12 +684,17 @@ public class EnableClusterConfigurationUnitTests {
 
 		GemfireAdminOperations operations = configuration.resolveGemfireAdminOperations(environment, mockClientCache);
 
-		assertThat(operations).isInstanceOf(RestHttpGemfireAdminTemplate.class);
+		assertThat(operations).isInstanceOf(ClusterManagementServiceGemfireAdminTemplate.class);
 
-		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
+		ClusterManagementServiceGemfireAdminTemplate template = (ClusterManagementServiceGemfireAdminTemplate) operations;
 
-		assertThat(this.<String>getFieldValue(template, "managementRestApiUrl"))
-			.isEqualTo("https://skullbox/gemfire/v1");
+		ClusterManagementService clusterManagementService = getFieldValue(template, "clusterManagementService");
+		ClusterManagementServiceTransport transport = getFieldValue(clusterManagementService, "transport");
+		RestTemplate restTemplate = getFieldValue(transport, "restTemplate");
+
+		String baseUrl = ((DefaultUriTemplateHandler)restTemplate.getUriTemplateHandler()).getBaseUrl();
+
+		assertThat(baseUrl).isEqualTo("https://skullbox:7070/management");
 
 		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(false));

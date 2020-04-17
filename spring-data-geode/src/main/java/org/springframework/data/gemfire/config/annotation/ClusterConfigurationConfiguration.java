@@ -44,8 +44,8 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
+import org.springframework.data.gemfire.config.admin.remote.ClusterManagementServiceGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.admin.remote.FunctionGemfireAdminTemplate;
-import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.config.schema.SchemaObjectCollector;
 import org.springframework.data.gemfire.config.schema.SchemaObjectDefiner;
@@ -70,6 +70,7 @@ import org.springframework.util.StringUtils;
  * as Spring beans in the Spring container.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see java.lang.annotation.Annotation
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
@@ -348,35 +349,27 @@ public class ClusterConfigurationConfiguration extends AbstractAnnotationConfigS
 
 		if (resolveManagementUseHttp()) {
 
+			int port = resolveManagementHttpPort();
+			if(!NetworkUtils.isValidNonEphemeralPort(port)) {
+				port = DEFAULT_MANAGEMENT_HTTP_PORT;
+			}
+
+			String host = resolveManagementHttpHost();
+
 			boolean enableInterceptors = resolveManagementHttpEnableInterceptors();
 			boolean followRedirects = resolveManagementHttpFollowRedirects();
 			boolean requireHttps = resolveManagementRequireHttps();
 			boolean resolvedFollowRedirects = !requireHttps || followRedirects;
 
-			int port = resolveManagementHttpPort();
+			List<ClientHttpRequestInterceptor> interceptors = resolveClientHttpRequestInterceptors(enableInterceptors);
+			List<RestTemplateConfigurer> configurers = resolveRestTemplateConfigurers();
 
-			String host = resolveManagementHttpHost();
-			String scheme = requireHttps ? HTTPS_SCHEME : HTTP_SCHEME;
-
-			return configurePort(new RestHttpGemfireAdminTemplate.Builder()
-				.withConfigurers(resolveRestTemplateConfigurers())
-				.withInterceptors(resolveClientHttpRequestInterceptors(enableInterceptors))
-				.with(clientCache)
-				.using(scheme)
-				.on(host)
-				.followRedirects(resolvedFollowRedirects), port)
-				.build();
+			return new ClusterManagementServiceGemfireAdminTemplate(host, port, requireHttps, resolvedFollowRedirects,
+					interceptors, configurers);
 		}
 		else {
 			return new FunctionGemfireAdminTemplate(clientCache);
 		}
-	}
-
-	private RestHttpGemfireAdminTemplate.Builder configurePort(RestHttpGemfireAdminTemplate.Builder builder, int port) {
-
-		return NetworkUtils.isValidNonEphemeralPort(port)
-			? builder.listenOn(port)
-			: builder;
 	}
 
 	/**

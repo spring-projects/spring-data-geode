@@ -60,6 +60,7 @@ import org.springframework.web.client.RestTemplate;
  * is not supported or has not been implemented against the Management REST API interface over HTTP.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see java.net.HttpURLConnection
  * @see java.net.URI
  * @see org.apache.geode.cache.client.ClientCache
@@ -78,6 +79,7 @@ import org.springframework.web.client.RestTemplate;
  * @see org.springframework.web.client.RestTemplate
  * @since 2.0.0
  */
+@Deprecated
 public class RestHttpGemfireAdminTemplate extends FunctionGemfireAdminTemplate {
 
 	protected static final boolean DEFAULT_CREATE_REGION_SKIP_IF_EXISTS = true;

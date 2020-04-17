@@ -18,7 +18,7 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Scanner;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
@@ -43,9 +43,8 @@ import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
-import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
+import org.springframework.data.gemfire.config.admin.remote.FunctionGemfireAdminTemplate;
 import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,6 +54,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * and {@link ClusterConfigurationConfiguration} class.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.client.ClientCache
@@ -80,7 +80,7 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
 
-	private static ProcessWrapper gemfireServer;
+	private static ProcessWrapper gemfireServer, locator;
 
 	@Autowired
 	private ClientCache gemfireCache;
@@ -90,31 +90,42 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		int availablePort = findAvailablePort();
+		int locatorPort = findAvailablePort();
+
+		locator = run(TestLocatorApplication.class,
+				String.format("-Dspring.data.gemfire.locator.port=%d", locatorPort));
+
+		waitForServerToStart("localhost", locatorPort);
+
+		int serverPort = findAvailablePort();
 
 		gemfireServer = run(ServerTestConfiguration.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
+				String.format("-Dspring.data.gemfire.locators=localhost[%1$d] -Dspring.data.gemfire.cache.server.port=%2$d",
+						locatorPort, serverPort));
 
-		waitForServerToStart("localhost", availablePort);
+		waitForServerToStart("localhost", serverPort);
 
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
+		System.setProperty("spring.data.gemfire.pool.locators",
+				String.format("localhost[%d]", locatorPort));
 	}
 
 	@AfterClass
 	public static void stopGemFireServer() {
 
 		stop(gemfireServer);
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
+		stop(locator);
+		System.clearProperty(GEMFIRE_POOL_LOCATORS_PROPERTY);
 	}
 
 	@Before
 	public void setup() {
 
-		this.adminOperations = new RestHttpGemfireAdminTemplate.Builder()
-			.with(this.gemfireCache)
-			.on("localhost")
-			.listenOn(Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, 40404))
-			.build();
+		//int port = Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, 40404);
+		this.adminOperations = new FunctionGemfireAdminTemplate(this.gemfireCache);
+//				, false
+//				, true
+//				, null
+//				, null);
 	}
 
 	@Test
@@ -138,14 +149,6 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 
 	@ClientCacheApplication(logLevel = GEMFIRE_LOG_LEVEL, subscriptionEnabled = true)
 	static class ClientTestConfiguration {
-
-		@Bean
-		ClientCacheConfigurer clientCachePoolPortConfigurer(
-				@Value("${" + GEMFIRE_CACHE_SERVER_PORT_PROPERTY + ":40404}") int port) {
-
-			return (bean, clientCacheFactoryBean) -> clientCacheFactoryBean
-				.setServers(Collections.singletonList(new ConnectionEndpoint("localhost", port)));
-		}
 
 		@Bean("IndexOne")
 		@DependsOn("RegionOne")
@@ -252,6 +255,23 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 			regionFactoryBean.setPersistent(false);
 
 			return regionFactoryBean;
+		}
+	}
+
+	@Configuration
+	@LocatorApplication
+	@EnableHttpService(bindAddress = "localhost")
+	@EnableManager
+	static class TestLocatorApplication {
+
+		public static void main(String[] args) {
+
+			AnnotationConfigApplicationContext applicationContext =
+					new AnnotationConfigApplicationContext(TestLocatorApplication.class);
+
+			applicationContext.registerShutdownHook();
+
+			new Scanner(System.in).nextLine();
 		}
 	}
 }
