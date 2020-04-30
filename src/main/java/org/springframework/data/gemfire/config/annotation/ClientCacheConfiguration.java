@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package org.springframework.data.gemfire.config.annotation;
 
@@ -89,6 +90,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 	private Integer readTimeout;
 	private Integer retryAttempts;
 	private Integer socketBufferSize;
+	private Integer socketConnectTimeout;
 	private Integer statisticsInterval;
 	private Integer subscriptionAckInterval;
 	private Integer subscriptionMessageTrackingTimeout;
@@ -139,6 +141,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 		gemfireCache.setServerGroup(getServerGroup());
 		gemfireCache.setServers(getPoolServers());
 		gemfireCache.setSocketBufferSize(getSocketBufferSize());
+		gemfireCache.setSocketConnectTimeout(getSocketConnectTimeout());
 		gemfireCache.setStatisticsInterval(getStatisticsInterval());
 		gemfireCache.setSubscriptionAckInterval(getSubscriptionAckInterval());
 		gemfireCache.setSubscriptionEnabled(getSubscriptionEnabled());
@@ -200,7 +203,8 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 			*/
 
 			register(BeanDefinitionBuilder.rootBeanDefinition(ClientRegionPoolBeanFactoryPostProcessor.class)
-				.setRole(BeanDefinition.ROLE_INFRASTRUCTURE).getBeanDefinition());
+				.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
+				.getBeanDefinition());
 		}
 	}
 
@@ -294,6 +298,11 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 				resolveProperty(namedPoolProperty("default", "socket-buffer-size"),
 				resolveProperty(poolProperty("socket-buffer-size"),
 				(Integer) clientCacheApplicationAttributes.get("socketBufferSize"))));
+
+			setSocketConnectTimeout(
+				resolveProperty(namedPoolProperty("default", "socket-connect-timeout"),
+				resolveProperty(poolProperty("socket-connect-timeout"),
+				(Integer) clientCacheApplicationAttributes.get("socketConnectTimeout"))));
 
 			setStatisticsInterval(
 				resolveProperty(namedPoolProperty("default", "statistic-interval"),
@@ -543,6 +552,14 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 
 	protected Integer getSocketBufferSize() {
 		return this.socketBufferSize;
+	}
+
+	void setSocketConnectTimeout(Integer socketConnectTimeout) {
+		this.socketConnectTimeout = socketConnectTimeout;
+	}
+
+	protected Integer getSocketConnectTimeout() {
+		return this.socketConnectTimeout;
 	}
 
 	void setStatisticsInterval(Integer statisticsInterval) {

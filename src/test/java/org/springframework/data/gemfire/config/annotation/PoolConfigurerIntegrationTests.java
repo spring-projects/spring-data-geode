@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2017-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,11 +34,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for {@link PoolConfigurer}.
+ * Integration Tests for {@link PoolConfigurer}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.client.Pool
+ * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.client.PoolFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.AddPoolConfiguration
@@ -49,7 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.EnablePools
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
- * @since 1.1.0
+ * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration

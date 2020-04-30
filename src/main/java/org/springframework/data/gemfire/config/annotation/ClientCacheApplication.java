@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package org.springframework.data.gemfire.config.annotation;
 
@@ -22,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.control.ResourceManager;
 
@@ -32,10 +35,11 @@ import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
 
 /**
- * The {@link ClientCacheApplication} annotation enables a Spring Data GemFire based application to become
- * a GemFire cache client (i.e. {@link org.apache.geode.cache.client.ClientCache}).
+ * The {@link ClientCacheApplication} annotation enables a Spring Data GemFire/Geode based application to become
+ * a GemFire/Geode cache client (i.e. {@link ClientCache}).
  *
  * @author John Blum
+ * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.PoolFactory
  * @see org.apache.geode.cache.control.ResourceManager
  * @see org.springframework.context.annotation.Configuration
@@ -300,6 +304,20 @@ public @interface ClientCacheApplication {
 	 * or the {@literal spring.data.gemfire.pool.socket-buffer-size} property in {@literal application.properties}.
 	 */
 	int socketBufferSize() default PoolFactory.DEFAULT_SOCKET_BUFFER_SIZE;
+
+	/**
+	 * Configures the {@link Integer socket connect timeout} for the {@literal DEFAULT} {@link Pool}.
+	 *
+	 * The number of milliseconds specified as socket timeout when the client connects to the servers/locators.
+	 * A timeout of zero is interpreted as an infinite timeout. The connection will then block until established
+	 * or an error occurs.
+	 *
+	 * Defaults to {@link PoolFactory#DEFAULT_SOCKET_CONNECT_TIMEOUT}.
+	 *
+	 * Use either the {@literal spring.data.gemfire.pool.default.socket-connect-timeout} property
+	 * or the {@literal spring.data.gemfire.pool.socket-connect-timeout} property in {@literal application.properties}.
+	 */
+	int socketConnectTimeout() default PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT;
 
 	/**
 	 * Configures how often to send client statistics to the server.
