@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.junit.Assert.assertEquals;
@@ -27,6 +26,9 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.CacheLoader;
@@ -48,25 +50,21 @@ import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 /**
- * The LookupRegionMutationIntegrationTest class is a test suite of test cases testing the contract and integrated
- * functionality between natively-defined GemFire Cache Regions and SDG's Region lookup functionality combined with
- * Region attribute(s) mutation.
+ * Integration Tests for {@link LookupRegionFactoryBean} testing the contract and integrated functionality between
+ * natively-defined GemFire/Geode cache {@link Region Regions} and SDG's {@link Region} lookup functionality
+ * combined with {@link org.apache.geode.cache.RegionAttributes} {@link Region#getAttributesMutator() mutation}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.springframework.data.gemfire.LookupRegionFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.7.0
  */
 @RunWith(SpringRunner.class)
@@ -77,7 +75,7 @@ public class LookupRegionMutationIntegrationTest {
 	@Resource(name = "Example")
 	private Region<?, ?> example;
 
-	private void assertCacheListeners(CacheListener[] cacheListeners, Collection<String> expectedCacheListenerNames) {
+	private void assertCacheListeners(CacheListener<?, ?>[] cacheListeners, Collection<String> expectedCacheListenerNames) {
 
 		if (!expectedCacheListenerNames.isEmpty()) {
 			assertNotNull("CacheListeners must not be null!", cacheListeners);
@@ -204,11 +202,14 @@ public class LookupRegionMutationIntegrationTest {
 
 	public static final class TestAsyncEventListener extends AbstractNameable implements AsyncEventListener {
 
-		@Override public boolean processEvents(List<AsyncEvent> events) {
+		@Override
+		public boolean processEvents(List<AsyncEvent> events) {
 			throw new UnsupportedOperationException("Not Implemented!");
 		}
 
-		@Override public void close() { }
+		@Override
+		public void close() { }
+
 	}
 
 	public static final class TestCacheListener<K, V> extends CacheListenerAdapter<K, V> implements Nameable {
@@ -245,21 +246,29 @@ public class LookupRegionMutationIntegrationTest {
 
 		@Override
 		public void close() { }
+
 	}
 
 	public static final class TestCacheWriter<K, V> extends AbstractNameable implements CacheWriter<K, V> {
 
-		@Override public void beforeUpdate(EntryEvent<K, V> event) throws CacheWriterException { }
+		@Override
+		public void beforeUpdate(EntryEvent<K, V> event) throws CacheWriterException { }
 
-		@Override public void beforeCreate(EntryEvent<K, V> event) throws CacheWriterException { }
+		@Override
+		public void beforeCreate(EntryEvent<K, V> event) throws CacheWriterException { }
 
-		@Override public void beforeDestroy(EntryEvent<K, V> event) throws CacheWriterException { }
+		@Override
+		public void beforeDestroy(EntryEvent<K, V> event) throws CacheWriterException { }
 
-		@Override public void beforeRegionDestroy(RegionEvent<K, V> event) throws CacheWriterException { }
+		@Override
+		public void beforeRegionDestroy(RegionEvent<K, V> event) throws CacheWriterException { }
 
-		@Override public void beforeRegionClear(RegionEvent<K, V> event) throws CacheWriterException { }
+		@Override
+		public void beforeRegionClear(RegionEvent<K, V> event) throws CacheWriterException { }
 
-		@Override public void close() { }
+		@Override
+		public void close() { }
+
 	}
 
 	public static final class TestCustomExpiry<K, V> extends AbstractNameable implements CustomExpiry<K, V> {
@@ -271,5 +280,6 @@ public class LookupRegionMutationIntegrationTest {
 
 		@Override
 		public void close() { }
+
 	}
 }
