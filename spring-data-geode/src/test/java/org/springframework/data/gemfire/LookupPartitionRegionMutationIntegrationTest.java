@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.junit.Assert.assertEquals;
@@ -27,6 +26,9 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.CacheListener;
 import org.apache.geode.cache.CacheLoader;
@@ -47,23 +49,21 @@ import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 /**
- * The LookupRegionMutationIntegrationTest class is a test suite of test cases testing the contract and integrated
- * functionality between natively-defined GemFire Cache Regions and SDG's Region lookup functionality combined with
- * Region attribute(s) mutation.
+ * Integration Tests for {@link DataPolicy#PARTITION} {@link Region} {@link Region#getAttributesMutator() mutation}
+ * using SDG's {@literal lookup} {@link Region} functionality.
  *
+ * @author Udo Kohlmeyer
  * @author John Blum
- * @see Test
- * @see RunWith
- * @see LookupRegionFactoryBean
- * @see ContextConfiguration
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.LookupRegionFactoryBean
+ * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.7.0
  */
@@ -75,7 +75,8 @@ public class LookupPartitionRegionMutationIntegrationTest {
 	@Resource(name = "Example")
 	private Region<?, ?> example;
 
-	private void assertCacheListeners(CacheListener[] cacheListeners, Collection<String> expectedCacheListenerNames) {
+	private void assertCacheListeners(CacheListener<?, ?>[] cacheListeners,
+			Collection<String> expectedCacheListenerNames) {
 
 		if (!expectedCacheListenerNames.isEmpty()) {
 			assertNotNull("CacheListeners must not be null!", cacheListeners);
@@ -85,7 +86,7 @@ public class LookupPartitionRegionMutationIntegrationTest {
 	}
 
 	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
-		EvictionAlgorithm expectedAlgorithm, int expectedMaximum) {
+			EvictionAlgorithm expectedAlgorithm, int expectedMaximum) {
 
 		assertNotNull("EvictionAttributes must not be null!", evictionAttributes);
 		assertEquals(expectedAction, evictionAttributes.getAction());
@@ -94,8 +95,7 @@ public class LookupPartitionRegionMutationIntegrationTest {
 	}
 
 	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes,
-
-		String description, int expectedTimeout, ExpirationAction expectedAction) {
+			String description, int expectedTimeout, ExpirationAction expectedAction) {
 
 		assertNotNull(String.format("ExpirationAttributes for '%1$s' must not be null!", description),
 			expirationAttributes);
@@ -124,7 +124,7 @@ public class LookupPartitionRegionMutationIntegrationTest {
 	}
 
 	private void assertRegionAttributes(Region<?, ?> region, String expectedName, String expectedFullPath,
-		DataPolicy expectedDataPolicy) {
+			DataPolicy expectedDataPolicy) {
 
 		assertNotNull(String.format("'%1$s' Region was not properly initialized!", region));
 		assertEquals(expectedName, region.getName());
@@ -170,6 +170,7 @@ public class LookupPartitionRegionMutationIntegrationTest {
 		String getName();
 
 		void setName(String name);
+
 	}
 
 	static abstract class AbstractNameable implements Nameable {
@@ -205,8 +206,8 @@ public class LookupPartitionRegionMutationIntegrationTest {
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
+
 	}
 
 	public static final class TestCacheListener<K, V> extends CacheListenerAdapter<K, V> implements Nameable {
@@ -242,35 +243,30 @@ public class LookupPartitionRegionMutationIntegrationTest {
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
+
 	}
 
 	public static final class TestCacheWriter<K, V> extends AbstractNameable implements CacheWriter<K, V> {
 
 		@Override
-		public void beforeUpdate(EntryEvent<K, V> event) throws CacheWriterException {
-		}
+		public void beforeUpdate(EntryEvent<K, V> event) throws CacheWriterException { }
 
 		@Override
-		public void beforeCreate(EntryEvent<K, V> event) throws CacheWriterException {
-		}
+		public void beforeCreate(EntryEvent<K, V> event) throws CacheWriterException { }
 
 		@Override
-		public void beforeDestroy(EntryEvent<K, V> event) throws CacheWriterException {
-		}
+		public void beforeDestroy(EntryEvent<K, V> event) throws CacheWriterException { }
 
 		@Override
-		public void beforeRegionDestroy(RegionEvent<K, V> event) throws CacheWriterException {
-		}
+		public void beforeRegionDestroy(RegionEvent<K, V> event) throws CacheWriterException { }
 
 		@Override
-		public void beforeRegionClear(RegionEvent<K, V> event) throws CacheWriterException {
-		}
+		public void beforeRegionClear(RegionEvent<K, V> event) throws CacheWriterException { }
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
+
 	}
 
 	public static final class TestCustomExpiry<K, V> extends AbstractNameable implements CustomExpiry<K, V> {
@@ -281,7 +277,7 @@ public class LookupPartitionRegionMutationIntegrationTest {
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
+
 	}
 }
