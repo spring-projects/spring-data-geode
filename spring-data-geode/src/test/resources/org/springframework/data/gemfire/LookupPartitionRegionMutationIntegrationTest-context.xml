@@ -15,7 +15,7 @@
 		<prop key="log-level">error</prop>
 	</util:properties>
 
-	<gfe:cache cache-xml-location="/lookup-region-mutation-cache.xml" properties-ref="gemfireProperties"/>
+	<gfe:cache cache-xml-location="/lookup-partition-region-mutation-cache.xml" properties-ref="gemfireProperties"/>
 
 	<bean id="B" class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest.TestCacheListener"/>
 
@@ -33,15 +33,15 @@
 			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestCacheWriter"
 				  p:name="D"/>
 		</gfe:cache-writer>
-		<gfe:region-ttl timeout="120" action="LOCAL_DESTROY"/>
-		<gfe:region-tti timeout="60" action="INVALIDATE"/>
+		<!--		<gfe:region-ttl timeout="120" action="LOCAL_DESTROY"/>-->
+		<!--		<gfe:region-tti timeout="60" action="DESTROY"/>-->
 		<gfe:entry-ttl timeout="30" action="DESTROY"/>
 		<gfe:custom-entry-tti>
 			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestCustomExpiry"
 				  p:name="E"/>
 		</gfe:custom-entry-tti>
 		<gfe:gateway-sender name="GWS" remote-distributed-system-id="123" manual-start="true"/>
-		<gfe:async-event-queue name="AEQ" persistent="false" parallel="false">
+		<gfe:async-event-queue name="AEQ" persistent="false" parallel="true" dispatcher-threads="8">
 			<gfe:async-event-listener>
 				<bean
 					class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestAsyncEventListener"
