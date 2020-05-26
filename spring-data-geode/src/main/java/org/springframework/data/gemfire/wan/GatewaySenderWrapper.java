@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
  *
  * @author David Turanski
  * @author John Blum
+ * @author Patrick Johnson
  * @see org.apache.geode.cache.util.Gateway
  * @see org.apache.geode.cache.wan.GatewaySender
  */
@@ -284,6 +285,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	@Override
 	public void start() {
 		delegate.start();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void startWithCleanQueue() {
+		delegate.startWithCleanQueue();
 	}
 
 	/**
