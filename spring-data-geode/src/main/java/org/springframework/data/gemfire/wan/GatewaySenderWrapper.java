@@ -19,7 +19,6 @@ import org.apache.geode.cache.wan.GatewayEventFilter;
 import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
-
 import org.springframework.util.Assert;
 
 /**
@@ -33,9 +32,9 @@ import org.springframework.util.Assert;
  */
 public class GatewaySenderWrapper implements GatewaySender {
 
-    private boolean manualStart;
+	private boolean manualStart;
 
-    private final GatewaySender delegate;
+	private final GatewaySender delegate;
 
 	/**
 	 * Constructs an instance of {@link GatewaySenderWrapper} initialized with the given {@link GatewaySender} to adapt.
@@ -85,6 +84,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
+	public boolean mustGroupTransactionEvents() {
+		return delegate.mustGroupTransactionEvents();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
 	public boolean isPaused() {
 		return this.delegate.isPaused();
 	}
@@ -101,9 +108,9 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
-    public boolean isRunning() {
-        return this.delegate.isRunning();
-    }
+	public boolean isRunning() {
+		return this.delegate.isRunning();
+	}
 
 	/**
 	 * @inheritDoc
@@ -172,10 +179,10 @@ public class GatewaySenderWrapper implements GatewaySender {
 	/**
 	 * @inheritDoc
 	 */
-    @Override
-    public String getId() {
-        return this.delegate.getId();
-    }
+	@Override
+	public String getId() {
+		return this.delegate.getId();
+	}
 
 	public void setManualStart(boolean manualStart) {
 		this.manualStart = manualStart;
@@ -209,26 +216,26 @@ public class GatewaySenderWrapper implements GatewaySender {
 	/**
 	 * @inheritDoc
 	 */
-    @Override
-    public int getRemoteDSId() {
-        return this.delegate.getRemoteDSId();
-    }
+	@Override
+	public int getRemoteDSId() {
+		return this.delegate.getRemoteDSId();
+	}
 
 	/**
 	 * @inheritDoc
 	 */
-    @Override
-    public int getSocketBufferSize() {
-        return this.delegate.getSocketBufferSize();
-    }
+	@Override
+	public int getSocketBufferSize() {
+		return this.delegate.getSocketBufferSize();
+	}
 
 	/**
 	 * @inheritDoc
 	 */
-    @Override
-    public int getSocketReadTimeout() {
-        return this.delegate.getSocketReadTimeout();
-    }
+	@Override
+	public int getSocketReadTimeout() {
+		return this.delegate.getSocketReadTimeout();
+	}
 
 	/**
 	 * @inheritDoc
@@ -284,6 +291,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	@Override
 	public void start() {
 		delegate.start();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void startWithCleanQueue() {
+		delegate.startWithCleanQueue();
 	}
 
 	/**
