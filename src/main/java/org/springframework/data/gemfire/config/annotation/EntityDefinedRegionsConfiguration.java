@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2016-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package org.springframework.data.gemfire.config.annotation;
 
@@ -67,6 +68,7 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
+import org.springframework.data.gemfire.support.CompositeTypeFilter;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -171,10 +173,16 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 		Set<String> resolvedBasePackages =
 			resolveBasePackages(importingClassMetadata, enableEntityDefinedRegionsAttributes);
 
+		TypeFilter resolvedIncludesTypeFilter =
+			CompositeTypeFilter.composeOr(resolveIncludes(enableEntityDefinedRegionsAttributes));
+
+		TypeFilter resolvedRegionAnnotatedPersistentEntityTypeFilter =
+			CompositeTypeFilter.composeOr(resolveRegionAnnotatedPersistentEntityTypeFilters());
+
 		return GemFireComponentClassTypeScanner.from(resolvedBasePackages).with(resolveBeanClassLoader())
 			.withExcludes(resolveExcludes(enableEntityDefinedRegionsAttributes))
-			.withIncludes(resolveIncludes(enableEntityDefinedRegionsAttributes))
-			.withIncludes(resolveRegionAnnotatedPersistentEntityTypeFilters());
+			.withIncludes(CompositeTypeFilter.composeAnd(resolvedIncludesTypeFilter,
+				resolvedRegionAnnotatedPersistentEntityTypeFilter));
 	}
 
 	protected Set<String> resolveBasePackages(AnnotationMetadata importingClassMetaData,
@@ -207,7 +215,6 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 		return parseFilters(enableEntityDefinedRegionsAttributes.getAnnotationArray("includeFilters"));
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Iterable<TypeFilter> resolveRegionAnnotatedPersistentEntityTypeFilters() {
 
 		return org.springframework.data.gemfire.mapping.annotation.Region.REGION_ANNOTATION_TYPES.stream()
@@ -631,7 +638,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 			return resolvePersistentEntity().getRegionAnnotation();
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		protected Class<?> getRegionKeyConstraint() {
 
 			return Optional.ofNullable(resolvePersistentEntity().getIdProperty())
