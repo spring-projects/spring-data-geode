@@ -26,7 +26,7 @@ import org.apache.geode.cache.control.RebalanceFactory;
 import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.control.RestoreRedundancyOperation;
-import org.apache.geode.cache.control.RestoreRedundancyResults;
+import org.apache.geode.management.runtime.RestoreRedundancyResults;
 
 /**
  * @author John Blum
