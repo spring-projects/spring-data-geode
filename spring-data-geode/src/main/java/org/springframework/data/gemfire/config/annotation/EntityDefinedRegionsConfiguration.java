@@ -257,21 +257,22 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 						throw newIllegalArgumentException(
 							"Illegal filter type [%s] when 'value' or 'classes' are specified", filterType);
 				}
-
-				for (String pattern : nullSafeGetPatterns(filterAttributes)) {
-					switch (filterType) {
-						case ASPECTJ:
-							typeFilters.add(new AspectJTypeFilter(pattern, resolveBeanClassLoader()));
-							break;
-						case REGEX:
-							typeFilters.add(new RegexPatternTypeFilter(Pattern.compile(pattern)));
-							break;
-						default:
-							throw newIllegalArgumentException(
-								"Illegal filter type [%s] when 'patterns' are specified", filterType);
-					}
-				}
 			});
+
+		stream(nullSafeGetPatterns(filterAttributes)).forEach(pattern -> {
+
+			switch (filterType) {
+				case ASPECTJ:
+					typeFilters.add(new AspectJTypeFilter(pattern, resolveBeanClassLoader()));
+					break;
+				case REGEX:
+					typeFilters.add(new RegexPatternTypeFilter(Pattern.compile(pattern)));
+					break;
+				default:
+					throw newIllegalArgumentException(
+						"Illegal filter type [%s] when 'patterns' are specified", filterType);
+			}
+		});
 
 		return typeFilters;
 	}
