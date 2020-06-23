@@ -49,10 +49,7 @@ import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.util.ObjectUtils;
 
 /**
  * {@link FactoryBean} adapter for {@link GemfireRepositoryFactory}.
@@ -326,13 +323,54 @@ public class GemfireRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 			return repositoryQuery;
 		}
 
-		@EqualsAndHashCode
-		@RequiredArgsConstructor(staticName = "of")
 		private static class QueryPostProcessorKey {
 
-			@lombok.NonNull @Getter
-			QueryPostProcessor<?, ?> queryPostProcessor;
+			public static QueryPostProcessorKey of(QueryPostProcessor<?, ?> queryPostProcessor) {
+				return new QueryPostProcessorKey(queryPostProcessor);
+			}
 
+			private final QueryPostProcessor<?, ?> queryPostProcessor;
+
+			public QueryPostProcessorKey(@NonNull QueryPostProcessor<?, ?> queryPostProcessor) {
+
+				Assert.notNull(queryPostProcessor, "QueryPostProcessor must not be null");
+
+				this.queryPostProcessor = queryPostProcessor;
+			}
+
+			protected @NonNull QueryPostProcessor<?, ?> getQueryPostProcessor() {
+				return this.queryPostProcessor;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+
+				if (this == obj) {
+					return true;
+				}
+
+				if (!(obj instanceof QueryPostProcessorKey)) {
+					return false;
+				}
+
+				QueryPostProcessorKey that = (QueryPostProcessorKey) obj;
+
+				return this.getQueryPostProcessor().equals(that.getQueryPostProcessor());
+			}
+
+			@Override
+			public int hashCode() {
+
+				int hashValue = 17;
+
+				hashValue = 37 * hashValue + ObjectUtils.nullSafeHashCode(this.getQueryPostProcessor());
+				return hashValue;
+			}
+
+			@Override
+			public String toString() {
+				return String.format("{ queryPostProcessor: %s }", getQueryPostProcessor());
+			}
 		}
 	}
 }
