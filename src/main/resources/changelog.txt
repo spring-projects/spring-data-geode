@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.4.0-M1 (2020-06-25)
+----------------------------------------
+* DATAGEODE-345 - Use standard Spring code of conduct.
+* DATAGEODE-339 - Release 2.4 M1 (2020.0.0).
+
+
 Changes in version 2.3.1.RELEASE (2020-06-10)
 ---------------------------------------------
 * DATAGEODE-338 - Release 2.3.1 (Neumann SR1).
@@ -741,6 +747,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
