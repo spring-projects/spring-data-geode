@@ -1,4 +1,5 @@
 pipeline {
+
 	agent none
 
 	triggers {
@@ -13,19 +14,24 @@ pipeline {
 
 	stages {
 		stage("test: baseline (jdk8)") {
+
 			when {
 				anyOf {
-					branch 'main'
+					branch 'main-next'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
+
 			agent {
 				label 'data'
 			}
-			options { timeout(time: 30, unit: 'MINUTES') }
+
 			environment {
 				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
 			}
+
+			options { timeout(time: 30, unit: 'MINUTES') }
+
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
@@ -46,19 +52,23 @@ pipeline {
 		stage("Test other configurations") {
 			when {
 				allOf {
-					branch 'main'
+					branch 'main-next'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
 			parallel {
 				stage("test: baseline (jdk11)") {
+
 					agent {
 						label 'data'
 					}
-					options { timeout(time: 30, unit: 'MINUTES') }
+
 					environment {
 						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
 					}
+
+					options { timeout(time: 30, unit: 'MINUTES') }
+
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
@@ -77,13 +87,17 @@ pipeline {
 				}
 
 				stage("test: baseline (jdk15)") {
+
 					agent {
 						label 'data'
 					}
-					options { timeout(time: 30, unit: 'MINUTES') }
+
 					environment {
 						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
 					}
+
+					options { timeout(time: 30, unit: 'MINUTES') }
+
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
@@ -106,18 +120,20 @@ pipeline {
 		stage('Release to artifactory') {
 			when {
 				anyOf {
-					branch 'main'
+					branch 'main-next'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
+
 			agent {
 				label 'data'
 			}
-			options { timeout(time: 20, unit: 'MINUTES') }
 
 			environment {
 				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
 			}
+
+			options { timeout(time: 20, unit: 'MINUTES') }
 
 			steps {
 				script {
@@ -142,18 +158,22 @@ pipeline {
 				}
 			}
 		}
+
 		stage('Publish documentation') {
+
 			when {
-				branch 'main'
+				branch 'main-next'
 			}
+
 			agent {
 				label 'data'
 			}
-			options { timeout(time: 20, unit: 'MINUTES') }
 
 			environment {
 				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
 			}
+
+			options { timeout(time: 20, unit: 'MINUTES') }
 
 			steps {
 				script {
