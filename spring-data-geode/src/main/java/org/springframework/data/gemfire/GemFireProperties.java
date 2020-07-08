@@ -99,6 +99,7 @@ public enum GemFireProperties {
 	NAME(ConfigurationProperties.NAME, String.class),
 	OFF_HEAP_MEMORY_SIZE(ConfigurationProperties.OFF_HEAP_MEMORY_SIZE, Integer.class),
 	REDUNDANCY_ZONE(ConfigurationProperties.REDUNDANCY_ZONE, String.class),
+	REDIS_ENABLED(ConfigurationProperties.REDIS_ENABLED, Boolean.class),
 	REDIS_BIND_ADDRESS(ConfigurationProperties.REDIS_BIND_ADDRESS, String.class),
 	REDIS_PASSWORD(ConfigurationProperties.REDIS_PASSWORD, String.class),
 	REDIS_PORT(ConfigurationProperties.REDIS_PORT, Integer.class, 0),
