@@ -42,6 +42,7 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 
 	private boolean batchConflationEnabled;
 	private boolean diskSynchronous;
+	private boolean groupTransactionEvents;
 	private boolean manualStart;
 	private boolean parallel;
 	private boolean persistenceEnabled;
@@ -83,7 +84,8 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	}
 
 	@Override
-	public GatewaySender create(final String name, final int remoteSystemId) {
+	public GatewaySender create(String name, int remoteSystemId) {
+
 		GatewaySender gatewaySender = mock(GatewaySender.class);
 
 		when(gatewaySender.getId()).thenReturn(name);
@@ -105,17 +107,11 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 		when(gatewaySender.isParallel()).thenReturn(this.parallel);
 		when(gatewaySender.isPersistenceEnabled()).thenReturn(this.persistenceEnabled);
 		when(gatewaySender.getOrderPolicy()).thenReturn(this.orderPolicy);
-		when(gatewaySender.isRunning()).thenAnswer(new Answer<Boolean>() {
-			@Override
-			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				return running;
-			}
-		});
-		doAnswer(new Answer<Void>() {
-			public Void answer(InvocationOnMock invocation) {
-				running = true;
-				return null;
-			}
+		when(gatewaySender.mustGroupTransactionEvents()).thenReturn(this.groupTransactionEvents);
+		when(gatewaySender.isRunning()).thenAnswer((Answer<Boolean>) invocation -> this.running);
+		doAnswer(invocation -> {
+			running = true;
+			return null;
 		}).when(gatewaySender).start();
 
 		return gatewaySender;
@@ -166,6 +162,12 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	@Override
 	public GatewaySenderFactory setDispatcherThreads(int dispatcherThreads) {
 		this.dispatcherThreads = dispatcherThreads;
+		return this;
+	}
+
+	@Override
+	public GatewaySenderFactory setGroupTransactionEvents(boolean groupTransactionEvents) {
+		this.groupTransactionEvents = groupTransactionEvents;
 		return this;
 	}
 

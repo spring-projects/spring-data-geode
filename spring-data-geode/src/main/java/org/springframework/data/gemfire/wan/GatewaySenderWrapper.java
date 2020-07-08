@@ -201,7 +201,6 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
-	@SuppressWarnings("deprecation")
 	public GatewaySender.OrderPolicy getOrderPolicy() {
 		return delegate.getOrderPolicy();
 	}
@@ -236,6 +235,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	@Override
 	public void addGatewayEventFilter(GatewayEventFilter filter) {
 		delegate.addGatewayEventFilter(filter);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public boolean mustGroupTransactionEvents() {
+		return this.delegate.mustGroupTransactionEvents();
 	}
 
 	/**
