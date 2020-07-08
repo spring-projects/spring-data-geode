@@ -290,6 +290,12 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
+	public void startWithCleanQueue() { }
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
 	public void stop() {
 		delegate.stop();
 	}
