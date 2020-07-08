@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.wan;
 
 import java.util.List;
@@ -23,12 +22,11 @@ import org.apache.geode.cache.wan.GatewayTransportFilter;
 import org.springframework.util.Assert;
 
 /**
- * {@link GatewaySenderWrapper} is an Adapter around a {@link GatewaySender} providing the ability to control
- * manual start and stop.
+ * {@link GatewaySenderWrapper} is an {@literal Adapter} around an Apache Geode {@link GatewaySender}
+ * providing the ability to control manual start and stop of the sender.
  *
  * @author David Turanski
  * @author John Blum
- * @see org.apache.geode.cache.util.Gateway
  * @see org.apache.geode.cache.wan.GatewaySender
  */
 public class GatewaySenderWrapper implements GatewaySender {
@@ -201,7 +199,6 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
-	@SuppressWarnings("deprecation")
 	public GatewaySender.OrderPolicy getOrderPolicy() {
 		return delegate.getOrderPolicy();
 	}
@@ -236,6 +233,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	@Override
 	public void addGatewayEventFilter(GatewayEventFilter filter) {
 		delegate.addGatewayEventFilter(filter);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public boolean mustGroupTransactionEvents() {
+		return this.delegate.mustGroupTransactionEvents();
 	}
 
 	/**

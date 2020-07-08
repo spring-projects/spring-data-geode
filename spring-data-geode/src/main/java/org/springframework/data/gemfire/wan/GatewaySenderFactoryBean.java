@@ -36,6 +36,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.config.annotation.GatewaySenderConfigurer;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -72,6 +74,7 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 	private Boolean diskSynchronous;
 	private Boolean batchConflationEnabled;
+	private Boolean groupTransactionEvents;
 	private Boolean parallel;
 	private Boolean persistent;
 
@@ -136,6 +139,8 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 		Optional.ofNullable(getEventSubstitutionFilter())
 			.ifPresent(gatewaySenderFactory::setGatewayEventSubstitutionFilter);
 
+		Optional.ofNullable(getGroupTransactionEvents()).ifPresent(gatewaySenderFactory::setGroupTransactionEvents);
+
 		gatewaySenderFactory.setManualStart(isManualStart());
 
 		Optional.ofNullable(getMaximumQueueMemory()).ifPresent(gatewaySenderFactory::setMaximumQueueMemory);
@@ -182,15 +187,15 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 			: GatewaySender.class;
 	}
 
-	public void setGatewaySender(GatewaySender gatewaySender) {
+	public void setGatewaySender(@Nullable GatewaySender gatewaySender) {
 		this.gatewaySender = gatewaySender;
 	}
 
-	public GatewaySender getGatewaySender() {
+	public @Nullable GatewaySender getGatewaySender() {
 		return this.gatewaySender;
 	}
 
-	public void setGatewaySenderConfigurers(List<GatewaySenderConfigurer> gatewaySenderConfigurers) {
+	public void setGatewaySenderConfigurers(@NonNull List<GatewaySenderConfigurer> gatewaySenderConfigurers) {
 		this.gatewaySenderConfigurers = gatewaySenderConfigurers;
 	}
 
@@ -270,6 +275,14 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 	@SuppressWarnings("rawtypes")
 	public GatewayEventSubstitutionFilter getEventSubstitutionFilter() {
 		return this.eventSubstitutionFilter;
+	}
+
+	public void setGroupTransactionEvents(Boolean groupTransactionEvents) {
+		this.groupTransactionEvents = groupTransactionEvents;
+	}
+
+	public Boolean getGroupTransactionEvents() {
+		return this.groupTransactionEvents;
 	}
 
 	@Deprecated
