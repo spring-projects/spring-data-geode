@@ -14,22 +14,25 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.test;
+
+import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.geode.cache.control.RebalanceFactory;
 import org.apache.geode.cache.control.RebalanceOperation;
 import org.apache.geode.cache.control.ResourceManager;
+import org.apache.geode.cache.control.RestoreRedundancyOperation;
+import org.apache.geode.cache.control.RestoreRedundancyResults;
 
 /**
- * The StubResourceManager class...
- *
  * @author John Blum
- * @since 1.0.0
+ * @deprecated
  */
+@Deprecated
 public class StubResourceManager implements ResourceManager {
 
 	private float criticalHeapPercentage;
@@ -38,27 +41,27 @@ public class StubResourceManager implements ResourceManager {
 	private float evictionOffHeapPercentage;
 
 	@Override
-	public void setCriticalHeapPercentage(final float heapPercentage) {
+	public void setCriticalHeapPercentage(float heapPercentage) {
 		this.criticalHeapPercentage = heapPercentage;
 	}
 
 	@Override
 	public float getCriticalHeapPercentage() {
-		return criticalHeapPercentage;
+		return this.criticalHeapPercentage;
 	}
 
 	@Override
-	public void setCriticalOffHeapPercentage(final float offHeapPercentage) {
-		this.criticalHeapPercentage = offHeapPercentage;
+	public void setCriticalOffHeapPercentage(float offHeapPercentage) {
+		this.criticalOffHeapPercentage = offHeapPercentage;
 	}
 
 	@Override
 	public float getCriticalOffHeapPercentage() {
-		return criticalOffHeapPercentage;
+		return this.criticalOffHeapPercentage;
 	}
 
 	@Override
-	public void setEvictionHeapPercentage(final float heapPercentage) {
+	public void setEvictionHeapPercentage(float heapPercentage) {
 		this.evictionHeapPercentage = heapPercentage;
 	}
 
@@ -68,7 +71,7 @@ public class StubResourceManager implements ResourceManager {
 	}
 
 	@Override
-	public void setEvictionOffHeapPercentage(final float offHeapPercentage) {
+	public void setEvictionOffHeapPercentage(float offHeapPercentage) {
 		this.evictionOffHeapPercentage = offHeapPercentage;
 	}
 
@@ -87,4 +90,13 @@ public class StubResourceManager implements ResourceManager {
 		return Collections.emptySet();
 	}
 
+	@Override
+	public RestoreRedundancyOperation createRestoreRedundancyOperation() {
+		return mock(RestoreRedundancyOperation.class);
+	}
+
+	@Override
+	public Set<CompletableFuture<RestoreRedundancyResults>> getRestoreRedundancyFutures() {
+		return Collections.emptySet();
+	}
 }
