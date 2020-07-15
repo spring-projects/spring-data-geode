@@ -16,16 +16,17 @@
 package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
@@ -33,10 +34,12 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.mockito.InOrder;
 
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -56,6 +59,7 @@ import org.springframework.data.util.ReflectionUtils;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.client.PoolFactory
+ * @see org.apache.geode.cache.client.SocketFactory
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.data.gemfire.client.PoolFactoryBean
  * @see org.springframework.data.gemfire.client.PoolResolver
@@ -73,7 +77,6 @@ public class PoolFactoryBeanUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void afterPropertiesSetCreatesPool() throws Exception {
 
 		BeanFactory mockBeanFactory = mock(BeanFactory.class);
@@ -84,8 +87,10 @@ public class PoolFactoryBeanUnitTests {
 
 		PoolResolver mockPoolResolver = mock(PoolResolver.class);
 
-		when(mockPoolFactory.create(eq("GemFirePool"))).thenReturn(mockPool);
-		when(mockPoolResolver.resolve(anyString())).thenReturn(null);
+		SocketFactory mockSocketFactory = mock(SocketFactory.class);
+
+		doReturn(mockPool).when(mockPoolFactory).create(eq("GemFirePool"));
+		doReturn(null).when(mockPoolResolver).resolve(anyString());
 
 		PoolFactoryBean poolFactoryBean = spy(new PoolFactoryBean());
 
@@ -108,10 +113,12 @@ public class PoolFactoryBeanUnitTests {
 		poolFactoryBean.setPrSingleHopEnabled(true);
 		poolFactoryBean.setReadTimeout(30000);
 		poolFactoryBean.setRetryAttempts(10);
+		poolFactoryBean.setServerConnectionTimeout(10000);
 		poolFactoryBean.setServerGroup("TestServerGroup");
 		poolFactoryBean.setServers(Collections.singletonList(newConnectionEndpoint("localhost", 12345)));
 		poolFactoryBean.setSocketBufferSize(32768);
 		poolFactoryBean.setSocketConnectTimeout(5000);
+		poolFactoryBean.setSocketFactory(mockSocketFactory);
 		poolFactoryBean.setStatisticInterval(1000);
 		poolFactoryBean.setSubscriptionAckInterval(500);
 		poolFactoryBean.setSubscriptionEnabled(true);
@@ -135,9 +142,11 @@ public class PoolFactoryBeanUnitTests {
 		verify(mockPoolFactory, times(1)).setPRSingleHopEnabled(eq(true));
 		verify(mockPoolFactory, times(1)).setReadTimeout(eq(30000));
 		verify(mockPoolFactory, times(1)).setRetryAttempts(eq(10));
+		verify(mockPoolFactory, times(1)).setServerConnectionTimeout(eq(10000));
 		verify(mockPoolFactory, times(1)).setServerGroup(eq("TestServerGroup"));
 		verify(mockPoolFactory, times(1)).setSocketBufferSize(eq(32768));
 		verify(mockPoolFactory, times(1)).setSocketConnectTimeout(eq(5000));
+		verify(mockPoolFactory, times(1)).setSocketFactory(eq(mockSocketFactory));
 		verify(mockPoolFactory, times(1)).setStatisticInterval(eq(1000));
 		verify(mockPoolFactory, times(1)).setSubscriptionAckInterval(eq(500));
 		verify(mockPoolFactory, times(1)).setSubscriptionEnabled(eq(true));
@@ -150,7 +159,6 @@ public class PoolFactoryBeanUnitTests {
 		verify(mockPoolResolver, times(2)).resolve(eq("GemFirePool"));
 	}
 
-	@SuppressWarnings("all")
 	@Test(expected = IllegalArgumentException.class)
 	public void afterPropertiesSetWithUnspecifiedName() throws Exception {
 
@@ -184,8 +192,6 @@ public class PoolFactoryBeanUnitTests {
 
 		assertThat(poolFactoryBean.getBeanName()).isEqualTo("gemfirePool");
 		assertThat(poolFactoryBean.getName()).isEqualTo("TestPool");
-		assertThat(poolFactoryBean.getLocators()).isEmpty();
-		assertThat(poolFactoryBean.getServers()).isEmpty();
 
 		poolFactoryBean.afterPropertiesSet();
 
@@ -201,8 +207,6 @@ public class PoolFactoryBeanUnitTests {
 
 		assertThat(poolFactoryBean.getBeanName()).isEqualTo("swimPool");
 		assertThat(poolFactoryBean.getName()).isNull();
-		assertThat(poolFactoryBean.getLocators()).isEmpty();
-		assertThat(poolFactoryBean.getServers()).isEmpty();
 
 		poolFactoryBean.afterPropertiesSet();
 
@@ -214,7 +218,7 @@ public class PoolFactoryBeanUnitTests {
 
 		Pool mockPool = mock(Pool.class);
 
-		when(mockPool.isDestroyed()).thenReturn(false);
+		doReturn(false).when(mockPool).isDestroyed();
 
 		PoolFactoryBean poolFactoryBean = new PoolFactoryBean();
 
@@ -223,9 +227,14 @@ public class PoolFactoryBeanUnitTests {
 
 		assertThat(TestUtils.<Pool>readField("pool", poolFactoryBean)).isNull();
 
-		verify(mockPool, times(1)).isDestroyed();
-		verify(mockPool, times(1)).releaseThreadLocalConnection();
-		verify(mockPool, times(1)).destroy(eq(false));
+		InOrder order = inOrder(mockPool);
+
+		order.verify(mockPool, times(1)).isDestroyed();
+		order.verify(mockPool, times(1)).releaseThreadLocalConnection();
+		order.verify(mockPool, times(1)).destroy(eq(false));
+		order.verify(mockPool, times(1)).getName();
+
+		verifyNoMoreInteractions(mockPool);
 	}
 
 	@Test
@@ -239,13 +248,11 @@ public class PoolFactoryBeanUnitTests {
 		poolFactoryBean.setPool(mockPool);
 		poolFactoryBean.destroy();
 
-		verify(mockPool, never()).isDestroyed();
-		verify(mockPool, never()).releaseThreadLocalConnection();
-		verify(mockPool, never()).destroy(anyBoolean());
+		verifyNoInteractions(mockPool);
 	}
 
 	@Test
-	public void destroyUninitializedPool() throws Exception {
+	public void destroyUninitializedPool() {
 
 		PoolFactoryBean poolFactoryBean = new PoolFactoryBean();
 
@@ -254,8 +261,20 @@ public class PoolFactoryBeanUnitTests {
 	}
 
 	@Test
-	public void getObjectType() {
+	public void getObjectTypeEqualsPoolClass() {
 		assertThat(new PoolFactoryBean().getObjectType()).isEqualTo(Pool.class);
+	}
+
+	@Test
+	public void getObjectTypeEqualsPoolInstanceType() {
+
+		Pool mockPool = mock(Pool.class);
+
+		PoolFactoryBean poolFactoryBean = new PoolFactoryBean();
+
+		poolFactoryBean.setPool(mockPool);
+
+		assertThat(poolFactoryBean.getObjectType()).isEqualTo(mockPool.getClass());
 	}
 
 	@Test
@@ -350,6 +369,8 @@ public class PoolFactoryBeanUnitTests {
 	@Test
 	public void getPoolWhenPoolIsUnset() {
 
+		SocketFactory mockSocketFactory = mock(SocketFactory.class);
+
 		PoolFactoryBean poolFactoryBean = new PoolFactoryBean();
 
 		poolFactoryBean.setFreeConnectionTimeout(5000);
@@ -363,10 +384,12 @@ public class PoolFactoryBeanUnitTests {
 		poolFactoryBean.setPrSingleHopEnabled(true);
 		poolFactoryBean.setReadTimeout(30000);
 		poolFactoryBean.setRetryAttempts(1);
+		poolFactoryBean.setServerConnectionTimeout(10000);
 		poolFactoryBean.setServerGroup("TestGroup");
 		poolFactoryBean.setServers(ArrayUtils.asArray(newConnectionEndpoint("boombox", 12480)));
 		poolFactoryBean.setSocketBufferSize(16384);
 		poolFactoryBean.setSocketConnectTimeout(5000);
+		poolFactoryBean.setSocketFactory(mockSocketFactory);
 		poolFactoryBean.setStatisticInterval(500);
 		poolFactoryBean.setSubscriptionAckInterval(200);
 		poolFactoryBean.setSubscriptionEnabled(true);
@@ -391,10 +414,12 @@ public class PoolFactoryBeanUnitTests {
 		assertThat(pool.getPRSingleHopEnabled()).isTrue();
 		assertThat(pool.getReadTimeout()).isEqualTo(30000);
 		assertThat(pool.getRetryAttempts()).isEqualTo(1);
+		assertThat(pool.getServerConnectionTimeout()).isEqualTo(10000);
 		assertThat(pool.getServerGroup()).isEqualTo("TestGroup");
 		assertThat(pool.getServers()).isEqualTo(Collections.singletonList(newSocketAddress("boombox", 12480)));
 		assertThat(pool.getSocketBufferSize()).isEqualTo(16384);
 		assertThat(pool.getSocketConnectTimeout()).isEqualTo(5000);
+		assertThat(pool.getSocketFactory()).isEqualTo(mockSocketFactory);
 		assertThat(pool.getStatisticInterval()).isEqualTo(500);
 		assertThat(pool.getSubscriptionAckInterval()).isEqualTo(200);
 		assertThat(pool.getSubscriptionEnabled()).isTrue();
@@ -500,7 +525,7 @@ public class PoolFactoryBeanUnitTests {
 	}
 
 	@Test
-	public void getPoolAndDestroyWithPool() throws Exception {
+	public void getPoolAndDestroyWithPool() {
 
 		Pool mockPool = mock(Pool.class);
 
@@ -522,9 +547,9 @@ public class PoolFactoryBeanUnitTests {
 	}
 
 	@Test
-	public void getPoolAndDestroyWithoutPool() throws Exception {
+	public void getPoolAndDestroyWithoutPool() {
 
-		PoolFactoryBean poolFactoryBean = spy(new PoolFactoryBean());;
+		PoolFactoryBean poolFactoryBean = spy(new PoolFactoryBean());
 
 		doThrow(newIllegalStateException("test")).when(poolFactoryBean).destroy();
 
@@ -592,5 +617,25 @@ public class PoolFactoryBeanUnitTests {
 		poolFactoryBean.setPoolResolver(null);
 
 		assertThat(poolFactoryBean.getPoolResolver()).isEqualTo(PoolFactoryBean.DEFAULT_POOL_RESOLVER);
+	}
+
+	@Test
+	public void setAndGetSocketFactory() {
+
+		SocketFactory mockSocketFactory = mock(SocketFactory.class);
+
+		PoolFactoryBean poolFactoryBean = new PoolFactoryBean();
+
+		assertThat(poolFactoryBean.getSocketFactory()).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
+
+		poolFactoryBean.setSocketFactory(mockSocketFactory);
+
+		assertThat(poolFactoryBean.getSocketFactory()).isEqualTo(mockSocketFactory);
+
+		poolFactoryBean.setSocketFactory(null);
+
+		assertThat(poolFactoryBean.getSocketFactory()).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
+
+		verifyNoInteractions(mockSocketFactory);
 	}
 }

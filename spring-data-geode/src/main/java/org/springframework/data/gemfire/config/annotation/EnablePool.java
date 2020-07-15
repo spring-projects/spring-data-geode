@@ -23,8 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.geode.cache.client.AllConnectionsInUseException;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
 
 import org.springframework.context.annotation.Import;
 import org.springframework.data.gemfire.GemfireUtils;
@@ -199,6 +201,24 @@ public @interface EnablePool {
 	int retryAttempts() default PoolFactory.DEFAULT_RETRY_ATTEMPTS;
 
 	/**
+	 * Configures the server connection timeout for {@literal this} {@literal Pool}.
+	 *
+	 * If the pool has a max connections setting, operations will block if there is no free connection for a specific
+	 * server. The server connection timeout specifies how long those operations will block waiting for a free
+	 * connection for a specific server before receiving an {@link AllConnectionsInUseException}. If max connections
+	 * is not set this setting has no effect. This setting differs from {@link #freeConnectionTimeout()}, which sets
+	 * the wait time for any server connection in the pool, whereas this setting sets the wait time for a free
+	 * connection to a specific server.
+	 *
+	 * Defaults to {@link PoolFactory#DEFAULT_SERVER_CONNECTION_TIMEOUT}.
+	 *
+	 * Use either the {@literal spring.data.gemfire.pool.<poolName>.server-connection-timeout} property
+	 * or the {@literal spring.data.gemfire.pool.server-connection-timeout} property
+	 * in {@literal application.properties}.
+	 */
+	int serverConnectionTimeout() default PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT;
+
+	/**
 	 * Configures the group that all servers in which this pool connects to must belong to.
 	 *
 	 * Defaults to {@link PoolFactory#DEFAULT_SERVER_GROUP}.
@@ -255,6 +275,18 @@ public @interface EnablePool {
 	 * or the {@literal spring.data.gemfire.pool.socket-connect-timeout} property in {@literal application.properties}.
 	 */
 	int socketConnectTimeout() default PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT;
+
+	/**
+	 * Configures the {@link SocketFactory} {@link String bean name} used by {@literal this} {@link Pool}
+	 * to create connections to both Locators (if configured using {@link #locators()}) and Servers.
+	 *
+	 * Defaults to unset.
+	 *
+	 * Use either the {@literal spring.data.gemfire.pool.<poolName>.socket-factory-bean-name} property
+	 * or the {@literal spring.data.gemfire.pool.socket-factory-bean-name} property
+	 * in {@literal application.properties}.
+	 */
+	String socketFactoryBeanName() default "";
 
 	/**
 	 * Configures how often to send client statistics to the server.

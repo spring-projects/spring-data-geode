@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.client.support;
 
 import java.net.InetSocketAddress;
@@ -23,6 +22,7 @@ import java.util.List;
 
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 
 import org.springframework.data.gemfire.GemfireUtils;
@@ -34,8 +34,11 @@ import org.springframework.data.gemfire.client.PoolAdapter;
  * (e.g. freeConnectionTimeout, idleTimeout, etc).
  *
  * @author John Blum
+ * @see java.net.InetSocketAddress
  * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.client.PoolFactory
+ * @see org.apache.geode.cache.client.SocketFactory
+ * @see org.apache.geode.cache.query.Query
  * @see org.springframework.data.gemfire.client.PoolAdapter
  * @since 1.8.0
  */
@@ -118,6 +121,11 @@ public abstract class FactoryDefaultsPoolAdapter extends PoolAdapter {
 	}
 
 	@Override
+	public int getServerConnectionTimeout() {
+		return PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT;
+	}
+
+	@Override
 	public String getServerGroup() {
 		return PoolFactory.DEFAULT_SERVER_GROUP;
 	}
@@ -135,6 +143,11 @@ public abstract class FactoryDefaultsPoolAdapter extends PoolAdapter {
 	@Override
 	public int getSocketConnectTimeout() {
 		return PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT;
+	}
+
+	@Override
+	public SocketFactory getSocketFactory() {
+		return PoolFactory.DEFAULT_SOCKET_FACTORY;
 	}
 
 	@Override

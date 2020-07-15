@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import java.lang.annotation.Documented;
@@ -24,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.geode.cache.client.Pool;
+
 import org.springframework.context.annotation.Import;
 
 /**
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.Import;
  * to be defined and used in a GemFire client cache application configured with Spring (Data GemFire).
  *
  * @author John Blum
+ * @see org.apache.geode.cache.client.Pool
  * @see org.springframework.data.gemfire.config.annotation.AddPoolsConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnablePool
  * @see org.springframework.data.gemfire.config.annotation.PoolConfigurer
@@ -45,7 +47,7 @@ import org.springframework.context.annotation.Import;
 public @interface EnablePools {
 
 	/**
-	 * Enables the definition of multiple GemFire {@link org.apache.geode.cache.client.Pool Pools}.
+	 * Enables the definition of multiple GemFire {@link Pool Pools}.
 	 */
 	EnablePool[] pools() default {};
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.client.support;
 
 import java.net.InetSocketAddress;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 
 /**
@@ -33,7 +33,9 @@ import org.apache.geode.cache.query.QueryService;
  * when the {@link Pool} reference is <code>null</code>.
  *
  * @author John Blum
+ * @see java.net.InetSocketAddress
  * @see org.apache.geode.cache.client.Pool
+ * @see org.apache.geode.cache.client.SocketFactory
  * @see org.apache.geode.cache.query.QueryService
  * @see org.springframework.data.gemfire.client.support.FactoryDefaultsPoolAdapter
  * @since 1.8.0
@@ -63,7 +65,10 @@ public abstract class DelegatingPoolAdapter extends FactoryDefaultsPoolAdapter {
 
 	@Override
 	public boolean isDestroyed() {
-		return Optional.ofNullable(getDelegate()).map(Pool::isDestroyed).orElseGet(super::isDestroyed);
+
+		return Optional.ofNullable(getDelegate())
+			.map(Pool::isDestroyed)
+			.orElseGet(super::isDestroyed);
 	}
 
 	@Override
@@ -187,6 +192,14 @@ public abstract class DelegatingPoolAdapter extends FactoryDefaultsPoolAdapter {
 	}
 
 	@Override
+	public int getServerConnectionTimeout() {
+
+		return Optional.ofNullable(getDelegate())
+			.map(Pool::getServerConnectionTimeout)
+			.orElseGet(super::getServerConnectionTimeout);
+	}
+
+	@Override
 	public String getServerGroup() {
 
 		return Optional.ofNullable(getDelegate())
@@ -216,6 +229,14 @@ public abstract class DelegatingPoolAdapter extends FactoryDefaultsPoolAdapter {
 		return Optional.ofNullable(getDelegate())
 			.map(Pool::getSocketConnectTimeout)
 			.orElseGet(super::getSocketConnectTimeout);
+	}
+
+	@Override
+	public SocketFactory getSocketFactory() {
+
+		return Optional.ofNullable(getDelegate())
+			.map(Pool::getSocketFactory)
+			.orElseGet(super::getSocketFactory);
 	}
 
 	@Override

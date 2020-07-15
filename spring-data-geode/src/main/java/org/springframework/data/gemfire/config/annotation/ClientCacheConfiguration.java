@@ -25,8 +25,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.server.CacheServer;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -40,6 +43,7 @@ import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.config.support.ClientRegionPoolBeanFactoryPostProcessor;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 /**
@@ -47,21 +51,24 @@ import org.springframework.util.StringUtils;
  * a {@link org.apache.geode.cache.client.ClientCache} instance in a Spring application context.
  *
  * @author John Blum
+ * @see java.lang.annotation.Annotation
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.Pool
+ * @see org.apache.geode.cache.client.SocketFactory
+ * @see org.apache.geode.cache.server.CacheServer
+ * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.config.BeanDefinition
  * @see org.springframework.beans.factory.support.BeanDefinitionBuilder
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.core.annotation.AnnotationAttributes
  * @see org.springframework.core.type.AnnotationMetadata
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.AbstractCacheConfiguration
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
  * @see org.springframework.data.gemfire.config.support.ClientRegionPoolBeanFactoryPostProcessor
- * @see org.springframework.data.gemfire.support.ConnectionEndpoint
- * @see org.springframework.data.gemfire.support.ConnectionEndpointList
- * @since 1.0.0
+ * @since 1.9.0
  */
 @Configuration
 @SuppressWarnings("unused")
@@ -72,7 +79,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 
 	protected static final boolean DEFAULT_READY_FOR_EVENTS = false;
 
-	protected static final String DEFAULT_NAME = "SpringBasedCacheClientApplication";
+	protected static final String DEFAULT_NAME = "SpringBasedClientCacheApplication";
 
 	private boolean readyForEvents = DEFAULT_READY_FOR_EVENTS;
 
@@ -89,6 +96,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 	private Integer minConnections;
 	private Integer readTimeout;
 	private Integer retryAttempts;
+	private Integer serverConnectionTimeout;
 	private Integer socketBufferSize;
 	private Integer socketConnectTimeout;
 	private Integer statisticsInterval;
@@ -107,6 +115,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 
 	private String durableClientId;
 	private String serverGroup;
+	private String socketFactoryBeanName;
 
 	/**
 	 * Bean declaration for a single, peer {@link ClientCache} instance.
@@ -138,10 +147,12 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 		gemfireCache.setReadTimeout(getReadTimeout());
 		gemfireCache.setReadyForEvents(getReadyForEvents());
 		gemfireCache.setRetryAttempts(getRetryAttempts());
+		gemfireCache.setServerConnectionTimeout(getServerConnectionTimeout());
 		gemfireCache.setServerGroup(getServerGroup());
 		gemfireCache.setServers(getPoolServers());
 		gemfireCache.setSocketBufferSize(getSocketBufferSize());
 		gemfireCache.setSocketConnectTimeout(getSocketConnectTimeout());
+		gemfireCache.setSocketFactory(resolveSocketFactory());
 		gemfireCache.setStatisticsInterval(getStatisticsInterval());
 		gemfireCache.setSubscriptionAckInterval(getSubscriptionAckInterval());
 		gemfireCache.setSubscriptionEnabled(getSubscriptionEnabled());
@@ -152,7 +163,27 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 		return gemfireCache;
 	}
 
-	@SuppressWarnings("all")
+	@NonNull SocketFactory resolveSocketFactory() {
+
+		BeanFactory beanFactory = getBeanFactory();
+
+		return Optional.ofNullable(getSocketFactoryBeanName())
+			.filter(StringUtils::hasText)
+			.filter(socketFactoryBeanName -> beanFactory.isTypeMatch(socketFactoryBeanName, SocketFactory.class))
+			.map(socketFactoryBeanName -> beanFactory.getBean(socketFactoryBeanName, SocketFactory.class))
+			.orElseGet(() -> {
+
+				String socketFactoryBeanName = getSocketFactoryBeanName();
+
+				if (StringUtils.hasText(socketFactoryBeanName) && beanFactory.containsBean(socketFactoryBeanName)) {
+					throw new BeanNotOfRequiredTypeException(socketFactoryBeanName, SocketFactory.class,
+						beanFactory.getType(socketFactoryBeanName));
+				}
+
+				return null;
+			});
+	}
+
 	private List<ClientCacheConfigurer> resolveClientCacheConfigurers() {
 
 		return Optional.ofNullable(this.clientCacheConfigurers)
@@ -178,7 +209,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 	 * Configures Spring container infrastructure components and beans used by Spring Data GemFire
 	 * to enable Pivotal GemFire or Apache Geode to function properly inside a Spring context.
 	 *
-	 * This overridden method configures and registers additional Spring components and bean applicable to
+	 * This overridden method configures and registers additional Spring components and beans applicable to
 	 * {@link ClientCache ClientCaches}.
 	 *
 	 * @param importMetadata {@link AnnotationMetadata} containing annotation meta-data
@@ -289,6 +320,11 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 				resolveProperty(poolProperty("retry-attempts"),
 				(Integer) clientCacheApplicationAttributes.get("retryAttempts"))));
 
+			setServerConnectionTimeout(
+				resolveProperty(namedPoolProperty("default", "server-connection-timeout"),
+				resolveProperty(poolProperty("server-connection-timeout"),
+				(Integer) clientCacheApplicationAttributes.get("serverConnectionTimeout"))));
+
 			setServerGroup(
 				resolveProperty(namedPoolProperty("default", "server-group"),
 				resolveProperty(poolProperty("server-group"),
@@ -303,6 +339,11 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 				resolveProperty(namedPoolProperty("default", "socket-connect-timeout"),
 				resolveProperty(poolProperty("socket-connect-timeout"),
 				(Integer) clientCacheApplicationAttributes.get("socketConnectTimeout"))));
+
+			setSocketFactoryBeanName(
+				resolveProperty(namedPoolProperty("default", "socket-factory-bean-name"),
+				resolveProperty(poolProperty("socket-factory-bean-name"),
+				(String) clientCacheApplicationAttributes.get("socketFactoryBeanName"))));
 
 			setStatisticsInterval(
 				resolveProperty(namedPoolProperty("default", "statistic-interval"),
@@ -408,6 +449,14 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 	@Override
 	protected Class<? extends Annotation> getAnnotationType() {
 		return ClientCacheApplication.class;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BeanFactory getBeanFactory() {
+		return super.getBeanFactory();
 	}
 
 	void setDurableClientId(String durableClientId) {
@@ -538,6 +587,14 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 		return this.retryAttempts;
 	}
 
+	void setServerConnectionTimeout(Integer serverConnectionTimeout) {
+		this.serverConnectionTimeout = serverConnectionTimeout;
+	}
+
+	protected Integer getServerConnectionTimeout() {
+		return this.serverConnectionTimeout;
+	}
+
 	void setServerGroup(String serverGroup) {
 		this.serverGroup = serverGroup;
 	}
@@ -560,6 +617,14 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 
 	protected Integer getSocketConnectTimeout() {
 		return this.socketConnectTimeout;
+	}
+
+	void setSocketFactoryBeanName(String socketFactoryBeanName) {
+		this.socketFactoryBeanName = socketFactoryBeanName;
+	}
+
+	protected String getSocketFactoryBeanName() {
+		return this.socketFactoryBeanName;
 	}
 
 	void setStatisticsInterval(Integer statisticsInterval) {

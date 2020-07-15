@@ -14,66 +14,60 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.client.support;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
 
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
-import org.apache.geode.cache.query.QueryService;
-
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
+import org.apache.geode.cache.query.QueryService;
+
 import org.springframework.data.gemfire.GemfireUtils;
 
 /**
- * The DelegatingPoolAdapterTest class is a test suite of test cases testing the contract and functionality
- * of the {@link DelegatingPoolAdapter} class.
+ * Unit Tests for {@link DelegatingPoolAdapter}.
  *
  * @author John Blum
- * @see org.junit.Rule
+ * @see java.net.InetSocketAddress
  * @see org.junit.Test
- * @see org.junit.rules.ExpectedException
- * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
- * @see DelegatingPoolAdapter
  * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.client.PoolFactory
+ * @see org.apache.geode.cache.client.SocketFactory
+ * @see org.apache.geode.cache.query.QueryService
+ * @see org.springframework.data.gemfire.client.support.DelegatingPoolAdapter
  * @since 1.8.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingPoolAdapterTest {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	private Pool mockPool;
 
 	@Mock
 	private QueryService mockQueryService;
+
+	@Mock
+	private SocketFactory mockSocketFactory;
 
 	private InetSocketAddress newSocketAddress(String host, int port) {
 		return new InetSocketAddress(host, port);
@@ -98,10 +92,12 @@ public class DelegatingPoolAdapterTest {
 		when(this.mockPool.getQueryService()).thenReturn(this.mockQueryService);
 		when(this.mockPool.getReadTimeout()).thenReturn(30000);
 		when(this.mockPool.getRetryAttempts()).thenReturn(1);
+		when(this.mockPool.getServerConnectionTimeout()).thenReturn(10000);
 		when(this.mockPool.getServerGroup()).thenReturn("TestGroup");
 		when(this.mockPool.getServers()).thenReturn(Collections.singletonList(newSocketAddress("xghost", 12480)));
 		when(this.mockPool.getSocketBufferSize()).thenReturn(16384);
 		when(this.mockPool.getSocketConnectTimeout()).thenReturn(5000);
+		when(this.mockPool.getSocketFactory()).thenReturn(this.mockSocketFactory);
 		when(this.mockPool.getStatisticInterval()).thenReturn(1000);
 		when(this.mockPool.getSubscriptionAckInterval()).thenReturn(200);
 		when(this.mockPool.getSubscriptionEnabled()).thenReturn(true);
@@ -113,7 +109,7 @@ public class DelegatingPoolAdapterTest {
 
 	@Test
 	public void delegateEqualsMockPool() {
-		assertThat(DelegatingPoolAdapter.from(this.mockPool).getDelegate(), is(equalTo(this.mockPool)));
+		assertThat(DelegatingPoolAdapter.from(this.mockPool).getDelegate()).isEqualTo(this.mockPool);
 	}
 
 	@Test
@@ -121,33 +117,35 @@ public class DelegatingPoolAdapterTest {
 
 		Pool pool = DelegatingPoolAdapter.from(this.mockPool);
 
-		assertThat(pool.isDestroyed(), is(equalTo(false)));
-		assertThat(pool.getFreeConnectionTimeout(), is(equalTo(10000)));
-		assertThat(pool.getIdleTimeout(), is(equalTo(120000L)));
-		assertThat(pool.getLoadConditioningInterval(), is(equalTo(300000)));
-		assertThat(pool.getMaxConnections(), is(equalTo(500)));
-		assertThat(pool.getMinConnections(), is(equalTo(50)));
-		assertThat(pool.getMultiuserAuthentication(), is(equalTo(true)));
-		assertThat(pool.getLocators(), is(equalTo(Collections.singletonList(newSocketAddress("skullbox", 11235)))));
-		assertThat(pool.getName(), is(equalTo("MockPool")));
-		assertThat(pool.getOnlineLocators(), is(equalTo(Collections.singletonList(newSocketAddress("trinity", 10101)))));
-		assertThat(pool.getPendingEventCount(), is(equalTo(2)));
-		assertThat(pool.getPingInterval(), is(equalTo(15000L)));
-		assertThat(pool.getPRSingleHopEnabled(), is(equalTo(true)));
-		assertThat(pool.getQueryService(), is(equalTo(this.mockQueryService)));
-		assertThat(pool.getReadTimeout(), is(equalTo(30000)));
-		assertThat(pool.getRetryAttempts(), is(equalTo(1)));
-		assertThat(pool.getServerGroup(), is(equalTo("TestGroup")));
-		assertThat(pool.getServers(), is(equalTo(Collections.singletonList(newSocketAddress("xghost", 12480)))));
-		assertThat(pool.getSocketBufferSize(), is(equalTo(16384)));
-		assertThat(pool.getSocketConnectTimeout(), is(equalTo(5000)));
-		assertThat(pool.getStatisticInterval(), is(equalTo(1000)));
-		assertThat(pool.getSubscriptionAckInterval(), is(equalTo(200)));
-		assertThat(pool.getSubscriptionEnabled(), is(equalTo(true)));
-		assertThat(pool.getSubscriptionMessageTrackingTimeout(), is(equalTo(60000)));
-		assertThat(pool.getSubscriptionRedundancy(), is(equalTo(2)));
-		assertThat(pool.getSubscriptionTimeoutMultiplier(), is(equalTo(3)));
-		assertThat(pool.getThreadLocalConnections(), is(equalTo(false)));
+		assertThat(pool.isDestroyed()).isFalse();
+		assertThat(pool.getFreeConnectionTimeout()).isEqualTo(10000);
+		assertThat(pool.getIdleTimeout()).isEqualTo(120000L);
+		assertThat(pool.getLoadConditioningInterval()).isEqualTo(300000);
+		assertThat(pool.getMaxConnections()).isEqualTo(500);
+		assertThat(pool.getMinConnections()).isEqualTo(50);
+		assertThat(pool.getMultiuserAuthentication()).isTrue();
+		assertThat(pool.getLocators()).isEqualTo(Collections.singletonList(newSocketAddress("skullbox", 11235)));
+		assertThat(pool.getName()).isEqualTo("MockPool");
+		assertThat(pool.getOnlineLocators()).isEqualTo(Collections.singletonList(newSocketAddress("trinity", 10101)));
+		assertThat(pool.getPendingEventCount()).isEqualTo(2);
+		assertThat(pool.getPingInterval()).isEqualTo(15000L);
+		assertThat(pool.getPRSingleHopEnabled()).isTrue();
+		assertThat(pool.getQueryService()).isEqualTo(this.mockQueryService);
+		assertThat(pool.getReadTimeout()).isEqualTo(30000);
+		assertThat(pool.getRetryAttempts()).isEqualTo(1);
+		assertThat(pool.getServerConnectionTimeout()).isEqualTo(10000);
+		assertThat(pool.getServerGroup()).isEqualTo("TestGroup");
+		assertThat(pool.getServers()).isEqualTo(Collections.singletonList(newSocketAddress("xghost", 12480)));
+		assertThat(pool.getSocketBufferSize()).isEqualTo(16384);
+		assertThat(pool.getSocketConnectTimeout()).isEqualTo(5000);
+		assertThat(pool.getSocketFactory()).isEqualTo(this.mockSocketFactory);
+		assertThat(pool.getStatisticInterval()).isEqualTo(1000);
+		assertThat(pool.getSubscriptionAckInterval()).isEqualTo(200);
+		assertThat(pool.getSubscriptionEnabled()).isTrue();
+		assertThat(pool.getSubscriptionMessageTrackingTimeout()).isEqualTo(60000);
+		assertThat(pool.getSubscriptionRedundancy()).isEqualTo(2);
+		assertThat(pool.getSubscriptionTimeoutMultiplier()).isEqualTo(3);
+		assertThat(pool.getThreadLocalConnections()).isFalse();
 
 		verify(this.mockPool, times(1)).isDestroyed();
 		verify(this.mockPool, times(1)).getFreeConnectionTimeout();
@@ -164,10 +162,12 @@ public class DelegatingPoolAdapterTest {
 		verify(this.mockPool, times(1)).getQueryService();
 		verify(this.mockPool, times(1)).getReadTimeout();
 		verify(this.mockPool, times(1)).getRetryAttempts();
+		verify(this.mockPool, times(1)).getServerConnectionTimeout();
 		verify(this.mockPool, times(1)).getServerGroup();
 		verify(this.mockPool, times(1)).getServers();
 		verify(this.mockPool, times(1)).getSocketBufferSize();
 		verify(this.mockPool, times(1)).getSocketConnectTimeout();
+		verify(this.mockPool, times(1)).getSocketFactory();
 		verify(this.mockPool, times(1)).getStatisticInterval();
 		verify(this.mockPool, times(1)).getSubscriptionAckInterval();
 		verify(this.mockPool, times(1)).getSubscriptionEnabled();
@@ -178,7 +178,7 @@ public class DelegatingPoolAdapterTest {
 	}
 
 	@Test
-	public void destroyWithDelegateCallsDestroy() {
+	public void destroyUsingDelegateCallsDestroy() {
 		DelegatingPoolAdapter.from(this.mockPool).destroy();
 		verify(this.mockPool, times(1)).destroy();
 	}
@@ -200,65 +200,78 @@ public class DelegatingPoolAdapterTest {
 
 		Pool pool = DelegatingPoolAdapter.from(null);
 
-		assertThat(pool.getFreeConnectionTimeout(), is(equalTo(PoolFactory.DEFAULT_FREE_CONNECTION_TIMEOUT)));
-		assertThat(pool.getIdleTimeout(), is(equalTo(PoolFactory.DEFAULT_IDLE_TIMEOUT)));
-		assertThat(pool.getLoadConditioningInterval(), is(equalTo(PoolFactory.DEFAULT_LOAD_CONDITIONING_INTERVAL)));
-		assertThat(pool.getMaxConnections(), is(equalTo(PoolFactory.DEFAULT_MAX_CONNECTIONS)));
-		assertThat(pool.getMinConnections(), is(equalTo(PoolFactory.DEFAULT_MIN_CONNECTIONS)));
-		assertThat(pool.getMultiuserAuthentication(), is(equalTo(PoolFactory.DEFAULT_MULTIUSER_AUTHENTICATION)));
-		assertThat(pool.getOnlineLocators(), is(equalTo(Collections.EMPTY_LIST)));
-		assertThat(pool.getPingInterval(), is(equalTo(PoolFactory.DEFAULT_PING_INTERVAL)));
-		assertThat(pool.getPRSingleHopEnabled(), is(equalTo(PoolFactory.DEFAULT_PR_SINGLE_HOP_ENABLED)));
-		assertThat(pool.getReadTimeout(), is(equalTo(PoolFactory.DEFAULT_READ_TIMEOUT)));
-		assertThat(pool.getRetryAttempts(), is(equalTo(PoolFactory.DEFAULT_RETRY_ATTEMPTS)));
-		assertThat(pool.getServerGroup(), is(equalTo(PoolFactory.DEFAULT_SERVER_GROUP)));
-		assertThat(pool.getSocketBufferSize(), is(equalTo(PoolFactory.DEFAULT_SOCKET_BUFFER_SIZE)));
-		assertThat(pool.getSocketConnectTimeout(), is(equalTo(PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT)));
-		assertThat(pool.getStatisticInterval(), is(equalTo(PoolFactory.DEFAULT_STATISTIC_INTERVAL)));
-		assertThat(pool.getSubscriptionAckInterval(), is(equalTo(PoolFactory.DEFAULT_SUBSCRIPTION_ACK_INTERVAL)));
-		assertThat(pool.getSubscriptionEnabled(), is(equalTo(PoolFactory.DEFAULT_SUBSCRIPTION_ENABLED)));
-		assertThat(pool.getSubscriptionMessageTrackingTimeout(), is(equalTo(PoolFactory.DEFAULT_SUBSCRIPTION_MESSAGE_TRACKING_TIMEOUT)));
-		assertThat(pool.getSubscriptionRedundancy(), is(equalTo(PoolFactory.DEFAULT_SUBSCRIPTION_REDUNDANCY)));
-		assertThat(pool.getSubscriptionTimeoutMultiplier(), is(equalTo(PoolFactory.DEFAULT_SUBSCRIPTION_TIMEOUT_MULTIPLIER)));
-		assertThat(pool.getThreadLocalConnections(), is(equalTo(PoolFactory.DEFAULT_THREAD_LOCAL_CONNECTIONS)));
+		assertThat(pool.getFreeConnectionTimeout()).isEqualTo(PoolFactory.DEFAULT_FREE_CONNECTION_TIMEOUT);
+		assertThat(pool.getIdleTimeout()).isEqualTo(PoolFactory.DEFAULT_IDLE_TIMEOUT);
+		assertThat(pool.getLoadConditioningInterval()).isEqualTo(PoolFactory.DEFAULT_LOAD_CONDITIONING_INTERVAL);
+		assertThat(pool.getMaxConnections()).isEqualTo(PoolFactory.DEFAULT_MAX_CONNECTIONS);
+		assertThat(pool.getMinConnections()).isEqualTo(PoolFactory.DEFAULT_MIN_CONNECTIONS);
+		assertThat(pool.getMultiuserAuthentication()).isEqualTo(PoolFactory.DEFAULT_MULTIUSER_AUTHENTICATION);
+		assertThat(pool.getOnlineLocators()).isEqualTo(Collections.EMPTY_LIST);
+		assertThat(pool.getPingInterval()).isEqualTo(PoolFactory.DEFAULT_PING_INTERVAL);
+		assertThat(pool.getPRSingleHopEnabled()).isEqualTo(PoolFactory.DEFAULT_PR_SINGLE_HOP_ENABLED);
+		assertThat(pool.getReadTimeout()).isEqualTo(PoolFactory.DEFAULT_READ_TIMEOUT);
+		assertThat(pool.getRetryAttempts()).isEqualTo(PoolFactory.DEFAULT_RETRY_ATTEMPTS);
+		assertThat(pool.getServerConnectionTimeout()).isEqualTo(PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT);
+		assertThat(pool.getServerGroup()).isEqualTo(PoolFactory.DEFAULT_SERVER_GROUP);
+		assertThat(pool.getSocketBufferSize()).isEqualTo(PoolFactory.DEFAULT_SOCKET_BUFFER_SIZE);
+		assertThat(pool.getSocketConnectTimeout()).isEqualTo(PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT);
+		assertThat(pool.getSocketFactory()).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
+		assertThat(pool.getStatisticInterval()).isEqualTo(PoolFactory.DEFAULT_STATISTIC_INTERVAL);
+		assertThat(pool.getSubscriptionAckInterval()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_ACK_INTERVAL);
+		assertThat(pool.getSubscriptionEnabled()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_ENABLED);
+		assertThat(pool.getSubscriptionMessageTrackingTimeout()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_MESSAGE_TRACKING_TIMEOUT);
+		assertThat(pool.getSubscriptionRedundancy()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_REDUNDANCY);
+		assertThat(pool.getSubscriptionTimeoutMultiplier()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_TIMEOUT_MULTIPLIER);
+		assertThat(pool.getThreadLocalConnections()).isEqualTo(PoolFactory.DEFAULT_THREAD_LOCAL_CONNECTIONS);
 
-		verifyZeroInteractions(this.mockPool);
+		verifyNoInteractions(this.mockPool);
 	}
 
-	@Test
+	@Test(expected = UnsupportedOperationException.class)
 	public void destroyedWithNullIsUnsupported() {
 
-		exception.expect(UnsupportedOperationException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(is(equalTo(DelegatingPoolAdapter.NOT_IMPLEMENTED)));
+		try {
+			DelegatingPoolAdapter.from(null).isDestroyed();
+		}
+		catch (UnsupportedOperationException expected) {
 
-		DelegatingPoolAdapter.from(null).isDestroyed();
+			assertThat(expected).hasMessage(DelegatingPoolAdapter.NOT_IMPLEMENTED);
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void locatorsWithNullIsEqualToEmptyList() {
-		assertThat(DelegatingPoolAdapter.from(null).getLocators(), is(equalTo(Collections.<InetSocketAddress>emptyList())));
+		assertThat(DelegatingPoolAdapter.from(null).getLocators())
+			.isEqualTo(Collections.<InetSocketAddress>emptyList());
 	}
 
 	@Test
 	public void nameWithNullIsEqualToDefault() {
-		assertThat(DelegatingPoolAdapter.from(null).getName(), is(equalTo(DelegatingPoolAdapter.DEFAULT_POOL_NAME)));
+		assertThat(DelegatingPoolAdapter.from(null).getName()).isEqualTo(DelegatingPoolAdapter.DEFAULT_POOL_NAME);
 	}
 
 	@Test
 	public void pendingEventCountWithNullIsEqualToZero() {
-		assertThat(DelegatingPoolAdapter.from(null).getPendingEventCount(), is(equalTo(0)));
+		assertThat(DelegatingPoolAdapter.from(null).getPendingEventCount()).isEqualTo(0);
 	}
 
 	@Test
 	public void queryServiceWithNullIsNull() {
-		assertThat(DelegatingPoolAdapter.from(null).getQueryService(), is(nullValue()));
+		assertThat(DelegatingPoolAdapter.from(null).getQueryService()).isNull();
+	}
+
+	@Test
+	public void socketFactoryWithNullIsEqualToDefaultSocketFactory() {
+		assertThat(DelegatingPoolAdapter.from(null).getSocketFactory()).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
 	}
 
 	@Test
 	public void serversWithNullIsEqualToLocalhostListeningOnDefaultCacheServerPort() {
-		assertThat(DelegatingPoolAdapter.from(null).getServers(), is(equalTo(Collections.singletonList(
-			newSocketAddress("localhost", GemfireUtils.DEFAULT_CACHE_SERVER_PORT)))));
+		assertThat(DelegatingPoolAdapter.from(null).getServers()).isEqualTo(Collections.singletonList(
+			newSocketAddress("localhost", GemfireUtils.DEFAULT_CACHE_SERVER_PORT)));
 	}
 
 	@Test

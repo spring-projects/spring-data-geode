@@ -16,6 +16,7 @@
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -52,6 +54,7 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
+@SuppressWarnings("unused")
 public class PoolPropertiesIntegrationTests {
 
 	private ConfigurableApplicationContext applicationContext;
@@ -79,8 +82,9 @@ public class PoolPropertiesIntegrationTests {
 
 	private void assertPool(Pool pool, int freeConnectionTimeout, long idleTimeout, int loadConditioningInterval,
 			int maxConnections, int minConnections, boolean multiUserAuthentication, String name, long pingInterval,
-			boolean prSinglehopEnabled, int readTimeout, int retryAttempts, String serverGroup, int socketBufferSize,
-			int socketConnectTimeout, int statisticInterval, int subscriptionAckInterval, boolean subscriptionEnabled,
+			boolean prSinglehopEnabled, int readTimeout, int retryAttempts, int serverConnectionTimeout,
+			String serverGroup, int socketBufferSize, int socketConnectTimeout, SocketFactory socketFactory,
+			int statisticInterval, int subscriptionAckInterval, boolean subscriptionEnabled,
 			int subscriptionMessageTrackingTimeout, int subscriptionRedundancy, boolean threadLocalConnections) {
 
 		assertThat(pool).isNotNull();
@@ -95,9 +99,11 @@ public class PoolPropertiesIntegrationTests {
 		assertThat(pool.getPRSingleHopEnabled()).isEqualTo(prSinglehopEnabled);
 		assertThat(pool.getReadTimeout()).isEqualTo(readTimeout);
 		assertThat(pool.getRetryAttempts()).isEqualTo(retryAttempts);
+		assertThat(pool.getServerConnectionTimeout()).isEqualTo(serverConnectionTimeout);
 		assertThat(pool.getServerGroup()).isEqualTo(serverGroup);
 		assertThat(pool.getSocketBufferSize()).isEqualTo(socketBufferSize);
 		assertThat(pool.getSocketConnectTimeout()).isEqualTo(socketConnectTimeout);
+		assertThat(pool.getSocketFactory()).isEqualTo(socketFactory);
 		assertThat(pool.getStatisticInterval()).isEqualTo(statisticInterval);
 		assertThat(pool.getSubscriptionAckInterval()).isEqualTo(subscriptionAckInterval);
 		assertThat(pool.getSubscriptionEnabled()).isEqualTo(subscriptionEnabled);
@@ -112,14 +118,14 @@ public class PoolPropertiesIntegrationTests {
 		MockPropertySource testPropertySource = new MockPropertySource()
 			.withProperty("spring.data.gemfire.pool.free-connection-timeout", 5000)
 			.withProperty("spring.data.gemfire.pool.locators", "skullbox[11235]")
-			.withProperty("spring.data.gemfire.pool.max-connections", 500)
-			.withProperty("spring.data.gemfire.pool.min-connections", 25)
+			.withProperty("spring.data.gemfire.pool.max-connections", 400)
+			.withProperty("spring.data.gemfire.pool.min-connections", 10)
 			.withProperty("spring.data.gemfire.pool.ping-interval", 5000L)
 			.withProperty("spring.data.gemfire.pool.pr-single-hop-enabled", false)
 			.withProperty("spring.data.gemfire.pool.read-timeout", 15000)
 			.withProperty("spring.data.gemfire.pool.default.read-timeout", 5000L)
 			.withProperty("spring.data.gemfire.pool.retry-attempts", 2)
-			.withProperty("spring.data.gemfire.pool.server-group", "testGroup")
+			.withProperty("spring.data.gemfire.pool.server-group", "TestGroup")
 			.withProperty("spring.data.gemfire.pool.default.socket-connect-timeout", 5000)
 			.withProperty("spring.data.gemfire.pool.subscription-enabled", true)
 			.withProperty("spring.data.gemfire.pool.TestPool.subscription-redundancy", 2);
@@ -132,21 +138,27 @@ public class PoolPropertiesIntegrationTests {
 
 		Pool testPool = this.applicationContext.getBean("TestPool", Pool.class);
 
+		SocketFactory mockSocketFactory = this.applicationContext.getBean("mockSocketFactory", SocketFactory.class);
+
 		assertThat(testPool).isNotNull();
+		assertThat(mockSocketFactory).isNotNull();
 		assertThat(testPool.getFreeConnectionTimeout()).isEqualTo(5000);
 		assertThat(testPool.getIdleTimeout()).isEqualTo(10000L);
 		assertThat(testPool.getLoadConditioningInterval()).isEqualTo(100000);
 		assertThat(testPool.getLocators()).contains(new InetSocketAddress("skullbox", 11235));
-		assertThat(testPool.getMaxConnections()).isEqualTo(500);
-		assertThat(testPool.getMinConnections()).isEqualTo(25);
+		assertThat(testPool.getMaxConnections()).isEqualTo(400);
+		assertThat(testPool.getMinConnections()).isEqualTo(10);
 		assertThat(testPool.getMultiuserAuthentication()).isFalse();
 		assertThat(testPool.getName()).isEqualTo("TestPool");
 		assertThat(testPool.getPingInterval()).isEqualTo(5000L);
 		assertThat(testPool.getPRSingleHopEnabled()).isFalse();
 		assertThat(testPool.getReadTimeout()).isEqualTo(15000);
 		assertThat(testPool.getRetryAttempts()).isEqualTo(1);
-		assertThat(testPool.getServerGroup()).isEqualTo("testGroup");
+		assertThat(testPool.getServerConnectionTimeout()).isEqualTo(60000);
+		assertThat(testPool.getServerGroup()).isEqualTo("TestGroup");
+		assertThat(testPool.getSocketBufferSize()).isEqualTo(PoolFactory.DEFAULT_SOCKET_BUFFER_SIZE);
 		assertThat(testPool.getSocketConnectTimeout()).isEqualTo(PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT);
+		assertThat(testPool.getSocketFactory()).isEqualTo(mockSocketFactory);
 		assertThat(testPool.getSubscriptionAckInterval()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_ACK_INTERVAL);
 		assertThat(testPool.getSubscriptionEnabled()).isEqualTo(true);
 		assertThat(testPool.getSubscriptionMessageTrackingTimeout()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_MESSAGE_TRACKING_TIMEOUT);
@@ -158,8 +170,8 @@ public class PoolPropertiesIntegrationTests {
 	public void multiPoolConfiguration() {
 
 		MockPropertySource testPropertySource = new MockPropertySource()
-			.withProperty("spring.data.gemfire.pool.free-connection-timeout", 5000)
-			.withProperty("spring.data.gemfire.pool.idle-timeout", 10000L)
+			.withProperty("spring.data.gemfire.pool.free-connection-timeout", 30000)
+			.withProperty("spring.data.gemfire.pool.idle-timeout", 300000L)
 			.withProperty("spring.data.gemfire.pool.load-conditioning-interval", 120000)
 			.withProperty("spring.data.gemfire.pool.locators", "localhost[10334]")
 			.withProperty("spring.data.gemfire.pool.max-connections", 500)
@@ -169,9 +181,11 @@ public class PoolPropertiesIntegrationTests {
 			.withProperty("spring.data.gemfire.pool.pr-single-hop-enabled", false)
 			.withProperty("spring.data.gemfire.pool.read-timeout", 15000L)
 			.withProperty("spring.data.gemfire.pool.retry-attempts", 2)
+			.withProperty("spring.data.gemfire.pool.server-connection-timeout", 30000)
 			.withProperty("spring.data.gemfire.pool.server-group", "testGroup")
 			.withProperty("spring.data.gemfire.pool.socket-buffer-size", 8192)
 			.withProperty("spring.data.gemfire.pool.socket-connect-timeout", 5000)
+			.withProperty("spring.data.gemfire.pool.socket-factory-bean-name", "mockSocketFactoryOne")
 			.withProperty("spring.data.gemfire.pool.statistic-interval", 1000)
 			.withProperty("spring.data.gemfire.pool.subscription-ack-interval", 5000)
 			.withProperty("spring.data.gemfire.pool.subscription-enabled", true)
@@ -189,9 +203,11 @@ public class PoolPropertiesIntegrationTests {
 			.withProperty("spring.data.gemfire.pool.default.pr-single-hop-enabled", false)
 			.withProperty("spring.data.gemfire.pool.default.read-timeout", 2000L)
 			.withProperty("spring.data.gemfire.pool.default.retry-attempts", 1)
+			.withProperty("spring.data.gemfire.pool.default.server-connection-timeout", 60000)
 			.withProperty("spring.data.gemfire.pool.default.server-group", "testDefaultGroup")
 			.withProperty("spring.data.gemfire.pool.default.socket-buffer-size", 16384)
 			.withProperty("spring.data.gemfire.pool.default.socket-connect-timeout", 10000)
+			.withProperty("spring.data.gemfire.pool.default.socket-factory-bean-name", "")
 			.withProperty("spring.data.gemfire.pool.default.statistic-interval", 500)
 			.withProperty("spring.data.gemfire.pool.default.subscription-ack-interval", 250)
 			.withProperty("spring.data.gemfire.pool.default.subscription-enabled", true)
@@ -212,6 +228,7 @@ public class PoolPropertiesIntegrationTests {
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.server-group", "testTwoGroup")
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.socket-buffer-size", 65536)
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.socket-connect-timeout", 15000)
+			.withProperty("spring.data.gemfire.pool.TestPoolTwo.socket-factory-bean-name", "mockSocketFactoryTwo")
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.statistic-interval", 2000)
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.subscription-ack-interval", 500)
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.subscription-enabled", true)
@@ -232,19 +249,26 @@ public class PoolPropertiesIntegrationTests {
 
 		Pool defaultPool = gemfireCache.getDefaultPool();
 
+		SocketFactory mockSocketFactoryOne = this.applicationContext.getBean("mockSocketFactoryOne", SocketFactory.class);
+		SocketFactory mockSocketFactoryTwo = this.applicationContext.getBean("mockSocketFactoryTwo", SocketFactory.class);
+
+		assertThat(mockSocketFactoryOne).isNotNull();
+		assertThat(mockSocketFactoryTwo).isNotNull();
+		assertThat(mockSocketFactoryOne).isNotSameAs(mockSocketFactoryTwo);
+
 		assertPool(defaultPool, 15000, 20000L, 180000,
 			275, 27, true, "DEFAULT", 15000L,
-			false, 2000, 1, "testDefaultGroup",
-			16384, 10000, 500, 250,
+			false, 2000, 1, 60000, "testDefaultGroup",
+			16384, 10000, SocketFactory.DEFAULT, 500, 250,
 			true, 300000, 3,
 			true);
 
 		Pool testPoolOne = this.applicationContext.getBean("TestPoolOne", Pool.class);
 
-		assertPool(testPoolOne, 5000, 10000L, 120000,
+		assertPool(testPoolOne, 30000, 300000L, 120000,
 			500, 50, true, "TestPoolOne", 5000L,
-			false, 15000, 2, "testGroup",
-			8192, 5000,1000, 5000,
+			false, 15000, 2, 30000, "testGroup",
+			8192, 5000, mockSocketFactoryOne,1000, 5000,
 			true, 180000, 2,
 			true);
 
@@ -252,15 +276,16 @@ public class PoolPropertiesIntegrationTests {
 
 		assertPool(testPoolTwo, 20000, 15000L, 60000,
 			1000, 100, true, "TestPoolTwo", 20000L,
-			false, 5000, 4, "testTwoGroup",
-			65536, 15000,2000, 500,
+			false, 5000, 4, 30000, "testTwoGroup",
+			65536, 15000, mockSocketFactoryTwo, 2000, 500,
 			true, 300000, 4,
 			true);
 	}
 
 	@EnableGemFireMockObjects
 	@ClientCacheApplication
-	@EnablePool(name = "TestPool", idleTimeout = 10000L, maxConnections = 200, minConnections = 20)
+	@EnablePool(name = "TestPool", idleTimeout = 10000L, maxConnections = 200, minConnections = 20,
+		serverConnectionTimeout = 60000, socketFactoryBeanName = "mockSocketFactory")
 	static class TestPoolConfiguration {
 
 		@Bean
@@ -270,6 +295,11 @@ public class PoolPropertiesIntegrationTests {
 				beanFactory.setRetryAttempts(1);
 			};
 		}
+
+		@Bean
+		SocketFactory mockSocketFactory() {
+			return mock(SocketFactory.class);
+		}
 	}
 
 	@EnableGemFireMockObjects
@@ -278,6 +308,16 @@ public class PoolPropertiesIntegrationTests {
 		@EnablePool(name = "TestPoolOne"),
 		@EnablePool(name = "TestPoolTwo")
 	})
-	static class TestPoolsConfiguration { }
+	static class TestPoolsConfiguration {
 
+		@Bean
+		SocketFactory mockSocketFactoryOne() {
+			return mock(SocketFactory.class);
+		}
+
+		@Bean
+		SocketFactory mockSocketFactoryTwo() {
+			return mock(SocketFactory.class);
+		}
+	}
 }

@@ -32,6 +32,7 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.PoolManager;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.distributed.DistributedSystem;
 
@@ -45,6 +46,7 @@ import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -96,6 +98,7 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	private int minConnections = PoolFactory.DEFAULT_MIN_CONNECTIONS;
 	private int readTimeout = PoolFactory.DEFAULT_READ_TIMEOUT;
 	private int retryAttempts = PoolFactory.DEFAULT_RETRY_ATTEMPTS;
+	private int serverConnectionTimeout = PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT;
 	private int socketBufferSize = PoolFactory.DEFAULT_SOCKET_BUFFER_SIZE;
 	private int socketConnectTimeout = PoolFactory.DEFAULT_SOCKET_CONNECT_TIMEOUT;
 	private int statisticInterval = PoolFactory.DEFAULT_STATISTIC_INTERVAL;
@@ -115,11 +118,13 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	private volatile Pool pool;
 
 	private PoolConfigurer compositePoolConfigurer = (beanName, bean) ->
-		nullSafeCollection(poolConfigurers).forEach(poolConfigurer -> poolConfigurer.configure(beanName, bean));
+		nullSafeCollection(this.poolConfigurers).forEach(poolConfigurer -> poolConfigurer.configure(beanName, bean));
 
 	private PoolFactoryInitializer poolFactoryInitializer;
 
 	private PoolResolver poolResolver = DEFAULT_POOL_RESOLVER;
+
+	private SocketFactory socketFactory;
 
 	private String name;
 	private String serverGroup = PoolFactory.DEFAULT_SERVER_GROUP;
@@ -134,21 +139,24 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		init(Optional.ofNullable(resolvePool(resolvePoolName())));
+		init(resolvePool(resolvePoolName()));
 	}
 
-	@SuppressWarnings("all")
-	private void init(Optional<Pool> existingPool) {
+	/**
+	 * Initializes the given {@link Pool}
+	 *
+	 * @param existingPool {@link Pool} to initialize.
+	 * @see org.apache.geode.cache.client.Pool
+	 */
+	private void init(@Nullable Pool existingPool) {
 
-		if (existingPool.isPresent()) {
+		if (existingPool != null) {
 
-			this.pool = existingPool.get();
+			this.pool = existingPool;
 			this.springManagedPool = false;
 
-			logDebug(() -> String.format("A Pool with name [%s] already exists; Using existing Pool",
+			logDebug(() -> String.format("Pool [%s] already exists; Using existing Pool; PoolConfigurers will not be applied",
 				this.pool.getName()));
-
-			logDebug("PoolConfigurers will not be applied");
 		}
 		else {
 			logDebug("Pool [%s] not found; Lazily creating new Pool...", getName());
@@ -210,7 +218,6 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	/**
 	 * Releases all system resources and destroys the {@link Pool} when created by this {@link PoolFactoryBean}.
 	 *
-	 * @throws Exception if the {@link Pool} destruction caused an error.
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 */
 	@Override
@@ -320,9 +327,11 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 			it.setPRSingleHopEnabled(this.prSingleHopEnabled);
 			it.setReadTimeout(this.readTimeout);
 			it.setRetryAttempts(this.retryAttempts);
+			it.setServerConnectionTimeout(this.serverConnectionTimeout);
 			it.setServerGroup(this.serverGroup);
 			it.setSocketBufferSize(this.socketBufferSize);
 			it.setSocketConnectTimeout(this.socketConnectTimeout);
+			it.setSocketFactory(getSocketFactory());
 			it.setStatisticInterval(this.statisticInterval);
 			it.setSubscriptionAckInterval(this.subscriptionAckInterval);
 			it.setSubscriptionEnabled(this.subscriptionEnabled);
@@ -367,6 +376,14 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	}
 
 	/**
+	 * @deprecated Use {@link #createPool(PoolFactory, String)} instead.
+	 */
+	@Deprecated
+	protected Pool create(PoolFactory poolFactory, String poolName) {
+		return createPool(poolFactory, poolName);
+	}
+
+	/**
 	 * Creates a {@link Pool} with the given {@link String name} using the provided {@link PoolFactory}.
 	 *
 	 * @param poolFactory {@link PoolFactory} used to create the {@link Pool}.
@@ -375,7 +392,7 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	 * @see org.apache.geode.cache.client.PoolFactory#create(String)
 	 * @see org.apache.geode.cache.client.Pool
 	 */
-	protected Pool create(PoolFactory poolFactory, String poolName) {
+	protected Pool createPool(PoolFactory poolFactory, String poolName) {
 		return poolFactory.create(poolName);
 	}
 
@@ -418,10 +435,10 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	}
 
 	/**
-	 * Returns a reference to the Composite {@link PoolConfigurer} used to apply additional configuration
+	 * Returns a reference to the {@literal Composite} {@link PoolConfigurer} used to apply additional configuration
 	 * to this {@link PoolFactoryBean} on Spring container initialization.
 	 *
-	 * @return the Composite {@link PoolConfigurer}.
+	 * @return the {@literal Composite} {@link PoolConfigurer}.
 	 * @see org.springframework.data.gemfire.config.annotation.PoolConfigurer
 	 */
 	protected PoolConfigurer getCompositePoolConfigurer() {
@@ -540,6 +557,11 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 			}
 
 			@Override
+			public int getServerConnectionTimeout() {
+				return PoolFactoryBean.this.serverConnectionTimeout;
+			}
+
+			@Override
 			public String getServerGroup() {
 				return PoolFactoryBean.this.serverGroup;
 			}
@@ -557,6 +579,11 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 			@Override
 			public int getSocketConnectTimeout() {
 				return PoolFactoryBean.this.socketConnectTimeout;
+			}
+
+			@Override
+			public SocketFactory getSocketFactory() {
+				return PoolFactoryBean.this.getSocketFactory();
 			}
 
 			@Override
@@ -742,6 +769,10 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 		this.retryAttempts = retryAttempts;
 	}
 
+	public void setServerConnectionTimeout(int serverConnectionTimeout) {
+		this.serverConnectionTimeout = serverConnectionTimeout;
+	}
+
 	public void setServerGroup(String serverGroup) {
 		this.serverGroup = serverGroup;
 	}
@@ -765,6 +796,14 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 
 	public void setSocketConnectTimeout(int socketConnectTimeout) {
 		this.socketConnectTimeout = socketConnectTimeout;
+	}
+
+	public void setSocketFactory(SocketFactory socketFactory) {
+		this.socketFactory = socketFactory;
+	}
+
+	protected SocketFactory getSocketFactory() {
+		return this.socketFactory != null ? this.socketFactory : PoolFactory.DEFAULT_SOCKET_FACTORY;
 	}
 
 	public void setStatisticInterval(int statisticInterval) {

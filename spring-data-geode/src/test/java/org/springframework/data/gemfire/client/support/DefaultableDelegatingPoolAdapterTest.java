@@ -14,19 +14,14 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.client.support;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.InetSocketAddress;
@@ -34,37 +29,37 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.query.QueryService;
-
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
+import org.apache.geode.cache.query.QueryService;
+
 import org.springframework.data.gemfire.GemfireUtils;
 
 /**
- * Additional unit tests for {@link DefaultableDelegatingPoolAdapter} testing defaults.
+ * Unit Tests for {@link DefaultableDelegatingPoolAdapter}.
  *
  * @author John Blum
- * @see org.junit.Rule
+ * @see java.net.InetSocketAddress
  * @see org.junit.Test
- * @see org.junit.rules.ExpectedException
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
+ * @see org.apache.geode.cache.client.Pool
+ * @see org.apache.geode.cache.client.PoolFactory
+ * @see org.apache.geode.cache.client.SocketFactory
+ * @see org.apache.geode.cache.query.QueryService
  * @see org.springframework.data.gemfire.client.support.DefaultableDelegatingPoolAdapter
  * @since 1.8.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultableDelegatingPoolAdapterTest {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private DefaultableDelegatingPoolAdapter poolAdapter;
 
@@ -75,6 +70,10 @@ public class DefaultableDelegatingPoolAdapterTest {
 	private QueryService mockQueryService;
 
 	@Mock
+	private SocketFactory mockSocketFactory;
+
+	@Mock
+	@SuppressWarnings("rawtypes")
 	private Supplier mockSupplier;
 
 	private static InetSocketAddress newSocketAddress(String host, int port) {
@@ -98,11 +97,13 @@ public class DefaultableDelegatingPoolAdapterTest {
 		when(this.mockPool.getQueryService()).thenReturn(null);
 		when(this.mockPool.getReadTimeout()).thenReturn(30000);
 		when(this.mockPool.getRetryAttempts()).thenReturn(1);
+		when(this.mockPool.getServerConnectionTimeout()).thenReturn(10000);
 		when(this.mockPool.getServerGroup()).thenReturn("TestGroup");
 		when(this.mockPool.getServers()).thenReturn(Collections.singletonList(
 			newSocketAddress("localhost", GemfireUtils.DEFAULT_CACHE_SERVER_PORT)));
 		when(this.mockPool.getSocketBufferSize()).thenReturn(16384);
 		when(this.mockPool.getSocketConnectTimeout()).thenReturn(5000);
+		when(this.mockPool.getSocketFactory()).thenReturn(PoolFactory.DEFAULT_SOCKET_FACTORY);
 		when(this.mockPool.getStatisticInterval()).thenReturn(1000);
 		when(this.mockPool.getSubscriptionAckInterval()).thenReturn(200);
 		when(this.mockPool.getSubscriptionEnabled()).thenReturn(true);
@@ -110,45 +111,51 @@ public class DefaultableDelegatingPoolAdapterTest {
 		when(this.mockPool.getSubscriptionRedundancy()).thenReturn(2);
 		when(this.mockPool.getSubscriptionTimeoutMultiplier()).thenReturn(3);
 		when(this.mockPool.getThreadLocalConnections()).thenReturn(false);
-
-		setupPoolAdapter();
 	}
 
-	//@Before
+	@Before
 	public void setupPoolAdapter() {
 		this.poolAdapter = DefaultableDelegatingPoolAdapter.from(this.mockPool);
 	}
 
 	@Test
-	public void fromMockPoolAsDelegate() {
-		assertThat(this.poolAdapter.getDelegate(), is(sameInstance(this.mockPool)));
+	public void fromMockPool() {
+		assertThat(this.poolAdapter.getDelegate()).isSameAs(this.mockPool);
 	}
 
-	@Test
-	public void fromNullAsDelegate() {
+	@Test(expected = IllegalArgumentException.class)
+	public void fromNull() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Pool delegate must not be null");
+		try {
+			DefaultableDelegatingPoolAdapter.from(null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		DefaultableDelegatingPoolAdapter.from(null);
+			assertThat(expected).hasMessage("Pool delegate must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void prefersDefaultsToPoolDelegateAndIsMutable() {
 
-		assertThat(this.poolAdapter.getPreference(), is(equalTo(DefaultableDelegatingPoolAdapter.Preference.PREFER_POOL)));
-		assertThat(this.poolAdapter.prefersPool(), is(true));
+		assertThat(this.poolAdapter.getPreference()).isEqualTo(DefaultableDelegatingPoolAdapter.Preference.PREFER_POOL);
+		assertThat(this.poolAdapter.prefersDefault()).isFalse();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
 
 		this.poolAdapter.preferDefault();
 
-		assertThat(this.poolAdapter.getPreference(), is(equalTo(DefaultableDelegatingPoolAdapter.Preference.PREFER_DEFAULT)));
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
+		assertThat(this.poolAdapter.getPreference()).isEqualTo(DefaultableDelegatingPoolAdapter.Preference.PREFER_DEFAULT);
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat(this.poolAdapter.prefersPool()).isFalse();
 
 		this.poolAdapter.preferPool();
 
-		assertThat(this.poolAdapter.getPreference(), is(equalTo(DefaultableDelegatingPoolAdapter.Preference.PREFER_POOL)));
-		assertThat(this.poolAdapter.prefersPool(), is(true));
+		assertThat(this.poolAdapter.getPreference()).isEqualTo(DefaultableDelegatingPoolAdapter.Preference.PREFER_POOL);
+		assertThat(this.poolAdapter.prefersDefault()).isFalse();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
 	}
 
 	@Test
@@ -157,24 +164,24 @@ public class DefaultableDelegatingPoolAdapterTest {
 
 		this.poolAdapter = this.poolAdapter.preferDefault();
 
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat(this.poolAdapter.defaultIfNull("default", this.mockSupplier),
-			is(equalTo("default")));
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat(this.poolAdapter.defaultIfNull("default", this.mockSupplier)).isEqualTo("default");
 
-		verifyZeroInteractions(this.mockSupplier);
+		verifyNoInteractions(this.mockSupplier);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void defaultIfNullWhenPrefersDefaultUsesPoolValueWhenDefaultIsNull() {
 
-		this.poolAdapter = this.poolAdapter.preferDefault();
-
 		when(this.mockSupplier.get()).thenReturn("pool");
 
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat(this.poolAdapter.defaultIfNull(null, this.mockSupplier),
-			is(equalTo("pool")));
+		this.poolAdapter = this.poolAdapter.preferDefault();
+
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat(this.poolAdapter.defaultIfNull(null, this.mockSupplier)).isEqualTo("pool");
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -183,13 +190,13 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfNullWhenPrefersPoolUsesPoolValue() {
 
-		this.poolAdapter = this.poolAdapter.preferPool();
-
 		when(mockSupplier.get()).thenReturn("pool");
 
-		assertThat(this.poolAdapter.prefersPool(), is(true));
-		assertThat(this.poolAdapter.defaultIfNull("default", this.mockSupplier),
-			is(equalTo("pool")));
+		this.poolAdapter = this.poolAdapter.preferPool();
+
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
+		assertThat(this.poolAdapter.defaultIfNull("default", this.mockSupplier)).isEqualTo("pool");
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -198,13 +205,13 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfNullWhenPrefersPoolUsesDefaultWhenPoolValueIsNull() {
 
-		this.poolAdapter = this.poolAdapter.preferPool();
-
 		when(this.mockSupplier.get()).thenReturn(null);
 
-		assertThat(this.poolAdapter.prefersPool(), is(true));
-		assertThat(this.poolAdapter.defaultIfNull("default", this.mockSupplier),
-			is(equalTo("default")));
+		this.poolAdapter = this.poolAdapter.preferPool();
+
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
+		assertThat(this.poolAdapter.defaultIfNull("default", this.mockSupplier)).isEqualTo("default");
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -213,28 +220,30 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfEmptyWhenPrefersDefaultUsesDefault() {
 
-		this.poolAdapter = this.poolAdapter.preferDefault();
-
 		List<Object> defaultList = Collections.singletonList("default");
 
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(defaultList, this.mockSupplier), is(equalTo(defaultList)));
+		this.poolAdapter = this.poolAdapter.preferDefault();
 
-		verifyZeroInteractions(this.mockSupplier);
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(defaultList, this.mockSupplier)).isEqualTo(defaultList);
+
+		verifyNoInteractions(this.mockSupplier);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void defaultIfEmptyWhenPrefersDefaultUsesPoolValueWhenDefaultIsNull() {
 
-		this.poolAdapter = this.poolAdapter.preferDefault();
-
 		List<Object> poolList = Collections.singletonList("pool");
 
 		when(this.mockSupplier.get()).thenReturn(poolList);
 
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(null, this.mockSupplier), is(equalTo(poolList)));
+		this.poolAdapter = this.poolAdapter.preferDefault();
+
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(null, this.mockSupplier)).isEqualTo(poolList);
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -243,15 +252,15 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfEmptyWhenPrefersDefaultUsesPoolValueWhenDefaultIsEmpty() {
 
-		this.poolAdapter = this.poolAdapter.preferDefault();
-
 		List<Object> poolList = Collections.singletonList("pool");
 
 		when(this.mockSupplier.get()).thenReturn(poolList);
 
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(Collections.emptyList(), this.mockSupplier),
-			is(equalTo(poolList)));
+		this.poolAdapter = this.poolAdapter.preferDefault();
+
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(Collections.emptyList(), this.mockSupplier)).isEqualTo(poolList);
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -260,15 +269,16 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfEmptyWhenPrefersPoolUsesPoolValue() {
 
-		this.poolAdapter = this.poolAdapter.preferPool();
-
 		List<Object> poolList = Collections.singletonList("pool");
 
 		when(this.mockSupplier.get()).thenReturn(poolList);
 
-		assertThat(this.poolAdapter.prefersPool(), is(true));
-		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(Collections.<Object>singletonList("default"), this.mockSupplier),
-			is(equalTo(poolList)));
+		this.poolAdapter = this.poolAdapter.preferPool();
+
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
+		assertThat((List<Object>) this.poolAdapter
+			.defaultIfEmpty(Collections.<Object>singletonList("default"), this.mockSupplier)).isEqualTo(poolList);
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -277,15 +287,16 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfEmptyWhenPrefersPoolUsesDefaultWhenPoolValueIsNull() {
 
-		this.poolAdapter = this.poolAdapter.preferPool();
+		List<Object> defaultList = Collections.singletonList("default");
 
 		when(this.mockSupplier.get()).thenReturn(null);
 
-		List<Object> defaultList = Collections.singletonList("default");
+		this.poolAdapter = this.poolAdapter.preferPool();
 
-		assertThat(this.poolAdapter.prefersPool(), is(true));
-		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(defaultList, this.mockSupplier),
-			is(equalTo(defaultList)));
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
+		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(defaultList, this.mockSupplier))
+			.isEqualTo(defaultList);
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -294,15 +305,16 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@SuppressWarnings("unchecked")
 	public void defaultIfEmptyWhenPrefersPoolUsesDefaultWhenPoolValueIsEmpty() {
 
-		assertThat(this.poolAdapter.preferPool(), is(sameInstance(this.poolAdapter)));
+		List<Object> defaultList = Collections.singletonList("default");
 
 		when(this.mockSupplier.get()).thenReturn(Collections.emptyList());
 
-		List<Object> defaultList = Collections.singletonList("default");
+		this.poolAdapter = this.poolAdapter.preferPool();
 
-		assertThat(this.poolAdapter.prefersPool(), is(true));
-		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(defaultList, this.mockSupplier),
-			is(equalTo(defaultList)));
+		assertThat(this.poolAdapter).isNotNull();
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
+		assertThat((List<Object>) this.poolAdapter.defaultIfEmpty(defaultList, this.mockSupplier))
+			.isEqualTo(defaultList);
 
 		verify(this.mockSupplier, times(1)).get();
 	}
@@ -310,38 +322,40 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@Test
 	public void poolAdapterPreferringDefaultsUsesNonNullDefaults() {
 
-		assertThat(this.poolAdapter.preferDefault(), is(sameInstance(this.poolAdapter)));
+		assertThat(this.poolAdapter.preferDefault()).isSameAs(this.poolAdapter);
 
 		List<InetSocketAddress> defaultLocator = Collections.singletonList(newSocketAddress("boombox", 21668));
 		List<InetSocketAddress> defaultServer = Collections.singletonList(newSocketAddress("skullbox", 42424));
 
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat(this.poolAdapter.getFreeConnectionTimeout(10000), is(equalTo(10000)));
-		assertThat(this.poolAdapter.getIdleTimeout(300000L), is(equalTo(300000L)));
-		assertThat(this.poolAdapter.getLoadConditioningInterval(60000), is(equalTo(60000)));
-		assertThat(this.poolAdapter.getLocators(defaultLocator), is(equalTo(defaultLocator)));
-		assertThat(this.poolAdapter.getMaxConnections(100), is(equalTo(100)));
-		assertThat(this.poolAdapter.getMinConnections(10), is(equalTo(10)));
-		assertThat(this.poolAdapter.getMultiuserAuthentication(false), is(equalTo(false)));
-		assertThat(this.poolAdapter.getName(), is(equalTo("TestPool")));
-		assertThat(this.poolAdapter.getPendingEventCount(), is(equalTo(2)));
-		assertThat(this.poolAdapter.getPingInterval(20000L), is(equalTo(20000L)));
-		assertThat(this.poolAdapter.getPRSingleHopEnabled(false), is(equalTo(false)));
-		assertThat(this.poolAdapter.getQueryService(this.mockQueryService), is(equalTo(this.mockQueryService)));
-		assertThat(this.poolAdapter.getReadTimeout(20000), is(equalTo(20000)));
-		assertThat(this.poolAdapter.getRetryAttempts(2), is(equalTo(2)));
-		assertThat(this.poolAdapter.getServerGroup("MockGroup"), is(equalTo("MockGroup")));
-		assertThat(this.poolAdapter.getServers(defaultServer), is(equalTo(defaultServer)));
-		assertThat(this.poolAdapter.getSocketBufferSize(8192), is(equalTo(8192)));
-		assertThat(this.poolAdapter.getSocketConnectTimeout(10000), is(equalTo(10000)));
-		assertThat(this.poolAdapter.getStatisticInterval(2000), is(equalTo(2000)));
-		assertThat(this.poolAdapter.getSubscriptionAckInterval(50), is(equalTo(50)));
-		assertThat(this.poolAdapter.getSubscriptionEnabled(false), is(equalTo(false)));
-		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(15000), is(equalTo(15000)));
-		assertThat(this.poolAdapter.getSubscriptionRedundancy(1), is(equalTo(1)));
-		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(1), is(equalTo(1)));
-		assertThat(this.poolAdapter.getThreadLocalConnections(true), is(equalTo(true)));
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat(this.poolAdapter.getFreeConnectionTimeout(10000)).isEqualTo(10000);
+		assertThat(this.poolAdapter.getIdleTimeout(300000L)).isEqualTo(300000L);
+		assertThat(this.poolAdapter.getLoadConditioningInterval(60000)).isEqualTo(60000);
+		assertThat(this.poolAdapter.getLocators(defaultLocator)).isEqualTo(defaultLocator);
+		assertThat(this.poolAdapter.getMaxConnections(100)).isEqualTo(100);
+		assertThat(this.poolAdapter.getMinConnections(10)).isEqualTo(10);
+		assertThat(this.poolAdapter.getMultiuserAuthentication(false)).isFalse();
+		assertThat(this.poolAdapter.getName()).isEqualTo("TestPool");
+		assertThat(this.poolAdapter.getPendingEventCount()).isEqualTo(2);
+		assertThat(this.poolAdapter.getPingInterval(20000L)).isEqualTo(20000L);
+		assertThat(this.poolAdapter.getPRSingleHopEnabled(false)).isFalse();
+		assertThat(this.poolAdapter.getQueryService(this.mockQueryService)).isEqualTo(this.mockQueryService);
+		assertThat(this.poolAdapter.getReadTimeout(20000)).isEqualTo(20000);
+		assertThat(this.poolAdapter.getRetryAttempts(2)).isEqualTo(2);
+		assertThat(this.poolAdapter.getServerConnectionTimeout(123)).isEqualTo(123);
+		assertThat(this.poolAdapter.getServerGroup("MockGroup")).isEqualTo("MockGroup");
+		assertThat(this.poolAdapter.getServers(defaultServer)).isEqualTo(defaultServer);
+		assertThat(this.poolAdapter.getSocketBufferSize(8192)).isEqualTo(8192);
+		assertThat(this.poolAdapter.getSocketConnectTimeout(10000)).isEqualTo(10000);
+		assertThat(this.poolAdapter.getSocketFactory(this.mockSocketFactory)).isEqualTo(this.mockSocketFactory);
+		assertThat(this.poolAdapter.getStatisticInterval(2000)).isEqualTo(2000);
+		assertThat(this.poolAdapter.getSubscriptionAckInterval(50)).isEqualTo(50);
+		assertThat(this.poolAdapter.getSubscriptionEnabled(false)).isFalse();
+		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(15000)).isEqualTo(15000);
+		assertThat(this.poolAdapter.getSubscriptionRedundancy(1)).isEqualTo(1);
+		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(1)).isEqualTo(1);
+		assertThat(this.poolAdapter.getThreadLocalConnections(true)).isTrue();
 
 		verify(this.mockPool, times(1)).getName();
 		verify(this.mockPool, times(1)).getPendingEventCount();
@@ -351,38 +365,40 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@Test
 	public void poolAdapterPreferringDefaultsUsesPoolValuesWhenSomeDefaultValuesAreNull() {
 
-		assertThat(this.poolAdapter.preferDefault(), is(sameInstance(this.poolAdapter)));
+		assertThat(this.poolAdapter.preferDefault()).isSameAs(this.poolAdapter);
 
 		List<InetSocketAddress> defaultLocator = Collections.singletonList(newSocketAddress("boombox", 21668));
 		List<InetSocketAddress> poolServer = Collections.singletonList(newSocketAddress("localhost", 40404));
 
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat(this.poolAdapter.getFreeConnectionTimeout(null), is(equalTo(5000)));
-		assertThat(this.poolAdapter.getIdleTimeout(null), is(equalTo(120000L)));
-		assertThat(this.poolAdapter.getLoadConditioningInterval(60000), is(equalTo(60000)));
-		assertThat(this.poolAdapter.getLocators(defaultLocator), is(equalTo(defaultLocator)));
-		assertThat(this.poolAdapter.getMaxConnections(null), is(equalTo(500)));
-		assertThat(this.poolAdapter.getMinConnections(50), is(equalTo(50)));
-		assertThat(this.poolAdapter.getMultiuserAuthentication(null), is(equalTo(true)));
-		assertThat(this.poolAdapter.getName(), is(equalTo("TestPool")));
-		assertThat(this.poolAdapter.getPendingEventCount(), is(equalTo(2)));
-		assertThat(this.poolAdapter.getPingInterval(null), is(equalTo(15000L)));
-		assertThat(this.poolAdapter.getPRSingleHopEnabled(true), is(equalTo(true)));
-		assertThat(this.poolAdapter.getQueryService(null), is(nullValue()));
-		assertThat(this.poolAdapter.getReadTimeout(20000), is(equalTo(20000)));
-		assertThat(this.poolAdapter.getRetryAttempts(null), is(equalTo(1)));
-		assertThat(this.poolAdapter.getServerGroup("MockGroup"), is(equalTo("MockGroup")));
-		assertThat(this.poolAdapter.getServers(null), is(equalTo(poolServer)));
-		assertThat(this.poolAdapter.getSocketBufferSize(32768), is(equalTo(32768)));
-		assertThat(this.poolAdapter.getSocketConnectTimeout(null), is(equalTo(5000)));
-		assertThat(this.poolAdapter.getStatisticInterval(null), is(equalTo(1000)));
-		assertThat(this.poolAdapter.getSubscriptionAckInterval(50), is(equalTo(50)));
-		assertThat(this.poolAdapter.getSubscriptionEnabled(true), is(equalTo(true)));
-		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(null), is(equalTo(20000)));
-		assertThat(this.poolAdapter.getSubscriptionRedundancy(1), is(equalTo(1)));
-		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(null), is(equalTo(3)));
-		assertThat(this.poolAdapter.getThreadLocalConnections(null), is(equalTo(false)));
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat(this.poolAdapter.getFreeConnectionTimeout(null)).isEqualTo(5000);
+		assertThat(this.poolAdapter.getIdleTimeout(null)).isEqualTo(120000L);
+		assertThat(this.poolAdapter.getLoadConditioningInterval(60000)).isEqualTo(60000);
+		assertThat(this.poolAdapter.getLocators(defaultLocator)).isEqualTo(defaultLocator);
+		assertThat(this.poolAdapter.getMaxConnections(null)).isEqualTo(500);
+		assertThat(this.poolAdapter.getMinConnections(50)).isEqualTo(50);
+		assertThat(this.poolAdapter.getMultiuserAuthentication(null)).isTrue();
+		assertThat(this.poolAdapter.getName()).isEqualTo("TestPool");
+		assertThat(this.poolAdapter.getPendingEventCount()).isEqualTo(2);
+		assertThat(this.poolAdapter.getPingInterval(null)).isEqualTo(15000L);
+		assertThat(this.poolAdapter.getPRSingleHopEnabled(true)).isTrue();
+		assertThat(this.poolAdapter.getQueryService(null)).isNull();
+		assertThat(this.poolAdapter.getReadTimeout(20000)).isEqualTo(20000);
+		assertThat(this.poolAdapter.getRetryAttempts(null)).isEqualTo(1);
+		assertThat(this.poolAdapter.getServerConnectionTimeout(null)).isEqualTo(10000);
+		assertThat(this.poolAdapter.getServerGroup("MockGroup")).isEqualTo("MockGroup");
+		assertThat(this.poolAdapter.getServers(null)).isEqualTo(poolServer);
+		assertThat(this.poolAdapter.getSocketBufferSize(32768)).isEqualTo(32768);
+		assertThat(this.poolAdapter.getSocketConnectTimeout(null)).isEqualTo(5000);
+		assertThat(this.poolAdapter.getSocketFactory(null)).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
+		assertThat(this.poolAdapter.getStatisticInterval(null)).isEqualTo(1000);
+		assertThat(this.poolAdapter.getSubscriptionAckInterval(50)).isEqualTo(50);
+		assertThat(this.poolAdapter.getSubscriptionEnabled(true)).isTrue();
+		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(null)).isEqualTo(20000);
+		assertThat(this.poolAdapter.getSubscriptionRedundancy(1)).isEqualTo(1);
+		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(null)).isEqualTo(3);
+		assertThat(this.poolAdapter.getThreadLocalConnections(null)).isFalse();
 
 		verify(this.mockPool, times(1)).getFreeConnectionTimeout();
 		verify(this.mockPool, times(1)).getIdleTimeout();
@@ -393,8 +409,10 @@ public class DefaultableDelegatingPoolAdapterTest {
 		verify(this.mockPool, times(1)).getPingInterval();
 		verify(this.mockPool, times(1)).getQueryService();
 		verify(this.mockPool, times(1)).getRetryAttempts();
+		verify(this.mockPool, times(1)).getServerConnectionTimeout();
 		verify(this.mockPool, times(1)).getServers();
 		verify(this.mockPool, times(1)).getSocketConnectTimeout();
+		verify(this.mockPool, times(1)).getSocketFactory();
 		verify(this.mockPool, times(1)).getStatisticInterval();
 		verify(this.mockPool, times(1)).getSubscriptionMessageTrackingTimeout();
 		verify(this.mockPool, times(1)).getSubscriptionTimeoutMultiplier();
@@ -405,37 +423,39 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@Test
 	public void poolAdapterPreferringDefaultsUsesPoolValuesExclusivelyWhenAllDefaultValuesAreNull() {
 
-		assertThat(this.poolAdapter.preferDefault(), is(sameInstance(this.poolAdapter)));
+		assertThat(this.poolAdapter.preferDefault()).isSameAs(this.poolAdapter);
 
 		List<InetSocketAddress> poolServer = Collections.singletonList(newSocketAddress("localhost", 40404));
 
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
-		assertThat(this.poolAdapter.getFreeConnectionTimeout(null), is(equalTo(5000)));
-		assertThat(this.poolAdapter.getIdleTimeout(null), is(equalTo(120000L)));
-		assertThat(this.poolAdapter.getLoadConditioningInterval(null), is(equalTo(300000)));
-		assertThat(this.poolAdapter.getLocators(null), is(equalTo(Collections.<InetSocketAddress>emptyList())));
-		assertThat(this.poolAdapter.getMaxConnections(null), is(equalTo(500)));
-		assertThat(this.poolAdapter.getMinConnections(null), is(equalTo(50)));
-		assertThat(this.poolAdapter.getMultiuserAuthentication(null), is(equalTo(true)));
-		assertThat(this.poolAdapter.getName(), is(equalTo("TestPool")));
-		assertThat(this.poolAdapter.getPendingEventCount(), is(equalTo(2)));
-		assertThat(this.poolAdapter.getPingInterval(null), is(equalTo(15000L)));
-		assertThat(this.poolAdapter.getPRSingleHopEnabled(null), is(equalTo(true)));
-		assertThat(this.poolAdapter.getQueryService(null), is(nullValue()));
-		assertThat(this.poolAdapter.getReadTimeout(null), is(equalTo(30000)));
-		assertThat(this.poolAdapter.getRetryAttempts(null), is(equalTo(1)));
-		assertThat(this.poolAdapter.getServerGroup(null), is(equalTo("TestGroup")));
-		assertThat(this.poolAdapter.getServers(null), is(equalTo(poolServer)));
-		assertThat(this.poolAdapter.getSocketBufferSize(null), is(equalTo(16384)));
-		assertThat(this.poolAdapter.getSocketConnectTimeout(null), is(equalTo(5000)));
-		assertThat(this.poolAdapter.getStatisticInterval(null), is(equalTo(1000)));
-		assertThat(this.poolAdapter.getSubscriptionAckInterval(null), is(equalTo(200)));
-		assertThat(this.poolAdapter.getSubscriptionEnabled(null), is(equalTo(true)));
-		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(null), is(equalTo(20000)));
-		assertThat(this.poolAdapter.getSubscriptionRedundancy(null), is(equalTo(2)));
-		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(null), is(equalTo(3)));
-		assertThat(this.poolAdapter.getThreadLocalConnections(null), is(equalTo(false)));
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
+		assertThat(this.poolAdapter.getFreeConnectionTimeout(null)).isEqualTo(5000);
+		assertThat(this.poolAdapter.getIdleTimeout(null)).isEqualTo(120000L);
+		assertThat(this.poolAdapter.getLoadConditioningInterval(null)).isEqualTo(300000);
+		assertThat(this.poolAdapter.getLocators(null)).isEqualTo(Collections.<InetSocketAddress>emptyList());
+		assertThat(this.poolAdapter.getMaxConnections(null)).isEqualTo(500);
+		assertThat(this.poolAdapter.getMinConnections(null)).isEqualTo(50);
+		assertThat(this.poolAdapter.getMultiuserAuthentication(null)).isTrue();
+		assertThat(this.poolAdapter.getName()).isEqualTo("TestPool");
+		assertThat(this.poolAdapter.getPendingEventCount()).isEqualTo(2);
+		assertThat(this.poolAdapter.getPingInterval(null)).isEqualTo(15000L);
+		assertThat(this.poolAdapter.getPRSingleHopEnabled(null)).isTrue();
+		assertThat(this.poolAdapter.getQueryService(null)).isNull();
+		assertThat(this.poolAdapter.getReadTimeout(null)).isEqualTo(30000);
+		assertThat(this.poolAdapter.getRetryAttempts(null)).isEqualTo(1);
+		assertThat(this.poolAdapter.getServerConnectionTimeout(null)).isEqualTo(10000);
+		assertThat(this.poolAdapter.getServerGroup(null)).isEqualTo("TestGroup");
+		assertThat(this.poolAdapter.getServers(null)).isEqualTo(poolServer);
+		assertThat(this.poolAdapter.getSocketBufferSize(null)).isEqualTo(16384);
+		assertThat(this.poolAdapter.getSocketConnectTimeout(null)).isEqualTo(5000);
+		assertThat(this.poolAdapter.getSocketFactory(null)).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
+		assertThat(this.poolAdapter.getStatisticInterval(null)).isEqualTo(1000);
+		assertThat(this.poolAdapter.getSubscriptionAckInterval(null)).isEqualTo(200);
+		assertThat(this.poolAdapter.getSubscriptionEnabled(null)).isTrue();
+		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(null)).isEqualTo(20000);
+		assertThat(this.poolAdapter.getSubscriptionRedundancy(null)).isEqualTo(2);
+		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(null)).isEqualTo(3);
+		assertThat(this.poolAdapter.getThreadLocalConnections(null)).isFalse();
 
 		verify(this.mockPool, times(1)).getFreeConnectionTimeout();
 		verify(this.mockPool, times(1)).getIdleTimeout();
@@ -451,10 +471,12 @@ public class DefaultableDelegatingPoolAdapterTest {
 		verify(this.mockPool, times(1)).getQueryService();
 		verify(this.mockPool, times(1)).getReadTimeout();
 		verify(this.mockPool, times(1)).getRetryAttempts();
+		verify(this.mockPool, times(1)).getServerConnectionTimeout();
 		verify(this.mockPool, times(1)).getServerGroup();
 		verify(this.mockPool, times(1)).getServers();
 		verify(this.mockPool, times(1)).getSocketBufferSize();
 		verify(this.mockPool, times(1)).getSocketConnectTimeout();
+		verify(this.mockPool, times(1)).getSocketFactory();
 		verify(this.mockPool, times(1)).getStatisticInterval();
 		verify(this.mockPool, times(1)).getSubscriptionAckInterval();
 		verify(this.mockPool, times(1)).getSubscriptionEnabled();
@@ -468,36 +490,39 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@Test
 	public void poolAdapterPreferringPoolUsesUseNonNullPoolValues() {
 
-		assertThat(this.poolAdapter.preferPool(), is(sameInstance(this.poolAdapter)));
+		assertThat(this.poolAdapter.preferPool()).isSameAs(this.poolAdapter);
 
 		List<InetSocketAddress> defaultServer = Collections.singletonList(newSocketAddress("jambox", 12480));
 		List<InetSocketAddress> poolServer = Collections.singletonList(newSocketAddress("localhost", 40404));
 
-		assertThat(this.poolAdapter.getFreeConnectionTimeout(15000), is(equalTo(5000)));
-		assertThat(this.poolAdapter.getIdleTimeout(60000L), is(equalTo(120000L)));
-		assertThat(this.poolAdapter.getLoadConditioningInterval(180000), is(equalTo(300000)));
-		assertThat(this.poolAdapter.getLocators(Collections.emptyList()), is(equalTo(Collections.<InetSocketAddress>emptyList())));
-		assertThat(this.poolAdapter.getMaxConnections(999), is(equalTo(500)));
-		assertThat(this.poolAdapter.getMinConnections(99), is(equalTo(50)));
-		assertThat(this.poolAdapter.getMultiuserAuthentication(false), is(equalTo(true)));
-		assertThat(this.poolAdapter.getName(), is(equalTo("TestPool")));
-		assertThat(this.poolAdapter.getPendingEventCount(), is(equalTo(2)));
-		assertThat(this.poolAdapter.getPingInterval(20000L), is(equalTo(15000L)));
-		assertThat(this.poolAdapter.getPRSingleHopEnabled(false), is(equalTo(true)));
-		assertThat(this.poolAdapter.getQueryService(null), is(nullValue()));
-		assertThat(this.poolAdapter.getReadTimeout(20000), is(equalTo(30000)));
-		assertThat(this.poolAdapter.getRetryAttempts(4), is(equalTo(1)));
-		assertThat(this.poolAdapter.getServerGroup("MockGroup"), is(equalTo("TestGroup")));
-		assertThat(this.poolAdapter.getServers(defaultServer), is(equalTo(poolServer)));
-		assertThat(this.poolAdapter.getSocketBufferSize(8192), is(equalTo(16384)));
-		assertThat(this.poolAdapter.getSocketConnectTimeout(8192), is(equalTo(5000)));
-		assertThat(this.poolAdapter.getStatisticInterval(2000), is(equalTo(1000)));
-		assertThat(this.poolAdapter.getSubscriptionAckInterval(50), is(equalTo(200)));
-		assertThat(this.poolAdapter.getSubscriptionEnabled(false), is(equalTo(true)));
-		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(30000), is(equalTo(20000)));
-		assertThat(this.poolAdapter.getSubscriptionRedundancy(1), is(equalTo(2)));
-		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(2), is(equalTo(3)));
-		assertThat(this.poolAdapter.getThreadLocalConnections(true), is(equalTo(false)));
+		assertThat(this.poolAdapter.getFreeConnectionTimeout(15000)).isEqualTo(5000);
+		assertThat(this.poolAdapter.getIdleTimeout(60000L)).isEqualTo(120000L);
+		assertThat(this.poolAdapter.getLoadConditioningInterval(180000)).isEqualTo(300000);
+		assertThat(this.poolAdapter.getLocators(Collections.emptyList()))
+			.isEqualTo(Collections.<InetSocketAddress>emptyList());
+		assertThat(this.poolAdapter.getMaxConnections(999)).isEqualTo(500);
+		assertThat(this.poolAdapter.getMinConnections(99)).isEqualTo(50);
+		assertThat(this.poolAdapter.getMultiuserAuthentication(false)).isTrue();
+		assertThat(this.poolAdapter.getName()).isEqualTo("TestPool");
+		assertThat(this.poolAdapter.getPendingEventCount()).isEqualTo(2);
+		assertThat(this.poolAdapter.getPingInterval(20000L)).isEqualTo(15000L);
+		assertThat(this.poolAdapter.getPRSingleHopEnabled(false)).isTrue();
+		assertThat(this.poolAdapter.getQueryService(null)).isNull();
+		assertThat(this.poolAdapter.getReadTimeout(20000)).isEqualTo(30000);
+		assertThat(this.poolAdapter.getRetryAttempts(4)).isEqualTo(1);
+		assertThat(this.poolAdapter.getServerConnectionTimeout(12345)).isEqualTo(10000);
+		assertThat(this.poolAdapter.getServerGroup("MockGroup")).isEqualTo("TestGroup");
+		assertThat(this.poolAdapter.getServers(defaultServer)).isEqualTo(poolServer);
+		assertThat(this.poolAdapter.getSocketBufferSize(8192)).isEqualTo(16384);
+		assertThat(this.poolAdapter.getSocketConnectTimeout(8192)).isEqualTo(5000);
+		assertThat(this.poolAdapter.getSocketFactory(this.mockSocketFactory)).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
+		assertThat(this.poolAdapter.getStatisticInterval(2000)).isEqualTo(1000);
+		assertThat(this.poolAdapter.getSubscriptionAckInterval(50)).isEqualTo(200);
+		assertThat(this.poolAdapter.getSubscriptionEnabled(false)).isTrue();
+		assertThat(this.poolAdapter.getSubscriptionMessageTrackingTimeout(30000)).isEqualTo(20000);
+		assertThat(this.poolAdapter.getSubscriptionRedundancy(1)).isEqualTo(2);
+		assertThat(this.poolAdapter.getSubscriptionTimeoutMultiplier(2)).isEqualTo(3);
+		assertThat(this.poolAdapter.getThreadLocalConnections(true)).isFalse();
 
 		verify(this.mockPool, times(1)).getFreeConnectionTimeout();
 		verify(this.mockPool, times(1)).getIdleTimeout();
@@ -513,10 +538,12 @@ public class DefaultableDelegatingPoolAdapterTest {
 		verify(this.mockPool, times(1)).getQueryService();
 		verify(this.mockPool, times(1)).getReadTimeout();
 		verify(this.mockPool, times(1)).getRetryAttempts();
+		verify(this.mockPool, times(1)).getServerConnectionTimeout();
 		verify(this.mockPool, times(1)).getServerGroup();
 		verify(this.mockPool, times(1)).getServers();
 		verify(this.mockPool, times(1)).getSocketBufferSize();
 		verify(this.mockPool, times(1)).getSocketConnectTimeout();
+		verify(this.mockPool, times(1)).getSocketFactory();
 		verify(this.mockPool, times(1)).getStatisticInterval();
 		verify(this.mockPool, times(1)).getSubscriptionAckInterval();
 		verify(this.mockPool, times(1)).getSubscriptionEnabled();
@@ -530,15 +557,15 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@Test
 	public void poolAdapterDestroyUsesPoolRegardlessOfPreference() {
 
-		assertThat(this.poolAdapter.preferDefault(), is(sameInstance(this.poolAdapter)));
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
+		assertThat(this.poolAdapter.preferDefault()).isSameAs(this.poolAdapter);
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
 
 		this.poolAdapter.destroy();
 
-		assertThat(this.poolAdapter.preferPool(), is(sameInstance(this.poolAdapter)));
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersPool(), is(true));
+		assertThat(this.poolAdapter.preferPool()).isSameAs(this.poolAdapter);
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
 
 		this.poolAdapter.destroy(true);
 
@@ -549,15 +576,15 @@ public class DefaultableDelegatingPoolAdapterTest {
 	@Test
 	public void poolAdapterReleaseThreadLocalConnections() {
 
-		assertThat(this.poolAdapter.preferDefault(), is(sameInstance(this.poolAdapter)));
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersDefault(), is(true));
+		assertThat(this.poolAdapter.preferDefault()).isSameAs(this.poolAdapter);
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersDefault()).isTrue();
 
 		this.poolAdapter.releaseThreadLocalConnection();
 
-		assertThat(this.poolAdapter.preferPool(), is(sameInstance(this.poolAdapter)));
-		assertThat(this.poolAdapter.getDelegate(), is(equalTo(this.mockPool)));
-		assertThat(this.poolAdapter.prefersPool(), is(true));
+		assertThat(this.poolAdapter.preferPool()).isSameAs(this.poolAdapter);
+		assertThat(this.poolAdapter.getDelegate()).isEqualTo(this.mockPool);
+		assertThat(this.poolAdapter.prefersPool()).isTrue();
 
 		this.poolAdapter.releaseThreadLocalConnection();
 

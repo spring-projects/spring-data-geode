@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.pdx.PdxSerializer;
 
@@ -93,9 +94,9 @@ public class ClientCachePropertiesIntegrationTests {
 			.withProperty("spring.data.gemfire.pool.ping-interval", 5000L)
 			.withProperty("spring.data.gemfire.pool.pr-single-hop-enabled", false)
 			.withProperty("spring.data.gemfire.pool.read-timeout", 20000L)
-			.withProperty("spring.data.gemfire.pool.default.read-timeout", 5000L)
+			.withProperty("spring.data.gemfire.pool.default.read-timeout", 15000L)
 			.withProperty("spring.data.gemfire.pool.retry-attempts", 2)
-			.withProperty("spring.data.gemfire.pool.server-group", "testGroup")
+			.withProperty("spring.data.gemfire.pool.server-group", "TestGroup")
 			.withProperty("spring.data.gemfire.pool.default.subscription-redundancy", 2);
 
 		this.applicationContext = newApplicationContext(testPropertySource, TestClientCacheConfiguration.class);
@@ -137,11 +138,13 @@ public class ClientCachePropertiesIntegrationTests {
 		assertThat(defaultPool.getName()).isEqualTo("DEFAULT");
 		assertThat(defaultPool.getPingInterval()).isEqualTo(5000L);
 		assertThat(defaultPool.getPRSingleHopEnabled()).isFalse();
-		assertThat(defaultPool.getReadTimeout()).isEqualTo(5000);
+		assertThat(defaultPool.getReadTimeout()).isEqualTo(15000);
 		assertThat(defaultPool.getRetryAttempts()).isEqualTo(2);
-		assertThat(defaultPool.getServerGroup()).isEqualTo("testGroup");
+		assertThat(defaultPool.getServerConnectionTimeout()).isEqualTo(PoolFactory.DEFAULT_SERVER_CONNECTION_TIMEOUT);
+		assertThat(defaultPool.getServerGroup()).isEqualTo("TestGroup");
 		assertThat(defaultPool.getSocketBufferSize()).isEqualTo(PoolFactory.DEFAULT_SOCKET_BUFFER_SIZE);
 		assertThat(defaultPool.getSocketConnectTimeout()).isEqualTo(20001);
+		assertThat(defaultPool.getSocketFactory()).isEqualTo(PoolFactory.DEFAULT_SOCKET_FACTORY);
 		assertThat(defaultPool.getStatisticInterval()).isEqualTo(500);
 		assertThat(defaultPool.getSubscriptionAckInterval()).isEqualTo(PoolFactory.DEFAULT_SUBSCRIPTION_ACK_INTERVAL);
 		assertThat(defaultPool.getSubscriptionEnabled()).isTrue();
@@ -181,9 +184,11 @@ public class ClientCachePropertiesIntegrationTests {
 			.withProperty("spring.data.gemfire.pool.default.read-timeout", 5000)
 			.withProperty("spring.data.gemfire.pool.default.ready-for-events", true)
 			.withProperty("spring.data.gemfire.pool.default.retry-attempts", 2)
+			.withProperty("spring.data.gemfire.pool.default.server-connection-timeout", 60000)
 			.withProperty("spring.data.gemfire.pool.default.server-group", "testGroup")
 			.withProperty("spring.data.gemfire.pool.default.socket-buffer-size", 65535)
 			.withProperty("spring.data.gemfire.pool.default.socket-connect-timeout", 30001)
+			.withProperty("spring.data.gemfire.pool.default.socket-factory-bean-name", "mockSocketFactory")
 			.withProperty("spring.data.gemfire.pool.default.statistic-interval", 100)
 			.withProperty("spring.data.gemfire.pool.default.subscription-ack-interval", 250)
 			.withProperty("spring.data.gemfire.pool.default.subscription-enabled", true)
@@ -212,7 +217,10 @@ public class ClientCachePropertiesIntegrationTests {
 
 		PdxSerializer mockPdxSerializer = this.applicationContext.getBean("mockPdxSerializer", PdxSerializer.class);
 
+		SocketFactory mockSocketFactory = this.applicationContext.getBean("mockSocketFactory", SocketFactory.class);
+
 		assertThat(mockPdxSerializer).isNotNull();
+		assertThat(mockSocketFactory).isNotNull();
 		assertThat(clientCacheFactoryBean.getDurableClientId()).isEqualTo("123");
 		assertThat(clientCacheFactoryBean.getDurableClientTimeout()).isEqualTo(600);
 		assertThat(clientCacheFactoryBean.getUseClusterConfiguration()).isFalse();
@@ -248,9 +256,11 @@ public class ClientCachePropertiesIntegrationTests {
 		assertThat(defaultPool.getPRSingleHopEnabled()).isFalse();
 		assertThat(defaultPool.getReadTimeout()).isEqualTo(5000);
 		assertThat(defaultPool.getRetryAttempts()).isEqualTo(2);
+		assertThat(defaultPool.getServerConnectionTimeout()).isEqualTo(60000);
 		assertThat(defaultPool.getServerGroup()).isEqualTo("testGroup");
 		assertThat(defaultPool.getSocketBufferSize()).isEqualTo(65535);
 		assertThat(defaultPool.getSocketConnectTimeout()).isEqualTo(30001);
+		assertThat(defaultPool.getSocketFactory()).isEqualTo(mockSocketFactory);
 		assertThat(defaultPool.getStatisticInterval()).isEqualTo(100);
 		assertThat(defaultPool.getSubscriptionAckInterval()).isEqualTo(250);
 		assertThat(defaultPool.getSubscriptionEnabled()).isTrue();
@@ -303,6 +313,11 @@ public class ClientCachePropertiesIntegrationTests {
 		@Bean
 		PdxSerializer mockPdxSerializer() {
 			return mock(PdxSerializer.class);
+		}
+
+		@Bean
+		SocketFactory mockSocketFactory() {
+			return mock(SocketFactory.class);
 		}
 	}
 }

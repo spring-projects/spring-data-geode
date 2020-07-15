@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 
 import org.springframework.data.gemfire.util.CollectionUtils;
@@ -68,8 +69,9 @@ public abstract class DefaultableDelegatingPoolAdapter {
 
 	protected <T> T defaultIfNull(T defaultValue, Supplier<T> valueProvider) {
 
-		return prefersPool() ? SpringUtils.defaultIfNull(valueProvider.get(), defaultValue) :
-			(defaultValue != null ? defaultValue : valueProvider.get());
+		return prefersPool() ? SpringUtils.defaultIfNull(valueProvider.get(), defaultValue)
+			: defaultValue != null ? defaultValue
+			: valueProvider.get();
 	}
 
 	protected <E, T extends Collection<E>> T defaultIfEmpty(T defaultValue, Supplier<T> valueProvider) {
@@ -159,6 +161,10 @@ public abstract class DefaultableDelegatingPoolAdapter {
 		return defaultIfNull(defaultRetryAttempts, () -> getDelegate().getRetryAttempts());
 	}
 
+	public int getServerConnectionTimeout(Integer defaultServerConnectionTimeout) {
+		return defaultIfNull(defaultServerConnectionTimeout, () -> getDelegate().getServerConnectionTimeout());
+	}
+
 	public String getServerGroup(String defaultServerGroup) {
 		return defaultIfNull(defaultServerGroup, () -> getDelegate().getServerGroup());
 	}
@@ -173,6 +179,10 @@ public abstract class DefaultableDelegatingPoolAdapter {
 
 	public int getSocketConnectTimeout(Integer defaultSocketConnectTimeout) {
 		return defaultIfNull(defaultSocketConnectTimeout, () -> getDelegate().getSocketConnectTimeout());
+	}
+
+	public SocketFactory getSocketFactory(SocketFactory defaultSocketFactory) {
+		return defaultIfNull(defaultSocketFactory, () -> getDelegate().getSocketFactory());
 	}
 
 	public int getStatisticInterval(Integer defaultStatisticInterval) {

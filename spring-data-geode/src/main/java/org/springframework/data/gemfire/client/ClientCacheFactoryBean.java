@@ -33,6 +33,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.distributed.DistributedSystem;
 
 import org.springframework.beans.factory.FactoryBean;
@@ -99,6 +100,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	private Integer minConnections;
 	private Integer readTimeout;
 	private Integer retryAttempts;
+	private Integer serverConnectionTimeout;
 	private Integer socketBufferSize;
 	private Integer socketConnectTimeout;
 	private Integer statisticsInterval;
@@ -114,6 +116,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	private Pool pool;
 
 	private PoolResolver poolResolver = DEFAULT_POOL_RESOLVER;
+
+	private SocketFactory socketFactory;
 
 	private String durableClientId;
 	private String poolName;
@@ -292,9 +296,11 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		clientCacheFactory.setPoolPRSingleHopEnabled(pool.getPRSingleHopEnabled(getPrSingleHopEnabled()));
 		clientCacheFactory.setPoolReadTimeout(pool.getReadTimeout(getReadTimeout()));
 		clientCacheFactory.setPoolRetryAttempts(pool.getRetryAttempts(getRetryAttempts()));
+		clientCacheFactory.setPoolServerConnectionTimeout(pool.getServerConnectionTimeout(getServerConnectionTimeout()));
 		clientCacheFactory.setPoolServerGroup(pool.getServerGroup(getServerGroup()));
 		clientCacheFactory.setPoolSocketBufferSize(pool.getSocketBufferSize(getSocketBufferSize()));
 		clientCacheFactory.setPoolSocketConnectTimeout(pool.getSocketConnectTimeout(getSocketConnectTimeout()));
+		clientCacheFactory.setPoolSocketFactory(pool.getSocketFactory(getSocketFactory()));
 		clientCacheFactory.setPoolStatisticInterval(pool.getStatisticInterval(getStatisticsInterval()));
 		clientCacheFactory.setPoolSubscriptionAckInterval(pool.getSubscriptionAckInterval(getSubscriptionAckInterval()));
 		clientCacheFactory.setPoolSubscriptionEnabled(pool.getSubscriptionEnabled(getSubscriptionEnabled()));
@@ -430,6 +436,22 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	@Override
 	protected void close(GemFireCache cache) {
 		((ClientCache) cache).close(isKeepAlive());
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	protected void setCache(GemFireCache cache) {
+		super.setCache(cache);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	protected <T extends GemFireCache> T getCache() {
+		return super.getCache();
 	}
 
 	/**
@@ -785,6 +807,14 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return this.retryAttempts;
 	}
 
+	public void setServerConnectionTimeout(Integer serverConnectionTimeout) {
+		this.serverConnectionTimeout = serverConnectionTimeout;
+	}
+
+	public Integer getServerConnectionTimeout() {
+		return this.serverConnectionTimeout;
+	}
+
 	public void setServerGroup(String serverGroup) {
 		this.serverGroup = serverGroup;
 	}
@@ -820,6 +850,14 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 	public Integer getSocketConnectTimeout() {
 		return this.socketConnectTimeout;
+	}
+
+	public void setSocketFactory(@Nullable SocketFactory socketFactory) {
+		this.socketFactory = socketFactory;
+	}
+
+	public @NonNull SocketFactory getSocketFactory() {
+		return this.socketFactory;
 	}
 
 	public void setStatisticsInterval(Integer statisticsInterval) {

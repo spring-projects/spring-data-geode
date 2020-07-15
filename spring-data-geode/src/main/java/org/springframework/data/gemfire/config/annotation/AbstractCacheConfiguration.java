@@ -57,7 +57,6 @@ import org.springframework.util.StringUtils;
  * and {@link org.apache.geode.cache.client.ClientCache client caches}.
  *
  * @author John Blum
- * @author Patrick Johnson
  * @see java.lang.annotation.Annotation
  * @see java.util.Properties
  * @see org.apache.geode.cache.Cache
@@ -306,7 +305,7 @@ public abstract class AbstractCacheConfiguration extends AbstractAnnotationConfi
 	 * @see #newCacheFactoryBean()
 	 */
 	protected <T extends CacheFactoryBean> T constructCacheFactoryBean() {
-		return configureCacheFactoryBean(this.newCacheFactoryBean());
+		return configureCacheFactoryBean(newCacheFactoryBean());
 	}
 
 	/**
@@ -356,7 +355,7 @@ public abstract class AbstractCacheConfiguration extends AbstractAnnotationConfi
 		return gemfireCache;
 	}
 
-	// TODO: REVIEW JAVADOC FROM HERE
+	// TODO: Review Javadoc from here
 
 	/**
 	 * Determines whether this is a GemFire {@link org.apache.geode.cache.server.CacheServer} application,
@@ -599,7 +598,7 @@ public abstract class AbstractCacheConfiguration extends AbstractAnnotationConfi
 	}
 
 	public void add(Properties gemfireProperties) {
-		customGemFireProperties.add(gemfireProperties);
+		this.customGemFireProperties.add(gemfireProperties);
 	}
 
 	/**

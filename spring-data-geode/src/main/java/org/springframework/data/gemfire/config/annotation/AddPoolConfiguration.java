@@ -151,6 +151,11 @@ public class AddPoolConfiguration extends AbstractAnnotationConfigSupport
 				resolveProperty(poolProperty("retry-attempts"),
 					enablePoolAttributes.<Integer>getNumber("retryAttempts"))));
 
+		poolFactoryBean.addPropertyValue("serverConnectionTimeout",
+			resolveProperty(namedPoolProperty(poolName, "server-connection-timeout"),
+				resolveProperty(poolProperty("server-connection-timeout"),
+					enablePoolAttributes.<Integer>getNumber("serverConnectionTimeout"))));
+
 		poolFactoryBean.addPropertyValue("serverGroup",
 			resolveProperty(namedPoolProperty(poolName, "server-group"),
 				resolveProperty(poolProperty("server-group"),
@@ -165,6 +170,15 @@ public class AddPoolConfiguration extends AbstractAnnotationConfigSupport
 			resolveProperty(namedPoolProperty(poolName, "socket-connect-timeout"),
 				resolveProperty(poolProperty("socket-connect-timeout"),
 					enablePoolAttributes.<Integer>getNumber("socketConnectTimeout"))));
+
+		String resolvedSocketFactoryBeanName =
+			resolveProperty(namedPoolProperty(poolName, "socket-factory-bean-name"),
+				resolveProperty(poolProperty("socket-factory-bean-name"),
+					enablePoolAttributes.getString("socketFactoryBeanName")));
+
+		Optional.ofNullable(resolvedSocketFactoryBeanName)
+			.filter(StringUtils::hasText)
+			.ifPresent(beanName -> poolFactoryBean.addPropertyReference("socketFactory", beanName));
 
 		poolFactoryBean.addPropertyValue("statisticInterval",
 			resolveProperty(namedPoolProperty(poolName, "statistic-interval"),
