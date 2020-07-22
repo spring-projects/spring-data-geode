@@ -3,6 +3,14 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.3.2.RELEASE (2020-07-22)
+---------------------------------------------
+* DATAGEODE-356 - Upgrade to VMware GemFire 9.10.2.
+* DATAGEODE-352 - EnableEntityDefinedRegions.includeFilters are inappropriately overridden by framework provided include filters.
+* DATAGEODE-351 - Upgrade to VMware GemFire 9.10.1.
+* DATAGEODE-350 - Release 2.3.2 (Neumann SR2).
+
+
 Changes in version 2.2.9.RELEASE (2020-07-22)
 ---------------------------------------------
 * DATAGEODE-352 - EnableEntityDefinedRegions.includeFilters are inappropriately overridden by framework provided include filters.
@@ -766,6 +774,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
