@@ -33,6 +33,8 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.apache.geode.management.api.ClusterManagementService;
+import org.apache.geode.management.api.ClusterManagementServiceTransport;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +49,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
-import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
+import org.springframework.data.gemfire.config.admin.remote.ClusterManagementServiceGemfireAdminTemplate;
 import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -63,6 +65,7 @@ import org.springframework.web.client.RestTemplate;
  * Integration Test for {@link EnableClusterConfiguration} and {@link EnableSecurity}.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see java.net.Authenticator
  * @see java.net.PasswordAuthentication
  * @see java.net.URI
@@ -142,11 +145,13 @@ public class EnableClusterConfigurationWithSecurityIntegrationTests {
 
 		assertThat(schemaObjectContext).isNotNull();
 		assertThat(schemaObjectContext.<GemfireAdminOperations>getGemfireAdminOperations())
-			.isInstanceOf(RestHttpGemfireAdminTemplate.class);
+			.isInstanceOf(ClusterManagementServiceGemfireAdminTemplate.class);
 
-		RestHttpGemfireAdminTemplate template = schemaObjectContext.getGemfireAdminOperations();
+		ClusterManagementServiceGemfireAdminTemplate template = schemaObjectContext.getGemfireAdminOperations();
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		ClusterManagementService clusterManagementService = getFieldValue(template, "clusterManagementService");
+		ClusterManagementServiceTransport transport = getFieldValue(clusterManagementService, "transport");
+		RestTemplate restTemplate = getFieldValue(transport, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).hasSize(2);

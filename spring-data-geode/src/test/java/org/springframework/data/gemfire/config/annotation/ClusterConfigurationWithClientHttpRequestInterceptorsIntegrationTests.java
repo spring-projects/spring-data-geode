@@ -26,6 +26,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.geode.management.api.ClusterManagementService;
+import org.apache.geode.management.api.ClusterManagementServiceTransport;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +41,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
-import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
+import org.springframework.data.gemfire.config.admin.remote.ClusterManagementServiceGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.support.RestTemplateConfigurer;
 import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -55,6 +57,7 @@ import org.springframework.web.client.RestTemplate;
  * all user-defined {@link ClientHttpRequestInterceptor} beans get applied.
  *
  * @author John Blum
+ * @author Patrick Johnson
  * @see org.junit.Test
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.client.ClientCache
@@ -152,11 +155,13 @@ public class ClusterConfigurationWithClientHttpRequestInterceptorsIntegrationTes
 		assertThat(schemaObjectContext).isNotNull();
 		assertThat(schemaObjectContext.<ClientCache>getGemfireCache()).isSameAs(this.clientCache);
 		assertThat(schemaObjectContext.<GemfireAdminOperations>getGemfireAdminOperations())
-			.isInstanceOf(RestHttpGemfireAdminTemplate.class);
+			.isInstanceOf(ClusterManagementServiceGemfireAdminTemplate.class);
 
-		RestHttpGemfireAdminTemplate template = schemaObjectContext.getGemfireAdminOperations();
+		ClusterManagementServiceGemfireAdminTemplate template = schemaObjectContext.getGemfireAdminOperations();
 
-		this.theRestTemplate = getFieldValue(template, "restTemplate");
+		ClusterManagementService clusterManagementService = getFieldValue(template, "clusterManagementService");
+		ClusterManagementServiceTransport transport = getFieldValue(clusterManagementService, "transport");
+		this.theRestTemplate = getFieldValue(transport, "restTemplate");
 
 		assertThat(this.theRestTemplate).isNotNull();
 	}
