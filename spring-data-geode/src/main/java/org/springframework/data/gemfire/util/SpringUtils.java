@@ -175,7 +175,6 @@ public abstract class SpringUtils {
 			.collect(Collectors.toList());
 	}
 
-	// No Javadoc
 	@NonNull
 	private static <T> List<OrderedBeanWrapper<T>> orderUnorderedBeans(@NonNull ConfigurableListableBeanFactory beanFactory,
 			@NonNull Map<String, T> beansOfType, @NonNull Set<String> unorderedBeanNames) {
@@ -202,7 +201,6 @@ public abstract class SpringUtils {
 		return orderedBeanWrappers;
 	}
 
-	// No Javadoc
 	@Nullable
 	private static <T> OrderedBeanWrapper<T> toOrderedBeanWrapper(@NonNull Map.Entry<String, T> beanEntry) {
 
