@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +22,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link ArrayUtils}.
+ * Unit Tests for {@link ArrayUtils}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -34,6 +33,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void asArrayReturnsEmptyArray() {
+
 		Object[] array = ArrayUtils.asArray();
 
 		assertThat(array).isNotNull();
@@ -42,6 +42,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void asArrayReturnsMultiElementArray() {
+
 		Object[] array = ArrayUtils.asArray(1, 2, 3);
 
 		assertThat(array).isNotNull();
@@ -51,6 +52,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void asArrayReturnsSingleElementArray() {
+
 		Object[] array = ArrayUtils.asArray(1);
 
 		assertThat(array).isNotNull();
@@ -60,6 +62,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void defaultIfEmptyWithNonNullNonEmptyArrayReturnsArray() {
+
 		Object[] array = { "test" };
 		Object[] defaultArray = { "tested" };
 
@@ -68,6 +71,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void defaultIfEmptyWithEmptyArrayReturnsDefaultArray() {
+
 		Object[] array = {};
 		Object[] defaultArray = { "tested" };
 
@@ -76,6 +80,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void defaultIfEmptyWithNullArrayReturnsDefaultArray() {
+
 		Object[] defaultArray = { "tested" };
 
 		assertThat(ArrayUtils.defaultIfEmpty(null, defaultArray)).isSameAs(defaultArray);
@@ -83,7 +88,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void defaultIfEmptyWithNullArrayAndNullDefaultArrayReturnsNull() {
-		assertThat(ArrayUtils.defaultIfEmpty(null, null)).isNull();
+		assertThat(ArrayUtils.<Object[]>defaultIfEmpty(null, null)).isNull();
 	}
 
 	@Test
@@ -93,18 +98,21 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void getFirstWithNullOrEmptyArrayAndNoDefaultReturnsNull() {
+
 		assertThat((Object) ArrayUtils.getFirst(null)).isNull();
-		assertThat((Object) ArrayUtils.getFirst(new Object[0])).isNull();
+		assertThat(ArrayUtils.getFirst(new Object[0])).isNull();
 	}
 
 	@Test
 	public void getFirstWithNullOrEmptyArrayAndDefaultReturnsDefault() {
+
 		assertThat(ArrayUtils.getFirst((Object[]) null, "test")).isEqualTo("test");
 		assertThat(ArrayUtils.getFirst(new Object[0], "test")).isEqualTo("test");
 	}
 
 	@Test
 	public void insertAtBeginning() {
+
 		Object[] originalArray = { "testing", "tested" };
 		Object[] newArray = ArrayUtils.insert(originalArray, 0, "test");
 
@@ -115,6 +123,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void insertInMiddle() {
+
 		Object[] originalArray = { "test", "tested" };
 		Object[] newArray = ArrayUtils.insert(originalArray, 1, "testing");
 
@@ -125,6 +134,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void insertAtEnd() {
+
 		Object[] originalArray = { "test", "testing" };
 		Object[] newArray = ArrayUtils.insert(originalArray, 2, "tested");
 
@@ -135,6 +145,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void isEmptyIsFalse() {
+
 		assertThat(ArrayUtils.isEmpty(ArrayUtils.asArray("test", "testing", "tested"))).isFalse();
 		assertThat(ArrayUtils.isEmpty(ArrayUtils.asArray("test"))).isFalse();
 		assertThat(ArrayUtils.isEmpty(ArrayUtils.asArray(""))).isFalse();
@@ -143,12 +154,14 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void isEmptyIsTrue() {
+
 		assertThat(ArrayUtils.isEmpty(new Object[0])).isTrue();
 		assertThat(ArrayUtils.isEmpty(null)).isTrue();
 	}
 
 	@Test
 	public void length() {
+
 		assertThat(ArrayUtils.length(ArrayUtils.asArray("test", "testing", "tested"))).isEqualTo(3);
 		assertThat(ArrayUtils.length(ArrayUtils.asArray("test"))).isEqualTo(1);
 		assertThat(ArrayUtils.length(ArrayUtils.asArray(""))).isEqualTo(1);
@@ -159,6 +172,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void nullSafeArrayWithNonNullArray() {
+
 		String[] stringArray = { "test", "testing", "tested" };
 
 		assertThat(ArrayUtils.nullSafeArray(stringArray, String.class)).isSameAs(stringArray);
@@ -178,6 +192,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void nullSafeArrayWithNullArray() {
+
 		Object array = ArrayUtils.nullSafeArray(null, String.class);
 
 		assertThat(array).isInstanceOf(String[].class);
@@ -186,6 +201,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void removeFromBeginning() {
+
 		Object[] originalArray = { "test", "testing", "tested" };
 		Object[] newArray = ArrayUtils.remove(originalArray, 0);
 
@@ -196,6 +212,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void removeFromMiddle() {
+
 		Object[] originalArray = { "test", "testing", "tested" };
 		Object[] newArray = ArrayUtils.remove(originalArray, 1);
 
@@ -206,6 +223,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void removeFromEnd() {
+
 		Object[] originalArray = { "test", "testing", "tested" };
 		Object[] newArray = ArrayUtils.remove(originalArray, 2);
 
@@ -215,8 +233,9 @@ public class ArrayUtilsUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void sortIsSuccessful() {
+
 		Comparable[] array = new Comparable[] { 2, 3, 1 };
 		Comparable[] sortedArray = ArrayUtils.sort(array);
 
