@@ -14,8 +14,8 @@
 	<artifactId>spring-data-geode-distribution</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Distribution for Spring Data Geode and Spring Data GemFire</name>
-	<description>Distribution build for both Spring Data for Apache Geode and Pivotal GemFire</description>
+	<name>Distribution of Spring Data Geode</name>
+	<description>Distribution build for Spring Data Geode</description>
 	<url>https://projects.spring.io/spring-data-geode/spring-data-geode-distribution</url>
 
 	<properties>
