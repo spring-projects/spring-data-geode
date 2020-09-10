@@ -37,7 +37,6 @@
 
 	<modules>
 		<module>spring-data-geode</module>
-		<module>spring-data-gemfire</module>
 		<module>spring-data-geode-distribution</module>
 	</modules>
 
