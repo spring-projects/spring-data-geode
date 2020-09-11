@@ -323,12 +323,17 @@ public abstract class SpringUtils {
 	}
 
 	public static boolean safeDoOperation(VoidReturningThrowableOperation operation) {
+		return safeDoOperation(operation, () -> {});
+	}
+
+	public static boolean safeDoOperation(VoidReturningThrowableOperation operation, Runnable backupOperation) {
 
 		try {
 			operation.run();
 			return true;
 		}
 		catch (Throwable cause) {
+			backupOperation.run();
 			return false;
 		}
 	}
