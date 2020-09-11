@@ -26,6 +26,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.util.ArrayUtils.asArray;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
@@ -59,12 +61,12 @@ import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowable
  *
  * @author John Blum
  * @see java.util.function.Function
- * @see java.util.function.Supplier
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
+ * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.beans.factory.config.BeanDefinition
  * @see org.springframework.data.gemfire.util.SpringUtils
  * @since 1.9.0
  */
@@ -446,6 +448,30 @@ public class SpringUtilsUnitTests {
 	@Test
 	public void safeDoOperationWithThrowingOperation() {
 		assertThat(SpringUtils.safeDoOperation(() -> { throw new RuntimeException("TEST"); })).isFalse();
+	}
+
+	@Test
+	public void safeDoOperationWithNonThrowingOperationAndBackupOperation() {
+
+		AtomicReference<Object> operationValue = new AtomicReference<>();
+
+		Runnable mockRunnable = mock(Runnable.class);
+
+		assertThat(SpringUtils.safeDoOperation(() -> operationValue.set("MOCK"), mockRunnable)).isTrue();
+		assertThat(operationValue.get()).isEqualTo("MOCK");
+
+		verifyNoInteractions(mockRunnable);
+	}
+
+	@Test
+	public void safeDoOperationWithThrowingOperationAndBackupOperation() {
+
+		Runnable mockRunnable = mock(Runnable.class);
+
+		assertThat(SpringUtils.safeDoOperation(() -> { throw new RuntimeException("TEST"); }, mockRunnable)).isFalse();
+
+		verify(mockRunnable, times(1)).run();
+		verifyNoMoreInteractions(mockRunnable);
 	}
 
 	@Test
