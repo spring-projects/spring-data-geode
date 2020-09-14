@@ -597,7 +597,7 @@ public class MappingPdxSerializerUnitTests {
 		}
 		catch (MappingException expected) {
 
-			assertThat(expected).hasMessage("While setting value [null] of property [id] for entity of type [%s] from PDX", Person.class);
+			assertThat(expected).hasMessage("An error occurred while setting value [null] of property [id] for entity of type [%s] from PDX", Person.class);
 			assertThat(expected).hasCauseInstanceOf(IllegalArgumentException.class);
 			assertThat(expected.getCause()).hasMessage("test");
 			assertThat(expected.getCause()).hasNoCause();
@@ -780,7 +780,7 @@ public class MappingPdxSerializerUnitTests {
 		}
 		catch (MappingException expected) {
 
-			assertThat(expected).hasMessage("While serializing entity [%1$s] property [address]"
+			assertThat(expected).hasMessage("An error occurred while serializing entity [%1$s] property [address]"
 					+ " value [100 Main St. Portland, 12345] of type [%2$s] to PDX",
 				Person.class.getName(), Address.class.getName());
 
