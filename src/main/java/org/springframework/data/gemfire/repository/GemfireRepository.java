@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * GemFire specific extension of the Spring Data {@link CrudRepository} interface.
+ * Apache Geode extension of the Spring Data {@link CrudRepository} interface.
  *
  * @author Oliver Gierke
  * @author John Blum
@@ -28,10 +28,10 @@ import org.springframework.data.repository.CrudRepository;
 public interface GemfireRepository<T, ID> extends CrudRepository<T, ID> {
 
 	/**
-	 * Returns all entities sorted by the given options.
+	 * Returns all entities ordered by the given {@link Sort}.
 	 *
-	 * @param sort the Spring Data Commons Sort type defining the ordering criteria.
-	 * @return all entities sorted by the given options.
+	 * @param sort {@link Sort} defining the ordering criteria.
+	 * @return all entities ordered by the given {@link Sort}.
 	 * @see org.springframework.data.repository.PagingAndSortingRepository#findAll(org.springframework.data.domain.Sort)
 	 * @see org.springframework.data.domain.Sort
 	 * @see java.lang.Iterable
