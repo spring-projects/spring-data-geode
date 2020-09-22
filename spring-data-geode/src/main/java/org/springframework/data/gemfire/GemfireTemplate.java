@@ -39,32 +39,40 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Helper class that simplifies GemFire data access code and converts {@link GemFireCheckedException} and
- * {@link GemFireException} into Spring {@link DataAccessException}, following the <tt>org.springframework.dao</tt>
- * exception hierarchy.
+ * This Template class simplifies Apache Geode data access operations, converting Apache Geode
+ * {@link GemFireCheckedException GemFireCheckedExceptions} and {@link GemFireException GemFireExceptions} into
+ * Spring {@link DataAccessException DataAccessExceptions}, following the <code>org.springframework.dao</code>
+ * {@link Exception} hierarchy.
  *
- * The central method is <tt>execute</tt>, supporting GemFire access code implementing the GemfireCallback interface.
- * It provides dedicated handling such that neither the GemfireCallback implementation nor the calling code needs to
- * explicitly care about handling {@link Region} life-cycle exceptions.
- * Typically used to implement data access or business logic services that use GemFire within their implementation but
- * are GemFire-agnostic in their interface. The latter or code calling the latter only have to deal with business
- * objects, query objects, and <tt>org.springframework.dao</tt> exceptions.
+ * The central method is <code>execute</code>, supporting Apache Geode data access code implementing the
+ * {@link GemfireCallback} interface. It provides dedicated handling such that neither the {@link GemfireCallback}
+ * implementation nor the {@literal calling code} needs to explicitly care about handling {@link Region} life-cycle
+ * {@link Exception Exceptions}.
+ *
+ * This template class is typically used to implement data access operations or business logic services using Apache
+ * Geode within their implementation but are Geode-agnostic in their interface. The latter or code calling the latter
+ * only have to deal with business objects, query objects, and <code>org.springframework.dao</code>
+ * {@link Exception Exceptions}.
  *
  * @author Costin Leau
  * @author John Blum
  * @see java.util.Map
- * @see org.springframework.data.gemfire.GemfireAccessor
- * @see org.springframework.data.gemfire.GemfireOperations
+ * @see org.apache.geode.GemFireCheckedException
+ * @see org.apache.geode.GemFireException
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.query.Query
  * @see org.apache.geode.cache.query.QueryService
  * @see org.apache.geode.cache.query.SelectResults
+ * @see org.springframework.data.gemfire.GemfireAccessor
+ * @see org.springframework.data.gemfire.GemfireOperations
  */
 @SuppressWarnings("unused")
 public class GemfireTemplate extends GemfireAccessor implements GemfireOperations {
@@ -73,13 +81,33 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 	private Region<?, ?> regionProxy;
 
+	/**
+	 * Constructs a new, uninitialized instance of {@link GemfireTemplate}.
+	 *
+	 * @see #GemfireTemplate(Region)
+	 */
 	public GemfireTemplate() { }
 
+	/**
+	 * Constructs a new instance of the {@link GemfireTemplate} initialized with the given {@link Region} on which
+	 * (cache) data access operations will be performed.
+	 *
+	 * @param <K> {@link Class type} of the {@link Region} key.
+	 * @param <V> {@link Class type} of the {@link Region} value.
+	 * @param region {@link Region} on which data access operations will be performed by this template;
+	 * must not be {@literal null}.
+	 * @throws IllegalArgumentException if {@link Region} is {@literal null}.
+	 * @see #setRegion(Region)
+	 * @see #afterPropertiesSet()
+	 */
 	public <K, V> GemfireTemplate(Region<K, V> region) {
 		setRegion(region);
 		afterPropertiesSet();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void afterPropertiesSet() {
 
@@ -89,13 +117,16 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	}
 
 	/**
-	 * Sets whether to expose the native Gemfire Region to GemfireCallback code. Default is "false": a Region proxy
-	 * will be returned, suppressing <code>close</code> calls.
-	 * <p>As there is often a need to cast to a interface, the exposed proxy implements all interfaces
-	 * implemented by the original {@link Region}. If this is not sufficient, turn this flag to "true".
+	 * Configure whether to expose the native {@link Region} to {@link GemfireCallback} code.
 	 *
-	 * @param exposeNativeRegion a boolean value to indicate whether the native GemFire Cache Region should be exposed
-	 * to the GemfireCallback.
+	 * <p>Default is {@literal false}, therefore a {@link Region} {@literal proxy} will be returned,
+	 * suppressing <code>close</code> calls.
+	 *
+	 * <p>As there is often a need to cast to an interface, the exposed proxy implements all interfaces implemented by
+	 * the original {@link Region}. If this is not sufficient, turn this flag to {@literal true}.
+	 *
+	 * @param exposeNativeRegion a boolean value indicating whether the native {@link Region} should be exposed to
+	 * the {@link GemfireCallback}.
 	 * @see org.springframework.data.gemfire.GemfireCallback
 	 */
 	public void setExposeNativeRegion(boolean exposeNativeRegion) {
@@ -103,50 +134,37 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	}
 
 	/**
-	 * Returns whether to expose the native GemFire Cache Region or a Region proxy to the GemfireCallback code.
+	 * Determines whether to expose the native {@link Region} or the {@link Region} {@literal proxy}
+	 * to {@link GemfireCallback} code.
 	 *
-	 * @return a boolean value indicating whether the native GemFire Cache Region or Region proxy is exposed
-	 * to the GemfireCallback code.
+	 * @return a boolean value indicating whether the native {@link Region} or the {@link Region} {@literal proxy}
+	 * is exposed to {@link GemfireCallback} code.
+	 * @see #setExposeNativeRegion(boolean)
 	 */
 	public boolean isExposeNativeRegion() {
 		return this.exposeNativeRegion;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#containsKey(java.lang.Object)
-	 */
 	@Override
 	public boolean containsKey(Object key) {
 		return getRegion().containsKey(key);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#containsKeyOnServer(java.lang.Object)
-	 */
 	@Override
 	public boolean containsKeyOnServer(Object key) {
 		return getRegion().containsKeyOnServer(key);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#containsValue(java.lang.Object)
-	 */
 	@Override
 	public boolean containsValue(Object value) {
 		return getRegion().containsValue(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#containsValueForKey(java.lang.Object)
-	 */
 	@Override
 	public boolean containsValueForKey(Object key) {
 		return getRegion().containsValueForKey(key);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#create(K, V)
-	 */
 	@Override
 	public <K, V> void create(K key, V value) {
 
@@ -158,9 +176,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#get(K)
-	 */
 	@Override
 	public <K, V> V get(K key) {
 
@@ -172,9 +187,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#getAll(java.util.Collection)
-	 */
 	@Override
 	public <K, V> Map<K, V> getAll(Collection<?> keys) {
 
@@ -186,9 +198,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#put(K, V)
-	 */
 	@Override
 	public <K, V> V put(K key, V value) {
 
@@ -200,9 +209,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#putAll(java.util.Map)
-	 */
 	@Override
 	public <K, V> void putAll(Map<? extends K, ? extends V> map) {
 
@@ -214,9 +220,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#putIfAbsent(K, V)
-	 */
 	@Override
 	public <K, V> V putIfAbsent(K key, V value) {
 
@@ -228,9 +231,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#remove(K)
-	 */
 	@Override
 	public <K, V> V remove(K key) {
 
@@ -242,9 +242,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#replace(K, V)
-	 */
 	@Override
 	public <K, V> V replace(K key, V value) {
 
@@ -256,9 +253,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#replace(K, V, V)
-	 */
 	@Override
 	public <K, V> boolean replace(K key, V oldValue, V newValue) {
 
@@ -270,10 +264,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#query(java.lang.String)
-	 */
 	@Override
 	public <E> SelectResults<E> query(String query) {
 
@@ -299,10 +289,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#find(java.lang.String, java.lang.Object)
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <E> SelectResults<E> find(String queryString, Object... params) throws InvalidDataAccessApiUsageException {
@@ -341,10 +327,6 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#findUnique(java.lang.String, java.lang.Object)
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T findUnique(String queryString, Object... params) throws InvalidDataAccessApiUsageException {
@@ -395,7 +377,7 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	 * Returns the {@link QueryService} used by this template in its query/finder methods.
 	 *
 	 * @param region {@link Region} used to acquire the {@link QueryService}.
-	 * @return the {@link QueryService} that will perform the query.
+	 * @return the {@link QueryService} that will perform the {@link Query}.
 	 * @see org.apache.geode.cache.Region
 	 * @see org.apache.geode.cache.Region#getRegionService()
 	 * @see org.apache.geode.cache.RegionService#getQueryService()
@@ -449,27 +431,44 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		return region.getRegionService().getQueryService();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#execute(org.springframework.data.gemfire.GemfireCallback)
+	/**
+	 * Executes the given data access operation defined by the {@link GemfireCallback} in the context of Apache Geode.
+	 *
+	 * @param <T> {@link Class type} returned by the {@link GemfireCallback}.
+	 * @param action {@link GemfireCallback} object defining the Apache Geode action to execute;
+	 * must not be {@literal null}.
+	 * @return the result of executing the {@link GemfireCallback}.
+	 * @throws DataAccessException if an Apache Geode error is thrown by a data access operation.
+	 * @throws IllegalArgumentException if {@link GemfireCallback} is {@literal null}.
+	 * @see org.springframework.data.gemfire.GemfireCallback
+	 * @see #execute(GemfireCallback, boolean)
 	 */
 	@Override
-	public <T> T execute(GemfireCallback<T> action) throws DataAccessException {
+	public <T> T execute(@NonNull GemfireCallback<T> action) throws DataAccessException {
 		return execute(action, isExposeNativeRegion());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.GemfireOperations#execute(org.springframework.data.gemfire.GemfireCallback, boolean)
+	/**
+	 * Executes the given data access operation defined by the {@link GemfireCallback} in the context of Apache Geode.
+	 *
+	 * @param <T> {@link Class type} returned by the {@link GemfireCallback}.
+	 * @param action {@link GemfireCallback} object defining the Apache Geode action to execute;
+	 * must not be {@literal null}.
+	 * @param exposeNativeRegion boolean value indicating whether to pass the native {@link Region}
+	 * or the {@link Region} {@literal proxy} to the {@link GemfireCallback}.
+	 * @return the result of executing the {@link GemfireCallback}.
+	 * @throws DataAccessException if an Apache Geode error is thrown by a data access operation.
+	 * @throws IllegalArgumentException if {@link GemfireCallback} is {@literal null}.
+	 * @see org.springframework.data.gemfire.GemfireCallback
 	 */
 	@Override
-	public <T> T execute(GemfireCallback<T> action, boolean exposeNativeRegion) throws DataAccessException {
+	public <T> T execute(@NonNull GemfireCallback<T> action, boolean exposeNativeRegion) throws DataAccessException {
 
-		Assert.notNull(action, "Callback object must not be null");
+		Assert.notNull(action, "GemfireCallback must not be null");
 
 		try {
 
-			Region<?, ?> regionArgument = (exposeNativeRegion ? getRegion() : this.regionProxy);
+			Region<?, ?> regionArgument = exposeNativeRegion ? getRegion() : this.regionProxy;
 
 			return action.doInGemfire(regionArgument);
 		}
@@ -493,18 +492,20 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	}
 
 	/**
-	 * Create a close-suppressing proxy for the given GemFire Cache {@link Region}.
+	 * Create a close-suppressing proxy for the given Apache Geode cache {@link Region}.
+	 *
 	 * Called by the <code>execute</code> method.
 	 *
-	 * @param <K> the Region key class type.
-	 * @param <V> the Region value class type.
-	 * @param region the GemFire Cache Region to create a proxy for.
+	 * @param <K> {@link Class type} of the {@link Region} key.
+	 * @param <V> {@link Class type} of the {@link Region} value.
+	 * @param region {@link Region} for which a proxy will be created.
 	 * @return the Region proxy implementing all interfaces implemented by the passed-in Region object.
 	 * @see org.apache.geode.cache.Region#close()
 	 * @see #execute(GemfireCallback, boolean)
 	 */
 	@SuppressWarnings("unchecked")
-	protected <K, V> Region<K, V> createRegionProxy(Region<K, V> region) {
+	@NonNull
+	protected <K, V> Region<K, V> createRegionProxy(@NonNull Region<K, V> region) {
 
 		Class<?> regionType = region.getClass();
 
@@ -514,26 +515,37 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	}
 
 	/**
-	 * InvocationHandler that suppresses close calls on GemFire Cache Regions.
+	 * {@link InvocationHandler} that suppresses the {@link Region#close()} call on a target {@link Region}.
 	 *
-	 * @see org.apache.geode.cache.Region#close()
 	 * @see java.lang.reflect.InvocationHandler
+	 * @see org.apache.geode.cache.Region#close()
 	 */
 	private static class RegionCloseSuppressingInvocationHandler implements InvocationHandler {
 
 		private final Region<?, ?> target;
 
-		public RegionCloseSuppressingInvocationHandler(Region<?, ?> target) {
+		/**
+		 * Constructs a new instance of the {@link RegionCloseSuppressingInvocationHandler} initialized with
+		 * the given {@link Region}.
+		 *
+		 * @param target {@link Region} to proxy; must not be {@literal null}.
+		 * @throws IllegalArgumentException if {@link Region} is {@literal null}.
+		 * @see org.apache.geode.cache.Region
+		 */
+		public RegionCloseSuppressingInvocationHandler(@NonNull Region<?, ?> target) {
 
 			Assert.notNull(target, "Target Region must not be null");
 
 			this.target = target;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 			if ("equals".equals(method.getName())) {
-				// only consider equal when proxies are identical
+				// only consider equals when proxies are identical
 				return proxy == args[0];
 			}
 			else if ("hashCode".equals(method.getName())) {
@@ -548,8 +560,8 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 				try {
 					return method.invoke(this.target, args);
 				}
-				catch (InvocationTargetException ex) {
-					throw ex.getTargetException();
+				catch (InvocationTargetException cause) {
+					throw cause.getTargetException();
 				}
 			}
 		}
