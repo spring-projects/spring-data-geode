@@ -166,7 +166,6 @@ public class RegionUtilsUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("all")
 	public void nullRegionIsNotLocal() {
 		assertThat(RegionUtils.isLocal(null)).isFalse();
 	}
