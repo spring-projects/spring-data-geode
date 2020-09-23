@@ -29,10 +29,11 @@ import java.util.List;
 import org.springframework.core.annotation.AliasFor;
 
 /**
- * {@link Annotation} defining the {@link Region} in which the application persistent entity will be stored.
+ * {@link Annotation} declaring the {@link Region} in which the application persistent entity will be stored.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see java.lang.annotation.Annotation
  * @see org.apache.geode.cache.Region
  */
 @Target(ElementType.TYPE)
@@ -42,8 +43,13 @@ import org.springframework.core.annotation.AliasFor;
 @SuppressWarnings("unused")
 public @interface Region {
 
-	List<Class<? extends Annotation>> REGION_ANNOTATION_TYPES =
-		Arrays.asList(ClientRegion.class, LocalRegion.class, PartitionRegion.class, ReplicateRegion.class, Region.class);
+	List<Class<? extends Annotation>> REGION_ANNOTATION_TYPES = Arrays.asList(
+		ClientRegion.class,
+		LocalRegion.class,
+		PartitionRegion.class,
+		ReplicateRegion.class,
+		Region.class
+	);
 
 	/**
 	 * Name, or fully-qualified bean name of the {@link org.apache.geode.cache.Region}

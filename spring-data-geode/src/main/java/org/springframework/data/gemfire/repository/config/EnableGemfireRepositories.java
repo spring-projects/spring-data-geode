@@ -28,14 +28,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
 import org.springframework.data.gemfire.repository.support.SimpleGemfireRepository;
+import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 
 /**
- * Annotation to enable Gemfire repositories.
+ * Annotation to enable Apache Geode, Spring Data {@link Repository Repositories}.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.springframework.data.repository.Repository
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,30 +48,34 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 public @interface EnableGemfireRepositories {
 
 	/**
-	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations, e.g.
-	 * {@code @EnableGemfireRepositories("org.my.pkg")} instead of
-	 * {@code @EnableGemfireRepositories(basePackages="org.my.pkg")}.
+	 * Alias for the {@link #basePackages()} attribute.
 	 *
-	 * @return a String array specifying the packages to search for GemFire Repositories.
+	 * Allows for more concise annotation declarations, e.g. {@code @EnableGemfireRepositories("org.my.pkg")}
+	 * instead of {@code @EnableGemfireRepositories(basePackages="org.my.pkg")}.
+	 *
+	 * @return a {@link String} array specifying the packages to search for Apache Geode Repositories.
 	 * @see #basePackages()
 	 */
 	String[] value() default {};
 
 	/**
-	 * Base packages to scan for annotated components. {@link #value()} is an alias for (and mutually exclusive with) this
-	 * attribute. Use {@link #basePackageClasses()} for a type-safe alternative to String-based package names.
+	 * Base packages to scan for annotated components. {@link #value()} is an alias for (and mutually exclusive with)
+	 * this attribute.
 	 *
-	 * @return a String array specifying the packages to search for GemFire Repositories.
+	 * Use {@link #basePackageClasses()} for a type-safe alternative to String-based package names.
+	 *
+	 * @return a {@link String} array specifying the packages to search for Apache Geode Repositories.
 	 * @see #value()
 	 */
 	String[] basePackages() default {};
 
 	/**
-	 * Type-safe alternative to {@link #basePackages()} for specifying the packages to scan for annotated components. The
-	 * package of each class specified will be scanned. Consider creating a special no-op marker class or interface in
-	 * each package that serves no purpose other than being referenced by this attribute.
+	 * Type-safe alternative to {@link #basePackages()} to specify the packages to scan for annotated components.
 	 *
-	 * @return an array of classes used to determine the packages to scan for GemFire Repositories.
+	 * The package of each class specified will be scanned. Consider creating a special no-op marker class or interface
+	 * in each package that serves no other purpose than being referenced by this attribute.
+	 *
+	 * @return an array of {@link Class classes} used to determine the packages to scan for Apache Geode Repositories.
 	 */
 	Class<?>[] basePackageClasses() default {};
 
@@ -88,53 +95,64 @@ public @interface EnableGemfireRepositories {
 	Filter[] excludeFilters() default {};
 
 	/**
-	 * Returns the postfix to be used when looking up custom repository implementations. Defaults to {@literal Impl}. So
-	 * for a repository named {@code PersonRepository} the corresponding implementation class will be looked up scanning
-	 * for {@code PersonRepositoryImpl}.
+	 * Configures the name of the {@link GemfireMappingContext} bean definition to use when creating Repositories
+	 * discovered through this annotation. If not configured a default {@link GemfireMappingContext} will be created.
 	 *
-	 * @return a String indicating the postfix to append to the Repository interface name when looking up the custom
-	 * Repository implementing class.
+	 * @return the {@link String bean name} of the {@link MappingContext} used by a Repository to map entities to
+	 * the underlying data store (i.e. Apache Geode).
 	 */
-	String repositoryImplementationPostfix() default "Impl";
+	String mappingContextRef() default "";
 
 	/**
-	 * Configures the location of where to find the Spring Data named queries properties file. Will default to
-	 * {@code META-INFO/jpa-named-queries.properties}.
+	 * Configures the {@link String location} of where to find the Spring Data named queries properties file.
 	 *
-	 * @return a String indicating the location of the name queries properties file.
+	 * Defaults to {@code META-INFO/gemfire-named-queries.properties}.
+	 *
+	 * @return a {@link String} indicating the location of the named queries properties file.
 	 */
 	String namedQueriesLocation() default "";
 
 	/**
-	 * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query methods. Defaults to
-	 * {@link Key#CREATE_IF_NOT_FOUND}.
+	 * Returns the {@link Key} of the {@link QueryLookupStrategy} used to lookup queries for query methods.
 	 *
-	 * @return the Key used to determine the Query lookup and creation strategy.
+	 * Defaults to {@link Key#CREATE_IF_NOT_FOUND}.
+	 *
+	 * @return the {@link Key} used to determine the query lookup and creation strategy.
+	 * @see org.springframework.data.repository.query.QueryLookupStrategy.Key
 	 */
 	Key queryLookupStrategy() default Key.CREATE_IF_NOT_FOUND;
 
 	/**
-	 * Returns the {@link FactoryBean} class to be used for each repository instance. Defaults to
-	 * {@link GemfireRepositoryFactoryBean}.
+	 * Configure the {@link Repository} {@link Class base class} used to create {@link Repository} proxies
+	 * for this particular configuration.
 	 *
-	 * @return the {@link FactoryBean} class type used for each Repository interface.
-	 */
-	Class<?> repositoryFactoryBeanClass() default GemfireRepositoryFactoryBean.class;
-
-	/**
-	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
-	 *
+	 * @return the {@link Repository} {@link Class base class} used to create {@link Repository} proxies.
+	 * @see org.springframework.data.gemfire.repository.support.SimpleGemfireRepository
 	 * @since 1.7
 	 */
 	Class<?> repositoryBaseClass() default SimpleGemfireRepository.class;
 
 	/**
-	 * Configures the name of the {@link GemfireMappingContext} bean definition to be used to create repositories
-	 * discovered through this annotation. If not configured a default one will be created.
+	 * Configures the {@link FactoryBean} {@link Class} used to create each {@link Repository} instance.
 	 *
-	 * @return the bean name of the {@link org.springframework.data.mapping.context.MappingContext} used by the
-	 * Repository to map entities to the underlying data store.
+	 * Defaults to {@link GemfireRepositoryFactoryBean}.
+	 *
+	 * @return the {@link FactoryBean} {@link Class} used to create each {@link Repository} instance.
+	 * @see org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean
 	 */
-	String mappingContextRef() default "";
+	Class<?> repositoryFactoryBeanClass() default GemfireRepositoryFactoryBean.class;
+
+	/**
+	 * Returns the {@link String postfix} used when looking up custom {@link Repository} implementations.
+	 *
+	 * Defaults to {@literal Impl}.
+	 *
+	 * For example, for a {@link Repository} named {@code PersonRepository}, the corresponding implementation class
+	 * will be looked up scanning for {@code PersonRepositoryImpl}.
+	 *
+	 * @return a {@link String} indicating the postfix to append to the {@link Repository} interface name
+	 * when looking up the custom {@link Repository} implementing class.
+	 */
+	String repositoryImplementationPostfix() default "Impl";
 
 }
