@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import java.lang.reflect.Method;
@@ -35,15 +34,15 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * GemFire specific {@link QueryMethod}.
+ * Apache Geode specific {@link QueryMethod} implementation.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see java.lang.reflect.Method
  * @see org.springframework.data.repository.query.QueryMethod
  */
 public class GemfireQueryMethod extends QueryMethod {
 
-	@SuppressWarnings("all")
 	protected static final String[] EMPTY_STRING_ARRAY = new String[0];
 
 	private final GemfirePersistentEntity<?> entity;
@@ -51,12 +50,16 @@ public class GemfireQueryMethod extends QueryMethod {
 	private final Method method;
 
 	/**
-	 * Creates a new {@link GemfireQueryMethod} from the given {@link Method} and {@link RepositoryMetadata}.
+	 * Constructs a new instance of {@link GemfireQueryMethod} from the given {@link Method}
+	 * and {@link RepositoryMetadata}.
 	 *
 	 * @param method must not be {@literal null}.
 	 * @param metadata must not be {@literal null}.
 	 * @param factory must not be {@literal null}.
 	 * @param mappingContext must not be {@literal null}.
+	 * @see org.springframework.data.repository.core.RepositoryMetadata
+	 * @see org.springframework.data.projection.ProjectionFactory
+	 * @see java.lang.reflect.Method
 	 */
 	public GemfireQueryMethod(Method method, RepositoryMetadata metadata, ProjectionFactory factory,
 			MappingContext<? extends GemfirePersistentEntity<?>, GemfirePersistentProperty> mappingContext) {
@@ -64,6 +67,7 @@ public class GemfireQueryMethod extends QueryMethod {
 		super(method, metadata, factory);
 
 		Assert.notNull(mappingContext, "MappingContext must not be null");
+
 		assertNonPagingQueryMethod(method);
 
 		this.method = method;
@@ -83,8 +87,12 @@ public class GemfireQueryMethod extends QueryMethod {
 
 		for (Class<?> type : method.getParameterTypes()) {
 			if (Pageable.class.isAssignableFrom(type)) {
-				throw new IllegalStateException(String.format("Pagination is not supported by GemFire Repositories;"
-					+ " Offending method: %1$s", method.getName()));
+
+				String message =
+					String.format("Pagination is not supported by GemFire Repositories; Offending method: %s",
+						method.getName());
+
+				throw new IllegalStateException(message);
 			}
 		}
 	}
