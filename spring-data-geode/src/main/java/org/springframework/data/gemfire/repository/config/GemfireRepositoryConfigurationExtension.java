@@ -93,8 +93,8 @@ public class GemfireRepositoryConfigurationExtension extends RepositoryConfigura
 	}
 
 	/**
-	 * Adds a property reference to the data store-specific {@link MappingContext} in
-	 * the given {@link BeanDefinitionBuilder bean definition}.
+	 * Adds a property reference to the data store-specific {@link MappingContext}
+	 * in the given {@link BeanDefinitionBuilder bean definition}.
 	 *
 	 * @param builder {@link BeanDefinitionBuilder} used to build the target bean definition.
 	 * @param configurationSource {@link RepositoryConfigurationSource} containing {@link Repository}
@@ -114,6 +114,22 @@ public class GemfireRepositoryConfigurationExtension extends RepositoryConfigura
 	public void registerBeansForRoot(BeanDefinitionRegistry registry, RepositoryConfigurationSource configurationSource) {
 
 		super.registerBeansForRoot(registry, configurationSource);
+		registerMappingContextForRoot(registry, configurationSource);
+	}
+
+	/**
+	 * Registers a {@link GemfireMappingContext} if a {@link MappingContext} is not already registered in
+	 * the {@link BeanDefinitionRegistry}.
+	 *
+	 * @param registry {@link BeanDefinitionRegistry} containing registered bean definitions.
+	 * @param configurationSource {@link RepositoryConfigurationSource} containing the configuration metadata
+	 * for Apache Geode {@link Repository Repositories}.
+	 * @see org.springframework.data.repository.config.RepositoryConfigurationSource
+	 * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
+	 * @see #noMappingContextIsConfigured(RepositoryConfigurationSource)
+	 */
+	private void registerMappingContextForRoot(@NonNull BeanDefinitionRegistry registry,
+			@NonNull RepositoryConfigurationSource configurationSource) {
 
 		if (noMappingContextIsConfigured(configurationSource)) {
 			registry.registerBeanDefinition(DEFAULT_MAPPING_CONTEXT_BEAN_NAME,
@@ -128,7 +144,7 @@ public class GemfireRepositoryConfigurationExtension extends RepositoryConfigura
 	 * an existing {@link MappingContext} configuration.
 	 * @return a boolean value indicating whether a {@link GemfireMappingContext} has already been configured.
 	 */
-	private boolean noMappingContextIsConfigured(RepositoryConfigurationSource configurationSource) {
+	private boolean noMappingContextIsConfigured(@NonNull RepositoryConfigurationSource configurationSource) {
 		return !configurationSource.getAttribute(MAPPING_CONTEXT_REF_ATTRIBUTE_NAME).isPresent();
 	}
 }
