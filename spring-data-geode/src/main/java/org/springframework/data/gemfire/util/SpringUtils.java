@@ -16,8 +16,6 @@
  */
 package org.springframework.data.gemfire.util;
 
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,7 +72,8 @@ public abstract class SpringUtils {
 	 * Determines whether a given bean registered in the {@link BeanFactory Spring container} matches by
 	 * both {@link String name} and {@link Class type}.
 	 *
-	 * @param beanFactory {@link BeanFactory Spring container} in which to resolve the bean.
+	 * @param beanFactory {@link BeanFactory Spring container} in which to resolve the bean;
+	 * must not be {@literal null}.
 	 * @param beanName {@link String name} of the bean.
 	 * @param beanType {@link Class type} of the bean.
 	 * @return a boolean value indicating whether the {@link BeanFactory Spring container} contains a bean
@@ -90,9 +89,9 @@ public abstract class SpringUtils {
 	/**
 	 * Adds an array of bean dependencies (by name) to the given {@link BeanDefinition}.
 	 *
-	 * @param beanDefinition {@link BeanDefinition} to add the bean dependencies to.
-	 * @param beanNames {@link String} array containing names of beans to which the {@link BeanDefinition}
-	 * has a dependency.
+	 * @param beanDefinition {@link BeanDefinition} to add the bean dependencies to; must not be {@literal null}.
+	 * @param beanNames {@link String} array containing names of beans for which the {@link BeanDefinition}
+	 * depends on (or has a dependency).
 	 * @return the given {@link BeanDefinition}.
 	 * @see org.springframework.beans.factory.config.BeanDefinition
 	 */
@@ -102,7 +101,7 @@ public abstract class SpringUtils {
 		List<String> dependsOnList = new ArrayList<>();
 
 		Collections.addAll(dependsOnList, ArrayUtils.nullSafeArray(beanDefinition.getDependsOn(), String.class));
-		dependsOnList.addAll(Arrays.asList(nullSafeArray(beanNames, String.class)));
+		dependsOnList.addAll(Arrays.asList(ArrayUtils.nullSafeArray(beanNames, String.class)));
 		beanDefinition.setDependsOn(dependsOnList.toArray(new String[0]));
 
 		return beanDefinition;
@@ -320,6 +319,19 @@ public abstract class SpringUtils {
 
 	public static Class<?> nullSafeType(Object target, Class<?> defaultType) {
 		return target != null ? target.getClass() : defaultType;
+	}
+
+	public static <T> T requireObject(@Nullable T object, String message) {
+		return requireObject(() -> object, message);
+	}
+
+	public static <T> T requireObject(@NonNull Supplier<T> objectSupplier, String message) {
+
+		T object = objectSupplier != null ? objectSupplier.get() : null;
+
+		Assert.state(object != null, message);
+
+		return object;
 	}
 
 	public static boolean safeDoOperation(VoidReturningThrowableOperation operation) {

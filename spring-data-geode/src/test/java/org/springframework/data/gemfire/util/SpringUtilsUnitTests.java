@@ -437,6 +437,26 @@ public class SpringUtilsUnitTests {
 	}
 
 	@Test
+	public void requireObjectReturnsObject() {
+		assertThat(SpringUtils.requireObject("TEST", "Test Object must not be null")).isEqualTo("TEST");
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void requireObjectWithNullObjectThrowsIllegalStateException() {
+
+		try {
+			SpringUtils.requireObject(null, "Test Object must not be null");
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("Test Object must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
+	@Test
 	public void safeDoOperationWithNonThrowingOperation() {
 
 		AtomicReference<Object> operationValue = new AtomicReference<>();
