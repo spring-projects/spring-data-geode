@@ -331,9 +331,9 @@ public class GemfireRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 			return this.declaredRepositoryType;
 		}
 
-		@SuppressWarnings("unchecked")
-		@NonNull QueryPostProcessor<?, String> getQueryPostProcessor() {
-			return (QueryPostProcessor<?, String>) this.queryPostProcessor;
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@NonNull QueryPostProcessor<Repository, String> getQueryPostProcessor() {
+			return (QueryPostProcessor<Repository, String>) this.queryPostProcessor;
 		}
 
 		boolean isMatch(Class<?> repositoryInterface) {

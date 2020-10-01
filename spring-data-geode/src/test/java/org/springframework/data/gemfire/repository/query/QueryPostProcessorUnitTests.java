@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,10 +27,11 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.mockito.InOrder;
 
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.QueryMethod;
 
 /**
- * Unit tests for {@link QueryPostProcessor}.
+ * Unit Tests for {@link QueryPostProcessor}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -42,15 +42,15 @@ import org.springframework.data.repository.query.QueryMethod;
 public class QueryPostProcessorUnitTests {
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void processAfterReturnsCompositeQueryPostProcessorAndPostProcessesInOrder() {
 
 		QueryMethod mockQueryMethod = mock(QueryMethod.class);
 
 		String query = "SELECT * FROM /Test";
 
-		QueryPostProcessor<?, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class);
-		QueryPostProcessor<?, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class);
+		QueryPostProcessor<Repository, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class);
+		QueryPostProcessor<Repository, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class);
 
 		when(mockQueryPostProcessorOne.processAfter(any())).thenCallRealMethod();
 		when(mockQueryPostProcessorOne.postProcess(any(QueryMethod.class), anyString(), any())).thenReturn(query);
@@ -82,15 +82,15 @@ public class QueryPostProcessorUnitTests {
 		assertThat(mockQueryPostProcessor.processAfter(null)).isSameAs(mockQueryPostProcessor);
 	}
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void processBeforeReturnsCompositeQueryPostProcessorAndPostProcessesInOrder() {
 
 		QueryMethod mockQueryMethod = mock(QueryMethod.class);
 
 		String query = "SELECT * FROM /Test";
 
-		QueryPostProcessor<?, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class);
-		QueryPostProcessor<?, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class);
+		QueryPostProcessor<Repository, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class);
+		QueryPostProcessor<Repository, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class);
 
 		when(mockQueryPostProcessorOne.processBefore(any())).thenCallRealMethod();
 		when(mockQueryPostProcessorOne.postProcess(any(QueryMethod.class), anyString(), any())).thenReturn(query);

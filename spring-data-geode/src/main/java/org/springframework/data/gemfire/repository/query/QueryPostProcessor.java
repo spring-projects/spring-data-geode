@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import java.util.Properties;
@@ -31,24 +30,28 @@ import org.springframework.lang.Nullable;
  * a given {@link QUERY query} and possibly return a new or modified version of the same {@link QUERY query}.
  *
  * {@link QueryPostProcessor QueryPostProcessors} are useful for handling and processing {@link QUERY queries}
- * generated from {@link Repository} {@link QueryMethod query methods}, and give a developer an opportunity,
+ * derived from {@link Repository} {@link QueryMethod QueryMethods}, and give a developer the opportunity,
  * via the callback, to further process the generated {@link QUERY query}.
  *
- * {@link QueryPostProcessor QueryPostProcessors} can be used on both {@literal generated} {@link QUERY queries}
+ * {@link QueryPostProcessor QueryPostProcessors} can be used on both {@literal derived} {@link QUERY queries}
  * and {@literal manual} {@link QUERY queries}.  {@literal Manual} {@link QUERY queries} are defined as
  * {@link QUERY queries} specified using SDG's {@link Query @Query} annotation or by defining a {@literal named}
- * {@link QUERY query} in a module-specific {@link Properties} files.
+ * {@link QUERY query} in a module-specific {@link Properties} files
+ * (e.g. {@literal META-INF/gemfire-named-queries.properties}).
  *
  * @author John Blum
  * @param <T> {@link Class type} identifying the {@link Repository Repositories} to match on during registration.
  * @param <QUERY> {@link Class type} of the query to process.
+ * @see java.lang.FunctionalInterface
  * @see org.springframework.core.Ordered
  * @see org.springframework.data.gemfire.repository.Query
  * @see org.springframework.data.repository.Repository
+ * @see org.springframework.data.repository.core.NamedQueries
  * @see org.springframework.data.repository.query.QueryMethod
  * @since 2.1.0
  */
 @FunctionalInterface
+@SuppressWarnings("rawtypes")
 public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered {
 
 	Object[] EMPTY_ARGUMENTS = new Object[0];
@@ -102,10 +105,11 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	QUERY postProcess(@NonNull QueryMethod queryMethod, QUERY query, Object... arguments);
 
 	/**
-	 * Builder method used to compose, or combine this {@link QueryPostProcessor QueryPostProcessors}
+	 * Builder method used to compose this {@link QueryPostProcessor QueryPostProcessor}
 	 * with the given {@link QueryPostProcessor}.
 	 *
-	 * This {@link QueryPostProcessor} will come before the given {@link QueryPostProcessor} in the processing chain.
+	 * This {@link QueryPostProcessor} will process the query before the given {@link QueryPostProcessor}
+	 * in the processing chain.
 	 *
 	 * @param queryPostProcessor {@link QueryPostProcessor} to compose with this {@link QueryPostProcessor}.
 	 * @return a composed {@link QueryPostProcessor} consisting of this {@link QueryPostProcessor}
@@ -113,17 +117,17 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * if the given {@link QueryPostProcessor} is {@literal null}.
 	 * @see #processAfter(QueryPostProcessor)
 	 */
-	@NonNull
-	default QueryPostProcessor<?, QUERY> processBefore(@Nullable QueryPostProcessor<?, QUERY> queryPostProcessor) {
+	default @NonNull QueryPostProcessor<T, QUERY> processBefore(@Nullable QueryPostProcessor<T, QUERY> queryPostProcessor) {
 		return queryPostProcessor == null ? this : (queryMethod, query, arguments) ->
 			queryPostProcessor.postProcess(queryMethod, this.postProcess(queryMethod, query, arguments), arguments);
 	}
 
 	/**
-	 * Builder method used to compose, or combine this {@link QueryPostProcessor QueryPostProcessors}
+	 * Builder method used to compose this {@link QueryPostProcessor QueryPostProcessors}
 	 * with the given {@link QueryPostProcessor}.
 	 *
-	 * This {@link QueryPostProcessor} will come after the given {@link QueryPostProcessor} in the processing chain.
+	 * This {@link QueryPostProcessor} will process the query after the given {@link QueryPostProcessor}
+	 * in the processing chain.
 	 *
 	 * @param queryPostProcessor {@link QueryPostProcessor} to compose with this {@link QueryPostProcessor}.
 	 * @return a composed {@link QueryPostProcessor} consisting of the given {@link QueryPostProcessor}
@@ -131,8 +135,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * if the given {@link QueryPostProcessor} is {@literal null}.
 	 * @see #processBefore(QueryPostProcessor)
 	 */
-	@NonNull
-	default QueryPostProcessor<?, QUERY> processAfter(@Nullable QueryPostProcessor<?, QUERY> queryPostProcessor) {
+	default @NonNull QueryPostProcessor<T, QUERY> processAfter(@Nullable QueryPostProcessor<T, QUERY> queryPostProcessor) {
 		return queryPostProcessor == null ? this : (queryMethod, query, arguments) ->
 			this.postProcess(queryMethod, queryPostProcessor.postProcess(queryMethod, query, arguments), arguments);
 	}

@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -34,6 +35,9 @@ import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
@@ -103,6 +107,52 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.repository.deleteAll();
 
 		assertThat(this.regionClearListener.eventFired).isTrue();
+	}
+
+	@Test
+	public void findAllPaged() {
+
+		assertThat(this.repository.count()).isEqualTo(0);
+
+		List<Person> people = Arrays.asList(
+			new Person(1L, "Jon", "Doe"),
+			new Person(2L, "Jane", "Doe"),
+			new Person(3L, "Cookie", "Doe"),
+			new Person(4L, "Pie", "Doe"),
+			new Person(5L, "Sour", "Doe")
+		);
+
+		people.forEach(person -> this.template.put(person.getId(), person));
+
+		assertThat(this.repository.count()).isEqualTo(5);
+
+		Sort orderByFirstNameAscending = Sort.by("firstname").ascending();
+
+		Page<Person> pageOne =
+			this.repository.findAll(PageRequest.of(0, 3, orderByFirstNameAscending));
+
+		assertThat(pageOne).isNotNull();
+		assertThat(pageOne).isNotEmpty();
+		assertThat(pageOne.getNumber()).isEqualTo(0);
+		assertThat(pageOne.getNumberOfElements()).isEqualTo(3);
+		assertThat(pageOne.getSize()).isEqualTo(3);
+		assertThat(pageOne.getSort()).isEqualTo(orderByFirstNameAscending);
+		assertThat(pageOne.getTotalElements()).isEqualTo(people.size());
+		assertThat(pageOne.getTotalPages()).isEqualTo(2);
+		assertThat(pageOne.getContent()).containsExactly(people.get(2), people.get(1), people.get(0));
+
+		Page<Person> pageTwo =
+			this.repository.findAll(PageRequest.of(1, 3, Sort.by("firstname").ascending()));
+
+		assertThat(pageTwo).isNotNull();
+		assertThat(pageTwo).isNotEmpty();
+		assertThat(pageTwo.getNumber()).isEqualTo(1);
+		assertThat(pageTwo.getNumberOfElements()).isEqualTo(2);
+		assertThat(pageTwo.getSize()).isEqualTo(3);
+		assertThat(pageTwo.getSort()).isEqualTo(orderByFirstNameAscending);
+		assertThat(pageTwo.getTotalElements()).isEqualTo(people.size());
+		assertThat(pageTwo.getTotalPages()).isEqualTo(2);
+		assertThat(pageTwo.getContent()).containsExactly(people.get(3), people.get(4));
 	}
 
 	@Test

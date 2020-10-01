@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import java.util.Iterator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.PartTree;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link AbstractQueryCreator} to create {@link QueryString} instances.
@@ -59,10 +58,6 @@ class GemfireQueryCreator extends AbstractQueryCreator<QueryString, Predicates> 
 		this.indexes = new IndexProvider();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.parser.AbstractQueryCreator#createQuery(org.springframework.data.domain.Sort)
-	 */
 	@Override
 	public QueryString createQuery(Sort dynamicSort) {
 
@@ -71,37 +66,21 @@ class GemfireQueryCreator extends AbstractQueryCreator<QueryString, Predicates> 
 		return super.createQuery(dynamicSort);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.parser.AbstractQueryCreator#create(org.springframework.data.repository.query.parser.Part, java.util.Iterator)
-	 */
 	@Override
 	protected Predicates create(Part part, Iterator<Object> iterator) {
 		return Predicates.create(part, this.indexes);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.parser.AbstractQueryCreator#and(org.springframework.data.repository.query.parser.Part, java.lang.Object, java.util.Iterator)
-	 */
 	@Override
 	protected Predicates and(Part part, Predicates base, Iterator<Object> iterator) {
 		return base.and(Predicates.create(part, this.indexes));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.parser.AbstractQueryCreator#or(java.lang.Object, java.lang.Object)
-	 */
 	@Override
 	protected Predicates or(Predicates base, Predicates criteria) {
 		return base.or(criteria);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.parser.AbstractQueryCreator#complete(java.lang.Object, org.springframework.data.domain.Sort)
-	 */
 	@Override
 	protected QueryString complete(Predicates criteria, Sort sort) {
 
@@ -130,14 +109,13 @@ class GemfireQueryCreator extends AbstractQueryCreator<QueryString, Predicates> 
 		}
 
 		@Override
-		@SuppressWarnings("all")
 		public boolean hasNext() {
-			return (index <= Integer.MAX_VALUE);
+			return this.index <= Integer.MAX_VALUE;
 		}
 
 		@Override
 		public Integer next() {
-			return index++;
+			return this.index++;
 		}
 
 		@Override

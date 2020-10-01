@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
-
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIsEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,20 +25,26 @@ import org.apache.geode.cache.Region;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.repository.query.support.OqlKeyword;
+import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.data.repository.Repository;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * {@link QueryString} is a utility class used to construct GemFire OQL query statements.
+ * {@link QueryString} is a utility class used to construct Apache Geode OQL query statements.
+ *
+ * This is an internal class used by the SDG {@link Repository} infrastructure extension
  *
  * @author Oliver Gierke
  * @author David Turanski
  * @author John Blum
+ * @see java.util.regex.Matcher
  * @see java.util.regex.Pattern
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.domain.Sort
  * @see org.springframework.data.gemfire.repository.query.support.OqlKeyword
- * @see org.apache.geode.cache.Region
  */
 public class QueryString {
 
@@ -67,37 +70,39 @@ public class QueryString {
 	private static final String STAR_QUERY = "*";
 
 	/**
-	 * Factory method used to construct an instance of {@link QueryString} initialized with the given {@link String query}.
+	 * Factory method used to construct a new instance of {@link QueryString} initialized with
+	 * the given {@link String OQL query}.
 	 *
 	 * @param query {@link String} containing the OQL query.
 	 * @return a new {@link QueryString} initialized with the given {@link String query}.
 	 * @throws IllegalArgumentException if {@link String query} is not specified.
 	 * @see #QueryString(String)
 	 */
-	public static QueryString of(String query) {
+	public static QueryString of(@NonNull String query) {
 		return new QueryString(query);
 	}
 
 	/**
-	 * Factory method used to construct an instance of {@link QueryString} initialized with
-	 * the given {@link Class domain type} for which the query will be created.
+	 * Factory method used to construct a new instance of {@link QueryString} initialized with
+	 * the given {@link Class domain type} for which the {@link String OQL query} will be created.
 	 *
-	 * @param domainType {@link Class domain object type} for which the query will be created.
-	 * @return a new {@link QueryString} initialized with the given {@link String query}.
-	 * @throws IllegalArgumentException if {@link Class domain type} is {@literal null}.
+	 * @param domainType {@link Class application domain model type} for which the {@link String OQL query}
+	 * will be created.
+	 * @return a new {@link QueryString} for the given {@link Class application domain model type}.
+	 * @throws IllegalArgumentException if {@link Class application domain model type} is {@literal null}.
 	 * @see #QueryString(Class)
 	 */
-	public static QueryString from(Class<?> domainType) {
+	public static QueryString from(@NonNull Class<?> domainType) {
 		return new QueryString(domainType);
 	}
 
 	/**
-	 * Factory method used to construct an instance of {@link QueryString} initialized with
-	 * the given {@link Class domain type} for which a count query will be created.
+	 * Factory method used to construct a new instance of {@link QueryString} that creates an {@link String OQL query}
+	 * counting objects of the specified {@link Class application domain model type}.
 	 *
-	 * @param domainType {@link Class domain object type} for which the query will be created.
-	 * @return a new {@link QueryString} initialized with the given {@link String query}.
-	 * @throws IllegalArgumentException if {@link Class domain type} is {@literal null}.
+	 * @param domainType {@link Class application domain model type} for which the OQL query will be created.
+	 * @return a new count {@link QueryString}.
+	 * @throws IllegalArgumentException if {@link Class application domain model type} is {@literal null}.
 	 * @see #QueryString(Class)
 	 */
 	public static QueryString count(Class<?> domainType) {
@@ -125,37 +130,37 @@ public class QueryString {
 	 * Constructs a new instance of {@link QueryString} initialized with the given {@link String OQL query}.
 	 *
 	 * @param query {@link String} containing the OQL query.
-	 * @throws IllegalArgumentException if {@link String query} is {@literal null} or empty.
+	 * @throws IllegalArgumentException if {@link String query} is {@literal null} or {@literal empty}.
 	 * @see #validateQuery(String)
 	 * @see java.lang.String
 	 */
-	public QueryString(String query) {
+	public QueryString(@NonNull String query) {
 		this.query = validateQuery(query);
 	}
 
 	/**
-	 * Constructs a new instance of {@link QueryString} initialized from the given {@link Class domain type},
-	 * which is used to construct an OQL {@literal SELECT} query statement.
+	 * Constructs a new instance of {@link QueryString} initialized with the given
+	 * {@link Class application domain model type}, which is used to construct an OQL {@literal SELECT} query statement.
 	 *
-	 * @param domainType {@link Class application domain type} to query; must not be {@literal null}.
-	 * @throws IllegalArgumentException if {@link Class domain type} is {@literal null}.
+	 * @param domainType {@link Class application domain model type} to query; must not be {@literal null}.
+	 * @throws IllegalArgumentException if the {@link Class application domain model type} is {@literal null}.
 	 * @see #QueryString(Class, boolean)
 	 */
 	@SuppressWarnings("unused")
-	public QueryString(Class<?> domainType) {
+	public QueryString(@NonNull Class<?> domainType) {
 		this(domainType, false);
 	}
 
 	/**
-	 * Constructs a new instance of {@link QueryString} initialized from the given {@link Class domain type},
-	 * which is used to construct an OQL {@literal SELECT} query statement.
+	 * Constructs a new instance of {@link QueryString} initialized with the given
+	 * {@link Class application domain model type}, which is used to construct an OQL {@literal SELECT} query statement.
 	 *
 	 * {@code asCountQuery} is a {@link Boolean} flag indicating whether to select a count or select the contents
-	 * of the objects for the given {@link Class domain type}.
+	 * of the objects for the given {@link Class applicatlion domain model type}.
 	 *
-	 * @param domainType {@link Class application domain type} to query; must not be {@literal null}.
-	 * @param asCountQuery boolean value to indicate if this is a count query.
-	 * @throws IllegalArgumentException if {@link Class domain type} is {@literal null}.
+	 * @param domainType {@link Class application domain model type} to query; must not be {@literal null}.
+	 * @param asCountQuery boolean value to indicate if this is a select count query.
+	 * @throws IllegalArgumentException if the {@link Class application domain model type} is {@literal null}.
 	 * @see #asQuery(Class, boolean)
 	 * @see #QueryString(String)
 	 */
@@ -201,7 +206,7 @@ public class QueryString {
 	 */
 	public QueryString bindIn(Collection<?> values) {
 
-		if (!nullSafeIsEmpty(values)) {
+		if (!CollectionUtils.nullSafeIsEmpty(values)) {
 			return QueryString.of(this.query.replaceFirst(IN_PATTERN, String.format("(%s)",
 				StringUtils.collectionToDelimitedString(values, ", ", "'", "'"))));
 		}
@@ -213,7 +218,7 @@ public class QueryString {
 	 * Replaces the {@link Class domain classes} referenced inside the current {@link String query}
 	 * with the given {@link Region}.
 	 *
-	 * @param domainClass {@link Class type} of the persistent entity to query; must not be {@literal null}.
+	 * @param domainType {@link Class type} of the persistent entity to query; must not be {@literal null}.
 	 * @param region {@link Region} to query; must not be {@literal null}.
 	 * @return a new {@link QueryString} with an OQL {@literal SELECT statement} having a {@literal FROM clause}
 	 * based on the selected {@link Region}.
@@ -221,7 +226,7 @@ public class QueryString {
 	 * @see java.lang.Class
 	 */
 	@SuppressWarnings("unused")
-	public QueryString fromRegion(Class<?> domainClass, Region<?, ?> region) {
+	public QueryString fromRegion(Class<?> domainType, Region<?, ?> region) {
 		return QueryString.of(this.query.replaceAll(REGION_PATTERN, region.getFullPath()));
 	}
 
@@ -284,7 +289,7 @@ public class QueryString {
 	 * @param hints array of {@link String Strings} containing query hints.
 	 * @return a new {@link QueryString} if hints are not null or empty, or return this {@link QueryString}.
 	 */
-	public QueryString withHints(String... hints) {
+	public QueryString withHints(@NonNull String... hints) {
 
 		if (!ObjectUtils.isEmpty(hints)) {
 
@@ -307,9 +312,11 @@ public class QueryString {
 	 * @param importExpression {@link String} containing the import clause.
 	 * @return a new {@link QueryString} if an import was declared, or return this {@link QueryString}.
 	 */
-	public QueryString withImport(String importExpression) {
-		return StringUtils.hasText(importExpression) ?
-			QueryString.of(String.format(IMPORT_OQL_TEMPLATE, importExpression, this.query)) : this;
+	public QueryString withImport(@NonNull String importExpression) {
+
+		return StringUtils.hasText(importExpression)
+			? QueryString.of(String.format(IMPORT_OQL_TEMPLATE, importExpression, this.query))
+			: this;
 	}
 
 	/**
@@ -318,8 +325,11 @@ public class QueryString {
 	 * @param limit {@link Integer} indicating the number of results to return from the query.
 	 * @return a new {@link QueryString} if a limit was specified, or return this {@link QueryString}.
 	 */
-	public QueryString withLimit(Integer limit) {
-		return limit != null ? QueryString.of(String.format(LIMIT_OQL_TEMPLATE, this.query, limit)) : this;
+	public QueryString withLimit(@NonNull Integer limit) {
+
+		return limit != null
+			? QueryString.of(String.format(LIMIT_OQL_TEMPLATE, this.query, limit))
+			: this;
 	}
 
 	/**

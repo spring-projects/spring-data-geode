@@ -26,11 +26,13 @@ import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.util.ObjectUtils;
 
 /**
- * The Person class models a person.
+ * Abstract Data Type (ADT) modeling a Person.
  *
  * @author Oliver Gierke
  * @author John Blum
  * @see java.io.Serializable
+ * @see org.springframework.data.annotation.Id
+ * @see org.springframework.data.gemfire.mapping.annotation.Region
  */
 @Region("simple")
 @JsonIgnoreProperties("name")
@@ -47,8 +49,7 @@ public class Person implements Serializable {
 	public String lastname;
 
 	@PersistenceConstructor
-	public Person() {
-	}
+	public Person() { }
 
 	public Person(Long id) {
 		this.id = id;
@@ -113,10 +114,6 @@ public class Person implements Serializable {
 		return String.format("%1$s %2$s", getFirstname(), getLastname());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 
@@ -133,10 +130,6 @@ public class Person implements Serializable {
 		return (this.id != null && this.id.equals(that.id));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		return ObjectUtils.nullSafeHashCode(this.id);
@@ -146,5 +139,4 @@ public class Person implements Serializable {
 	public String toString() {
 		return String.format("{ @type = %1$s, id = %2$d, name = %3$s }", getClass().getName(), id, getName());
 	}
-
 }

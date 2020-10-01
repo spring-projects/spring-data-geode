@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import org.apache.geode.cache.Region;
@@ -21,6 +20,7 @@ import org.apache.geode.cache.Region;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.repository.query.support.OqlKeyword;
 import org.springframework.data.repository.query.parser.PartTree;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -39,14 +39,16 @@ class QueryBuilder {
 
 	private final String query;
 
-	/* (non-Javadoc) */
 	static String asQuery(GemfirePersistentEntity<?> entity, PartTree tree) {
 
-		return String.format(SELECT_OQL_TEMPLATE, tree.isDistinct() ? OqlKeyword.DISTINCT : "",
-			entity.getRegionName(), DEFAULT_ALIAS).replaceAll("\\s{2,}", " ");
+		String distinctKeyword = tree.isDistinct() ? OqlKeyword.DISTINCT.toString() : "";
+		String regionName = entity.getRegionName();
+		String query = String.format(SELECT_OQL_TEMPLATE, distinctKeyword, regionName, DEFAULT_ALIAS)
+			.replaceAll("\\s{2,}", " "); // single space tokens
+
+		return query;
 	}
 
-	/* (non-Javadoc) */
 	static String validateQuery(String query) {
 		Assert.hasText(query, "Query is required");
 		return query;
@@ -85,7 +87,7 @@ class QueryBuilder {
 	 * @see org.springframework.data.gemfire.repository.query.Predicate
 	 * @see #withPredicate(String, Predicate)
 	 */
-	public QueryString create(Predicate predicate) {
+	public QueryString create(@Nullable Predicate predicate) {
 		return new QueryString(withPredicate(this.query, predicate));
 	}
 
@@ -98,16 +100,15 @@ class QueryBuilder {
 	 * or just a {@link String} containing the query if the {@link Predicate} is {@literal null}.
 	 * @see org.springframework.data.gemfire.repository.query.Predicate
 	 */
-	protected String withPredicate(String query, Predicate predicate) {
+	protected String withPredicate(String query, @Nullable Predicate predicate) {
 
 		return predicate != null
 			? String.format(WHERE_CLAUSE_TEMPLATE, query, predicate.toString(DEFAULT_ALIAS))
 			: query;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * @inheritDoc
 	 */
 	@Override
 	public String toString() {

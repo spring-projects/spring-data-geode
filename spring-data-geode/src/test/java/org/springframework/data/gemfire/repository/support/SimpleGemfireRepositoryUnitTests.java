@@ -57,14 +57,26 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.query.SelectResults;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.repository.Wrapper;
 import org.springframework.data.gemfire.repository.sample.Animal;
 import org.springframework.data.gemfire.repository.sample.Identifiable;
+import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.data.repository.core.EntityInformation;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import org.slf4j.Logger;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Unit Tests for {@link SimpleGemfireRepository}.
@@ -76,6 +88,9 @@ import org.slf4j.Logger;
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.domain.Page
+ * @see org.springframework.data.domain.Pageable
+ * @see org.springframework.data.domain.Sort
  * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.data.gemfire.repository.Wrapper
  * @see org.springframework.data.gemfire.repository.support.SimpleGemfireRepository
@@ -87,11 +102,11 @@ public class SimpleGemfireRepositoryUnitTests {
 
 	private final AtomicLong idSequence = new AtomicLong(0L);
 
-	private Map<Long, Animal> asMap(Iterable<Animal> animals) {
+	private @NonNull Map<Long, Animal> asMap(@Nullable Iterable<Animal> animals) {
 
 		Map<Long, Animal> animalMap = new HashMap<>();
 
-		for (Animal animal : animals) {
+		for (Animal animal : CollectionUtils.nullSafeIterable(animals)) {
 			animalMap.put(animal.getId(), animal);
 		}
 
@@ -132,8 +147,8 @@ public class SimpleGemfireRepositoryUnitTests {
 		CacheTransactionManager mockCacheTransactionManager = mock(CacheTransactionManager.class,
 			String.format("%s.MockCacheTransactionManager", name));
 
-		when(mockCache.getCacheTransactionManager()).thenReturn(mockCacheTransactionManager);
-		when(mockCacheTransactionManager.exists()).thenReturn(transactionExists);
+		doReturn(mockCacheTransactionManager).when(mockCache).getCacheTransactionManager();
+		doReturn(transactionExists).when(mockCacheTransactionManager).exists();
 
 		return mockCache;
 	}
@@ -155,7 +170,7 @@ public class SimpleGemfireRepositoryUnitTests {
 			}
 
 			private Long resolveId(Long id) {
-				return (id != null ? id : idSequence.incrementAndGet());
+				return id != null ? id : idSequence.incrementAndGet();
 			}
 
 		}).when(mockEntityInformation).getRequiredId(any(Animal.class));
@@ -171,8 +186,8 @@ public class SimpleGemfireRepositoryUnitTests {
 
 		Region mockRegion = mock(Region.class, String.format("%s.MockRegion", name));
 
-		when(mockRegion.getName()).thenReturn(name);
-		when(mockRegion.getFullPath()).thenReturn(String.format("%1$s%2$s", Region.SEPARATOR, name));
+		doReturn(name).when(mockRegion).getName();
+		doReturn(RegionUtils.toRegionPath(name)).when(mockRegion).getFullPath();
 
 		return mockRegion;
 	}
@@ -181,13 +196,13 @@ public class SimpleGemfireRepositoryUnitTests {
 
 		Region mockRegion = mockRegion(name);
 
-		when(mockRegion.getRegionService()).thenReturn(mockCache);
+		doReturn(mockCache).when(mockRegion).getRegionService();
 
 		RegionAttributes mockRegionAttributes = mock(RegionAttributes.class,
 			String.format("%s.MockRegionAttributes", name));
 
-		when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
-		when(mockRegionAttributes.getDataPolicy()).thenReturn(dataPolicy);
+		doReturn(mockRegionAttributes).when(mockRegion).getAttributes();
+		doReturn(dataPolicy).when(mockRegionAttributes).getDataPolicy();
 
 		return mockRegion;
 	}
@@ -598,6 +613,96 @@ public class SimpleGemfireRepositoryUnitTests {
 		verifyNoMoreInteractions(mockRegion, mockSelectResults, mockTemplate);
 	}
 
+	// Page Numbers 0 based indexed
+	private void assertPage(Page page, int pageNumber, int pageSize, int total, Sort orderBy, User... content) {
+
+		int totalPages = (total / pageSize) + (total % pageSize > 0 ? 1 : 0);
+
+		assertThat(page).isNotNull();
+		assertThat(page).isNotEmpty();
+		assertThat(page.getNumber()).isEqualTo(pageNumber);
+		assertThat(page.getNumberOfElements()).isEqualTo(content.length);
+		assertThat(page.getSize()).isEqualTo(pageSize);
+		assertThat(page.getSort()).isEqualTo(orderBy);
+		assertThat(page.getTotalElements()).isEqualTo(total);
+		assertThat(page.getTotalPages()).isEqualTo(totalPages);
+		assertThat(page.getContent()).containsExactly(content);
+	}
+
+	@Test
+	public void findAllPagedSuccessfully() {
+
+		Sort orderBy = Sort.by("name");
+
+		Region mockRegion = mockRegion();
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(true).when(mockPageable).isPaged();
+		doReturn(0).when(mockPageable).getPageNumber(); // page 1
+		doReturn(5).when(mockPageable).getPageSize();
+		doReturn(orderBy).when(mockPageable).getSort();
+
+		EntityInformation mockEntityInformation = mockEntityInformation();
+
+		SimpleGemfireRepository repository =
+			spy(new SimpleGemfireRepository(newGemfireTemplate(mockRegion), mockEntityInformation));
+
+		List<User> users = Arrays.asList(
+			User.newUser("Jon Doe"),
+			User.newUser("Jane Doe"),
+			User.newUser("Cookie Doe"),
+			User.newUser("Fro Doe"),
+			User.newUser("Lan Doe"),
+			User.newUser("Pie Doe"),
+			User.newUser("Sour Doe")
+		);
+
+		doReturn(users).when(repository).findAll(eq(orderBy));
+
+		Page pageOne = repository.findAll(mockPageable);
+
+		assertPage(pageOne, 0, 5, users.size(), orderBy,
+			User.newUser("Jon Doe"),
+			User.newUser("Jane Doe"),
+			User.newUser("Cookie Doe"),
+			User.newUser("Fro Doe"),
+			User.newUser("Lan Doe")
+		);
+
+		doReturn(1).when(mockPageable).getPageNumber(); // page 2
+
+		Page pageTwo = repository.findAll(mockPageable);
+
+		assertPage(pageTwo, 1, 5, users.size(), orderBy,
+			User.newUser("Pie Doe"),
+			User.newUser("Sour Doe")
+		);
+
+		doReturn(2).when(mockPageable).getPageNumber(); // page 2
+
+		Page pageThree = repository.findAll(mockPageable);
+
+		assertThat(pageThree).isNotNull();
+		assertThat(pageThree).isEmpty();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void findAllPagedWithNullPageableThrowsIllegalArgumentException() {
+
+		try {
+			new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+				.findAll((Pageable) null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Pageable must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
 	@Test
 	public void findAllByIdSuccessfully() {
 
@@ -872,5 +977,239 @@ public class SimpleGemfireRepositoryUnitTests {
 		verify(mockRegion, times(2)).getRegionService();
 		verify(mockRegion, times(0)).clear();
 		verify(mockRegion, times(1)).removeAll(eq(keys));
+	}
+
+	@Test
+	public void toListFromIterable() {
+
+		Set<User> userSet = CollectionUtils.asSet(User.newUser("Jon Doe"), User.newUser("Jane Doe"));
+
+		List<User> userList = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+			.toList((Iterable) userSet);
+
+		assertThat(userList).isNotNull();
+		assertThat(userList).isNotSameAs(userSet);
+		assertThat(userList).hasSize(userSet.size());
+		assertThat(userList).containsExactly(userSet.toArray(new User[0]));
+	}
+
+	@Test
+	public void toListFromEmptyIterable() {
+
+		List<User> users = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+			.toList((Iterable) Collections::emptyIterator);
+
+		assertThat(users).isNotNull();
+		assertThat(users).isEmpty();
+	}
+
+	@Test
+	public void toListFromList() {
+
+		List<User> users = Collections.singletonList(User.newUser("Jon Doe"));
+
+		List<User> userList = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+			.toList((Iterable) users);
+
+		assertThat(userList).isSameAs(users);
+	}
+
+	@Test
+	public void toListFromNullIterableIsNullSafe() {
+
+		List<User> users = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+			.toList((Iterable) null);
+
+		assertThat(users).isNotNull();
+		assertThat(users).isEmpty();
+	}
+
+	@Test
+	public void toListFromSelectResults() {
+
+		List<User> users = Arrays.asList(User.newUser("Jon Doe"), User.newUser("Jane Doe"));
+
+		SelectResults<User> mockSelectResults = mock(SelectResults.class);
+
+		doReturn(users).when(mockSelectResults).asList();
+
+		List<User> userList = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+			.toList((SelectResults) mockSelectResults);
+
+		assertThat(userList).isSameAs(users);
+
+		verify(mockSelectResults, times(1)).asList();
+		verifyNoMoreInteractions(mockSelectResults);
+	}
+
+	@Test
+	public void toListFromNullSelectResultsIsNullSafe() {
+
+		List<User> users = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
+			.toList((SelectResults) null);
+
+		assertThat(users).isNotNull();
+		assertThat(users).isEmpty();
+	}
+
+	@Test
+	public void toPageFromIterable() {
+
+		List<User> users = Arrays.asList(User.newUser("Jon Doe"), User.newUser("Jane Doe"));
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(true).when(mockPageable).isPaged();
+		doReturn(0).when(mockPageable).getPageNumber(); // page 1
+		doReturn(1).when(mockPageable).getPageSize();
+
+		SimpleGemfireRepository repository =
+			new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class));
+
+		Page<User> pageOne = repository.toPage(users, mockPageable);
+
+		assertPage(pageOne, 0, 1, 2, null, users.get(0));
+
+		doReturn(1).when(mockPageable).getPageNumber(); // page 2
+
+		Page<User> pageTwo = repository.toPage(users, mockPageable);
+
+		assertPage(pageTwo, 1, 1, 2, null, users.get(1));
+
+		doReturn(2).when(mockPageable).getPageNumber(); // page 3
+
+		Page<User> pageThree = repository.toPage(users, mockPageable);
+
+		assertThat(pageThree).isNotNull();
+		assertThat(pageThree).isEmpty();
+	}
+
+	@Test
+	public void toPageFromEmptyIterable() {
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(0).when(mockPageable).getPageNumber();
+		doReturn(5).when(mockPageable).getPageSize();
+
+		Page<User> page = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class))
+			.toPage(Collections.emptyList(), mockPageable);
+
+		assertThat(page).isNotNull();
+		assertThat(page).isEmpty();
+	}
+
+	@Test
+	public void toPageFromNullIterableIsNullSafe() {
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(0).when(mockPageable).getPageNumber();
+		doReturn(5).when(mockPageable).getPageSize();
+
+		Page<User> page = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class))
+			.toPage(null, mockPageable);
+
+		assertThat(page).isNotNull();
+		assertThat(page).isEmpty();
+	}
+
+	@Test
+	public void toPageWithOverflowFromIterable() {
+
+		List<User> users = Arrays.asList(User.newUser("Jon Doe"), User.newUser("Jane Doe"));
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(true).when(mockPageable).isPaged();
+		doReturn(0).when(mockPageable).getPageNumber(); // page 1
+		doReturn(5).when(mockPageable).getPageSize();
+
+		SimpleGemfireRepository repository =
+			new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class));
+
+		Page<User> pageOne = repository.toPage(users, mockPageable);
+
+		assertPage(pageOne, 0, 5, 2, null, users.toArray(new User[0]));
+
+		doReturn(1).when(mockPageable).getPageNumber(); // page 2
+
+		Page<User> pageTwo = repository.toPage(users, mockPageable);
+
+		assertThat(pageTwo).isNotNull();
+		assertThat(pageTwo).isEmpty();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void toPageWithNullPageableThrowsIllegalArgumentException() {
+
+		try {
+			new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class))
+				.toPage(Collections.emptyList(), null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Pageable must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void toPageWithInvalidPageNumberThrowsIllegalArgumentException() {
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(-1).when(mockPageable).getPageNumber();
+		doReturn(5).when(mockPageable).getPageSize();
+
+		try {
+			new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class))
+				.toPage(Collections.singletonList(User.newUser("Jon Doe")), mockPageable);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Page Number [-1] must be greater than equal to 0");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void toPageWithInvalidPageSizeThrowsIllegalArgumentException() {
+
+		Pageable mockPageable = mock(Pageable.class);
+
+		doReturn(1).when(mockPageable).getPageNumber();
+		doReturn(-5).when(mockPageable).getPageSize();
+
+		try {
+			new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class))
+				.toPage(Collections.singletonList(User.newUser("Jon Doe")), mockPageable);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Page Size [-5] must be greater than equal to 1");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
+
+	@Getter
+	@ToString(of = "name")
+	@EqualsAndHashCode(of = "name")
+	@RequiredArgsConstructor(staticName = "newUser")
+	@org.springframework.data.gemfire.mapping.annotation.Region("Users")
+	static class User {
+
+		@Id
+		Long id;
+
+		@NonNull
+		final String name;
+
 	}
 }

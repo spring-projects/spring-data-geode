@@ -469,26 +469,14 @@ public class GemfireRepositoryFactoryUnitTests {
 		}
 	}
 
-	/**
-	 * @link <a href="https://jira.spring.io/browse/SGF-112">Repositories should reject PagingAndSortingRepository and Pageable parameters</a>
-	 */
-	@Test(expected = IllegalStateException.class)
+	@Test
 	@SuppressWarnings("unchecked")
-	public void rejectsInterfacesExtendingPagingAndSortingRepository() {
+	public void acceptsInterfacesExtendingPagingAndSortingRepository() {
 
 		GemfireRepositoryFactory repositoryFactory =
 			new GemfireRepositoryFactory(Collections.singletonList(this.mockRegion), new GemfireMappingContext());
 
-		try {
-			repositoryFactory.getRepository(SamplePagingAndSortingRepository.class);
-		}
-		catch (IllegalStateException expected) {
-
-			assertThat(expected).hasMessageStartingWith("Pagination is not supported by GemFire Repositories");
-			assertThat(expected).hasNoCause();
-
-			throw expected;
-		}
+		repositoryFactory.getRepository(SamplePagingAndSortingRepository.class);
 	}
 
 	@Test

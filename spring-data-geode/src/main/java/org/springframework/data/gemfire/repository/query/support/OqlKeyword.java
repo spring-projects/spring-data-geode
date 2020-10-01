@@ -101,10 +101,9 @@ public enum OqlKeyword {
 	 * @see #name()
 	 */
 	public String getKeyword() {
-		return (StringUtils.hasText(this.keyword) ? this.keyword : name());
+		return StringUtils.hasText(this.keyword) ? this.keyword : name();
 	}
 
-	/* (non-Javadoc) */
 	@Override
 	public String toString() {
 		return getKeyword();

@@ -22,58 +22,90 @@ import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
+import org.springframework.data.repository.query.QueryMethod;
+import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.PartTree;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 /**
  * {@link GemfireRepositoryQuery} backed by a {@link PartTree}, deriving an OQL query
- * from the backing query method's name/signature.
+ * from the backing {@link QueryMethod QueryMethod's} name/signature.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.data.gemfire.repository.query.GemfireRepositoryQuery
+ * @see org.springframework.data.repository.query.QueryMethod
+ * @see org.springframework.data.repository.query.RepositoryQuery
+ * @see org.springframework.data.repository.query.parser.Part
+ * @see org.springframework.data.repository.query.parser.PartTree
  */
 public class PartTreeGemfireRepositoryQuery extends GemfireRepositoryQuery {
-
-	private final GemfireQueryMethod method;
 
 	private final GemfireTemplate template;
 
 	private final PartTree tree;
 
 	/**
-	 * Creates a new {@link PartTreeGemfireRepositoryQuery} using the given {@link GemfireQueryMethod} and
-	 * {@link GemfireTemplate}.
+	 * Constructs a new instance of {@link PartTreeGemfireRepositoryQuery} initialized with
+	 * the given {@link GemfireQueryMethod} and {@link GemfireTemplate}.
 	 *
-	 * @param method must not be {@literal null}.
-	 * @param template must not be {@literal null}.
+	 * @param queryMethod {@link GemfireQueryMethod} implementing the {@link RepositoryQuery};
+	 * must not be {@literal null}.
+	 * @param template {@link GemfireTemplate} used to execute {@literal QOL queries};
+	 * must not be {@literal null}.
+	 * @throws IllegalArgumentException if {@link GemfireQueryMethod} or {@link GemfireTemplate} are {@literal null}.
+	 * @see org.springframework.data.gemfire.repository.query.GemfireQueryMethod
+	 * @see org.springframework.data.gemfire.GemfireTemplate
 	 */
-	public PartTreeGemfireRepositoryQuery(GemfireQueryMethod method, GemfireTemplate template) {
+	public PartTreeGemfireRepositoryQuery(GemfireQueryMethod queryMethod, GemfireTemplate template) {
 
-		super(method);
+		super(queryMethod);
 
-		Class<?> domainClass = method.getEntityInformation().getJavaType();
+		Assert.notNull(template, "GemfireTemplate must not be null");
 
-		this.method = method;
 		this.template = template;
-		this.tree = new PartTree(method.getName(), domainClass);
+		this.tree = new PartTree(queryMethod.getName(), queryMethod.getEntityInformation().getJavaType());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.RepositoryQuery#execute(java.lang.Object[])
+	/**
+	 * Returns a {@link PartTree} object consisting of the parts of the (OQL) query.
+	 *
+	 * @return a {@link PartTree} object consisting of the parts of the (OQL) query.
+	 * @see org.springframework.data.repository.query.parser.PartTree
+	 */
+	protected @NonNull PartTree getPartTree() {
+		return this.tree;
+	}
+
+	/**
+	 * Returns a reference to the {@link GemfireTemplate} used to perform all data access and query operations.
+	 *
+	 * @return a reference to the {@link GemfireTemplate} used to perform all data access and query operations.
+	 * @see org.springframework.data.gemfire.GemfireTemplate
+	 */
+	protected @NonNull GemfireTemplate getTemplate() {
+		return this.template;
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	@Override
 	public Object execute(Object[] arguments) {
 
-		QueryString query = createQuery(this.method, this.tree, arguments);
+		GemfireQueryMethod queryMethod = getGemfireQueryMethod();
 
-		GemfireRepositoryQuery repositoryQuery = newRepositoryQuery(query, this.method, this.template);
+		QueryString query = newQueryString(queryMethod, getPartTree(), arguments);
+
+		GemfireRepositoryQuery repositoryQuery = newRepositoryQuery(query, queryMethod, getTemplate());
 
 		return repositoryQuery.execute(prepareStringParameters(arguments));
 	}
 
-	private QueryString createQuery(GemfireQueryMethod queryMethod, PartTree tree, Object[] arguments) {
+	private QueryString newQueryString(GemfireQueryMethod queryMethod, PartTree tree, Object[] arguments) {
 
 		ParametersParameterAccessor parameterAccessor =
 			new ParametersParameterAccessor(queryMethod.getParameters(), arguments);
@@ -86,17 +118,18 @@ public class PartTreeGemfireRepositoryQuery extends GemfireRepositoryQuery {
 	private GemfireRepositoryQuery newRepositoryQuery(QueryString query,
 			GemfireQueryMethod queryMethod, GemfireTemplate template) {
 
-		GemfireRepositoryQuery repositoryQuery =
+		StringBasedGemfireRepositoryQuery repositoryQuery =
 			new StringBasedGemfireRepositoryQuery(query.toString(), queryMethod, template);
 
 		repositoryQuery.register(getQueryPostProcessor());
+		repositoryQuery.asDerivedQuery();
 
 		return repositoryQuery;
 	}
 
 	private Object[] prepareStringParameters(Object[] parameters) {
 
-		Iterator<Part> partsIterator = this.tree.getParts().iterator();
+		Iterator<Part> partsIterator = getPartTree().getParts().iterator();
 
 		List<Object> stringParameters = new ArrayList<>(parameters.length);
 

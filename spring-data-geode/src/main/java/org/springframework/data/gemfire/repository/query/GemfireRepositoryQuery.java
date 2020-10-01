@@ -18,25 +18,28 @@ package org.springframework.data.gemfire.repository.query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * Base class for GemFire specific {@link RepositoryQuery} implementations.
- * <p>
+ * Abstract base class for Apache Geode specific {@link RepositoryQuery} implementations.
+ *
  * @author Oliver Gierke
  * @author David Turanski
  * @author John Blum
- * @see org.springframework.data.gemfire.repository.query.GemfireQueryMethod
+ * @see org.springframework.data.repository.Repository
  * @see org.springframework.data.repository.query.RepositoryQuery
+ * @see org.springframework.data.gemfire.repository.query.GemfireQueryMethod
  */
+@SuppressWarnings("rawtypes")
 public abstract class GemfireRepositoryQuery implements RepositoryQuery {
 
 	private final GemfireQueryMethod queryMethod;
 
-	private QueryPostProcessor<?, String> queryPostProcessor = ProvidedQueryPostProcessor.IDENTITY;
+	private QueryPostProcessor<Repository, String> queryPostProcessor = ProvidedQueryPostProcessor.IDENTITY;
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * Constructor used for testing purposes only!
 	 */
 	GemfireRepositoryQuery() {
@@ -45,11 +48,11 @@ public abstract class GemfireRepositoryQuery implements RepositoryQuery {
 
 	/**
 	 * Constructs a new instance of {@link GemfireRepositoryQuery} initialized with
-	 * the given {@link GemfireQueryMethod}.
+	 * the given {@link GemfireQueryMethod} implementing the {@link Repository} {@link QueryMethod}.
 	 *
-	 * @param queryMethod {@link GemfireQueryMethod} capturing the meta-data
-	 * for the {@link Repository} {@link QueryMethod}; must not be {@literal null}.
-	 * @throws IllegalArgumentException if {@link GemfireQueryMethod query method} is {@literal null}.
+	 * @param queryMethod {@link GemfireQueryMethod} capturing the metadata and implementation of the {@link Repository}
+	 * {@link QueryMethod}; must not be {@literal null}.
+	 * @throws IllegalArgumentException if {@link GemfireQueryMethod} is {@literal null}.
 	 * @see org.springframework.data.gemfire.repository.query.GemfireQueryMethod
 	 */
 	public GemfireRepositoryQuery(GemfireQueryMethod queryMethod) {
@@ -59,23 +62,36 @@ public abstract class GemfireRepositoryQuery implements RepositoryQuery {
 		this.queryMethod = queryMethod;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.query.RepositoryQuery#getQueryMethod()
+	/**
+	 * Returns a reference to the {@link Repository} {@link GemfireQueryMethod} modeling the Apache Geode OQL query.
+	 *
+	 * @return a reference to the {@link Repository} {@link GemfireQueryMethod} modeling the Apache Geode OQL query.
+	 * @see org.springframework.data.gemfire.repository.query.GemfireQueryMethod
+	 * @see #getQueryMethod()
+	 */
+	protected @NonNull GemfireQueryMethod getGemfireQueryMethod() {
+		return (GemfireQueryMethod) getQueryMethod();
+	}
+
+	/**
+	 * Returns a reference to the {@link Repository} {@link QueryMethod} modeling the data store query.
+	 *
+	 * @return a reference to the {@link Repository} {@link QueryMethod} modeling the data store query.
+	 * @see org.springframework.data.repository.query.QueryMethod
 	 */
 	@Override
-	public QueryMethod getQueryMethod() {
+	public @NonNull QueryMethod getQueryMethod() {
 		return this.queryMethod;
 	}
 
 	/**
-	 * Returns a reference to the composed {@link QueryPostProcessor QueryPostProcessors}, which are applied
-	 * to {@literal OQL queries} prior to execution.
+	 * Returns a reference to the composed {@link QueryPostProcessor QueryPostProcessors} that are applied to
+	 * {@literal OQL queries} prior to execution.
 	 *
 	 * @return a reference to the composed {@link QueryPostProcessor QueryPostProcessors}.
 	 * @see org.springframework.data.gemfire.repository.query.QueryPostProcessor
 	 */
-	protected QueryPostProcessor<?, String> getQueryPostProcessor() {
+	protected @NonNull QueryPostProcessor<Repository, String> getQueryPostProcessor() {
 		return this.queryPostProcessor;
 	}
 
@@ -92,11 +108,12 @@ public abstract class GemfireRepositoryQuery implements RepositoryQuery {
 	 * @return this {@link GemfireRepositoryQuery}.
 	 * @see org.springframework.data.gemfire.repository.query.QueryPostProcessor#processBefore(QueryPostProcessor)
 	 */
-	public GemfireRepositoryQuery register(QueryPostProcessor<?, String> queryPostProcessor) {
+	public GemfireRepositoryQuery register(@Nullable QueryPostProcessor<Repository, String> queryPostProcessor) {
 		this.queryPostProcessor = this.queryPostProcessor.processBefore(queryPostProcessor);
 		return this;
 	}
 
+	@SuppressWarnings("rawtypes")
 	enum ProvidedQueryPostProcessor implements QueryPostProcessor<Repository, String> {
 
 		IDENTITY {

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheTransactionManager;
@@ -30,6 +31,9 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.GemfireCallback;
 import org.springframework.data.gemfire.GemfireTemplate;
@@ -39,6 +43,7 @@ import org.springframework.data.gemfire.repository.query.QueryString;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.data.util.Streamable;
@@ -50,7 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple, basic {@link CrudRepository} implementation for Apache Geode.
+ * Simple, basic {@link PagingAndSortingRepository} / {@link CrudRepository} implementation for Apache Geode.
  *
  * @author Oliver Gierke
  * @author David Turanski
@@ -61,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.data.gemfire.repository.GemfireRepository
  * @see org.springframework.data.repository.CrudRepository
+ * @see org.springframework.data.repository.PagingAndSortingRepository
  * @see org.springframework.data.repository.core.EntityInformation
  */
 public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> {
@@ -229,6 +235,16 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	}
 
 	@Override
+	public Page<T> findAll(@NonNull Pageable pageable) {
+
+		Assert.notNull(pageable, "Pageable must not be null");
+
+		Iterable<T> results = findAll(pageable.getSort());
+
+		return toPage(results, pageable);
+	}
+
+	@Override
 	public @NonNull Iterable<T> findAll(@NonNull Sort sort) {
 
 		QueryString query = QueryString.of("SELECT * FROM /RegionPlaceholder")
@@ -324,10 +340,41 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		region.removeAll(region.keySet());
 	}
 
+	@NonNull List<T> toList(@Nullable Iterable<T> iterable) {
+
+		return iterable instanceof List ? (List<T>) iterable
+			: StreamSupport.stream(CollectionUtils.nullSafeIterable(iterable).spliterator(), false)
+				.collect(Collectors.toList());
+	}
+
 	@NonNull List<T> toList(@Nullable SelectResults<T> selectResults) {
 
 		return selectResults != null
 			? CollectionUtils.nullSafeList(selectResults.asList())
 			: Collections.emptyList();
+	}
+
+	@NonNull Page<T> toPage(@Nullable Iterable<T> iterable, @NonNull Pageable pageable) {
+
+		Assert.notNull(pageable, "Pageable must not be null");
+
+		int pageNumber = pageable.getPageNumber();
+		int pageSize = pageable.getPageSize();
+
+		Assert.isTrue(pageNumber >= 0, () -> String.format("Page Number [%d] must be greater than equal to 0",
+			pageNumber));
+
+		Assert.isTrue(pageSize > 0, () -> String.format("Page Size [%d] must be greater than equal to 1",
+			pageSize));
+
+		int startIndex = pageNumber * pageSize;
+		int endIndex = startIndex + pageSize;
+
+		List<T> results = toList(iterable);
+
+		int total = results.size();
+
+		return results.isEmpty() || total <= startIndex ? Page.empty()
+			: new PageImpl<>(results.subList(startIndex, Math.min(total, endIndex)), pageable, total);
 	}
 }

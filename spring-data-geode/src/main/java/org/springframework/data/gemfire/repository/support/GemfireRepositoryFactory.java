@@ -179,7 +179,7 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 		return (GemfirePersistentEntity<T>) getMappingContext().getPersistentEntity(domainType);
 	}
 
-	private Region<?, ?> resolveRegion(RepositoryMetadata repositoryMetadata, GemfirePersistentEntity entity) {
+	private Region<?, ?> resolveRegion(RepositoryMetadata repositoryMetadata, GemfirePersistentEntity<?> entity) {
 
 		String resolvedRegionName = getRepositoryRegionName(repositoryMetadata)
 			.orElseGet(() -> getEntityRegionName(repositoryMetadata, entity));
@@ -187,31 +187,10 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 		return resolveRegion(repositoryMetadata, resolvedRegionName);
 	}
 
-	private Region<?, ?> validate(RepositoryMetadata repositoryMetadata, GemfirePersistentEntity<?> entity,
-			Region<?, ?> region) {
-
-		Assert.notNull(region, "Region is required");
-
-		Class<?> repositoryIdType = repositoryMetadata.getIdType();
-
-		Optional.ofNullable(region.getAttributes().getKeyConstraint())
-			.ifPresent(regionKeyType -> Assert.isTrue(regionKeyType.isAssignableFrom(repositoryIdType),
-				() -> String.format(REGION_REPOSITORY_ID_TYPE_MISMATCH, region.getFullPath(), regionKeyType.getName(),
-					repositoryMetadata.getRepositoryInterface().getName(), repositoryIdType.getName())));
-
-		Optional.ofNullable(entity)
-			.map(GemfirePersistentEntity::getIdProperty)
-			.ifPresent(entityIdProperty -> Assert.isTrue(repositoryIdType.isAssignableFrom(entityIdProperty.getType()),
-				() -> String.format(REPOSITORY_ENTITY_ID_TYPE_MISMATCH, repositoryMetadata.getRepositoryInterface().getName(),
-					repositoryIdType.getName(), entityIdProperty.getOwner().getName(), entityIdProperty.getTypeName())));
-
-		return region;
-	}
-
 	String getEntityRegionName(@NonNull RepositoryMetadata repositoryMetadata,
-			@Nullable GemfirePersistentEntity entity) {
+		@Nullable GemfirePersistentEntity<?> entity) {
 
-		Optional<GemfirePersistentEntity> optionalEntity = Optional.ofNullable(entity);
+		Optional<GemfirePersistentEntity<?>> optionalEntity = Optional.ofNullable(entity);
 
 		return optionalEntity
 			.map(GemfirePersistentEntity::getRegionName)
@@ -237,15 +216,30 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 		return Optional.ofNullable(getRegions().getRegion(regionNamePath))
 			.orElseThrow(() -> newIllegalStateException(REGION_NOT_FOUND,
 				regionNamePath, repositoryMetadata.getDomainType().getName(),
-					repositoryMetadata.getRepositoryInterface().getName()));
+				repositoryMetadata.getRepositoryInterface().getName()));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport
-	 * 	#getQueryLookupStrategy(Key, EvaluationContextProvider)
-	 */
+	private Region<?, ?> validate(RepositoryMetadata repositoryMetadata, GemfirePersistentEntity<?> entity,
+			Region<?, ?> region) {
+
+		Assert.notNull(region, "Region must not be null");
+
+		Class<?> repositoryIdType = repositoryMetadata.getIdType();
+
+		Optional.ofNullable(region.getAttributes().getKeyConstraint())
+			.ifPresent(regionKeyType -> Assert.isTrue(regionKeyType.isAssignableFrom(repositoryIdType),
+				() -> String.format(REGION_REPOSITORY_ID_TYPE_MISMATCH, region.getFullPath(), regionKeyType.getName(),
+					repositoryMetadata.getRepositoryInterface().getName(), repositoryIdType.getName())));
+
+		Optional.ofNullable(entity)
+			.map(GemfirePersistentEntity::getIdProperty)
+			.ifPresent(entityIdProperty -> Assert.isTrue(repositoryIdType.isAssignableFrom(entityIdProperty.getType()),
+				() -> String.format(REPOSITORY_ENTITY_ID_TYPE_MISMATCH, repositoryMetadata.getRepositoryInterface().getName(),
+					repositoryIdType.getName(), entityIdProperty.getOwner().getName(), entityIdProperty.getTypeName())));
+
+		return region;
+	}
+
 	@Override
 	protected Optional<QueryLookupStrategy> getQueryLookupStrategy(Key key,
 			QueryMethodEvaluationContextProvider evaluationContextProvider) {
@@ -258,18 +252,17 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 
 				GemfireTemplate template = newTemplate(repositoryMetadata);
 
-				if (queryMethod.hasAnnotatedQuery()) {
-					return new StringBasedGemfireRepositoryQuery(queryMethod, template).asUserDefinedQuery();
-				}
-
 				String namedQueryName = queryMethod.getNamedQueryName();
 
-				if (namedQueries.hasQuery(namedQueryName)) {
-					return new StringBasedGemfireRepositoryQuery(namedQueries.getQuery(namedQueryName),
-						queryMethod, template).asUserDefinedQuery();
-				}
+				// NOTE: Named OQL queries from gemfire-named-queries.properties take precedence over
+				// OQL queries declared in @Query annotated on Repository query methods.
+				String query = namedQueries.hasQuery(namedQueryName) ? namedQueries.getQuery(namedQueryName)
+					: queryMethod.hasAnnotatedQuery() ? queryMethod.getAnnotatedQuery()
+					: null;
 
-				return new PartTreeGemfireRepositoryQuery(queryMethod, template);
+				return StringUtils.hasText(query)
+					? new StringBasedGemfireRepositoryQuery(query, queryMethod, template).asUserDefinedQuery()
+					: new PartTreeGemfireRepositoryQuery(queryMethod, template); // derived query
 			});
 	}
 
@@ -277,6 +270,7 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 	protected <T extends QueryMethod> T newQueryMethod(Method method, RepositoryMetadata repositoryMetadata,
 			ProjectionFactory projectionFactory, QueryMethodEvaluationContextProvider evaluationContextProvider) {
 
-		return (T) new GemfireQueryMethod(method, repositoryMetadata, projectionFactory, getMappingContext());
+		return (T) new GemfireQueryMethod(method, repositoryMetadata, projectionFactory, getMappingContext(),
+			evaluationContextProvider);
 	}
 }

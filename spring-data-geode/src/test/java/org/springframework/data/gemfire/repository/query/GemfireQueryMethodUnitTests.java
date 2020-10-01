@@ -51,12 +51,12 @@ import org.springframework.util.ObjectUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class GemfireQueryMethodUnitTests {
 
-	private GemfireMappingContext context = new GemfireMappingContext();
+	private GemfireMappingContext mappingContext = new GemfireMappingContext();
 
-	private ProjectionFactory factory = new SpelAwareProxyProjectionFactory();
+	private ProjectionFactory projectionFactory = new SpelAwareProxyProjectionFactory();
 
 	@Mock
-	private RepositoryMetadata metadata;
+	private RepositoryMetadata repositoryMetadata;
 
 	protected void assertQueryHints(GemfireQueryMethod queryMethod, String... expectedHints) {
 
@@ -114,149 +114,138 @@ public class GemfireQueryMethodUnitTests {
 	@Before
 	public void setup() {
 
-		doReturn(Person.class).when(this.metadata).getDomainType();
-		doReturn(Person.class).when(this.metadata).getReturnedDomainClass(any(Method.class));
-		doReturn(ClassTypeInformation.from(Object.class)).when(this.metadata).getReturnType(any(Method.class));
+		doReturn(Person.class).when(this.repositoryMetadata).getDomainType();
+		doReturn(Person.class).when(this.repositoryMetadata).getReturnedDomainClass(any(Method.class));
+		doReturn(ClassTypeInformation.from(Object.class)).when(this.repositoryMetadata).getReturnType(any(Method.class));
 	}
 
 	@Test
 	public void detectsAnnotatedQueryCorrectly() throws Exception {
 
 		GemfireQueryMethod method =
-			new GemfireQueryMethod(Sample.class.getMethod("annotated"), this.metadata, this.factory, this.context);
+			new GemfireQueryMethod(Sample.class.getMethod("annotated"),
+				this.repositoryMetadata, this.projectionFactory, this.mappingContext);
 
 		assertThat(method.hasAnnotatedQuery()).isTrue();
 		assertThat(method.getAnnotatedQuery()).isEqualTo("foo");
 
-		method = new GemfireQueryMethod(Sample.class.getMethod("annotatedButEmpty"), this.metadata, this.factory, this.context);
+		method = new GemfireQueryMethod(Sample.class.getMethod("annotatedButEmpty"),
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext);
 
 		assertThat(method.hasAnnotatedQuery()).isFalse();
 		assertThat(method.getAnnotatedQuery()).isNull();
 
-		method = new GemfireQueryMethod(Sample.class.getMethod("notAnnotated"), this.metadata, this.factory, this.context);
+		method = new GemfireQueryMethod(Sample.class.getMethod("notAnnotated"),
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext);
 
 		assertThat(method.hasAnnotatedQuery()).isFalse();
 		assertThat(method.getAnnotatedQuery()).isNull();
 	}
 
-	/**
-	 * @link https://jira.spring.io/browse/SGF-112
-	 */
-	@Test(expected = IllegalStateException.class)
-	public void rejectsQueryMethodWithPageableParameter() throws Exception {
-
-		try {
-			new GemfireQueryMethod(Invalid.class.getMethod("someMethod", Pageable.class), this.metadata, this.factory, this.context);
-		}
-		catch (IllegalStateException expected) {
-
-			assertThat(expected)
-				.hasMessageStartingWith("Pagination is not supported by GemFire Repositories; Offending method: someMethod");
-
-			assertThat(expected).hasNoCause();
-
-			throw expected;
-		}
+	@Test
+	public void acceptsQueryMethodWithPageableParameter() throws Exception {
+		new GemfireQueryMethod(PageablePojo.class.getMethod("pageableMethod", Pageable.class),
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext);
 	}
 
 	@Test
 	public void detectsQueryHintsCorrectly() throws Exception {
 
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithHint"),
-			this.metadata, this.factory, this.context).hasHint()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasHint()).isTrue();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithImport"),
-			this.metadata, this.factory, this.context).hasHint()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasHint()).isFalse();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context).hasHint()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasHint()).isTrue();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("unlimitedQuery"),
-			this.metadata, this.factory, this.context).hasHint()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasHint()).isFalse();
 	}
 
 	@Test
 	public void detectsQueryImportsCorrectly() throws Exception {
 
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithHint"),
-			this.metadata, this.factory, this.context).hasImport()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasImport()).isFalse();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithImport"),
-			this.metadata, this.factory, this.context).hasImport()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasImport()).isTrue();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context).hasImport()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasImport()).isTrue();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("unlimitedQuery"),
-			this.metadata, this.factory, this.context).hasImport()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasImport()).isFalse();
 	}
 
 	@Test
 	public void detectsQueryLimitsCorrectly() throws Exception {
 
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithHint"),
-			this.metadata, this.factory, this.context).hasLimit()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasLimit()).isFalse();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithImport"),
-			this.metadata, this.factory, this.context).hasLimit()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasLimit()).isFalse();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context).hasLimit()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasLimit()).isTrue();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("unlimitedQuery"),
-			this.metadata, this.factory, this.context).hasLimit()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasLimit()).isFalse();
 	}
 
 	@Test
 	public void detectsQueryTracingCorrectly() throws Exception {
 
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithHint"),
-			this.metadata, this.factory, this.context).hasTrace()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasTrace()).isTrue();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithImport"),
-			this.metadata, this.factory, this.context).hasTrace()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasTrace()).isFalse();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context).hasTrace()).isFalse();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasTrace()).isFalse();
 		assertThat(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("unlimitedQuery"),
-			this.metadata, this.factory, this.context).hasTrace()).isTrue();
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext).hasTrace()).isTrue();
 	}
 
 	@Test
 	public void hintOnQueryWithHint() throws Exception {
 
 		assertQueryHints(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithHint"),
-			this.metadata, this.factory, this.context), "IdIdx", "LastNameIdx");
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext), "IdIdx", "LastNameIdx");
 
 		assertQueryHints(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context), "BirthDateIdx");
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext), "BirthDateIdx");
 	}
 
 	@Test
 	public void hintOnQueryWithNoHints() throws Exception {
 
 		assertNoQueryHints(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithImport"),
-			this.metadata, this.factory, this.context));
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext));
 	}
 
 	@Test
 	public void importOnQueryWithImport() throws Exception {
 
 		assertImportStatement(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithImport"),
-			this.metadata, this.factory, this.context), "org.example.app.domain.ExampleType");
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext), "org.example.app.domain.ExampleType");
 
 		assertImportStatement(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context), "org.example.app.domain.Person");
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext), "org.example.app.domain.Person");
 	}
 
 	@Test
 	public void importOnQueryWithNoImports() throws Exception {
 
 		assertNoImportStatement(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("queryWithHint"),
-			this.metadata, this.factory, this.context));
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext));
 	}
 
 	@Test
 	public void limitOnQueryWithLimit() throws Exception {
 
 		assertLimitedQuery(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("limitedQuery"),
-			this.metadata, this.factory, this.context), 1024);
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext), 1024);
 	}
 
 	@Test
 	public void limitOnQueryWithNoLimits() throws Exception {
 
 		assertUnlimitedQuery(new GemfireQueryMethod(AnnotatedQueryMethods.class.getMethod("unlimitedQuery"),
-			this.metadata, this.factory, this.context));
+			this.repositoryMetadata, this.projectionFactory, this.mappingContext));
 	}
 
 	@SuppressWarnings("unused")
@@ -273,9 +262,9 @@ public class GemfireQueryMethodUnitTests {
 	}
 
 	@SuppressWarnings("unused")
-	interface Invalid {
+	interface PageablePojo {
 
-		Page<?> someMethod(Pageable pageable);
+		Page<?> pageableMethod(Pageable pageable);
 
 	}
 

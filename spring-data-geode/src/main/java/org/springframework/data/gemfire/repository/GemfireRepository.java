@@ -15,28 +15,16 @@
  */
 package org.springframework.data.gemfire.repository;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
- * Apache Geode extension of the Spring Data {@link CrudRepository} interface.
+ * Apache Geode extension of the Spring Data {@link PagingAndSortingRepository} interface.
  *
  * @author Oliver Gierke
  * @author John Blum
- * @see org.springframework.data.repository.CrudRepository
+ * @see org.springframework.data.repository.PagingAndSortingRepository
  */
-public interface GemfireRepository<T, ID> extends CrudRepository<T, ID> {
-
-	/**
-	 * Returns all entities ordered by the given {@link Sort}.
-	 *
-	 * @param sort {@link Sort} defining the ordering criteria.
-	 * @return all entities ordered by the given {@link Sort}.
-	 * @see org.springframework.data.repository.PagingAndSortingRepository#findAll(org.springframework.data.domain.Sort)
-	 * @see org.springframework.data.domain.Sort
-	 * @see java.lang.Iterable
-	 */
-	Iterable<T> findAll(Sort sort);
+public interface GemfireRepository<T, ID> extends PagingAndSortingRepository<T, ID> {
 
 	/**
 	 * Save the entity wrapped by the given {@link Wrapper}.

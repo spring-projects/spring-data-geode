@@ -14,20 +14,20 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.domain;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.domain.support.AbstractPageSupport;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
  * The {@link ListablePage} class is a Spring Data {@link Page} implementation wrapping a {@link List} as the content
@@ -54,7 +54,7 @@ public class ListablePage<T> extends AbstractPageSupport<T> {
 	 * @see #ListablePage(List)
 	 */
 	@SafeVarargs
-	public static <T> ListablePage<T> newListablePage(T... content) {
+	public static <T> ListablePage<T> newListablePage(@NonNull T... content) {
 		return new ListablePage<>(Arrays.asList(content));
 	}
 
@@ -67,7 +67,7 @@ public class ListablePage<T> extends AbstractPageSupport<T> {
 	 * @return a new {@link ListablePage} initialized with the given {@link List} for content.
 	 * @see #ListablePage(List)
 	 */
-	public static <T> ListablePage<T> newListablePage(List<T> content) {
+	public static <T> ListablePage<T> newListablePage(@Nullable List<T> content) {
 		return new ListablePage<>(content);
 	}
 
@@ -83,8 +83,8 @@ public class ListablePage<T> extends AbstractPageSupport<T> {
 	 * @see java.util.Collections#emptyList()
 	 * @see java.util.List
 	 */
-	public ListablePage(List<T> content) {
-		this.content = Optional.ofNullable(content).orElse(Collections.emptyList());
+	public ListablePage(@Nullable List<T> content) {
+		this.content = content != null ? content : Collections.emptyList();
 	}
 
 	/**
@@ -164,6 +164,9 @@ public class ListablePage<T> extends AbstractPageSupport<T> {
 	 */
 	@Override
 	public <S> Page<S> map(Function<? super T, ? extends S> converter) {
-		return newListablePage(getContent().stream().map(converter::apply).collect(Collectors.toList()));
+
+		return newListablePage(getContent().stream()
+			.map(converter)
+			.collect(Collectors.toList()));
 	}
 }

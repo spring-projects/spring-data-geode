@@ -28,8 +28,12 @@ import org.springframework.data.gemfire.repository.query.annotation.Limit;
 import org.springframework.data.gemfire.repository.query.annotation.Trace;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
+import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -49,60 +53,108 @@ public class GemfireQueryMethod extends QueryMethod {
 
 	private final Method method;
 
+	private final QueryMethodEvaluationContextProvider evaluationContextProvider;
+
 	/**
 	 * Constructs a new instance of {@link GemfireQueryMethod} from the given {@link Method}
 	 * and {@link RepositoryMetadata}.
 	 *
-	 * @param method must not be {@literal null}.
-	 * @param metadata must not be {@literal null}.
-	 * @param factory must not be {@literal null}.
-	 * @param mappingContext must not be {@literal null}.
+	 * @param method {@link Method} object backing the actual {@literal query} for this {@link QueryMethod};
+	 * must not be {@literal null}.
+	 * @param metadata {@link RepositoryMetadata} containing metadata about the {@link Repository}
+	 * to which this {@link QueryMethod} belongs; must not be {@literal null}.
+	 * @param projectionFactory {@link ProjectionFactory} used to handle the {@literal query} {@literal projection};
+	 * must not be {@literal null}.
+	 * @param mappingContext {@link MappingContext} used to map {@link Object entities} to Apache Geode and back to
+	 * {@link Object entities}; must not be {@literal null}.
+	 * @see #GemfireQueryMethod(Method, RepositoryMetadata, ProjectionFactory, MappingContext, QueryMethodEvaluationContextProvider)
 	 * @see org.springframework.data.repository.core.RepositoryMetadata
 	 * @see org.springframework.data.projection.ProjectionFactory
+	 * @see org.springframework.data.mapping.context.MappingContext
 	 * @see java.lang.reflect.Method
 	 */
-	public GemfireQueryMethod(Method method, RepositoryMetadata metadata, ProjectionFactory factory,
-			MappingContext<? extends GemfirePersistentEntity<?>, GemfirePersistentProperty> mappingContext) {
+	public GemfireQueryMethod(@NonNull Method method,
+			@NonNull RepositoryMetadata metadata,
+			@NonNull ProjectionFactory projectionFactory,
+			@NonNull MappingContext<? extends GemfirePersistentEntity<?>, GemfirePersistentProperty> mappingContext) {
 
-		super(method, metadata, factory);
+		this(method, metadata, projectionFactory, mappingContext, null);
+
+	}
+
+	/**
+	 * Constructs a new instance of {@link GemfireQueryMethod} from the given {@link Method}
+	 * and {@link RepositoryMetadata}.
+	 *
+	 * @param method {@link Method} object backing the actual {@literal query} for this {@link QueryMethod};
+	 * must not be {@literal null}.
+	 * @param metadata {@link RepositoryMetadata} containing metadata about the {@link Repository}
+	 * to which this {@link QueryMethod} belongs; must not be {@literal null}.
+	 * @param projectionFactory {@link ProjectionFactory} used to handle the {@literal query} {@literal projection};
+	 * must not be {@literal null}.
+	 * @param mappingContext {@link MappingContext} used to map {@link Object entities} to Apache Geode and back to
+	 * {@link Object entities}; must not be {@literal null}.
+	 * @param evaluationContextProvider {@link QueryMethodEvaluationContextProvider} used to process {@literal SpEL}
+	 * expressions.
+	 * @see org.springframework.data.repository.query.QueryMethodEvaluationContextProvider
+	 * @see org.springframework.data.repository.core.RepositoryMetadata
+	 * @see org.springframework.data.projection.ProjectionFactory
+	 * @see org.springframework.data.mapping.context.MappingContext
+	 * @see java.lang.reflect.Method
+	 */
+	public GemfireQueryMethod(@NonNull Method method,
+			@NonNull RepositoryMetadata metadata,
+			@NonNull ProjectionFactory projectionFactory,
+			@NonNull MappingContext<? extends GemfirePersistentEntity<?>, GemfirePersistentProperty> mappingContext,
+			@Nullable QueryMethodEvaluationContextProvider evaluationContextProvider) {
+
+		super(method, metadata, projectionFactory);
 
 		Assert.notNull(mappingContext, "MappingContext must not be null");
 
-		assertNonPagingQueryMethod(method);
-
 		this.method = method;
 		this.entity = mappingContext.getPersistentEntity(getDomainClass());
+		this.evaluationContextProvider = evaluationContextProvider;
 	}
 
 	/**
-	 * Asserts that the query method is a non-Paging query method since GemFire does not support pagination
-	 * as it has no concept of a Cursor.
+	 * Determines whether the {@link Method} backing this {@link QueryMethod} is a {@link Pageable} {@link Method},
+	 * which requires special logic given Apache Geode does not support pagination since it has no concept of a
+	 * {@literal Database Cursor}.
 	 *
-	 * @param method the query method to be evaluated
-	 * @throws java.lang.IllegalStateException if the query method contains a parameter of type Pageable.
-	 * @see org.springframework.data.domain.Pageable
+	 * @param method {@literal query} {@link Method} to be evaluate.
+	 * @return a boolean value indicating whether the {@link Method} has a parameter of type {@link Pageable}.
 	 * @see java.lang.reflect.Method#getParameterTypes()
+	 * @see org.springframework.data.domain.Pageable
 	 */
-	private void assertNonPagingQueryMethod(Method method) {
+	private boolean isPageableQueryMethod(@NonNull Method method) {
 
 		for (Class<?> type : method.getParameterTypes()) {
 			if (Pageable.class.isAssignableFrom(type)) {
-
-				String message =
-					String.format("Pagination is not supported by GemFire Repositories; Offending method: %s",
-						method.getName());
-
-				throw new IllegalStateException(message);
+				return true;
 			}
 		}
+
+		return false;
 	}
 
 	/**
-	 * Returns the {@link GemfirePersistentEntity} the method deals with.
+	 * Returns the {@link Method} reference on which this {@link QueryMethod} is based.
 	 *
-	 * @return the {@link GemfirePersistentEntity} the method deals with.
+	 * @return the {@link Method} reference on which this {@link QueryMethod} is based.
+	 * @see java.lang.reflect.Method
 	 */
-	public GemfirePersistentEntity<?> getPersistentEntity() {
+	protected @NonNull Method getMethod() {
+		return this.method;
+	}
+
+	/**
+	 * Returns the {@link GemfirePersistentEntity} handled by this {@link QueryMethod}.
+	 *
+	 * @return the {@link GemfirePersistentEntity} handled by this {@link QueryMethod}.
+	 * @see org.springframework.data.gemfire.mapping.GemfirePersistentEntity
+	 */
+	public @NonNull GemfirePersistentEntity<?> getPersistentEntity() {
 		return this.entity;
 	}
 
@@ -118,15 +170,16 @@ public class GemfireQueryMethod extends QueryMethod {
 	}
 
 	/**
-	 * Returns the annotated query for the query method if present.
+	 * Returns the {@link Query} annotated OQL query value for this {@link QueryMethod} if present.
 	 *
-	 * @return the annotated query or {@literal null} in case it's empty or not present.
+	 * @return the {@link Query} annotated OQL query value or {@literal null} in case it's {@literal null}, empty
+	 * or not present.
 	 * @see org.springframework.data.gemfire.repository.Query
 	 * @see java.lang.reflect.Method#getAnnotation(Class)
 	 */
-	String getAnnotatedQuery() {
+	public @Nullable String getAnnotatedQuery() {
 
-		Query query = this.method.getAnnotation(Query.class);
+		Query query = getMethod().getAnnotation(Query.class);
 
 		String queryString = query != null ? (String) AnnotationUtils.getValue(query) : null;
 
@@ -142,7 +195,7 @@ public class GemfireQueryMethod extends QueryMethod {
 	 * @see java.lang.reflect.Method#isAnnotationPresent(Class)
 	 */
 	public boolean hasHint() {
-		return this.method.isAnnotationPresent(Hint.class);
+		return getMethod().isAnnotationPresent(Hint.class);
 	}
 
 	/**
@@ -154,7 +207,7 @@ public class GemfireQueryMethod extends QueryMethod {
 	 */
 	public String[] getHints() {
 
-		Hint hint = method.getAnnotation(Hint.class);
+		Hint hint = getMethod().getAnnotation(Hint.class);
 
 		return hint != null ? hint.value() : EMPTY_STRING_ARRAY;
 	}
@@ -168,7 +221,7 @@ public class GemfireQueryMethod extends QueryMethod {
 	 * @see java.lang.reflect.Method#isAnnotationPresent(Class)
 	 */
 	public boolean hasImport() {
-		return this.method.isAnnotationPresent(Import.class);
+		return getMethod().isAnnotationPresent(Import.class);
 	}
 
 	/**
@@ -180,7 +233,7 @@ public class GemfireQueryMethod extends QueryMethod {
 	 */
 	public String getImport() {
 
-		Import importStatement = method.getAnnotation(Import.class);
+		Import importStatement = getMethod().getAnnotation(Import.class);
 
 		return importStatement != null ? importStatement.value() : null;
 	}
@@ -194,7 +247,7 @@ public class GemfireQueryMethod extends QueryMethod {
 	 * @see java.lang.reflect.Method#isAnnotationPresent(Class)
 	 */
 	public boolean hasLimit() {
-		return this.method.isAnnotationPresent(Limit.class);
+		return getMethod().isAnnotationPresent(Limit.class);
 	}
 
 	/**
@@ -206,7 +259,7 @@ public class GemfireQueryMethod extends QueryMethod {
 	 */
 	public int getLimit() {
 
-		Limit limit = method.getAnnotation(Limit.class);
+		Limit limit = getMethod().getAnnotation(Limit.class);
 
 		return limit != null ? limit.value() : Integer.MAX_VALUE;
 	}
@@ -219,6 +272,6 @@ public class GemfireQueryMethod extends QueryMethod {
 	 * @see java.lang.reflect.Method#isAnnotationPresent(Class)
 	 */
 	public boolean hasTrace() {
-		return this.method.isAnnotationPresent(Trace.class);
+		return getMethod().isAnnotationPresent(Trace.class);
 	}
 }

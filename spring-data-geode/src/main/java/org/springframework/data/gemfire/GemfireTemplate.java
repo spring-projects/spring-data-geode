@@ -291,13 +291,13 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <E> SelectResults<E> find(String queryString, Object... params) throws InvalidDataAccessApiUsageException {
+	public <E> SelectResults<E> find(String queryString, Object... arguments) throws InvalidDataAccessApiUsageException {
 
 		try {
 
 			QueryService queryService = resolveQueryService(getRegion());
 			Query query = queryService.newQuery(queryString);
-			Object result = query.execute(params);
+			Object result = query.execute(arguments);
 
 			if (result instanceof SelectResults) {
 				return (SelectResults<E>) result;
@@ -314,8 +314,8 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 		catch (GemFireCheckedException cause) {
 			throw convertGemFireAccessException(cause);
 		}
-		catch (GemFireException caue) {
-			throw convertGemFireAccessException(caue);
+		catch (GemFireException cause) {
+			throw convertGemFireAccessException(cause);
 		}
 		catch (RuntimeException cause) {
 
