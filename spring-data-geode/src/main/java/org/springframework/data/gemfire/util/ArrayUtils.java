@@ -14,7 +14,10 @@ package org.springframework.data.gemfire.util;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Iterator;
 
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -202,5 +205,55 @@ public abstract class ArrayUtils {
 		Arrays.sort(array);
 
 		return array;
+	}
+
+	/**
+	 * Converts the given array into an {@link Iterable} object.
+	 *
+	 * @param <T> {@link Class type} of the array elements; mut not be {@literal null}.
+	 * @param array array to convert to an {@link Iterable}.
+	 * @return an {@link Iterable} object from the given array.
+	 * @throws IllegalArgumentException if the array is {@literal null}.
+	 * @see java.lang.Iterable
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Iterable<T> toIterable(@NonNull T... array) {
+		return IterableArray.of(array);
+	}
+
+	protected static class IterableArray<T> implements Iterable<T> {
+
+		@SuppressWarnings("unchecked")
+		protected static <T> IterableArray<T> of(@NonNull T... array) {
+			return new IterableArray<>(array);
+		}
+
+		private final T[] array;
+
+		protected IterableArray(@NonNull T[] array) {
+
+			Assert.notNull(array, "Array must not be null");
+
+			this.array = array;
+		}
+
+		@Override
+		public Iterator<T> iterator() {
+
+			return new Iterator<T>() {
+
+				int index = 0;
+
+				@Override
+				public boolean hasNext() {
+					return this.index < IterableArray.this.array.length;
+				}
+
+				@Override
+				public T next() {
+					return IterableArray.this.array[this.index++];
+				}
+			};
+		}
 	}
 }

@@ -22,6 +22,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Abstract base class for Apache Geode specific {@link RepositoryQuery} implementations.
  *
@@ -34,6 +37,8 @@ import org.springframework.util.Assert;
  */
 @SuppressWarnings("rawtypes")
 public abstract class GemfireRepositoryQuery implements RepositoryQuery {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final GemfireQueryMethod queryMethod;
 
@@ -71,6 +76,16 @@ public abstract class GemfireRepositoryQuery implements RepositoryQuery {
 	 */
 	protected @NonNull GemfireQueryMethod getGemfireQueryMethod() {
 		return (GemfireQueryMethod) getQueryMethod();
+	}
+
+	/**
+	 * Returns the configured SLF4J {@link Logger} used log statements.
+	 *
+	 * @return the configured SLF4J {@link Logger}.
+	 * @see org.slf4j.Logger
+	 */
+	protected @NonNull Logger getLogger() {
+		return this.logger;
 	}
 
 	/**

@@ -242,4 +242,40 @@ public class ArrayUtilsUnitTests {
 		assertThat(sortedArray).isSameAs(array);
 		assertThat(sortedArray).isEqualTo(new Comparable[] { 1, 2, 3 });
 	}
+
+	@Test
+	public void toIterableFromArray() {
+
+		Integer[] array = { 1, 2, 3 };
+
+		Iterable<Integer> iterable = ArrayUtils.toIterable(array);
+
+		assertThat(iterable).isNotNull();
+		assertThat(iterable).hasSize(array.length);
+		assertThat(iterable).containsExactly(array);
+	}
+
+	@Test
+	public void toIterableFromEmptyArray() {
+
+		Iterable<?> iterable = ArrayUtils.toIterable();
+
+		assertThat(iterable).isNotNull();
+		assertThat(iterable).isEmpty();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void toIterableFromNullArrayThrowsIllegalArgumentException() {
+
+		try {
+			ArrayUtils.toIterable((Object[]) null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Array must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
+	}
 }

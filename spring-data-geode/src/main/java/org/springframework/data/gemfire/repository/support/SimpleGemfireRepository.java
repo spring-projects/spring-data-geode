@@ -32,7 +32,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gemfire.GemfireCallback;
@@ -40,6 +39,7 @@ import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.data.gemfire.repository.Wrapper;
 import org.springframework.data.gemfire.repository.query.QueryString;
+import org.springframework.data.gemfire.repository.query.support.PagingUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.data.repository.CrudRepository;
@@ -248,7 +248,7 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	public @NonNull Iterable<T> findAll(@NonNull Sort sort) {
 
 		QueryString query = QueryString.of("SELECT * FROM /RegionPlaceholder")
-			.fromRegion(getEntityInformation().getJavaType(), getRegion())
+			.fromRegion(getRegion(), getEntityInformation().getJavaType())
 			.orderBy(sort);
 
 		SelectResults<T> selectResults = getTemplate().find(query.toString());
@@ -356,25 +356,10 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 
 	@NonNull Page<T> toPage(@Nullable Iterable<T> iterable, @NonNull Pageable pageable) {
 
-		Assert.notNull(pageable, "Pageable must not be null");
-
-		int pageNumber = pageable.getPageNumber();
-		int pageSize = pageable.getPageSize();
-
-		Assert.isTrue(pageNumber >= 0, () -> String.format("Page Number [%d] must be greater than equal to 0",
-			pageNumber));
-
-		Assert.isTrue(pageSize > 0, () -> String.format("Page Size [%d] must be greater than equal to 1",
-			pageSize));
-
-		int startIndex = pageNumber * pageSize;
-		int endIndex = startIndex + pageSize;
+		PagingUtils.assertPageable(pageable);
 
 		List<T> results = toList(iterable);
 
-		int total = results.size();
-
-		return results.isEmpty() || total <= startIndex ? Page.empty()
-			: new PageImpl<>(results.subList(startIndex, Math.min(total, endIndex)), pageable, total);
+		return PagingUtils.toPage(results, pageable);
 	}
 }

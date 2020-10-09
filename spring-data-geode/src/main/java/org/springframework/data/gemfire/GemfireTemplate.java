@@ -268,7 +268,7 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 	public <E> SelectResults<E> query(String query) {
 
 		try {
-			return this.getRegion().query(query);
+			return getRegion().query(query);
 		}
 		catch (IndexInvalidException | QueryInvalidException cause) {
 			throw convertGemFireQueryException(cause);
@@ -291,21 +291,26 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <E> SelectResults<E> find(String queryString, Object... arguments) throws InvalidDataAccessApiUsageException {
+	public <E> SelectResults<E> find(String query, Object... arguments) throws InvalidDataAccessApiUsageException {
 
 		try {
 
 			QueryService queryService = resolveQueryService(getRegion());
-			Query query = queryService.newQuery(queryString);
-			Object result = query.execute(arguments);
+
+			Query compiledQuery = queryService.newQuery(query);
+
+			Object result = compiledQuery.execute(arguments);
 
 			if (result instanceof SelectResults) {
 				return (SelectResults<E>) result;
 			}
 			else {
-				throw new InvalidDataAccessApiUsageException(String.format(
-					"The result from executing query [%1$s] was not an instance of SelectResults [%2$s]",
-						queryString, result));
+
+				String message =
+					String.format("The result from executing query [%1$s] was not an instance of SelectResults [%2$s]",
+						query, result);
+
+				throw new InvalidDataAccessApiUsageException(message);
 			}
 		}
 		catch (IndexInvalidException | QueryInvalidException cause) {
@@ -329,13 +334,15 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T findUnique(String queryString, Object... params) throws InvalidDataAccessApiUsageException {
+	public <T> T findUnique(String query, Object... arguments) throws InvalidDataAccessApiUsageException {
 
 		try {
 
 			QueryService queryService = resolveQueryService(getRegion());
-			Query query = queryService.newQuery(queryString);
-			Object result = query.execute(params);
+
+			Query compiledQuery = queryService.newQuery(query);
+
+			Object result = compiledQuery.execute(arguments);
 
 			if (result instanceof SelectResults) {
 
@@ -347,8 +354,11 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 					result = results.get(0);
 				}
 				else {
-					throw new InvalidDataAccessApiUsageException(String.format(
-						"The result returned from query [%1$s]) was not unique [%2$s]", queryString, result));
+
+					String message = String.format("The result returned from query [%1$s]) was not unique [%2$s]",
+						query, result);
+
+					throw new InvalidDataAccessApiUsageException(message);
 				}
 			}
 

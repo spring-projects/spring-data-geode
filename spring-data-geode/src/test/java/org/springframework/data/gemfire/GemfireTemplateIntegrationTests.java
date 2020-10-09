@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,17 +25,18 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.query.SelectResults;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -45,26 +45,31 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.util.CacheUtils;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for {@link GemfireTemplate}.
+ * Integration Tests for {@link GemfireTemplate}.
  *
  * @author John Blum
+ * @see java.util.Properties
  * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.query.SelectResults
+ * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.4.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
 public class GemfireTemplateIntegrationTests {
 
-	protected static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
+	protected static final String DEFAULT_GEMFIRE_LOG_LEVEL = "error";
 
-	protected static final List<User> TEST_USERS = new ArrayList<User>(9);
+	protected static final List<User> TEST_USERS = new ArrayList<>(9);
 
 	static {
 		TEST_USERS.add(newUser("jonDoe"));
@@ -96,18 +101,22 @@ public class GemfireTemplateIntegrationTests {
 	}
 
 	protected static User newUser(String username, String email, Calendar since, Boolean active) {
+
 		User user = new User(username);
+
 		user.setActive(Boolean.TRUE.equals(active));
 		user.setEmail(email);
 		user.setSince(since);
+
 		return user;
 	}
 
 	protected String getKey(User user) {
-		return (user != null ? user.getUsername() : null);
+		return user != null ? user.getUsername() : null;
 	}
 
 	protected User getUser(String username) {
+
 		for (User user : TEST_USERS) {
 			if (user.getUsername().equals(username)) {
 				return user;
@@ -118,8 +127,9 @@ public class GemfireTemplateIntegrationTests {
 	}
 
 	protected List<User> getUsers(String... usernames) {
+
 		List<String> usernameList = Arrays.asList(usernames);
-		List<User> users = new ArrayList<User>(usernames.length);
+		List<User> users = new ArrayList<>(usernames.length);
 
 		for (User user : TEST_USERS) {
 			if (usernameList.contains(user.getUsername())) {
@@ -139,7 +149,8 @@ public class GemfireTemplateIntegrationTests {
 	}
 
 	protected Map<String, User> getUsersAsMap(Iterable<User> users) {
-		Map<String, User> userMap = new HashMap<String, User>();
+
+		Map<String, User> userMap = new HashMap<>();
 
 		for (User user : users) {
 			userMap.put(getKey(user), user);
@@ -149,133 +160,147 @@ public class GemfireTemplateIntegrationTests {
 	}
 
 	protected void assertNullEquals(Object value1, Object value2) {
-		assertThat(value1 == null ? value2 == null : value1.equals(value2)).isTrue();
+		assertThat(Objects.equals(value1, value2)).isTrue();
 	}
 
 	@Before
 	public void setup() {
-		assertThat(users).isNotNull();
 
-		if (users.isEmpty()) {
+		assertThat(this.users).isNotNull();
+
+		if (this.users.isEmpty()) {
 			for (User user : TEST_USERS) {
-				users.put(getKey(user), user);
+				this.users.put(getKey(user), user);
 			}
 
-			assertThat(users.isEmpty()).isFalse();
-			assertThat(users.size()).isEqualTo(TEST_USERS.size());
+			assertThat(this.users.size()).isEqualTo(TEST_USERS.size());
 		}
 	}
 
 	@Test
 	public void containsKey() {
-		assertThat(usersTemplate.containsKey(getKey(getUser("jonDoe")))).isTrue();
-		assertThat(usersTemplate.containsKey("dukeNukem")).isFalse();
+
+		assertThat(this.usersTemplate.containsKey(getKey(getUser("jonDoe")))).isTrue();
+		assertThat(this.usersTemplate.containsKey("dukeNukem")).isFalse();
 	}
 
 	@Test
 	public void containsKeyOnServer() {
-		assumeThat(CacheUtils.isClient(gemfireCache), is(true));
-		assertThat(usersTemplate.containsKeyOnServer(getKey(getUser("jackHandy")))).isTrue();
-		assertThat(usersTemplate.containsKeyOnServer("maxPayne")).isFalse();
+
+		assumeThat(CacheUtils.isClient(this.gemfireCache), is(true));
+
+		assertThat(this.usersTemplate.containsKeyOnServer(getKey(getUser("jackHandy")))).isTrue();
+		assertThat(this.usersTemplate.containsKeyOnServer("maxPayne")).isFalse();
 	}
 
 	@Test
 	public void containsValue() {
-		assertThat(usersTemplate.containsValue(getUser("pieDoe"))).isTrue();
-		assertThat(usersTemplate.containsValue(newUser("pieDough"))).isFalse();
+
+		assertThat(this.usersTemplate.containsValue(getUser("pieDoe"))).isTrue();
+		assertThat(this.usersTemplate.containsValue(newUser("pieDough"))).isFalse();
 	}
 
 	@Test
 	public void containsValueForKey() {
-		assertThat(usersTemplate.containsValueForKey(getKey(getUser("cookieDoe")))).isTrue();
-		assertThat(usersTemplate.containsValueForKey("chocolateChipCookieDoe")).isFalse();
+
+		assertThat(this.usersTemplate.containsValueForKey(getKey(getUser("cookieDoe")))).isTrue();
+		assertThat(this.usersTemplate.containsValueForKey("chocolateChipCookieDoe")).isFalse();
 	}
 
 	@Test
 	public void create() {
+
 		User bartSimpson = newUser("bartSimpson");
 
-		usersTemplate.create(getKey(bartSimpson), bartSimpson);
+		this.usersTemplate.create(getKey(bartSimpson), bartSimpson);
 
-		assertThat(users.containsKey(getKey(bartSimpson))).isTrue();
-		assertThat(users.containsValueForKey(getKey(bartSimpson))).isTrue();
-		assertThat(users.containsValue(bartSimpson)).isTrue();
-		assertThat(users.get(getKey(bartSimpson))).isEqualTo(bartSimpson);
+		assertThat(this.users.containsKey(getKey(bartSimpson))).isTrue();
+		assertThat(this.users.containsValueForKey(getKey(bartSimpson))).isTrue();
+		assertThat(this.users.containsValue(bartSimpson)).isTrue();
+		assertThat(this.users.get(getKey(bartSimpson))).isEqualTo(bartSimpson);
 	}
 
 	@Test
 	public void get() {
+
 		String key = getKey(getUser("imaPigg"));
 
-		assertThat(usersTemplate.<Object, Object>get(key)).isEqualTo(users.get(key));
-		assertNullEquals(users.get("mrT"), usersTemplate.get("mrT"));
+		assertThat(this.usersTemplate.<Object, Object>get(key)).isEqualTo(this.users.get(key));
+		assertNullEquals(this.users.get("mrT"), this.usersTemplate.get("mrT"));
 	}
 
 	@Test
 	public void put() {
+
 		User peterGriffon = newUser("peterGriffon");
 
-		assertThat(usersTemplate.put(getKey(peterGriffon), peterGriffon)).isNull();
-		assertThat(users.get(getKey(peterGriffon))).isEqualTo(peterGriffon);
+		assertThat(this.usersTemplate.put(getKey(peterGriffon), peterGriffon)).isNull();
+		assertThat(this.users.get(getKey(peterGriffon))).isEqualTo(peterGriffon);
 	}
 
 	@Test
 	public void putIfAbsent() {
+
 		User stewieGriffon = newUser("stewieGriffon");
 
-		assertThat(users.containsValue(stewieGriffon)).isFalse();
-		assertThat(usersTemplate.putIfAbsent(getKey(stewieGriffon), stewieGriffon)).isNull();
-		assertThat(users.containsValue(stewieGriffon)).isTrue();
-		assertThat(usersTemplate.putIfAbsent(getKey(stewieGriffon), newUser("megGriffon"))).isEqualTo(stewieGriffon);
-		assertThat(users.get(getKey(stewieGriffon))).isEqualTo(stewieGriffon);
+		assertThat(this.users.containsValue(stewieGriffon)).isFalse();
+		assertThat(this.usersTemplate.putIfAbsent(getKey(stewieGriffon), stewieGriffon)).isNull();
+		assertThat(this.users.containsValue(stewieGriffon)).isTrue();
+		assertThat(this.usersTemplate.putIfAbsent(getKey(stewieGriffon), newUser("megGriffon"))).isEqualTo(stewieGriffon);
+		assertThat(this.users.get(getKey(stewieGriffon))).isEqualTo(stewieGriffon);
 	}
 
 	@Test
 	public void remove() {
-		User mandyHandy = users.get(getKey(getUser("mandyHandy")));
+
+		User mandyHandy = this.users.get(getKey(getUser("mandyHandy")));
 
 		assertThat(mandyHandy).isNotNull();
-		assertThat(usersTemplate.<Object, Object>remove(getKey(mandyHandy))).isEqualTo(mandyHandy);
-		assertThat(users.containsKey(getKey(mandyHandy))).isFalse();
-		assertThat(users.containsValue(mandyHandy)).isFalse();
-		assertThat(users.containsKey("loisGriffon")).isFalse();
-		assertThat(usersTemplate.<Object, Object>remove("loisGriffon")).isNull();
-		assertThat(users.containsKey("loisGriffon")).isFalse();
+		assertThat(this.usersTemplate.<Object, Object>remove(getKey(mandyHandy))).isEqualTo(mandyHandy);
+		assertThat(this.users.containsKey(getKey(mandyHandy))).isFalse();
+		assertThat(this.users.containsValue(mandyHandy)).isFalse();
+		assertThat(this.users.containsKey("loisGriffon")).isFalse();
+		assertThat(this.usersTemplate.<Object, Object>remove("loisGriffon")).isNull();
+		assertThat(this.users.containsKey("loisGriffon")).isFalse();
 	}
 
 	@Test
 	public void replace() {
-		User randyHandy = users.get(getKey(getUser("randyHandy")));
+
+		User randyHandy = this.users.get(getKey(getUser("randyHandy")));
 		User lukeFluke = newUser("lukeFluke");
 		User chrisGriffon = newUser("chrisGriffon");
 
 		assertThat(randyHandy).isNotNull();
-		assertThat(usersTemplate.replace(getKey(randyHandy), lukeFluke)).isEqualTo(randyHandy);
-		assertThat(users.get(getKey(randyHandy))).isEqualTo(lukeFluke);
-		assertThat(users.containsValue(randyHandy)).isFalse();
-		assertThat(users.containsValue(chrisGriffon)).isFalse();
-		assertThat(usersTemplate.replace(getKey(chrisGriffon), chrisGriffon)).isNull();
-		assertThat(users.containsValue(chrisGriffon)).isFalse();
+		assertThat(this.usersTemplate.replace(getKey(randyHandy), lukeFluke)).isEqualTo(randyHandy);
+		assertThat(this.users.get(getKey(randyHandy))).isEqualTo(lukeFluke);
+		assertThat(this.users.containsValue(randyHandy)).isFalse();
+		assertThat(this.users.containsValue(chrisGriffon)).isFalse();
+		assertThat(this.usersTemplate.replace(getKey(chrisGriffon), chrisGriffon)).isNull();
+		assertThat(this.users.containsValue(chrisGriffon)).isFalse();
 	}
 
 	@Test
 	public void replaceOldValueWithNewValue() {
+
 		User jackHandy = getUser("jackHandy");
 		User imaPigg = getUser("imaPigg");
 
-		assertThat(users.containsValue(jackHandy)).isTrue();
-		assertThat(usersTemplate.replace(getKey(jackHandy), null, imaPigg)).isFalse();
-		assertThat(users.containsValue(jackHandy)).isTrue();
-		assertThat(users.get(getKey(jackHandy))).isEqualTo(jackHandy);
-		assertThat(usersTemplate.replace(getKey(jackHandy), jackHandy, imaPigg)).isTrue();
-		assertThat(users.containsValue(jackHandy)).isFalse();
-		assertThat(users.get(getKey(jackHandy))).isEqualTo(imaPigg);
+		assertThat(this.users.containsValue(jackHandy)).isTrue();
+		assertThat(this.usersTemplate.replace(getKey(jackHandy), null, imaPigg)).isFalse();
+		assertThat(this.users.containsValue(jackHandy)).isTrue();
+		assertThat(this.users.get(getKey(jackHandy))).isEqualTo(jackHandy);
+		assertThat(this.usersTemplate.replace(getKey(jackHandy), jackHandy, imaPigg)).isTrue();
+		assertThat(this.users.containsValue(jackHandy)).isFalse();
+		assertThat(this.users.get(getKey(jackHandy))).isEqualTo(imaPigg);
 	}
 
 	@Test
 	public void getAllReturnsNoResults() {
+
 		List<String> keys = Arrays.asList("keyOne", "keyTwo", "keyThree");
-		Map<String, User> users = usersTemplate.getAll(keys);
+
+		Map<String, User> users = this.usersTemplate.getAll(keys);
 
 		assertThat(users).isNotNull();
 		assertThat(users).isEqualTo(this.users.getAll(keys));
@@ -283,7 +308,8 @@ public class GemfireTemplateIntegrationTests {
 
 	@Test
 	public void getAllReturnsResults() {
-		Map<String, User> users = usersTemplate.getAll(Arrays.asList(
+
+		Map<String, User> users = this.usersTemplate.getAll(Arrays.asList(
 			getKey(getUser("jonDoe")), getKey(getUser("pieDoe"))));
 
 		assertThat(users).isNotNull();
@@ -292,24 +318,26 @@ public class GemfireTemplateIntegrationTests {
 
 	@Test
 	public void putAll() {
+
 		User batMan = newUser("batMan");
 		User spiderMan = newUser("spiderMan");
 		User superMan = newUser("superMan");
 
 		Map<String, User> userMap = getUsersAsMap(batMan, spiderMan, superMan);
 
-		assertThat(users.keySet().containsAll(userMap.keySet())).isFalse();
-		assertThat(users.values().containsAll(userMap.values())).isFalse();
+		assertThat(this.users.keySet().containsAll(userMap.keySet())).isFalse();
+		assertThat(this.users.values().containsAll(userMap.values())).isFalse();
 
-		usersTemplate.putAll(userMap);
+		this.usersTemplate.putAll(userMap);
 
-		assertThat(users.keySet().containsAll(userMap.keySet())).isTrue();
-		assertThat(users.values().containsAll(userMap.values())).isTrue();
+		assertThat(this.users.keySet().containsAll(userMap.keySet())).isTrue();
+		assertThat(this.users.values().containsAll(userMap.values())).isTrue();
 	}
 
 	@Test
 	public void query() {
-		SelectResults<User> queryResults = usersTemplate.query("username LIKE '%Doe'");
+
+		SelectResults<User> queryResults = this.usersTemplate.query("username LIKE '%Doe'");
 
 		assertThat(queryResults).isNotNull();
 
@@ -322,7 +350,9 @@ public class GemfireTemplateIntegrationTests {
 
 	@Test
 	public void find() {
-		SelectResults<User> findResults = usersTemplate.find("SELECT u FROM /Users u WHERE u.username LIKE $1 AND u.active = $2", "%Doe", true);
+
+		SelectResults<User> findResults =
+			this.usersTemplate.find("SELECT u FROM /Users u WHERE u.username LIKE $1 AND u.active = $2", "%Doe", true);
 
 		assertThat(findResults).isNotNull();
 
@@ -333,9 +363,46 @@ public class GemfireTemplateIntegrationTests {
 		assertThat(usersFound.containsAll(getUsers("jonDoe", "cookieDoe"))).isTrue();
 	}
 
+	// The following query is syntactically correct but does NOT work!!!
+	// "SELECT keys FROM /Users u, u.keySet keys WHERE u.active = false ORDER BY u.username ASC"
+	@Test
+	public void findKeys() {
+
+		User mandyHandy = getUser("mandyHandy");
+
+		this.users.put(mandyHandy.getUsername(), mandyHandy);
+
+		String query = "SELECT u.key FROM /Users.entrySet u WHERE u.value.active = false ORDER BY u.value.username ASC";
+
+		SelectResults<String> results = this.usersTemplate.find(query);
+
+		assertThat(results).isNotNull();
+		assertThat(results).hasSize(4);
+		assertThat(results.asList()).containsExactly("janeDoe", "mandyHandy", "pieDoe", "randyHandy");
+	}
+
+	@Test
+	public void findLimitedKeys() {
+
+		String query = "SELECT u.key"
+			+ " FROM /Users.entrySet u"
+			+ " WHERE u.value.active = false"
+			+ " AND u.value.username LIKE '%Doe'"
+			+ " ORDER BY u.value.username ASC"
+			+ " LIMIT 1";
+
+		SelectResults<String> results = this.usersTemplate.find(query);
+
+		assertThat(results).isNotNull();
+		assertThat(results).hasSize(1);
+		assertThat(results.asList()).containsExactly("janeDoe");
+	}
+
 	@Test
 	public void findUniqueReturnsResult() {
-		User jonDoe = usersTemplate.findUnique("SELECT u FROM /Users u WHERE u.username = $1", "jonDoe");
+
+		User jonDoe =
+			this.usersTemplate.findUnique("SELECT u FROM /Users u WHERE u.username = $1", "jonDoe");
 
 		assertThat(jonDoe).isNotNull();
 		assertThat(jonDoe).isEqualTo(getUser("jonDoe"));
@@ -343,12 +410,12 @@ public class GemfireTemplateIntegrationTests {
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void findUniqueReturnsNoResult() {
-		usersTemplate.findUnique("SELECT u FROM /Users u WHERE u.username = $1", "benDover");
+		this.usersTemplate.findUnique("SELECT u FROM /Users u WHERE u.username = $1", "benDover");
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
-	public void findUnqiueReturnsTooManyResults() {
-		usersTemplate.findUnique("SELECT u FROM /Users u WHERE u.username LIKE $1", "%Doe");
+	public void findUniqueReturnsTooManyResults() {
+		this.usersTemplate.findUnique("SELECT u FROM /Users u WHERE u.username LIKE $1", "%Doe");
 	}
 
 	@Configuration
@@ -374,6 +441,7 @@ public class GemfireTemplateIntegrationTests {
 
 		@Bean
 		CacheFactoryBean gemfireCache() {
+
 			CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
 			gemfireCache.setClose(false);
@@ -384,7 +452,8 @@ public class GemfireTemplateIntegrationTests {
 
 		@Bean(name = "Users")
 		LocalRegionFactoryBean<Object, Object> usersRegion(GemFireCache gemfireCache) {
-			LocalRegionFactoryBean<Object, Object> usersRegion = new LocalRegionFactoryBean<Object, Object>();
+
+			LocalRegionFactoryBean<Object, Object> usersRegion = new LocalRegionFactoryBean<>();
 
 			usersRegion.setCache(gemfireCache);
 			usersRegion.setClose(false);
@@ -394,7 +463,7 @@ public class GemfireTemplateIntegrationTests {
 		}
 
 		@Bean
-		GemfireTemplate usersRegionTemplate(Region<Object, Object> simple) {
+		GemfireTemplate usersTemplate(Region<Object, Object> simple) {
 			return new GemfireTemplate(simple);
 		}
 	}

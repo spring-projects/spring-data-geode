@@ -16,6 +16,7 @@
 package org.springframework.data.gemfire.repository.sample;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.gemfire.mapping.annotation.Region;
@@ -23,11 +24,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
- * The User class represents an authorized user of a service or computer system, etc.
+ * Abstract Data Type (ADT) modeling an authorized user of an application, software service or computer system.
  *
  * @author John Blum
  * @see java.lang.Comparable
  * @see org.springframework.data.annotation.Id
+ * @see org.springframework.data.gemfire.mapping.annotation.Region
  * @see Region
  * @since 1.4.0
  */
@@ -45,11 +47,11 @@ public class User implements Comparable<User> {
 	private final String username;
 
 	public User(String username) {
-		Assert.hasText(username, "The username is required!");
+		Assert.hasText(username, "Username is required");
 		this.username = username;
 	}
 
-	public void setActive(final Boolean active) {
+	public void setActive(Boolean active) {
 		this.active = Boolean.TRUE.equals(active);
 	}
 
@@ -66,7 +68,7 @@ public class User implements Comparable<User> {
 	}
 
 	public String getEmail() {
-		return email;
+		return this.email;
 	}
 
 	public void setSince(final Calendar since) {
@@ -74,11 +76,11 @@ public class User implements Comparable<User> {
 	}
 
 	public Calendar getSince() {
-		return since;
+		return this.since;
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	@Override
@@ -87,7 +89,7 @@ public class User implements Comparable<User> {
 	}
 
 	protected static boolean equalsIgnoreNull(Object obj1, Object obj2) {
-		return obj1 == null ? obj2 == null : obj1.equals(obj2);
+		return Objects.equals(obj1, obj2);
 	}
 
 	@Override

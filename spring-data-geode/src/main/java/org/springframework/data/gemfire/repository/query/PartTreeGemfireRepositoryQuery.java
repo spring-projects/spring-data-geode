@@ -100,7 +100,7 @@ public class PartTreeGemfireRepositoryQuery extends GemfireRepositoryQuery {
 
 		QueryString query = newQueryString(queryMethod, getPartTree(), arguments);
 
-		GemfireRepositoryQuery repositoryQuery = newRepositoryQuery(query, queryMethod, getTemplate());
+		GemfireRepositoryQuery repositoryQuery = newRepositoryQuery(queryMethod, query, getTemplate());
 
 		return repositoryQuery.execute(prepareStringParameters(arguments));
 	}
@@ -115,8 +115,8 @@ public class PartTreeGemfireRepositoryQuery extends GemfireRepositoryQuery {
 		return queryCreator.createQuery(parameterAccessor.getSort());
 	}
 
-	private GemfireRepositoryQuery newRepositoryQuery(QueryString query,
-			GemfireQueryMethod queryMethod, GemfireTemplate template) {
+	private GemfireRepositoryQuery newRepositoryQuery(GemfireQueryMethod queryMethod,
+			QueryString query, GemfireTemplate template) {
 
 		StringBasedGemfireRepositoryQuery repositoryQuery =
 			new StringBasedGemfireRepositoryQuery(query.toString(), queryMethod, template);

@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.repository.query;
 import java.lang.reflect.Method;
 
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.mapping.GemfirePersistentProperty;
 import org.springframework.data.gemfire.repository.Query;
@@ -38,11 +37,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Apache Geode specific {@link QueryMethod} implementation.
+ * {@link QueryMethod} implementation for Apache Geode.
  *
  * @author Oliver Gierke
  * @author John Blum
  * @see java.lang.reflect.Method
+ * @see org.springframework.data.gemfire.repository.Query
+ * @see org.springframework.data.repository.Repository
  * @see org.springframework.data.repository.query.QueryMethod
  */
 public class GemfireQueryMethod extends QueryMethod {
@@ -53,6 +54,7 @@ public class GemfireQueryMethod extends QueryMethod {
 
 	private final Method method;
 
+	@SuppressWarnings("unused")
 	private final QueryMethodEvaluationContextProvider evaluationContextProvider;
 
 	/**
@@ -115,27 +117,6 @@ public class GemfireQueryMethod extends QueryMethod {
 		this.method = method;
 		this.entity = mappingContext.getPersistentEntity(getDomainClass());
 		this.evaluationContextProvider = evaluationContextProvider;
-	}
-
-	/**
-	 * Determines whether the {@link Method} backing this {@link QueryMethod} is a {@link Pageable} {@link Method},
-	 * which requires special logic given Apache Geode does not support pagination since it has no concept of a
-	 * {@literal Database Cursor}.
-	 *
-	 * @param method {@literal query} {@link Method} to be evaluate.
-	 * @return a boolean value indicating whether the {@link Method} has a parameter of type {@link Pageable}.
-	 * @see java.lang.reflect.Method#getParameterTypes()
-	 * @see org.springframework.data.domain.Pageable
-	 */
-	private boolean isPageableQueryMethod(@NonNull Method method) {
-
-		for (Class<?> type : method.getParameterTypes()) {
-			if (Pageable.class.isAssignableFrom(type)) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**

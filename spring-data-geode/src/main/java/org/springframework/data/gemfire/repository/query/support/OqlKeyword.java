@@ -14,17 +14,16 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.query.support;
 
 import org.springframework.util.StringUtils;
 
 /**
- * The OqlKeyword enum represents the range of keywords (Reserved Words)
- * in GemFire's Object Query Language (OQL).
+ * The {@link OqlKeyword} enum represents the complete set of keywords (Reserved Words)
+ * in Apache Geode's Object Query Language (OQL).
  *
  * @author John Blum
- * @see <a href="https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/query_additional/supported_keywords.html">Supported Keywords</a>
+ * @see <a href="https://geode.apache.org/docs/guide/113/developing/query_additional/supported_keywords.html">Supported Keywords</a>
  * @since 1.0.0
  */
 public enum OqlKeyword {
