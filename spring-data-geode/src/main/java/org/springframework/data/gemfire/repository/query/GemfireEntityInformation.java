@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import org.apache.geode.cache.Region;
@@ -26,6 +25,7 @@ import org.springframework.data.repository.core.EntityInformation;
  * @author Oliver Gierke
  * @see org.springframework.data.repository.core.EntityInformation
  */
+// TODO: Move to org.springframework.data.gemfire.repository.core
 public interface GemfireEntityInformation<T, ID> extends EntityInformation<T, ID> {
 
 	/**

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
@@ -30,6 +29,7 @@ import org.springframework.data.repository.core.support.PersistentEntityInformat
  * @see org.springframework.data.gemfire.repository.query.GemfireEntityInformation
  * @see org.springframework.data.repository.core.support.PersistentEntityInformation
  */
+// TODO: Move to org.springframework.data.gemfire.repository.core.support
 public class DefaultGemfireEntityInformation<T, ID> extends PersistentEntityInformation<T, ID>
 		implements GemfireEntityInformation<T, ID> {
 
