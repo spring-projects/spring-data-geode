@@ -3,6 +3,15 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.4.0-RC2 (2020-10-14)
+-----------------------------------------
+* DATAGEODE-374 - Adopt to changes in Spring Data Commons.
+* DATAGEODE-373 - Adapt to API changes in QueryMethod from Spring Data Commons.
+* DATAGEODE-371 - Release 2.4 RC2 (2020.0.0).
+* DATAGEODE-368 - Add API to attach additional AsyncEventQueues and GatewaySenders to peer Regions.
+* DATAGEODE-263 - Add support for PagingAndSortingRepositories.
+
+
 Changes in version 2.4.0-RC1 (2020-09-16)
 -----------------------------------------
 * DATAGEODE-367 - Expose EntityInformation and the GemfireTemplate on SimpleGemfireRepository.
@@ -807,6 +816,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
