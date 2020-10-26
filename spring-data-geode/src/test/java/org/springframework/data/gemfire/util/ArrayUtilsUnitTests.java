@@ -16,7 +16,7 @@
 
 package org.springframework.data.gemfire.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 
@@ -83,7 +83,7 @@ public class ArrayUtilsUnitTests {
 
 	@Test
 	public void defaultIfEmptyWithNullArrayAndNullDefaultArrayReturnsNull() {
-		assertThat(ArrayUtils.defaultIfEmpty(null, null)).isNull();
+		assertThat((Object[]) ArrayUtils.defaultIfEmpty(null, null)).isNull();
 	}
 
 	@Test
