@@ -19,6 +19,7 @@ focus on core POJO programming and business logic. To this end, {sdg-name} intro
 register the public methods of a POJO class as {data-store-name} Functions along with the ability to invoke registered
 Functions (including remotely) by using annotated interfaces.
 
+[[function-implementation-execution]]
 == Implementation Versus Execution
 
 There are two separate concerns to address: implementation and execution.
@@ -96,6 +97,7 @@ The Region data should normally be defined as a `Map`, to facilitate unit testin
 if necessary. As shown in the preceding example, it is also valid to pass the `FunctionContext` itself
 or the `ResultSender` if you need to control over how the results are returned to the client.
 
+[[function-implementation-annotations]]
 === Annotations for Function Implementation
 
 The following example shows how {sdg-acronym}'s Function annotations are used to expose POJO methods
@@ -159,6 +161,7 @@ The `PojoFunctionWrapper` implements {data-store-name}'s `Function` interface, b
 the target method in its `execute()` method. It also sends the method's return value back to the caller
 by using the `ResultSender`.
 
+[[function-implementation-batching-results]]
 === Batching Results
 
 If the return type is an array or `Collection`, then some consideration must be given to how the results are returned.
@@ -170,6 +173,7 @@ TIP: If you need more control of the `ResultSender`, especially if the method it
 to create the `Collection`, you can pass in the `ResultSender` or access it through the `FunctionContext`
 and use it directly within the method to sends results back to the caller.
 
+[[function-implementation-annotations-enabling]]
 === Enabling Annotation Processing
 
 In accordance with Spring standards, you must explicitly activate annotation processing for `@GemfireFunction`
@@ -202,6 +206,7 @@ Thus, some of the configuration and concepts should be familiar.
 Generally, a single interface definition maps to multiple Function executions, one corresponding to each method
 defined in the interface.
 
+[[function-execution-annotations]]
 === Annotations for Function Execution
 
 To support client-side Function execution, the following {sdg-acronym} Function annotations are provided: `@OnRegion`,
@@ -236,6 +241,7 @@ public interface FunctionExecution {
 By default, the Function ID is the simple (unqualified) method name. The `@FunctionId` annotation can be used
 to bind this invocation to a different Function ID.
 
+[[function-execution-annotations-enabling]]
 === Enabling Annotation Processing
 
 The client-side uses Spring's classpath component scanning capability to discover annotated interfaces. To enable
@@ -367,7 +373,7 @@ as follows:
 
 [source,xml]
 ----
-<gfe:cache ... pdx-read-serialized="true"/>
+<gfe:cache pdx-read-serialized="true"/>
 ----
 
 Alternatively, you can set the `pdx-read-serialized` attribute to `true` for a {data-store-name} cache client application,
@@ -375,7 +381,7 @@ as follows:
 
 [source,xml]
 ----
-<gfe:client-cache ... pdx-read-serialized="true"/>
+<gfe:client-cache pdx-read-serialized="true"/>
 ----
 
 Doing so causes all values read from the cache (that is, Regions) as well as information passed between client and servers
@@ -429,11 +435,11 @@ to the desired application domain object types defined by the Function method's 
 However, this also requires you to explicitly register a {data-store-name} `PdxSerializer` on {data-store-name} servers
 where {sdg-name} Function-annotated POJOs are registered and used, as the following example shows:
 
-[source,java]
+[source,xml]
 ----
 <bean id="customPdxSerializer" class="x.y.z.gemfire.serialization.pdx.MyCustomPdxSerializer"/>
 
-<gfe:cache ... pdx-serializer-ref="customPdxSerializeer" pdx-read-serialized="true"/>
+<gfe:cache pdx-serializer-ref="customPdxSerializeer" pdx-read-serialized="true"/>
 ----
 
 Alternatively, you can use {data-store-name}'s
@@ -447,8 +453,8 @@ or as one of {data-store-name}'s PDX types, as follows:
 [source,java]
 ----
 @GemfireFunction
-public Object genericFunction(String value, Object domainObject, PdxInstanceEnum enum) {
- ...
+public Object genericFunction(String value, Object domainObject, PdxInstanceEnum pdxEnum) {
+  // ...
 }
 ----
 
