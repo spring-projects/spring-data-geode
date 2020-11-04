@@ -622,6 +622,8 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 
 					PdxSerializer customPdxSerializer = resolveCustomPdxSerializer(persistentProperty);
 
+					String propertyName = persistentProperty.getName();
+
 					Supplier<String> messageSuffix = () -> customPdxSerializer != null
 						? String.format(" using custom PdxSerializer [%s]", customPdxSerializer)
 						: "";
@@ -632,7 +634,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 
 						if (getLogger().isDebugEnabled()) {
 							getLogger().debug("Serializing entity [{}] property [{}] value [{}] of type [{}] to PDX{}",
-								entity.getType().getName(), persistentProperty.getName(), propertyValue,
+								entity.getType().getName(), propertyName, propertyValue,
 								ObjectUtils.nullSafeClassName(propertyValue), messageSuffix.get());
 						}
 
@@ -640,7 +642,7 @@ public class MappingPdxSerializer implements PdxSerializer, ApplicationContextAw
 							customPdxSerializer.toData(propertyValue, pdxWriter);
 						}
 						else {
-							pdxWriter.writeField(persistentProperty.getName(), propertyValue,
+							pdxWriter.writeField(propertyName, propertyValue,
 								(Class<Object>) persistentProperty.getType());
 						}
 					}
