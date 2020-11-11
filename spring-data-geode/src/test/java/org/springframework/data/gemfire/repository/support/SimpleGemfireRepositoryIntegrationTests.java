@@ -15,24 +15,22 @@
  */
 package org.springframework.data.gemfire.repository.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.*;
+import static org.assertj.core.api.Assertions.*;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
@@ -54,6 +52,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @author Jens Schauder
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
@@ -71,11 +70,9 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 	static final String GEMFIRE_LOG_LEVEL = "warning";
 
-	@Autowired
-	private GemfireTemplate template;
+	@Autowired private GemfireTemplate template;
 
-	@Resource(name = "People")
-	private Region<?, ?> people;
+	@Resource(name = "People") private Region<?, ?> people;
 
 	private RegionClearListener regionClearListener;
 
@@ -91,8 +88,8 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 		GemfireMappingContext mappingContext = new GemfireMappingContext();
 
-		GemfirePersistentEntity<Person> personEntity =
-			(GemfirePersistentEntity<Person>) mappingContext.getPersistentEntity(Person.class);
+		GemfirePersistentEntity<Person> personEntity = (GemfirePersistentEntity<Person>) mappingContext
+				.getPersistentEntity(Person.class);
 
 		EntityInformation<Person, Long> information = new PersistentEntityInformation<>(personEntity);
 
@@ -114,13 +111,8 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 		assertThat(this.repository.count()).isEqualTo(0);
 
-		List<Person> people = Arrays.asList(
-			new Person(1L, "Jon", "Doe"),
-			new Person(2L, "Jane", "Doe"),
-			new Person(3L, "Cookie", "Doe"),
-			new Person(4L, "Pie", "Doe"),
-			new Person(5L, "Sour", "Doe")
-		);
+		List<Person> people = asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
+				new Person(3L, "Cookie", "Doe"), new Person(4L, "Pie", "Doe"), new Person(5L, "Sour", "Doe"));
 
 		people.forEach(person -> this.template.put(person.getId(), person));
 
@@ -128,8 +120,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 		Sort orderByFirstNameAscending = Sort.by("firstname").ascending();
 
-		Page<Person> pageOne =
-			this.repository.findAll(PageRequest.of(0, 3, orderByFirstNameAscending));
+		Page<Person> pageOne = this.repository.findAll(PageRequest.of(0, 3, orderByFirstNameAscending));
 
 		assertThat(pageOne).isNotNull();
 		assertThat(pageOne).isNotEmpty();
@@ -141,8 +132,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		assertThat(pageOne.getTotalPages()).isEqualTo(2);
 		assertThat(pageOne.getContent()).containsExactly(people.get(2), people.get(1), people.get(0));
 
-		Page<Person> pageTwo =
-			this.repository.findAll(PageRequest.of(1, 3, Sort.by("firstname").ascending()));
+		Page<Person> pageTwo = this.repository.findAll(PageRequest.of(1, 3, Sort.by("firstname").ascending()));
 
 		assertThat(pageTwo).isNotNull();
 		assertThat(pageTwo).isNotEmpty();
@@ -166,17 +156,17 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.template.put(carter.getId(), carter);
 		this.template.put(leroi.getId(), leroi);
 
-		Iterable<Person> result = this.repository.findAllById(Arrays.asList(carter.getId(), leroi.getId()));
+		Iterable<Person> result = this.repository.findAllById(asList(carter.getId(), leroi.getId()));
 
 		assertThat(result).isNotNull();
 		assertThat(result).hasSize(2);
-		assertThat(result).containsAll(Arrays.asList(carter, leroi));
+		assertThat(result).containsAll(asList(carter, leroi));
 	}
 
 	@Test
 	public void findAllWithIdsReturnsNoMatches() {
 
-		Iterable<Person> results = this.repository.findAllById(Arrays.asList(1L, 2L));
+		Iterable<Person> results = this.repository.findAllById(asList(1L, 2L));
 
 		assertThat(results).isNotNull();
 		assertThat(results).isEmpty();
@@ -192,7 +182,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.template.put(kurt.getId(), kurt);
 		this.template.put(eddie.getId(), eddie);
 
-		Iterable<Person> results = this.repository.findAllById(Arrays.asList(0L, 1L, 2L, 4L));
+		Iterable<Person> results = this.repository.findAllById(asList(0L, 1L, 2L, 4L));
 
 		assertThat(results).isNotNull();
 		assertThat(results).hasSize(2);
@@ -208,7 +198,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		assertThat(this.template.put(oliverGierke.getId(), oliverGierke)).isNull();
 
 		SelectResults<Person> people = this.template.find("SELECT * FROM /People p WHERE p.firstname = $1",
-			oliverGierke.getFirstname());
+				oliverGierke.getFirstname());
 
 		assertThat(people.size()).isEqualTo(1);
 		assertThat(people.iterator().next()).isEqualTo(oliverGierke);
@@ -231,6 +221,26 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		assertThat(this.repository.findAll()).isEmpty();
 	}
 
+	@Test // DATAGEODE-387
+	public void deleteAllById() {
+
+		assertThat(this.repository.count()).isEqualTo(0);
+
+		List<Person> people = asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
+				new Person(3L, "Cookie", "Doe"), new Person(4L, "Pie", "Doe"), new Person(5L, "Sour", "Doe"));
+
+		people.forEach(person -> this.template.put(person.getId(), person));
+
+		assertThat(this.repository.count()).isEqualTo(5);
+
+		this.repository.deleteAllById(asList(1L, 2L));
+
+		assertThat(this.repository.count()).isEqualTo(3L);
+		assertThat(this.repository.findAll()) //
+				.extracting(Person::getFirstname) //
+				.containsExactlyInAnyOrder("Cookie", "Pie", "Sour");
+	}
+
 	@Test
 	public void saveEntities() {
 
@@ -240,7 +250,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		Person jonBloom = new Person(2L, "Jon", "Bloom");
 		Person juanBlume = new Person(3L, "Juan", "Blume");
 
-		this.repository.saveAll(Arrays.asList(johnBlum, jonBloom, juanBlume));
+		this.repository.saveAll(asList(johnBlum, jonBloom, juanBlume));
 
 		assertThat(this.template.getRegion().size()).isEqualTo(3);
 		assertThat((Person) this.template.get(johnBlum.getId())).isEqualTo(johnBlum);
