@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Gierke
  * @author David Turanski
  * @author John Blum
+ * @author Jens Schauder
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.CacheTransactionManager
  * @see org.apache.geode.cache.Region
@@ -308,6 +309,11 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	@Override
 	public void deleteAll(@NonNull Iterable<? extends T> entities) {
 		CollectionUtils.nullSafeIterable(entities).forEach(this::delete);
+	}
+
+	@Override
+	public void deleteAllById(Iterable<? extends ID> ids) {
+		CollectionUtils.nullSafeIterable(ids).forEach(this::deleteById);
 	}
 
 	@Override
