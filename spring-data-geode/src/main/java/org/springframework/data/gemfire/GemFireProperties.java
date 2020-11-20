@@ -47,7 +47,6 @@ public enum GemFireProperties {
 	ASYNC_QUEUE_TIMEOUT(ConfigurationProperties.ASYNC_QUEUE_TIMEOUT, Long.class, 60000),
 	BIND_ADDRESS(ConfigurationProperties.BIND_ADDRESS, String.class),
 	CACHE_XML_FILE(ConfigurationProperties.CACHE_XML_FILE, String.class),
-	CLUSTER_CONFIGURATION_DIR(ConfigurationProperties.CLUSTER_CONFIGURATION_DIR, File.class),
 	CONFLATE_EVENTS(ConfigurationProperties.CONFLATE_EVENTS, String.class, "server"),
 	CONSERVE_SOCKETS(ConfigurationProperties.CONSERVE_SOCKETS, Boolean.class, true),
 	DELTA_PROPAGATION(ConfigurationProperties.DELTA_PROPAGATION, Boolean.class, true),
