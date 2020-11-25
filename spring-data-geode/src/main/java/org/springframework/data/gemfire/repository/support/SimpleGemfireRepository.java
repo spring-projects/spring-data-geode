@@ -286,8 +286,18 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	}
 
 	@Override
+	public void deleteById(@NonNull ID id) {
+		getTemplate().remove(id);
+	}
+
+	@Override
 	public void delete(@NonNull T entity) {
 		deleteById(getEntityInformation().getRequiredId(entity));
+	}
+
+	@Override
+	public void deleteAllById(@NonNull Iterable<? extends ID> ids) {
+		CollectionUtils.nullSafeIterable(ids).forEach(this::deleteById);
 	}
 
 	@Override
@@ -309,16 +319,6 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	@Override
 	public void deleteAll(@NonNull Iterable<? extends T> entities) {
 		CollectionUtils.nullSafeIterable(entities).forEach(this::delete);
-	}
-
-	@Override
-	public void deleteAllById(Iterable<? extends ID> ids) {
-		CollectionUtils.nullSafeIterable(ids).forEach(this::deleteById);
-	}
-
-	@Override
-	public void deleteById(@NonNull ID id) {
-		getTemplate().remove(id);
 	}
 
 	boolean isPartitioned(Region<?, ?> region) {

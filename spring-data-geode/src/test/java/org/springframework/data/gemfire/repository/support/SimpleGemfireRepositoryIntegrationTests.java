@@ -15,22 +15,24 @@
  */
 package org.springframework.data.gemfire.repository.support;
 
-import static java.util.Arrays.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionEvent;
 import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.util.CacheListenerAdapter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
@@ -111,7 +113,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 		assertThat(this.repository.count()).isEqualTo(0);
 
-		List<Person> people = asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
+		List<Person> people = Arrays.asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
 				new Person(3L, "Cookie", "Doe"), new Person(4L, "Pie", "Doe"), new Person(5L, "Sour", "Doe"));
 
 		people.forEach(person -> this.template.put(person.getId(), person));
@@ -156,17 +158,17 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.template.put(carter.getId(), carter);
 		this.template.put(leroi.getId(), leroi);
 
-		Iterable<Person> result = this.repository.findAllById(asList(carter.getId(), leroi.getId()));
+		Iterable<Person> result = this.repository.findAllById(Arrays.asList(carter.getId(), leroi.getId()));
 
 		assertThat(result).isNotNull();
 		assertThat(result).hasSize(2);
-		assertThat(result).containsAll(asList(carter, leroi));
+		assertThat(result).containsAll(Arrays.asList(carter, leroi));
 	}
 
 	@Test
 	public void findAllWithIdsReturnsNoMatches() {
 
-		Iterable<Person> results = this.repository.findAllById(asList(1L, 2L));
+		Iterable<Person> results = this.repository.findAllById(Arrays.asList(1L, 2L));
 
 		assertThat(results).isNotNull();
 		assertThat(results).isEmpty();
@@ -182,7 +184,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.template.put(kurt.getId(), kurt);
 		this.template.put(eddie.getId(), eddie);
 
-		Iterable<Person> results = this.repository.findAllById(asList(0L, 1L, 2L, 4L));
+		Iterable<Person> results = this.repository.findAllById(Arrays.asList(0L, 1L, 2L, 4L));
 
 		assertThat(results).isNotNull();
 		assertThat(results).hasSize(2);
@@ -226,14 +228,14 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 		assertThat(this.repository.count()).isEqualTo(0);
 
-		List<Person> people = asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
+		List<Person> people = Arrays.asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
 				new Person(3L, "Cookie", "Doe"), new Person(4L, "Pie", "Doe"), new Person(5L, "Sour", "Doe"));
 
 		people.forEach(person -> this.template.put(person.getId(), person));
 
 		assertThat(this.repository.count()).isEqualTo(5);
 
-		this.repository.deleteAllById(asList(1L, 2L));
+		this.repository.deleteAllById(Arrays.asList(1L, 2L));
 
 		assertThat(this.repository.count()).isEqualTo(3L);
 		assertThat(this.repository.findAll()) //
@@ -250,7 +252,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		Person jonBloom = new Person(2L, "Jon", "Bloom");
 		Person juanBlume = new Person(3L, "Juan", "Blume");
 
-		this.repository.saveAll(asList(johnBlum, jonBloom, juanBlume));
+		this.repository.saveAll(Arrays.asList(johnBlum, jonBloom, juanBlume));
 
 		assertThat(this.template.getRegion().size()).isEqualTo(3);
 		assertThat((Person) this.template.get(johnBlum.getId())).isEqualTo(johnBlum);
