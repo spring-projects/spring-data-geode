@@ -14,6 +14,8 @@ package org.springframework.data.gemfire;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Query;
@@ -22,10 +24,16 @@ import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.gemfire.util.CollectionUtils;
 
 /**
+ * {@link GemfireOperations} defines the {{@link Region} data access operations that can be performed
+ * using the {@literal Template software design pattern}.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.query.QueryService
  */
 public interface GemfireOperations {
 
@@ -41,15 +49,30 @@ public interface GemfireOperations {
 
 	<K, V> V get(K key);
 
-	<K, V> Map<K, V> getAll(Collection<?> keys);
+	@SuppressWarnings("unchecked")
+	default <K, V> Map<K, V> getAll(Collection<?> keys) {
+
+		return CollectionUtils.nullSafeCollection(keys).stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toMap(key -> (K) key, this::get));
+	}
 
 	<K, V> V put(K key, V value);
 
-	<K, V> void putAll(Map<? extends K, ? extends V> map);
+	default <K, V> void putAll(Map<? extends K, ? extends V> map) {
+		CollectionUtils.nullSafeMap(map).forEach((key, value) -> put(key, value));
+	}
 
 	<K, V> V putIfAbsent(K key, V value);
 
 	<K, V> V remove(K key);
+
+	default void removeAll(Collection<?> keys) {
+
+		CollectionUtils.nullSafeCollection(keys).stream()
+			.filter(Objects::nonNull)
+			.forEach(this::remove);
+	}
 
 	<K, V> V replace(K key, V value);
 
