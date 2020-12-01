@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -977,6 +979,76 @@ public class SimpleGemfireRepositoryUnitTests {
 		verify(mockRegion, times(2)).getRegionService();
 		verify(mockRegion, times(0)).clear();
 		verify(mockRegion, times(1)).removeAll(eq(keys));
+	}
+
+	@Test
+	public void deleteAllByIdWithKeys() {
+
+		Collection ids = Arrays.asList(1, 2, 3);
+		Collection keys = new HashSet(ids);
+
+		Region<?, ?> mockRegion = mockRegion("Example");
+
+		GemfireTemplate template = spy(newGemfireTemplate(mockRegion));
+
+		SimpleGemfireRepository repository = new SimpleGemfireRepository(template, mockEntityInformation());
+
+		assertThat(repository).isNotNull();
+		assertThat(repository.getTemplate()).isEqualTo(template);
+		assertThat(template.getRegion()).isEqualTo(mockRegion);
+
+		repository.deleteAllById(ids);
+
+		InOrder order = inOrder(mockRegion, template);
+
+		order.verify(template, times(1)).removeAll(eq(keys));
+		order.verify(mockRegion, times(1)).removeAll(eq(keys));
+
+		verifyNoMoreInteractions(mockRegion);
+	}
+
+	@Test
+	public void deleteAllByIdWithMixedKeys() {
+
+		Collection ids = Arrays.asList(1, null, 3);
+		Collection keys = CollectionUtils.asSet(1, 3);
+
+		Region<?, ?> mockRegion = mockRegion("Example");
+
+		GemfireTemplate template = spy(newGemfireTemplate(mockRegion));
+
+		SimpleGemfireRepository repository = new SimpleGemfireRepository(template, mockEntityInformation());
+
+		assertThat(repository).isNotNull();
+		assertThat(repository.getTemplate()).isEqualTo(template);
+		assertThat(template.getRegion()).isEqualTo(mockRegion);
+
+		repository.deleteAllById(ids);
+
+		InOrder order = inOrder(mockRegion, template);
+
+		order.verify(template, times(1)).removeAll(eq(keys));
+		order.verify(mockRegion, times(1)).removeAll(eq(keys));
+
+		verifyNoMoreInteractions(mockRegion);
+	}
+
+	@Test
+	public void deleteAllByIdWithNullCollectionOfKeys() {
+
+		Region<?, ?> mockRegion = mockRegion("Example");
+
+		GemfireTemplate template = spy(newGemfireTemplate(mockRegion));
+
+		SimpleGemfireRepository repository = new SimpleGemfireRepository(template, mockEntityInformation());
+
+		assertThat(repository).isNotNull();
+		assertThat(repository.getTemplate()).isEqualTo(template);
+		assertThat(template.getRegion()).isEqualTo(mockRegion);
+
+		repository.deleteAllById(null);
+
+		verifyNoInteractions(mockRegion);
 	}
 
 	@Test

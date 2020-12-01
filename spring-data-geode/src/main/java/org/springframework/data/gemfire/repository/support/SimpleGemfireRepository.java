@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -71,6 +72,8 @@ import org.slf4j.LoggerFactory;
  * @see org.springframework.data.repository.core.EntityInformation
  */
 public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> {
+
+	protected static final String SELECT_COUNT_OQL_QUERY = "SELECT count(*) FROM %s";
 
 	private final EntityInformation<T, ID> entityInformation;
 
@@ -132,7 +135,7 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 
 	/**
 	 * Returns a reference to the {@link GemfireTemplate} used by this {@link GemfireRepository} to perform basic
-	 * CRUD data access operations and simple OQL queries.
+	 * CRUD and simple OQL queries data access operations
 	 *
 	 * @return a reference to the {@link GemfireTemplate} used by this {@link GemfireRepository}.
 	 * @see org.springframework.data.gemfire.GemfireTemplate
@@ -200,7 +203,7 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	public long count() {
 
 		String regionPath = getRegion().getFullPath();
-		String countQuery = String.format("SELECT count(*) FROM %s", regionPath);
+		String countQuery = String.format(SELECT_COUNT_OQL_QUERY, regionPath);
 
 		SelectResults<Integer> results = getTemplate().find(countQuery);
 
@@ -286,18 +289,8 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	}
 
 	@Override
-	public void deleteById(@NonNull ID id) {
-		getTemplate().remove(id);
-	}
-
-	@Override
 	public void delete(@NonNull T entity) {
 		deleteById(getEntityInformation().getRequiredId(entity));
-	}
-
-	@Override
-	public void deleteAllById(@NonNull Iterable<? extends ID> ids) {
-		CollectionUtils.nullSafeIterable(ids).forEach(this::deleteById);
 	}
 
 	@Override
@@ -319,6 +312,24 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 	@Override
 	public void deleteAll(@NonNull Iterable<? extends T> entities) {
 		CollectionUtils.nullSafeIterable(entities).forEach(this::delete);
+	}
+
+	@Override
+	public void deleteAllById(@NonNull Iterable<? extends ID> ids) {
+
+		Set<? extends ID> keys =
+			StreamSupport.stream(CollectionUtils.nullSafeIterable(ids).spliterator(), false)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		if (!keys.isEmpty()) {
+			getTemplate().removeAll(keys);
+		}
+	}
+
+	@Override
+	public void deleteById(@NonNull ID id) {
+		getTemplate().remove(id);
 	}
 
 	boolean isPartitioned(Region<?, ?> region) {

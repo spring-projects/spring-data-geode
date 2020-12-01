@@ -72,9 +72,11 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 	static final String GEMFIRE_LOG_LEVEL = "warning";
 
-	@Autowired private GemfireTemplate template;
+	@Autowired
+	private GemfireTemplate template;
 
-	@Resource(name = "People") private Region<?, ?> people;
+	@Resource(name = "People")
+	private Region<?, ?> people;
 
 	private RegionClearListener regionClearListener;
 
@@ -106,6 +108,31 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.repository.deleteAll();
 
 		assertThat(this.regionClearListener.eventFired).isTrue();
+	}
+
+	@Test // DATAGEODE-387
+	public void deleteAllById() {
+
+		assertThat(this.repository.count()).isEqualTo(0);
+
+		List<Person> people = Arrays.asList(
+			new Person(1L, "Jon", "Doe"),
+			new Person(2L, "Jane", "Doe"),
+			new Person(3L, "Cookie", "Doe"),
+			new Person(4L, "Pie", "Doe"),
+			new Person(5L, "Sour", "Doe")
+		);
+
+		people.forEach(person -> this.template.put(person.getId(), person));
+
+		assertThat(this.repository.count()).isEqualTo(5);
+
+		this.repository.deleteAllById(Arrays.asList(1L, 2L));
+
+		assertThat(this.repository.count()).isEqualTo(3L);
+		assertThat(this.repository.findAll()) //
+			.extracting(Person::getFirstname) //
+			.containsExactlyInAnyOrder("Cookie", "Pie", "Sour");
 	}
 
 	@Test
@@ -221,26 +248,6 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		assertThat(this.repository.count()).isEqualTo(0L);
 		assertThat(this.repository.findById(oliverGierke.getId()).orElse(null)).isNull();
 		assertThat(this.repository.findAll()).isEmpty();
-	}
-
-	@Test // DATAGEODE-387
-	public void deleteAllById() {
-
-		assertThat(this.repository.count()).isEqualTo(0);
-
-		List<Person> people = Arrays.asList(new Person(1L, "Jon", "Doe"), new Person(2L, "Jane", "Doe"),
-				new Person(3L, "Cookie", "Doe"), new Person(4L, "Pie", "Doe"), new Person(5L, "Sour", "Doe"));
-
-		people.forEach(person -> this.template.put(person.getId(), person));
-
-		assertThat(this.repository.count()).isEqualTo(5);
-
-		this.repository.deleteAllById(Arrays.asList(1L, 2L));
-
-		assertThat(this.repository.count()).isEqualTo(3L);
-		assertThat(this.repository.findAll()) //
-				.extracting(Person::getFirstname) //
-				.containsExactlyInAnyOrder("Cookie", "Pie", "Sour");
 	}
 
 	@Test

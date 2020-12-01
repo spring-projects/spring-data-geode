@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.support;
 
 import static org.junit.Assert.assertEquals;
@@ -28,12 +27,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireTemplate;
@@ -51,7 +50,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Integration tests testing the {@link SimpleGemfireRepository} class and SDC Repository abstraction implementation
+ * Integration Tests testing the {@link SimpleGemfireRepository} class and SDC Repository abstraction implementation
  * in the context of GemFire "Cache" Transactions.
  *
  * @author John Blum
@@ -75,7 +74,7 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest {
 	private CustomerService customerService;
 
 	@Resource(name = "Customers")
-	private Region customers;
+	private Region<?, ?> customers;
 
 	static Customer createCustomer(String firstName, String lastName) {
 
@@ -102,7 +101,7 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest {
 
 	@Test
 	public void testDeleteAll() {
-		Collection<Customer> expectedCustomers = new ArrayList<Customer>(4);
+		Collection<Customer> expectedCustomers = new ArrayList<>(4);
 
 		expectedCustomers.add(createCustomer("Jon", "Doe"));
 		expectedCustomers.add(createCustomer("Jane", "Doe"));
