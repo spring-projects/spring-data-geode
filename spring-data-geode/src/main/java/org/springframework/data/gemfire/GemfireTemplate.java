@@ -46,7 +46,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * This Template class simplifies Apache Geode data access operations, converting Apache Geode
+ * The {@link GemfireTemplate} class simplifies Apache Geode data access operations, converting Apache Geode
  * {@link GemFireCheckedException GemFireCheckedExceptions} and {@link GemFireException GemFireExceptions} into
  * Spring {@link DataAccessException DataAccessExceptions}, following the <code>org.springframework.dao</code>
  * {@link Exception} hierarchy.
@@ -236,6 +236,17 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 		try {
 			return this.<K, V>getRegion().remove(key);
+		}
+		catch (GemFireException cause) {
+			throw convertGemFireAccessException(cause);
+		}
+	}
+
+	@Override
+	public void removeAll(Collection<?> keys) {
+
+		try {
+			getRegion().removeAll(keys);
 		}
 		catch (GemFireException cause) {
 			throw convertGemFireAccessException(cause);

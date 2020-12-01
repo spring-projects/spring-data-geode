@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,15 +24,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.geode.GemFireCheckedException;
-import org.apache.geode.GemFireException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionService;
@@ -43,17 +47,11 @@ import org.apache.geode.cache.query.Query;
 import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationTestsWithMockSupport;
 
 /**
- * Unit tests for {@link GemfireTemplate}
+ * Unit Tests for {@link GemfireTemplate}
  *
  * @author Costin Leau
  * @author David Turanski
@@ -62,10 +60,13 @@ import org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationT
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.query.Query
+ * @see org.apache.geode.cache.query.QueryService
+ * @see org.apache.geode.cache.query.SelectResults
  * @see org.springframework.data.gemfire.GemfireTemplate
- * @see AbstractUnitAndIntegrationTestsWithMockSupport
- * @see org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer
- * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationTestsWithMockSupport
  */
 @SuppressWarnings("unused")
 @RunWith(MockitoJUnitRunner.class)
@@ -86,7 +87,8 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 	private RegionService mockRegionService;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
+
 		when(mockRegion.getRegionService()).thenReturn(mockRegionService);
 		when(mockRegionService.getQueryService()).thenReturn(mockQueryService);
 		when(mockQueryService.newQuery(anyString())).thenReturn(mockQuery);
@@ -96,6 +98,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 	@Test
 	public void constructWithNonNullRegionIsSuccessful() {
+
 		GemfireTemplate localTemplate = new GemfireTemplate(mockRegion);
 
 		assertThat(localTemplate).isNotNull();
@@ -120,6 +123,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 	@Test
 	public void executeWithGemfireCallbackUsesNativeRegion() {
+
 		template.setExposeNativeRegion(true);
 
 		assertThat(template.isExposeNativeRegion()).isTrue();
@@ -127,13 +131,10 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 		final AtomicBoolean callbackInvoked = new AtomicBoolean(false);
 
-		template.execute(new GemfireCallback<Object>() {
-			@Override
-			public Object doInGemfire(Region<?, ?> region) throws GemFireCheckedException, GemFireException {
-				callbackInvoked.set(true);
-				assertThat(region).isSameAs(mockRegion);
-				return null;
-			}
+		template.execute(region -> {
+			callbackInvoked.set(true);
+			assertThat(region).isSameAs(mockRegion);
+			return null;
 		});
 
 		assertThat(callbackInvoked.get()).isTrue();
@@ -141,17 +142,15 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 	@Test
 	public void executeWithGemfireCallbackUsesProxyRegion() {
+
 		assertThat(template.isExposeNativeRegion()).isFalse();
 
-		final AtomicBoolean callbackInvoked = new AtomicBoolean(false);
+		AtomicBoolean callbackInvoked = new AtomicBoolean(false);
 
-		template.execute(new GemfireCallback<Object>() {
-			@Override
-			public Object doInGemfire(Region<?, ?> region) throws GemFireCheckedException, GemFireException {
-				callbackInvoked.set(true);
-				assertThat(region).isNotSameAs(mockRegion);
-				return null;
-			}
+		template.execute(region -> {
+			callbackInvoked.set(true);
+			assertThat(region).isNotSameAs(mockRegion);
+			return null;
 		});
 
 		assertThat(callbackInvoked.get()).isTrue();
@@ -159,6 +158,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 	@Test
 	public void queryCallsRegionQuery() throws Exception {
+
 		String expectedQuery = "SELECT * FROM /Example";
 
 		template.query(expectedQuery);
@@ -173,7 +173,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 
 		String expectedQuery = "SELECT * FROM /Example";
 
-		SelectResults mockSelectResults = mock(SelectResults.class);
+		SelectResults<?> mockSelectResults = mock(SelectResults.class);
 
 		when(mockQuery.execute(any(Object.class))).thenReturn(mockSelectResults);
 
@@ -183,7 +183,8 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		verify(mockRegionService, times(1)).getQueryService();
 		verify(mockQueryService, times(1)).newQuery(eq(expectedQuery));
 		verify(mockQuery, times(1)).execute(eq("arg"));
-		verifyZeroInteractions(mockSelectResults);
+
+		verifyNoMoreInteractions(mockSelectResults);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -207,6 +208,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	public void findUniqueReturnsSelectResultsIsSuccessful() throws Exception {
 
 		Object[] expectedParams = { "arg" };
@@ -244,6 +246,7 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		verify(mockQuery, times(1)).execute(eq("arg"));
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void findUniqueWithMultiResultQueryThrowsInvalidDataAccessApiUsageException() throws Exception {
 
@@ -269,8 +272,21 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 	}
 
 	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void removeAllCallsRegionRemoveAll() {
+
+		Collection keys = Arrays.asList(1, 2, 3);
+
+		this.template.removeAll(keys);
+
+		verify(this.mockRegion, times(1)).removeAll(eq(keys));
+		verifyNoMoreInteractions(this.mockRegion);
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	public void resolveClientQueryService() {
+
 		ClientCache mockClientCache = mock(ClientCache.class);
 		Region<Object, Object> mockRegion = mock(Region.class);
 		RegionAttributes<Object, Object> mockRegionAttributes = mock(RegionAttributes.class);
@@ -294,12 +310,14 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		verify(mockRegion, times(2)).getAttributes();
 		verify(mockRegion, times(3)).getRegionService();
 		verify(mockRegionAttributes, times(1)).getScope();
-		verifyZeroInteractions(mockQueryService);
+
+		verifyNoMoreInteractions(mockQueryService);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void resolvesClientLocalQueryService() {
+
 		ClientCache mockClientCache = mock(ClientCache.class);
 		Region<Object, Object> mockRegion = mock(Region.class);
 		RegionAttributes<Object, Object> mockRegionAttributes = mock(RegionAttributes.class);
@@ -322,12 +340,14 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		verify(mockClientCache, never()).getQueryService(anyString());
 		verify(mockRegion, times(2)).getRegionService();
 		verify(mockRegionAttributes, times(1)).getScope();
-		verifyZeroInteractions(mockQueryService);
+
+		verifyNoMoreInteractions(mockQueryService);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void resolvesClientPooledQueryService() {
+
 		ClientCache mockClientCache = mock(ClientCache.class);
 		Region<Object, Object> mockRegion = mock(Region.class);
 		RegionAttributes<Object, Object> mockRegionAttributes = mock(RegionAttributes.class);
@@ -352,11 +372,13 @@ public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWit
 		verify(mockRegion, times(2)).getRegionService();
 		verify(mockRegionAttributes, times(2)).getPoolName();
 		verify(mockRegionAttributes, times(1)).getScope();
-		verifyZeroInteractions(mockQueryService);
+
+		verifyNoMoreInteractions(mockQueryService);
 	}
 
 	@Test
 	public void resolvePeerQueryService() {
+
 		assertThat(template.resolveQueryService(mockRegion)).isEqualTo(mockQueryService);
 
 		verify(mockRegion, times(2)).getRegionService();
