@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.junit.Assert.assertEquals;
@@ -21,22 +20,23 @@ import static org.junit.Assert.assertNotNull;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.Region;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * The ColocatedRegionIntegrationTest class is a test suite class containing test cases for JIRA issue SGF-195,
- * concerning colocated Regions in GemFire.
+ * Integration Tests for collocated {@link Region} configuration.
  *
  * @author John Blum
  * @link https://jira.springsource.org/browse/SGF-195
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.3.3
@@ -47,24 +47,33 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class ColocatedRegionIntegrationTest {
 
 	@Resource(name = "colocatedRegion")
-	private Region colocatedRegion;
+	private Region<?, ?> collocatedRegion;
 
 	@Resource(name = "sourceRegion")
-	private Region sourceRegion;
+	private Region<?, ?> sourceRegion;
 
-	protected static void assertRegionExists(final String expectedRegionName, final Region region) {
+	protected static void assertRegionExists(String expectedRegionName, Region<?, ?> region) {
+
 		assertNotNull(region);
-		assertEquals(String.format("Expected Region with name %1$s; but was %2$s!",
+
+		assertEquals(String.format("Expected Region with name [%1$s]; but was [%2$s]!",
 			expectedRegionName, region.getName()), expectedRegionName, region.getName());
 	}
 
-	@Test
-	public void testRegionsColocated() {
-		assertRegionExists("Source", sourceRegion);
-		assertRegionExists("Colocated", colocatedRegion);
-		assertNotNull(colocatedRegion.getAttributes());
-		assertNotNull(colocatedRegion.getAttributes().getPartitionAttributes());
-		assertEquals(sourceRegion.getName(), colocatedRegion.getAttributes().getPartitionAttributes().getColocatedWith());
+	@Before
+	public void setup() {
+
+		assertRegionExists("Source", this.sourceRegion);
+		assertRegionExists("Collocated", this.collocatedRegion);
 	}
 
+	@Test
+	public void testRegionsCollocated() {
+
+		assertNotNull(this.collocatedRegion.getAttributes());
+		assertNotNull(this.collocatedRegion.getAttributes().getPartitionAttributes());
+
+		assertEquals(this.sourceRegion.getName(),
+			this.collocatedRegion.getAttributes().getPartitionAttributes().getColocatedWith());
+	}
 }

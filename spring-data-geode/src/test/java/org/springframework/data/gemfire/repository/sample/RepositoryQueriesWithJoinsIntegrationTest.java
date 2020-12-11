@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.sample;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,13 +24,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.query.Query;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * The RepositoryQueriesWithJoinsTest class is a test suite of test cases testing the use of JOINS between 2 Regions
- * in GemFire OQL queries (SELECT statements).
+ * Integrations Tests for Spring Data GemFire {@link GemfireRepository Repositories} executing {@literal OQL}
+ * {@link Query Queries} with {@literal JOINS}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -67,6 +69,7 @@ public class RepositoryQueriesWithJoinsIntegrationTest {
 
 	@Test
 	public void joinQueriesWork() {
+
 		Customer jonDoe = customerRepo.save(newCustomer("Jon", "Doe"));
 		Customer janeDoe = customerRepo.save(newCustomer("Jane", "Doe"));
 		Customer jackHandy = customerRepo.save(newCustomer("Jack", "Handy"));
