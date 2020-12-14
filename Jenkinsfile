@@ -20,22 +20,23 @@ pipeline {
 				}
 			}
 			agent {
-				docker {
-					image 'adoptopenjdk/openjdk8:latest'
-					label 'data'
-					args '-v $HOME:/tmp/jenkins-home'
-				}
+				label 'data'
 			}
 			options { timeout(time: 30, unit: 'MINUTES') }
 			steps {
-				sh 'rm -rf ?'
-				sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-				sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-				sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-				sh 'rm -Rf `find . -name "newDB"`'
-				sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-				sh 'rm -Rf `find . -name "*.log"`'
-				sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw clean dependency:list test -Dsort -U -B'
+				script {
+					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+							sh 'rm -Rf `find . -name "newDB"`'
+							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+							sh 'rm -Rf `find . -name "*.log"`'
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw clean dependency:list test -Dsort -U -B'
+						}
+					}
+				}
 			}
 		}
 
@@ -49,43 +50,45 @@ pipeline {
 			parallel {
 				stage("test: baseline (jdk11)") {
 					agent {
-						docker {
-							image 'adoptopenjdk/openjdk11:latest'
-							label 'data'
-							args '-v $HOME:/tmp/jenkins-home'
-						}
+						label 'data'
 					}
 					options { timeout(time: 30, unit: 'MINUTES') }
 					steps {
-						sh 'rm -rf ?'
-						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-						sh 'rm -Rf `find . -name "newDB"`'
-						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-						sh 'rm -Rf `find . -name "*.log"`'
-						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+						script {
+							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+								docker.image('adoptopenjdk/openjdk11:latest').inside('-v $HOME:/tmp/jenkins-home') {
+									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+									sh 'rm -Rf `find . -name "newDB"`'
+									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+									sh 'rm -Rf `find . -name "*.log"`'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+								}
+							}
+						}
 					}
 				}
 
 				stage("test: baseline (jdk15)") {
 					agent {
-						docker {
-							image 'adoptopenjdk/openjdk15:latest'
-							label 'data'
-							args '-v $HOME:/tmp/jenkins-home'
-						}
+						label 'data'
 					}
 					options { timeout(time: 30, unit: 'MINUTES') }
 					steps {
-						sh 'rm -rf ?'
-						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-						sh 'rm -Rf `find . -name "newDB"`'
-						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-						sh 'rm -Rf `find . -name "*.log"`'
-						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+						script {
+							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+								docker.image('adoptopenjdk/openjdk15:latest').inside('-v $HOME:/tmp/jenkins-home') {
+									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+									sh 'rm -Rf `find . -name "newDB"`'
+									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+									sh 'rm -Rf `find . -name "*.log"`'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+								}
+							}
+						}
 					}
 				}
 			}
@@ -99,11 +102,7 @@ pipeline {
 				}
 			}
 			agent {
-				docker {
-					image 'adoptopenjdk/openjdk8:latest'
-					label 'data'
-					args '-v $HOME:/tmp/jenkins-home'
-				}
+				label 'data'
 			}
 			options { timeout(time: 20, unit: 'MINUTES') }
 
@@ -112,21 +111,26 @@ pipeline {
 			}
 
 			steps {
-				sh 'rm -rf ?'
-				sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-				sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-				sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-				sh 'rm -Rf `find . -name "newDB"`'
-				sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-				sh 'rm -Rf `find . -name "*.log"`'
-				sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -Pci,artifactory ' +
-						'-Dartifactory.server=https://repo.spring.io ' +
-						"-Dartifactory.username=${ARTIFACTORY_USR} " +
-						"-Dartifactory.password=${ARTIFACTORY_PSW} " +
-						"-Dartifactory.staging-repository=libs-snapshot-local " +
-						"-Dartifactory.build-name=spring-data-geode " +
-						"-Dartifactory.build-number=${BUILD_NUMBER} " +
-						'-Dmaven.test.skip=true clean deploy -U -B'
+				script {
+					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+							sh 'rm -Rf `find . -name "newDB"`'
+							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+							sh 'rm -Rf `find . -name "*.log"`'
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -Pci,artifactory ' +
+									'-Dartifactory.server=https://repo.spring.io ' +
+									"-Dartifactory.username=${ARTIFACTORY_USR} " +
+									"-Dartifactory.password=${ARTIFACTORY_PSW} " +
+									"-Dartifactory.staging-repository=libs-snapshot-local " +
+									"-Dartifactory.build-name=spring-data-geode " +
+									"-Dartifactory.build-number=${BUILD_NUMBER} " +
+									'-Dmaven.test.skip=true clean deploy -U -B'
+						}
+					}
+				}
 			}
 		}
 		stage('Publish documentation') {
@@ -134,11 +138,7 @@ pipeline {
 				branch '2.4.x'
 			}
 			agent {
-				docker {
-					image 'adoptopenjdk/openjdk8:latest'
-					label 'data'
-					args '-v $HOME:/tmp/jenkins-home'
-				}
+				label 'data'
 			}
 			options { timeout(time: 20, unit: 'MINUTES') }
 
@@ -147,12 +147,18 @@ pipeline {
 			}
 
 			steps {
-				sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -Pci,distribute ' +
-						'-Dartifactory.server=https://repo.spring.io ' +
-						"-Dartifactory.username=${ARTIFACTORY_USR} " +
-						"-Dartifactory.password=${ARTIFACTORY_PSW} " +
-						"-Dartifactory.distribution-repository=temp-private-local " +
-						'-Dmaven.test.skip=true clean deploy -U -B'
+				script {
+					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -Pci,distribute ' +
+									'-Dartifactory.server=https://repo.spring.io ' +
+									"-Dartifactory.username=${ARTIFACTORY_USR} " +
+									"-Dartifactory.password=${ARTIFACTORY_PSW} " +
+									"-Dartifactory.distribution-repository=temp-private-local " +
+									'-Dmaven.test.skip=true clean deploy -U -B'
+						}
+					}
+				}
 			}
 		}
 	}
