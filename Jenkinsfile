@@ -33,7 +33,8 @@ pipeline {
 							sh 'rm -Rf `find . -name "newDB"`'
 							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 							sh 'rm -Rf `find . -name "*.log"`'
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw clean dependency:list test -Dsort -U -B'						}
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw clean dependency:list test -Dsort -U -B'
+						}
 					}
 				}
 			}
@@ -63,6 +64,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
 									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+								}
 							}
 						}
 					}
@@ -84,6 +86,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
 									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+								}
 							}
 						}
 					}
