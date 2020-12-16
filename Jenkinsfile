@@ -78,7 +78,7 @@ pipeline {
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image('adoptopenjdk/openjdk15:latest').inside('-v $HOME:/tmp/jenkins-home') {
+								docker.image('adoptopenjdk/openjdk14:latest').inside('-v $HOME:/tmp/jenkins-home') {
 									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
