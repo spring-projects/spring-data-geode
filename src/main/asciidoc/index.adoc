@@ -3,7 +3,7 @@ Costin Leau; David Turanski; John Blum; Oliver Gierke; Jay Bryant
 :revdate: {localdate}
 :revnumber: {version}
 :toclevels: 2
-:apache-geode-version: 19
+:apache-geode-version: 112
 :apache-geode-docs: https://geode.apache.org/docs/guide/{apache-geode-version}
 :apache-geode-javadoc: https://geode.apache.org/releases/latest/javadoc
 :apache-geode-website: https://geode.apache.org
@@ -11,8 +11,8 @@ Costin Leau; David Turanski; John Blum; Oliver Gierke; Jay Bryant
 :data-store-name-symbolic: geode
 :data-store-name-simple: Geode
 :data-store-name: Apache {data-store-name-simple}
-:data-store-version: 1.9.0
-:pivotal-gemfire-version: 98
+:data-store-version: 1.12.0
+:pivotal-gemfire-version: 910
 :pivotal-gemfire-docs: https://gemfire.docs.pivotal.io/{pivotal-gemfire-version}
 :pivotal-gemfire-javadoc: https://gemfire-{pivotal-gemfire-version}-javadocs.docs.pivotal.io/
 :pivotal-gemfire-website: https://pivotal.io/pivotal-gemfire
@@ -39,11 +39,9 @@ Costin Leau; David Turanski; John Blum; Oliver Gierke; Jay Bryant
 :x-data-store-wiki: {apache-geode-wiki}
 ifdef::backend-epub3[:front-cover-image: image:epub-cover.png[Front Cover,1050,1600]]
 
-(C) 2010-2019 The original authors.
+(C) 2010-2020 The original authors.
 
-NOTE: Copies of this document may be made for your own use and for distribution to others provided that you do not
-charge any fee for such copies and further provided that each copy contains this Copyright Notice
-whether distributed in print or electronically.
+NOTE: Copies of this document may be made for your own use and for distribution to others provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice whether distributed in print or electronically.
 
 [[preface]]
 include::{basedocdir}/preface.adoc[]
@@ -63,6 +61,7 @@ include::{basedocdir}/reference/serialization.adoc[leveloffset=+1]
 include::{basedocdir}/reference/mapping.adoc[leveloffset=+1]
 include::{basedocdir}/reference/repositories.adoc[leveloffset=+1]
 include::{basedocdir}/reference/function-annotations.adoc[leveloffset=+1]
+include::{basedocdir}/reference/event-handling-annotations.adoc[leveloffset=+1]
 include::{basedocdir}/reference/lucene.adoc[leveloffset=+1]
 include::{basedocdir}/reference/gemfire-bootstrap.adoc[leveloffset=+1]
 include::{basedocdir}/reference/samples.adoc[leveloffset=+1]

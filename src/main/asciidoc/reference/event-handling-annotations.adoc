@@ -1,0 +1,134 @@
+[[bootstrap:eventhandling]]
+= Event Handling
+
+{sdg-name} includes annotation support for event handling.
+There are multiple types of event handlers in {data-store-name}.
+The most common event handlers are {x-data-store-javadoc}/org/apache/geode/cache/CacheListener.html[CacheListeners] and
+{x-data-store-javadoc}/org/apache/geode/cache/CacheWriter.html[CacheWriters].
+
+To enable the processing of annotation driven event handlers the following annotation has to be included:
+
+[source,java]
+----
+@EnableEventProcessing
+----
+
+Once enabled,methods annotated with `@AsCacheWriter`, `@AsCacheListener` or `@AsRegionEventHandler` will be configured within the system.
+
+It is imporatant to note, all methods annotated with:
+
+- `AsCacheListener` will be post-commit event handling methods for Region data specific events
+- `AsCacheWriter` will be pre-commit event handling methods for Region data specific events
+- `AsRegionEventHandler` can be both pre and post commit event handling methods for Region specific events
+
+[Note]
+====
+It is important to note here that methods annotated with `AsCacheWriter`, `AsCacheLister` or `AsRegionEventHandler` only support one parameter.
+This parameter will either be of type `EntryEvent` or `RegionEvent`.
+====
+
+== CacheListeners
+
+CacheListeners are post-commit event handlers, thus every event handler method is denoted with the `_after_` prefix.
+To configure an event handling method, the method has to be annotated with `@AsCacheListener`.
+The `AsCacheListener` annotation deals only with post-commit data operational events.
+Every method annotated with `AsCacheListener` requires a single parameter of type `EntryEvent`.
+
+[source,java]
+----
+@AsCacheListener(eventTypes = ... <!--1-->
+               ,regions = ...)<!--2-->
+public void afterEventHandler(EntryEvent event) { <!--3-->
+	...
+        ... <!--4-->
+}
+----
+
+<1> The event types that need to handled by this method need to be configured here.
+This is a mandatory field and will require a value.
+Multiple values are accepted here.
+<2> The regions on which this event handler needs to be registered on.
+This is an optional field.
+If this field is not set, this event handler will be registered with all configured Regions.
+<3> Every event handler needs to be configured to with an Event.
+In the case of a Region operation, and CRUD operation, this event is of type EntryEvent.
+<4> Write the event handling code for the received event.
+
+The supported event types are described by
+{sdg-javadoc}/org/springframework/data/gemfire/eventing/config/CacheListenerEventType.java[CacheListenerEventType]
+
+== CacheWriters
+
+CacheWriters are pre-commit event handlers, thus every event handler method is denoted with the `_before_` prefix.
+To configure an event handling method, the method has to be annotated with `@AsCacheWriter`.
+The `AsCacheWriter` annotation deals only with pre-commit data operational events.
+Every method annotated with `AsCacheWriter` requires a single parameter of type `EntryEvent`.
+
+[source,java]
+----
+@AsCacheWriter(eventTypes = ... <!--1-->
+               ,regions = ...)<!--2-->
+public void beforeEventHandler(EntryEvent event) { <!--3-->
+	...
+        ... <!--4-->
+}
+----
+
+<1> The event types that need to handled by this method need to be configured here.
+This is a mandatory field and will require a value.
+Multiple values are accepted here.
+<2> The regions on which this event handler needs to be registered on.
+This is an optional field.
+If this field is not set, this event handler will be registered with all configured Regions.
+<3> Every event handler needs to be configured to with an Event.
+In the case of a Region operation, and CRUD operation, this event is of type EntryEvent.
+<4> Write the event handling code for the received event.
+
+The supported event types are described by
+{sdg-javadoc}/org/springframework/data/gemfire/eventing/config/CacheWriterEventType.java[CacheWriterEventType]
+
+[Note]
+====
+A single method can be annotated with both `AsCacheWriter` and `AsCacheListener`.
+A common usecase for this is possible
+`Fine` system logging of events.
+====
+
+== Region Event Handlers
+
+Region Event Handlers are event handlers that handle Region management events, not Region data operational events like CacheWriters or CacheListeners.
+Common Region events are, REGION_CLEAR, REGION_CREATE, REGION_DESTROY or REGION_LIVE.
+
+Similarly to `AsCacheListener` or `AsCacheWriter`, Region event handlers are annotated with `@AsRegionEventHandler`.
+A method marked for Region event handling has a single parameter, `RegionEvent`.
+
+[Note]
+====
+It is important to note that Region event handler methods have to use `RegionEvent`. `CacheWriter` and `CacheListener`
+event handlers use `EntryEntries`.
+It is important to note this distinction.
+====
+
+Unlike `CacheListeners` and `CacheWriters`, a method annotated with `@AsRegionEventHandler`, can be used for both the pre and post-commit events.
+Meaning a single method can be configured to fire before or after the event has occured.
+
+[source,java]
+----
+@AsRegionEventHandler(regionWriterEventTypes = .... <!--1-->
+                      ,regionListenerEventTypes = ... <!--2-->
+                      ,regions = ... )   <!--3-->
+public void beforeRegionDestroy(RegionEvent event) {   <!--4-->
+	....      <!--5-->
+}
+----
+
+<1> The post-commit Region event type is configured here.
+Multiple values are accepted.
+<2> The pre-commit Region event type is configured here.
+Multiple values are accepted.
+<3> The regions on which the RegionEventHandler needs to be registered on.
+This is an optional field.
+If not populated all defined Regions will be configured to use the RegionEventHandler.
+<4> The region event that is provided.
+Note: In the case of the a RegionEventHandler, this type is a RegionEvent
+<5> The custom event handling code that is to be executed upon receiving the event.
