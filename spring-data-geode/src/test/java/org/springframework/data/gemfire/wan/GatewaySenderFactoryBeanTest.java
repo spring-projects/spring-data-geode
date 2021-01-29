@@ -15,11 +15,11 @@
  */
 package org.springframework.data.gemfire.wan;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -128,9 +128,9 @@ public class GatewaySenderFactoryBeanTest {
 
 		GatewaySender gatewaySender = factoryBean.getObject();
 
-		assertNotNull(gatewaySender);
-		assertEquals("g0", gatewaySender.getId());
-		assertEquals(69, gatewaySender.getRemoteDSId());
+		assertThat(gatewaySender).isNotNull();
+		assertThat(gatewaySender.getId()).isEqualTo("g0");
+		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(69);
 	}
 
 	@Test
@@ -152,9 +152,9 @@ public class GatewaySenderFactoryBeanTest {
 
 		GatewaySender gatewaySender = factoryBean.getObject();
 
-		assertNotNull(gatewaySender);
-		assertEquals("g4", gatewaySender.getId());
-		assertEquals(21, gatewaySender.getRemoteDSId());
+		assertThat(gatewaySender).isNotNull();
+		assertThat(gatewaySender.getId()).isEqualTo("g4");
+		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(21);
 	}
 
 	@Test
@@ -175,9 +175,9 @@ public class GatewaySenderFactoryBeanTest {
 
 		GatewaySender gatewaySender = factoryBean.getObject();
 
-		assertNotNull(gatewaySender);
-		assertEquals("g1", gatewaySender.getId());
-		assertEquals(69, gatewaySender.getRemoteDSId());
+		assertThat(gatewaySender).isNotNull();
+		assertThat(gatewaySender.getId()).isEqualTo("g1");
+		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(69);
 	}
 
 	@Test
@@ -198,9 +198,9 @@ public class GatewaySenderFactoryBeanTest {
 
 		GatewaySender gatewaySender = factoryBean.getObject();
 
-		assertNotNull(gatewaySender);
-		assertEquals("g7", gatewaySender.getId());
-		assertEquals(51, gatewaySender.getRemoteDSId());
+		assertThat(gatewaySender).isNotNull();
+		assertThat(gatewaySender.getId()).isEqualTo("g7");
+		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(51);
 	}
 
 	@Test
@@ -222,9 +222,9 @@ public class GatewaySenderFactoryBeanTest {
 
 		GatewaySender gatewaySender = factoryBean.getObject();
 
-		assertNotNull(gatewaySender);
-		assertEquals("g6", gatewaySender.getId());
-		assertEquals(51, gatewaySender.getRemoteDSId());
+		assertThat(gatewaySender).isNotNull();
+		assertThat(gatewaySender.getId()).isEqualTo("g6");
+		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(51);
 	}
 
 	@Test
@@ -246,8 +246,28 @@ public class GatewaySenderFactoryBeanTest {
 
 		GatewaySender gatewaySender = factoryBean.getObject();
 
-		assertNotNull(gatewaySender);
-		assertEquals("g5", gatewaySender.getId());
-		assertEquals(42, gatewaySender.getRemoteDSId());
+		assertThat(gatewaySender).isNotNull();
+		assertThat(gatewaySender.getId()).isEqualTo("g5");
+		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(42);
+	}
+
+	@Test
+	public void gatewaySenderFactoryBeanSetsGatewaySenderFactoryEnforceThreadsConnectSameReceiver() {
+
+		GatewaySenderFactory mockGatewaySenderFactory =
+			mockGatewaySenderFactory("g10", 69);
+
+		GatewaySenderFactoryBean factoryBean =
+			new GatewaySenderFactoryBean(mockCacheWithGatewayInfrastructure(mockGatewaySenderFactory));
+
+		factoryBean.setName("g10");
+		factoryBean.setRemoteDistributedSystemId(69);
+		factoryBean.setEnforceThreadsConnectToSameReceiver(true);
+		factoryBean.doInit();
+
+		assertThat(factoryBean.getEnforceThreadsConnectToSameReceiver()).isTrue();
+
+		verify(mockGatewaySenderFactory, times(1))
+			.setEnforceThreadsConnectSameReceiver(eq(true));
 	}
 }

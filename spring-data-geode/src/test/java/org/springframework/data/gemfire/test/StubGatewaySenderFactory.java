@@ -45,6 +45,7 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	private boolean parallel;
 	private boolean persistenceEnabled;
 	private boolean running = false;
+	private boolean enforceThreadsConnectSameReceiver;
 
 	private int alertThreshold;
 	private int batchSize;
@@ -57,17 +58,12 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 
 	private GatewayEventSubstitutionFilter<?, ?> gatewayEventSubstitutionFilter;
 
-	private List<GatewayEventFilter> eventFilters;
-	private List<GatewayTransportFilter> transportFilters;
+	private final List<GatewayEventFilter> eventFilters = new ArrayList<>();
+	private final List<GatewayTransportFilter> transportFilters = new ArrayList<>();
 
 	private OrderPolicy orderPolicy;
 
 	private String diskStoreName;
-
-	public StubGatewaySenderFactory() {
-		this.eventFilters = new ArrayList<>();
-		this.transportFilters = new ArrayList<>();
-	}
 
 	@Override
 	public GatewaySenderFactory addGatewayEventFilter(GatewayEventFilter filter) {
@@ -105,7 +101,6 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 		when(gatewaySender.isParallel()).thenReturn(this.parallel);
 		when(gatewaySender.isPersistenceEnabled()).thenReturn(this.persistenceEnabled);
 		when(gatewaySender.getOrderPolicy()).thenReturn(this.orderPolicy);
-		when(gatewaySender.mustGroupTransactionEvents()).thenReturn(this.groupTransactionEvents);
 		when(gatewaySender.isRunning()).thenAnswer((Answer<Boolean>) invocation -> this.running);
 		doAnswer(invocation -> {
 			running = true;
@@ -160,6 +155,12 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	@Override
 	public GatewaySenderFactory setDispatcherThreads(int dispatcherThreads) {
 		this.dispatcherThreads = dispatcherThreads;
+		return this;
+	}
+
+	@Override
+	public GatewaySenderFactory setEnforceThreadsConnectSameReceiver(boolean b) {
+		this.enforceThreadsConnectSameReceiver = b;
 		return this;
 	}
 

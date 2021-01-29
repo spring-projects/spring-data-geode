@@ -147,6 +147,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
+	public boolean getEnforceThreadsConnectSameReceiver() {
+		return this.delegate.getEnforceThreadsConnectSameReceiver();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
 	public List<GatewayEventFilter> getGatewayEventFilters() {
 		return this.delegate.getGatewayEventFilters();
 	}
@@ -155,6 +163,7 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	public GatewayEventSubstitutionFilter getGatewayEventSubstitutionFilter() {
 		return this.delegate.getGatewayEventSubstitutionFilter();
 	}
