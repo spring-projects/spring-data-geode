@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.test;
 
 import static org.mockito.Mockito.doAnswer;
@@ -27,7 +26,6 @@ import org.apache.geode.cache.wan.GatewaySender.OrderPolicy;
 import org.apache.geode.cache.wan.GatewaySenderFactory;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -47,6 +45,7 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	private boolean parallel;
 	private boolean persistenceEnabled;
 	private boolean running = false;
+	private boolean enforceThreadsConnectSameReceiver;
 
 	private int alertThreshold;
 	private int batchSize;
@@ -162,6 +161,12 @@ public class StubGatewaySenderFactory implements GatewaySenderFactory {
 	@Override
 	public GatewaySenderFactory setDispatcherThreads(int dispatcherThreads) {
 		this.dispatcherThreads = dispatcherThreads;
+		return this;
+	}
+
+	@Override
+	public GatewaySenderFactory setEnforceThreadsConnectSameReceiver(boolean b) {
+		this.enforceThreadsConnectSameReceiver = b;
 		return this;
 	}
 

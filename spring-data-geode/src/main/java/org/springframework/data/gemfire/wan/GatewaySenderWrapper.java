@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.wan;
 
 import java.util.List;
@@ -149,6 +148,14 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
+	public boolean getEnforceThreadsConnectSameReceiver() {
+		return this.delegate.getEnforceThreadsConnectSameReceiver();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
 	public List<GatewayEventFilter> getGatewayEventFilters() {
 		return this.delegate.getGatewayEventFilters();
 	}
@@ -157,6 +164,7 @@ public class GatewaySenderWrapper implements GatewaySender {
 	 * @inheritDoc
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	public GatewayEventSubstitutionFilter getGatewayEventSubstitutionFilter() {
 		return this.delegate.getGatewayEventSubstitutionFilter();
 	}

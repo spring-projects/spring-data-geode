@@ -71,6 +71,7 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 	private List<GatewayTransportFilter> transportFilters;
 
 	private Boolean diskSynchronous;
+	private Boolean enforceThreadsConnectToSameReceiver;
 	private Boolean batchConflationEnabled;
 	private Boolean parallel;
 	private Boolean persistent;
@@ -130,6 +131,8 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 		Optional.ofNullable(getDiskSynchronous()).ifPresent(gatewaySenderFactory::setDiskSynchronous);
 		Optional.ofNullable(getDispatcherThreads()).ifPresent(gatewaySenderFactory::setDispatcherThreads);
+		Optional.ofNullable(getEnforceThreadsConnectToSameReceiver())
+			.ifPresent(gatewaySenderFactory::setEnforceThreadsConnectSameReceiver);
 
 		CollectionUtils.nullSafeList(getEventFilters()).forEach(gatewaySenderFactory::addGatewayEventFilter);
 
@@ -252,6 +255,14 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 	public Integer getDispatcherThreads() {
 		return this.dispatcherThreads;
+	}
+
+	public void setEnforceThreadsConnectToSameReceiver(Boolean enforceThreadsConnectToSameReceiver) {
+		this.enforceThreadsConnectToSameReceiver = enforceThreadsConnectToSameReceiver;
+	}
+
+	public Boolean getEnforceThreadsConnectToSameReceiver() {
+		return this.enforceThreadsConnectToSameReceiver;
 	}
 
 	public void setEventFilters(List<GatewayEventFilter> eventFilters) {
