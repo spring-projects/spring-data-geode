@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.Supplier;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-
-import org.junit.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -44,24 +43,32 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.repository.Repository;
 
 /**
- * Integration tests for Spring Data [GemFire] Repositories testing compatibility of {@link Region}
+ * Integration Tests testing and asserting the compatibility of the {@link Region}
  * {@link RegionAttributes#getKeyConstraint() key type}, {@link Repository} {@link Class ID type}
  * and {@link PersistentEntity entity} {@link Class ID type}.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.RegionAttributes
  * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
+ * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.repository.Repository
+ * @see <a href="https://github.com/spring-projects/spring-data-gemfire/pull/55">PR-55</a>
  * @since 1.4.0
- * @link https://github.com/spring-projects/spring-data-gemfire/pull/55
  */
+@SuppressWarnings("unused")
 public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTests {
 
 	private static ConfigurableApplicationContext newApplicationContext(Class<?> testConfiguration) {
 		return new AnnotationConfigApplicationContext(testConfiguration);
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void withTestConfigurationExpectIllegalArgumentExceptionWithMessage(Class<?> testConfiguration,
-		Class<? extends Repository> repositoryType, Supplier<String> exceptionMessage) {
+			Class<? extends Repository> repositoryType, Supplier<String> exceptionMessage) {
 
 		try {
 
@@ -103,7 +110,6 @@ public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTe
 	@EnableGemfireRepositories(basePackageClasses = RabbitRepository.class,
 		includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = RabbitRepository.class)
 	)
-	@SuppressWarnings("unused")
 	static class TestIncompatibleRegionKeyRepositoryIdTypeConfiguration {
 
 		@Bean("Rabbits")
@@ -112,7 +118,6 @@ public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTe
 			ClientRegionFactoryBean<String, Animal> clientRegion = new ClientRegionFactoryBean<>();
 
 			clientRegion.setCache(gemfireCache);
-			clientRegion.setClose(false);
 			clientRegion.setKeyConstraint(String.class);
 			clientRegion.setShortcut(ClientRegionShortcut.LOCAL);
 			clientRegion.setValueConstraint(Animal.class);
@@ -126,7 +131,6 @@ public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTe
 	@EnableGemfireRepositories(basePackageClasses = PlantRepository.class,
 		includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PlantRepository.class)
 	)
-	@SuppressWarnings("unused")
 	static class TestIncompatibleRepositoryIdEntityIdTypeConfiguration {
 
 		@Bean("Plants")
@@ -135,8 +139,7 @@ public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTe
 			ClientRegionFactoryBean<Object, Object> clientRegion = new ClientRegionFactoryBean<>();
 
 			clientRegion.setCache(gemfireCache);
-			clientRegion.setClose(false);
-			clientRegion.setShortcut(ClientRegionShortcut.PROXY);
+			clientRegion.setShortcut(ClientRegionShortcut.LOCAL);
 
 			return clientRegion;
 		}
