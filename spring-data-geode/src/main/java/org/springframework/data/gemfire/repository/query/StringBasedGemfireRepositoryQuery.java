@@ -35,6 +35,7 @@ import org.springframework.data.gemfire.repository.query.support.PagingUtils;
 import org.springframework.data.gemfire.repository.query.support.TemplateBasedOqlQueryExecutor;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.repository.query.RepositoryQuery;
@@ -270,8 +271,10 @@ public class StringBasedGemfireRepositoryQuery extends GemfireRepositoryQuery {
 
 	private QueryString bindInParameters(QueryMethod queryMethod, QueryString query, Object[] arguments) {
 
+		Parameters<?, ?> queryMethodParameters = queryMethod.getParameters();
+
 		ParametersParameterAccessor parameterAccessor =
-			new ParametersParameterAccessor(queryMethod.getParameters(), arguments);
+			new ParametersParameterAccessor(queryMethodParameters, arguments);
 
 		for (Integer index : query.getInParameterIndexes()) {
 			query = query.bindIn(toCollection(parameterAccessor.getBindableValue(index - 1)));

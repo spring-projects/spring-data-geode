@@ -72,6 +72,7 @@ public class QueryString {
 	protected static final String COUNT_PROJECTION = "count(*)";
 	protected static final String IN_PATTERN = "(?<=IN (SET|LIST) )\\$\\d";
 	protected static final String IN_PARAMETER_PATTERN = "(?<=IN (SET|LIST) \\$)\\d";
+	protected static final String IN_VALUES_TEMPLATE = "(%s)";
 	protected static final String REGION_PATTERN = "\\/(\\/?\\w)+";
 	protected static final String STAR_PROJECTION = "*";
 
@@ -335,17 +336,28 @@ public class QueryString {
 	}
 
 	/**
-	 * Binds the given {@link Collection} of values into the {@literal IN} parameters of the OQL Query by expanding
-	 * the given values into a comma-separated {@link String}.
+	 * Binds the given {@link Collection} of values into the first {@literal IN} parameter of the OQL Query
+	 * ({@link String}) by expanding the given values into a comma-separated list.
 	 *
-	 * @param values the values to bind, returns the {@link QueryString} as is if {@literal null} is given.
-	 * @return a Query String having "in" parameters bound with values.
+	 * @param values {@link Collection} of values to bind; must not be {@literal null} or {@literal empty}.
+	 * @return a new {@link QueryString} having {@literal IN} parameter bound with values
+	 * or returns this {@link QueryString} if the {@link Collection} of values is {@literal null} or {@literal empty}.
+	 * @see java.util.Collection
 	 */
-	public QueryString bindIn(Collection<?> values) {
+	public @NonNull QueryString bindIn(@NonNull Collection<?> values) {
 
 		if (!CollectionUtils.nullSafeIsEmpty(values)) {
-			return QueryString.of(getQuery().replaceFirst(IN_PATTERN, String.format("(%s)",
-				StringUtils.collectionToDelimitedString(values, ", ", "'", "'"))));
+
+			boolean isNumeric = values.stream().anyMatch(Number.class::isInstance);
+
+			String delimiter = ", ";
+			String prefix = isNumeric ? "" : "'";
+			String suffix = prefix;
+
+			String query = getQuery().replaceFirst(IN_PATTERN, String.format(IN_VALUES_TEMPLATE,
+				StringUtils.collectionToDelimitedString(values, delimiter, prefix, suffix)));
+
+			return QueryString.of(query);
 		}
 
 		return this;
