@@ -14,7 +14,7 @@
 	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">RepositoryClientRegionIntegrationTestsServer</prop>
+		<prop key="name">ClientRegionNamespaceRepositoryIntegrationTestsServer</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

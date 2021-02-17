@@ -22,19 +22,28 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.process.ProcessWrapper;
+import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
 import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
+ * Integration Tests testing and asserting basic (CRUD) data access operations using a SDG {@link GemfireRepository}
+ * in a client/server topology configured with SDG's XML namespace and bootstrapped with Spring.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.springframework.data.gemfire.process.ProcessWrapper
+ * @see org.springframework.data.gemfire.repository.GemfireRepository
+ * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class ClientRegionNamespaceRepositoryIntegrationTests extends ClientServerIntegrationTestsSupport {
 
 	private static ProcessWrapper gemfireServer;
 
@@ -44,13 +53,11 @@ public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrat
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		System.setProperty("gemfire.log-level", GEMFIRE_LOG_LEVEL);
-
 		int availablePort = findAvailablePort();
 
 		gemfireServer = run(ServerProcess.class,
 			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
-			getServerContextXmlFileLocation(RepositoryClientRegionIntegrationTests.class));
+			getServerContextXmlFileLocation(ClientRegionNamespaceRepositoryIntegrationTests.class));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
 
@@ -59,9 +66,8 @@ public class RepositoryClientRegionIntegrationTests extends ClientServerIntegrat
 
 	@AfterClass
 	public static void stopGemFireServer() {
-		System.clearProperty("gemfire.log-level");
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
 		stop(gemfireServer);
+		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
 	}
 
 	@Test
