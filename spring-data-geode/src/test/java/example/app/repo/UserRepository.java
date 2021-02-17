@@ -15,6 +15,9 @@
  */
 package example.app.repo;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.data.gemfire.repository.GemfireRepository;
 
 import example.app.model.User;
@@ -31,6 +34,16 @@ import example.app.model.User;
  * @see example.app.model.User
  * @since 2.5.0
  */
+@SuppressWarnings("unused")
 public interface UserRepository extends GemfireRepository<User, Integer> {
+
+	List<User> findByIdInOrderById(Integer... identifiers);
+
+	//@Query("SELECT u FROM /Users u WHERE u.id IN ($1) ORDER BY u.id")
+	List<User> findByIdInOrderById(Set<Integer> identifiers);
+
+	List<User> findByNameInOrderByName(String... usersnames);
+
+	List<User> findByNameInOrderByName(Set<String> usernames);
 
 }
