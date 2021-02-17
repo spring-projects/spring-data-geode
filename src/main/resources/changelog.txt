@@ -3,6 +3,13 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.3.7.RELEASE (2021-02-17)
+---------------------------------------------
+* DATAGEODE-390 - Update CI jobs with Docker Login.
+* #483 - Fix bug with SDG Repository derived queries using the IN operator with numeric values.
+* #477 - Update copyright year to 2021.
+
+
 Changes in version 2.2.13.RELEASE (2021-02-17)
 ----------------------------------------------
 * #484 - Include Bintray plugin repository.
@@ -890,6 +897,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
