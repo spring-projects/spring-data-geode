@@ -308,7 +308,7 @@ public class QueryStringUnitTests {
 		QueryString query = QueryString.of("SELECT * FROM /Collection WHERE elements IN SET $1");
 
 		assertThat(query.bindIn(Arrays.asList(1, 2, 3)).toString())
-			.isEqualTo("SELECT * FROM /Collection WHERE elements IN SET ('1', '2', '3')");
+			.isEqualTo("SELECT * FROM /Collection WHERE elements IN SET (1, 2, 3)");
 	}
 
 	@Test

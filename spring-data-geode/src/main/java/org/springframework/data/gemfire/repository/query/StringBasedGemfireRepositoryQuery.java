@@ -26,6 +26,7 @@ import org.apache.geode.cache.query.SelectResults;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.repository.query.RepositoryQuery;
@@ -166,8 +167,10 @@ public class StringBasedGemfireRepositoryQuery extends GemfireRepositoryQuery {
 		query = isUserDefinedQuery() ? query
 			: query.fromRegion(queryMethod.getEntityInformation().getJavaType(), getTemplate().getRegion());
 
+		Parameters<?, ?> queryMethodParameters = queryMethod.getParameters();
+
 		ParametersParameterAccessor parameterAccessor =
-			new ParametersParameterAccessor(queryMethod.getParameters(), arguments);
+			new ParametersParameterAccessor(queryMethodParameters, arguments);
 
 		for (Integer index : query.getInParameterIndexes()) {
 			query = query.bindIn(toCollection(parameterAccessor.getBindableValue(index - 1)));
