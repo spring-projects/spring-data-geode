@@ -30,9 +30,9 @@ public class MockClientCacheFactoryBean extends ClientCacheFactoryBean {
 		setUseBeanFactoryLocator(false);
 
 		Optional.ofNullable(clientCacheFactoryBean).ifPresent(it -> {
-			this.beanFactoryLocator = it.getBeanFactoryLocator();
 			setBeanClassLoader(it.getBeanClassLoader());
 			setBeanFactory(it.getBeanFactory());
+			setBeanFactoryLocator(it.getBeanFactoryLocator());
 			setBeanName(it.getBeanName());
 			setCacheXml(it.getCacheXml());
 			setCopyOnRead(it.getCopyOnRead());

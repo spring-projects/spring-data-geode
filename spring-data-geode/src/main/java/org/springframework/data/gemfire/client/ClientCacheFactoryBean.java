@@ -16,9 +16,7 @@
 package org.springframework.data.gemfire.client;
 
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeCollection;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -27,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.GemFireCache;
@@ -35,6 +35,7 @@ import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.distributed.DistributedSystem;
+import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -50,9 +51,12 @@ import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
+import org.springframework.data.gemfire.util.ArrayUtils;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -67,12 +71,14 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.ClientCacheFactory
  * @see org.apache.geode.cache.client.Pool
+ * @see org.apache.geode.cache.client.SocketFactory
  * @see org.apache.geode.distributed.DistributedSystem
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationListener
+ * @see org.springframework.context.event.ApplicationContextEvent
  * @see org.springframework.context.event.ContextRefreshedEvent
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
@@ -90,8 +96,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	private Boolean subscriptionEnabled;
 	private Boolean threadLocalConnections;
 
-	private ConnectionEndpointList locators = new ConnectionEndpointList();
-	private ConnectionEndpointList servers = new ConnectionEndpointList();
+	private final ConnectionEndpointList locators = new ConnectionEndpointList();
+	private final ConnectionEndpointList servers = new ConnectionEndpointList();
 
 	private Integer durableClientTimeout;
 	private Integer freeConnectionTimeout;
@@ -129,7 +135,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 	/**
 	 * Applies the composite {@link ClientCacheConfigurer ClientCacheConfigurers}
-	 * to this {@link ClientCacheFactoryBean}.
+	 * to this {@link ClientCacheFactoryBean} before the {@link ClientCache} is created.
 	 *
 	 * @see #getCompositeClientCacheConfigurer()
 	 * @see #applyClientCacheConfigurers(ClientCacheConfigurer...)
@@ -140,21 +146,21 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	}
 
 	/**
-	 * Null-safe operation to apply the given array of {@link ClientCacheConfigurer ClientCacheConfigurers}
-	 * to this {@link ClientCacheFactoryBean}.
+	 * Applies the array of {@link ClientCacheConfigurer ClientCacheConfigurers} to this {@link ClientCacheFactoryBean}
+	 * before the {@link ClientCache} is created.
 	 *
-	 * @param clientCacheConfigurers array of {@link ClientCacheConfigurer ClientCacheConfigurers} applied to
-	 * this {@link ClientCacheFactoryBean}.
+	 * @param clientCacheConfigurers array of {@link ClientCacheConfigurer ClientCacheConfigurers}
+	 * applied to this {@link ClientCacheFactoryBean}.
 	 * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
 	 * @see #applyClientCacheConfigurers(Iterable)
 	 */
 	protected void applyClientCacheConfigurers(ClientCacheConfigurer... clientCacheConfigurers) {
-		applyClientCacheConfigurers(Arrays.asList(nullSafeArray(clientCacheConfigurers, ClientCacheConfigurer.class)));
+		applyClientCacheConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(clientCacheConfigurers, ClientCacheConfigurer.class)));
 	}
 
 	/**
-	 * Null-safe operation to apply the given {@link Iterable} of {@link ClientCacheConfigurer ClientCacheConfigurers}
-	 * to this {@link ClientCacheFactoryBean}.
+	 * Apples the {@link Iterable} of {@link ClientCacheConfigurer ClientCacheConfigurers}
+	 * to this {@link ClientCacheFactoryBean} before the {@link ClientCache} is created.
 	 *
 	 * @param clientCacheConfigurers {@link Iterable} of {@link ClientCacheConfigurer ClientCacheConfigurers}
 	 * applied to this {@link ClientCacheFactoryBean}.
@@ -162,7 +168,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see java.lang.Iterable
 	 */
 	protected void applyClientCacheConfigurers(Iterable<ClientCacheConfigurer> clientCacheConfigurers) {
-		stream(nullSafeIterable(clientCacheConfigurers).spliterator(), false)
+		StreamSupport.stream(CollectionUtils.nullSafeIterable(clientCacheConfigurers).spliterator(), false)
 			.forEach(clientCacheConfigurer -> clientCacheConfigurer.configure(getBeanName(), this));
 	}
 
@@ -178,23 +184,39 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T extends GemFireCache> T fetchCache() {
-		return (T) Optional.ofNullable(getCache()).orElseGet(ClientCacheFactory::getAnyInstance);
+	protected <T extends GemFireCache> T doFetchCache() {
+		return (T) ClientCacheFactory.getAnyInstance();
 	}
 
 	/**
-	 * Resolves the Pivotal GemFire/Apache Geode {@link Properties} used to configure the {@link ClientCache}.
+	 * Returns the {@link Class type} of {@link GemFireCache} constructed by this {@link ClientCacheFactoryBean}.
 	 *
-	 * @return the resolved Pivotal GemFire/Apache Geode {@link Properties} used to configure the {@link ClientCache}.
-	 * @see org.apache.geode.distributed.DistributedSystem#getProperties()
-	 * @see #getDistributedSystem()
+	 * Returns {@link ClientCache} {@link Class}.
+	 *
+	 * @return the {@link Class type} of {@link GemFireCache} constructed by this {@link ClientCacheFactoryBean}.
+	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
-	protected Properties resolveProperties() {
+	public Class<? extends GemFireCache> doGetObjectType() {
+		return ClientCache.class;
+	}
+
+	/**
+	 * Resolves the Apache Geode {@link Properties} used to configure the {@link ClientCache}.
+	 *
+	 * @return the resolved Apache Geode {@link Properties} used to configure the {@link ClientCache}.
+	 * @see org.apache.geode.distributed.DistributedSystem#getProperties()
+	 */
+	@Override
+	protected @NonNull Properties resolveProperties() {
+		return resolveProperties(GemfireUtils::getDistributedSystem);
+	}
+
+	@NonNull Properties resolveProperties(@NonNull Supplier<DistributedSystem> distributeSystemSupplier) {
 
 		Properties gemfireProperties = super.resolveProperties();
 
-		DistributedSystem distributedSystem = getDistributedSystem();
+		DistributedSystem distributedSystem = distributeSystemSupplier.get();
 
 		if (GemfireUtils.isConnected(distributedSystem)) {
 			Properties distributedSystemProperties = (Properties) distributedSystem.getProperties().clone();
@@ -208,80 +230,60 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	}
 
 	/**
-	 * Returns the {@link DistributedSystem} formed from cache initialization.
-	 *
-	 * @param <T> {@link Class} type of the {@link DistributedSystem}.
-	 * @return an instance of the {@link DistributedSystem}.
-	 * @see org.apache.geode.distributed.DistributedSystem
-	 */
-	<T extends DistributedSystem> T getDistributedSystem() {
-		return GemfireUtils.getDistributedSystem();
-	}
-
-	/**
-	 * Constructs a new instance of {@link ClientCacheFactory} initialized with the given Pivotal GemFire/Apache Geode
-	 * {@link Properties} used to construct, configure and initialize an instance of a {@link ClientCache}.
+	 * Constructs a new instance of {@link ClientCacheFactory} initialized with the given Apache Geode {@link Properties}
+	 * used to construct, configure and initialize a new {@link ClientCache} instance.
 	 *
 	 * @param gemfireProperties {@link Properties} used by the {@link ClientCacheFactory}
 	 * to configure the {@link ClientCache}.
-	 * @return a new instance of {@link ClientCacheFactory} initialized with
-	 * the given Pivotal GemFire/Apache Geode {@link Properties}.
+	 * @return a new instance of {@link ClientCacheFactory} initialized with the given Apache Geode {@link Properties}.
 	 * @see org.apache.geode.cache.client.ClientCacheFactory
 	 * @see java.util.Properties
 	 */
 	@Override
-	protected Object createFactory(Properties gemfireProperties) {
+	protected @NonNull Object createFactory(@NonNull Properties gemfireProperties) {
 		return new ClientCacheFactory(gemfireProperties);
 	}
 
 	/**
 	 * Configures the {@link ClientCacheFactory} used to create the {@link ClientCache}.
 	 *
-	 * Sets PDX options specified by the user.
-	 *
-	 * Sets Pool options specified by the user.
-	 *
 	 * @param factory {@link ClientCacheFactory} used to create the {@link ClientCache}.
 	 * @return the configured {@link ClientCacheFactory}.
-	 * @see #configurePdx(ClientCacheFactory)
+	 * @see org.apache.geode.cache.client.ClientCacheFactory
+	 * @see #configurePool(ClientCacheFactory)
+	 * @see #configurePdx(PdxConfigurer)
 	 */
 	@Override
-	protected Object configureFactory(Object factory) {
+	protected @NonNull Object configureFactory(@NonNull Object factory) {
 		return configurePool(configurePdx((ClientCacheFactory) factory));
 	}
 
 	/**
-	 * Configure PDX for the {@link ClientCacheFactory}.
+	 * Configures the {@link ClientCache} to use PDX serialization.
 	 *
-	 * @param clientCacheFactory {@link ClientCacheFactory} used to configure PDX.
-	 * @return the given {@link ClientCacheFactory}
+	 * @param clientCacheFactory {@link ClientCacheFactory} to configure with PDX.
+	 * @return the given {@link ClientCacheFactory}.
+	 * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean.ClientCacheFactoryToPdxConfigurerAdapter
 	 * @see org.apache.geode.cache.client.ClientCacheFactory
+	 * @see #configurePdx(PdxConfigurer)
 	 */
-	ClientCacheFactory configurePdx(ClientCacheFactory clientCacheFactory) {
+	protected @NonNull ClientCacheFactory configurePdx(@NonNull ClientCacheFactory clientCacheFactory) {
 
-		Optional.ofNullable(getPdxSerializer()).ifPresent(clientCacheFactory::setPdxSerializer);
+		PdxConfigurer<ClientCacheFactory> pdxConfigurer =
+			ClientCacheFactoryToPdxConfigurerAdapter.from(clientCacheFactory);
 
-		Optional.ofNullable(getPdxDiskStoreName()).filter(StringUtils::hasText)
-			.ifPresent(clientCacheFactory::setPdxDiskStore);
-
-		Optional.ofNullable(getPdxIgnoreUnreadFields()).ifPresent(clientCacheFactory::setPdxIgnoreUnreadFields);
-
-		Optional.ofNullable(getPdxPersistent()).ifPresent(clientCacheFactory::setPdxPersistent);
-
-		Optional.ofNullable(getPdxReadSerialized()).ifPresent(clientCacheFactory::setPdxReadSerialized);
-
-		return clientCacheFactory;
+		return configurePdx(pdxConfigurer);
 	}
 
 	/**
-	 * Configure the {@literal DEFAULT} {@link Pool} configuration settings with the {@link ClientCacheFactory}
-	 * using a given {@link Pool} instance or a named {@link Pool}.
+	 * Configure the {@literal DEFAULT} {@link Pool} of the {@link ClientCacheFactory} using a given {@link Pool}
+	 * instance or a named {@link Pool} instance.
 	 *
-	 * @param clientCacheFactory {@link ClientCacheFactory} use to configure the {@literal DEFAULT} {@link Pool}.
+	 * @param clientCacheFactory {@link ClientCacheFactory} used to configure the {@literal DEFAULT} {@link Pool}.
 	 * @see org.apache.geode.cache.client.ClientCacheFactory
 	 * @see org.apache.geode.cache.client.Pool
 	 */
-	ClientCacheFactory configurePool(ClientCacheFactory clientCacheFactory) {
+	protected @NonNull ClientCacheFactory configurePool(@NonNull ClientCacheFactory clientCacheFactory) {
 
 		DefaultableDelegatingPoolAdapter pool =
 			DefaultableDelegatingPoolAdapter.from(DelegatingPoolAdapter.from(resolvePool())).preferDefault();
@@ -346,7 +348,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #findPool(String)
 	 * @see #isPoolNameResolvable(String)
 	 */
-	Pool resolvePool() {
+	protected Pool resolvePool() {
 
 		Pool pool = getPool();
 
@@ -370,17 +372,6 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return pool;
 	}
 
-	String resolvePoolName() {
-
-		return Optional.ofNullable(getPoolName())
-			.filter(StringUtils::hasText)
-			.orElse(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
-	}
-
-	Pool findPool(String name) {
-		return getPoolResolver().resolve(name);
-	}
-
 	private boolean isPoolNameResolvable(String poolName) {
 
 		return Optional.ofNullable(poolName)
@@ -388,13 +379,29 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 			.isPresent();
 	}
 
+	String resolvePoolName() {
+
+		return Optional.ofNullable(getPoolName())
+			.filter(StringUtils::hasText)
+			.orElseGet(this::getDefaultPoolName);
+	}
+
+	String getDefaultPoolName() {
+		return GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME;
+	}
+
+	Pool findPool(String name) {
+		return getPoolResolver().resolve(name);
+	}
+
 	/**
-	 * Creates a new {@link ClientCache} instance using the provided factory.
+	 * Creates a new {@link ClientCache} instance using the provided {@link ClientCacheFactory factory}.
 	 *
-	 * @param <T> parameterized {@link Class} type extension of {@link GemFireCache}.
+	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
 	 * @param factory instance of {@link ClientCacheFactory}.
 	 * @return a new instance of {@link ClientCache} created by the provided factory.
 	 * @see org.apache.geode.cache.client.ClientCacheFactory#create()
+	 * @see org.apache.geode.cache.client.ClientCache
 	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	@Override
@@ -420,7 +427,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 				this.<ClientCache>fetchCache().readyForEvents();
 			}
 			catch (IllegalStateException | CacheClosedException ignore) {
-				// Thrown when ClientCache.readyForEvents() is called on a non-durable client
+				// Exceptions are thrown when ClientCache.readyForEvents() is called on a non-durable client
 				// or the ClientCache is closing.
 			}
 		}
@@ -436,34 +443,6 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	@Override
 	protected void close(GemFireCache cache) {
 		((ClientCache) cache).close(isKeepAlive());
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	@Override
-	protected void setCache(GemFireCache cache) {
-		super.setCache(cache);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	@Override
-	protected <T extends GemFireCache> T getCache() {
-		return super.getCache();
-	}
-
-	/**
-	 * Returns the {@link Class} type of the {@link GemFireCache} produced by this {@link ClientCacheFactoryBean}.
-	 *
-	 * @return the {@link Class} type of the {@link GemFireCache} produced by this {@link ClientCacheFactoryBean}.
-	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
-	 */
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Class<? extends GemFireCache> getObjectType() {
-		return Optional.ofNullable(getCache()).map(Object::getClass).orElse((Class) ClientCache.class);
 	}
 
 	public void addLocators(ConnectionEndpoint... locators) {
@@ -492,7 +471,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #setClientCacheConfigurers(List)
 	 */
 	public void setClientCacheConfigurers(ClientCacheConfigurer... clientCacheConfigurers) {
-		setClientCacheConfigurers(Arrays.asList(nullSafeArray(clientCacheConfigurers, ClientCacheConfigurer.class)));
+		setClientCacheConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(clientCacheConfigurers, ClientCacheConfigurer.class)));
 	}
 
 	/**
@@ -504,7 +483,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
 	 */
 	public void setClientCacheConfigurers(List<ClientCacheConfigurer> peerCacheConfigurers) {
-		this.clientCacheConfigurers = Optional.ofNullable(peerCacheConfigurers).orElseGet(Collections::emptyList);
+		this.clientCacheConfigurers = peerCacheConfigurers != null ? peerCacheConfigurers : Collections.emptyList();
 	}
 
 	/**
@@ -766,9 +745,9 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	}
 
 	/**
-	 * Gets the user-specified value for the readyForEvents property.
+	 * Gets the user-configured value for deciding that this client is ready to receive events from the server(s).
 	 *
-	 * @return a boolean value indicating the state of the 'readyForEvents' property.
+	 * @return a {@link Boolean} indicating whether this client is ready to receive events from the server(s).
 	 */
 	public Boolean getReadyForEvents(){
 		return this.readyForEvents;
@@ -786,17 +765,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 		Boolean readyForEvents = getReadyForEvents();
 
-		if (readyForEvents != null) {
-			return Boolean.TRUE.equals(readyForEvents);
-		}
-		else {
-			try {
-				return GemfireUtils.isDurable(fetchCache());
-			}
-			catch (Throwable ignore) {
-				return false;
-			}
-		}
+		return readyForEvents != null ? Boolean.TRUE.equals(readyForEvents)
+			: SpringUtils.safeGetValue(() -> GemfireUtils.isDurable(fetchCache()), false);
 	}
 
 	public void setRetryAttempts(Integer retryAttempts) {
@@ -910,11 +880,60 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 	@Override
 	public final void setUseClusterConfiguration(Boolean useClusterConfiguration) {
-		throw new UnsupportedOperationException("Cluster-based Configuration is not applicable for clients");
+		throw new UnsupportedOperationException("Cluster-based Configuration does not apply to clients");
 	}
 
 	@Override
 	public final Boolean getUseClusterConfiguration() {
 		return Boolean.FALSE;
+	}
+
+	public static class ClientCacheFactoryToPdxConfigurerAdapter implements PdxConfigurer<ClientCacheFactory> {
+
+		public static ClientCacheFactoryToPdxConfigurerAdapter from(@NonNull ClientCacheFactory clientCacheFactory) {
+			return new ClientCacheFactoryToPdxConfigurerAdapter(clientCacheFactory);
+		}
+
+		private final ClientCacheFactory cacheFactory;
+
+		protected ClientCacheFactoryToPdxConfigurerAdapter(@NonNull ClientCacheFactory cacheFactory) {
+			Assert.notNull(cacheFactory, "ClientCacheFactory must not be null");
+			this.cacheFactory = cacheFactory;
+		}
+
+		@Override
+		public @NonNull ClientCacheFactory getTarget() {
+			return this.cacheFactory;
+		}
+
+		@Override
+		public @NonNull PdxConfigurer<ClientCacheFactory> setDiskStoreName(String diskStoreName) {
+			getTarget().setPdxDiskStore(diskStoreName);
+			return this;
+		}
+
+		@Override
+		public @NonNull PdxConfigurer<ClientCacheFactory> setIgnoreUnreadFields(Boolean ignoreUnreadFields) {
+			getTarget().setPdxIgnoreUnreadFields(ignoreUnreadFields);
+			return this;
+		}
+
+		@Override
+		public @NonNull PdxConfigurer<ClientCacheFactory> setPersistent(Boolean persistent) {
+			getTarget().setPdxPersistent(persistent);
+			return this;
+		}
+
+		@Override
+		public @NonNull PdxConfigurer<ClientCacheFactory> setReadSerialized(Boolean readSerialized) {
+			getTarget().setPdxReadSerialized(readSerialized);
+			return this;
+		}
+
+		@Override
+		public @NonNull PdxConfigurer<ClientCacheFactory> setSerializer(PdxSerializer pdxSerializer) {
+			getTarget().setPdxSerializer(pdxSerializer);
+			return this;
+		}
 	}
 }
