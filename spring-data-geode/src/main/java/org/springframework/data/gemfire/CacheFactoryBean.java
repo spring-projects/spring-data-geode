@@ -59,6 +59,7 @@ import org.springframework.util.Assert;
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.apache.geode.security.SecurityManager
  * @see org.springframework.beans.factory.FactoryBean
+ * @see org.springframework.data.gemfire.AbstractResolvableCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
  */
 @SuppressWarnings("unused")
