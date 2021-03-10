@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
 import org.apache.geode.GemFireCheckedException;
 import org.apache.geode.GemFireException;
@@ -57,7 +58,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * Abstract base class for {@link CacheFactoryBean} and {@link ClientCacheFactoryBean} classes
+ * Abstract base class for {@link CacheFactoryBean} and {@link ClientCacheFactoryBean} classes,
  * used to create Apache Geode peer {@link Cache} and {@link ClientCache} instances, respectively.
  *
  * This class implements Spring's {@link PersistenceExceptionTranslator} interface and is auto-detected by Spring's
@@ -66,10 +67,10 @@ import org.springframework.util.Assert;
  * the presence of this class automatically enables a {@link PersistenceExceptionTranslationPostProcessor}
  * to translate Apache Geode {@link RuntimeException RuntimeExceptions} appropriately.
  *
- * Importantly, this class encapsulates configure applicable to tuning Apache Geode in response to JVM Heap memory.
- * Since Apache Geode stores data in-memory, on the JVM Heap, it is important that Aapche Geode be tuned to monitor
- * the JVM Heap and respond accordingly to memory pressure, by evicting data and issuing warnings when the JVM Heap
- * reaches critical mass.
+ * Importantly, this abstract class encapsulates configuration applicable to tuning Apache Geode to efficiently use JVM
+ * Heap memory. Since Apache Geode stores data in-memory, on the JVM Heap, it is important that Apache Geode be tuned
+ * to monitor the JVM Heap and respond accordingly to memory pressure, by evicting data and issuing warnings when the
+ * JVM Heap reaches critical mass.
  *
  * @author John Blum
  * @see java.io.File
@@ -168,6 +169,20 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	@SuppressWarnings("unchecked")
 	public @Nullable <T extends GemFireCache> T getCache() {
 		return (T) this.cache;
+	}
+
+	/**
+	 * Returns an {@link Optional} reference to the constructed, configured and initialized {@link GemFireCache}
+	 * instance created by this cache {@link FactoryBean}.
+	 *
+	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
+	 * @return an {@link Optional} reference to the {@link GemFireCache} created by this {@link FactoryBean}.
+	 * @see org.apache.geode.cache.GemFireCache
+	 * @see java.util.Optional
+	 * @see #getCache()
+	 */
+	public <T extends GemFireCache> Optional<T> getOptionalCache() {
+		return Optional.ofNullable(getCache());
 	}
 
 	/**
@@ -592,7 +607,20 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return heapPercentage >= 0.0f && heapPercentage <= 100.0f;
 	}
 
-	protected GemFireCache configureHeapPercentages(GemFireCache cache) {
+	/**
+	 * Configures the {@link GemFireCache} critical and eviction heap thresholds as percentages.
+	 *
+	 * @param cache {@link GemFireCache} to configure the critical and eviction heap thresholds;
+	 * must not be {@literal null}.
+	 * @return the given {@link GemFireCache}.
+	 * @throws IllegalArgumentException if the critical or eviction heap thresholds are not valid percentages.
+	 * @see org.apache.geode.cache.control.ResourceManager#setCriticalHeapPercentage(float)
+	 * @see org.apache.geode.cache.control.ResourceManager#setEvictionHeapPercentage(float)
+	 * @see org.apache.geode.cache.control.ResourceManager
+	 * @see org.apache.geode.cache.GemFireCache#getResourceManager()
+	 * @see org.apache.geode.cache.GemFireCache
+	 */
+	protected @NonNull GemFireCache configureHeapPercentages(@NonNull GemFireCache cache) {
 
 		Optional.ofNullable(getCriticalHeapPercentage()).ifPresent(criticalHeapPercentage -> {
 
@@ -615,7 +643,20 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return cache;
 	}
 
-	protected GemFireCache configureOffHeapPercentages(GemFireCache cache) {
+	/**
+	 * Configures the {@link GemFireCache} critical and eviction off-heap thresholds as percentages.
+	 *
+	 * @param cache {@link GemFireCache} to configure the critical and eviction off-heap thresholds;
+	 * must not be {@literal null}.
+	 * @return the given {@link GemFireCache}.
+	 * @throws IllegalArgumentException if the critical or eviction off-heap thresholds are not valid percentages.
+	 * @see org.apache.geode.cache.control.ResourceManager#setCriticalOffHeapPercentage(float)
+	 * @see org.apache.geode.cache.control.ResourceManager#setEvictionOffHeapPercentage(float)
+	 * @see org.apache.geode.cache.control.ResourceManager
+	 * @see org.apache.geode.cache.GemFireCache#getResourceManager()
+	 * @see org.apache.geode.cache.GemFireCache
+	 */
+	protected @NonNull GemFireCache configureOffHeapPercentages(@NonNull GemFireCache cache) {
 
 		Optional.ofNullable(getCriticalOffHeapPercentage()).ifPresent(criticalOffHeapPercentage -> {
 
@@ -697,15 +738,17 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Loads the configured {@literal cache.xml} to initialize the cache.
+	 * Loads the configured {@literal cache.xml} to initialize the {@link GemFireCache}.
 	 *
 	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
-	 * @param cache cache instance to initialized with {@literal cache.xml}.
-	 * @return the given cache instance.
-	 * @throws RuntimeException if the configured {@literal cache.xml} file could not be loaded.
+	 * @param cache {@link GemFireCache} instance to initialize with {@literal cache.xml}; must not be {@literal null}.
+	 * @return the given {@link GemFireCache}.
+	 * @throws RuntimeException if the configured {@literal cache.xml} file could not be loaded
+	 * into the {@link GemFireCache}.
 	 * @see org.apache.geode.cache.GemFireCache#loadCacheXml(InputStream)
+	 * @see org.apache.geode.cache.GemFireCache
 	 */
-	protected <T extends GemFireCache> T loadCacheXml(T cache) {
+	protected @NonNull <T extends GemFireCache> T loadCacheXml(@NonNull T cache) {
 
 		// Load the cache.xml file (Resource) and initialize the cache
 		Optional.ofNullable(getCacheXml()).ifPresent(cacheXml -> {
@@ -721,7 +764,21 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return cache;
 	}
 
-	protected GemFireCache registerTransactionListeners(GemFireCache cache) {
+	/**
+	 * Registers configured, application-defined {@link TransactionListener TransactionListeners} with the cache
+	 * (transaction manager) to listen for and receive transaction events when a (cache) transaction is processed
+	 * (e.g. committed or rolled back).
+	 *
+	 * @param cache {@link GemFireCache} used to register the configured, application-defined
+	 * {@link TransactionListener TransactionListeners}; must not be {@literal null}.
+	 * @return the given {@link GemFireCache}.
+	 * @see org.apache.geode.cache.GemFireCache#getCacheTransactionManager()
+	 * @see org.apache.geode.cache.CacheTransactionManager#addListener(TransactionListener)
+	 * @see org.apache.geode.cache.CacheTransactionManager
+	 * @see org.apache.geode.cache.TransactionListener
+	 * @see org.apache.geode.cache.GemFireCache
+	 */
+	protected @NonNull GemFireCache registerTransactionListeners(@NonNull GemFireCache cache) {
 
 		CollectionUtils.nullSafeCollection(getTransactionListeners()).stream()
 			.filter(Objects::nonNull)
@@ -730,7 +787,20 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return cache;
 	}
 
-	protected GemFireCache registerTransactionWriter(GemFireCache cache) {
+	/**
+	 * Registers the configured, application-defined {@link TransactionWriter} with the cache (transaction manager)
+	 * to receive transaction events with the intent to alter the transaction outcome (e.g. veto).
+	 *
+	 * @param cache {@link GemFireCache} used to register the configured, application-defined {@link TransactionWriter},
+	 * must not be {@literal null}.
+	 * @return the given {@link GemFireCache}.
+	 * @see org.apache.geode.cache.GemFireCache#getCacheTransactionManager()
+	 * @see org.apache.geode.cache.CacheTransactionManager#setWriter(TransactionWriter)
+	 * @see org.apache.geode.cache.CacheTransactionManager
+	 * @see org.apache.geode.cache.TransactionWriter
+	 * @see org.apache.geode.cache.GemFireCache
+	 */
+	protected @NonNull GemFireCache registerTransactionWriter(@NonNull GemFireCache cache) {
 
 		Optional.ofNullable(getTransactionWriter())
 			.ifPresent(transactionWriter -> cache.getCacheTransactionManager().setWriter(transactionWriter));
@@ -739,20 +809,21 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Resolves the Apache Geode {@link Properties} used to configure the {@link Cache}.
+	 * Resolves the Apache Geode {@link Properties} used to configure the {@link GemFireCache}.
 	 *
-	 * @return the resolved Apache Geode {@link Properties} used to configure the {@link Cache}.
+	 * @return the resolved Apache Geode {@link Properties} used to configure the {@link GemFireCache}.
 	 * @see #setAndGetProperties(Properties)
 	 * @see #getProperties()
+	 * @see java.util.Properties
 	 */
-	protected Properties resolveProperties() {
+	protected @NonNull Properties resolveProperties() {
 
 		return Optional.ofNullable(getProperties())
 			.orElseGet(() -> setAndGetProperties(new Properties()));
 	}
 
 	/**
-	 * Translates the thrown Apache Geode {@link RuntimeException} to a corresponding {@link Exception} from Spring's
+	 * Translates the thrown Apache Geode {@link RuntimeException} into a corresponding {@link Exception} from Spring's
 	 * generic {@link DataAccessException} hierarchy if possible.
 	 *
 	 * @param exception the Apache Geode {@link RuntimeException} to translate.
@@ -762,7 +833,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * @see org.springframework.dao.DataAccessException
 	 */
 	@Override
-	public DataAccessException translateExceptionIfPossible(@Nullable RuntimeException exception) {
+	public @Nullable DataAccessException translateExceptionIfPossible(@Nullable RuntimeException exception) {
 
 		if (exception instanceof IllegalArgumentException) {
 
@@ -790,22 +861,35 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Callback interface for initializing either a {@link CacheFactory} or a {@link ClientCacheFactory} instance,
+	 * Callback interface for initializing a {@link CacheFactory} or a {@link ClientCacheFactory} instance,
 	 * which is used to create an instance of {@link GemFireCache}.
 	 *
-	 * @see org.apache.geode.cache.CacheFactory
 	 * @see org.apache.geode.cache.client.ClientCacheFactory
+	 * @see org.apache.geode.cache.CacheFactory
+	 * @see java.util.function.Function
 	 */
 	@FunctionalInterface
-	public interface CacheFactoryInitializer<T> {
+	public interface CacheFactoryInitializer<T> extends Function<T, T> {
+
+		/**
+		 * Alias for {@link #initialize(Object)}.
+		 *
+		 * @param t cache factory to initialize.
+		 * @return the initialized cache factory.
+		 * @see #initialize(Object)
+		 */
+		@Override
+		default T apply(T t) {
+			return initialize(t);
+		}
 
 		/**
 		 * Initialize the given cache factory.
 		 *
 		 * @param cacheFactory cache factory to initialize.
 		 * @return the given cache factory.
-		 * @see org.apache.geode.cache.CacheFactory
 		 * @see org.apache.geode.cache.client.ClientCacheFactory
+		 * @see org.apache.geode.cache.CacheFactory
 		 */
 		T initialize(T cacheFactory);
 
