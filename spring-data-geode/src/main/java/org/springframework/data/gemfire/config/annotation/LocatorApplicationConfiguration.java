@@ -83,6 +83,7 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 	private int port = DEFAULT_PORT;
 
+	@SuppressWarnings("all")
 	@Autowired(required = false)
 	private List<LocatorConfigurer> locatorConfigurers = Collections.emptyList();
 

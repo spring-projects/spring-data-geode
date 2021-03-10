@@ -85,6 +85,7 @@ import org.springframework.util.StringUtils;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
+// TODO: Refactor this class to no longer extend CacheFactoryBean
 public class ClientCacheFactoryBean extends CacheFactoryBean implements ApplicationListener<ContextRefreshedEvent> {
 
 	protected static final PoolResolver DEFAULT_POOL_RESOLVER = new PoolManagerPoolResolver();

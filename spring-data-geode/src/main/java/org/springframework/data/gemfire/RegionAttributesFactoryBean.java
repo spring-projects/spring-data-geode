@@ -23,6 +23,7 @@ import org.apache.geode.cache.RegionAttributes;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.gemfire.util.ArrayUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 /**
@@ -38,6 +39,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.InitializingBean
  */
 @SuppressWarnings({ "unused" })
+// TODO: Refactor RegionAttributesFactoryBean to no longer directly extend AttributesFactory
 public class RegionAttributesFactoryBean<K, V> extends AttributesFactory<K, V>
 		implements FactoryBean<RegionAttributes<K, V>>, InitializingBean {
 
@@ -66,7 +68,7 @@ public class RegionAttributesFactoryBean<K, V> extends AttributesFactory<K, V>
 		return true;
 	}
 
-	public void setAsyncEventQueueIds(String[] asyncEventQueueIds) {
+	public void setAsyncEventQueueIds(@NonNull String[] asyncEventQueueIds) {
 
 		Arrays.stream(ArrayUtils.nullSafeArray(asyncEventQueueIds, String.class))
 			.filter(StringUtils::hasText)
@@ -74,11 +76,11 @@ public class RegionAttributesFactoryBean<K, V> extends AttributesFactory<K, V>
 			.forEach(this::addAsyncEventQueueId);
 	}
 
-	public void setIndexUpdateType(IndexMaintenancePolicyType indexUpdateType) {
+	public void setIndexUpdateType(@NonNull IndexMaintenancePolicyType indexUpdateType) {
 		indexUpdateType.setIndexMaintenance(this);
 	}
 
-	public void setGatewaySenderIds(String[] gatewaySenderIds) {
+	public void setGatewaySenderIds(@NonNull String[] gatewaySenderIds) {
 
 		Arrays.stream(ArrayUtils.nullSafeArray(gatewaySenderIds, String.class))
 			.filter(StringUtils::hasText)

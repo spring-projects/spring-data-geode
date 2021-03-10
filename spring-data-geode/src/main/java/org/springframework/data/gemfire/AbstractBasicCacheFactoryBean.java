@@ -242,15 +242,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Returns a boolean value used to determine whether the cache will be closed on shutdown of the Spring application.
-	 *
-	 * @return a boolean value used to determine whether the cache will be closed on shutdown of the Spring application.
-	 */
-	public boolean isClose() {
-		return this.close;
-	}
-
-	/**
 	 * Sets a boolean value used to determine whether the cache should be closed on shutdown of the Spring application.
 	 *
 	 * @param close boolean value used to determine whether the cache will be closed on shutdown
@@ -258,6 +249,15 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 */
 	public void setClose(boolean close) {
 		this.close = close;
+	}
+
+	/**
+	 * Returns a boolean value used to determine whether the cache will be closed on shutdown of the Spring application.
+	 *
+	 * @return a boolean value used to determine whether the cache will be closed on shutdown of the Spring application.
+	 */
+	public boolean isClose() {
+		return this.close;
 	}
 
 	/**
@@ -445,16 +445,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Determines whether the {@link GemfireBeanFactoryLocator} has been enabled.
-	 *
-	 * @return a boolean value indicating whether the {@link GemfireBeanFactoryLocator} has been enabled.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
-	 */
-	public boolean isUseBeanFactoryLocator() {
-		return this.useBeanFactoryLocator;
-	}
-
-	/**
 	 * Sets a boolean value used to determine whether to enable the {@link GemfireBeanFactoryLocator}.
 	 *
 	 * @param use boolean value used to determine whether to enable the {@link GemfireBeanFactoryLocator}.
@@ -462,6 +452,16 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 */
 	public void setUseBeanFactoryLocator(boolean use) {
 		this.useBeanFactoryLocator = use;
+	}
+
+	/**
+	 * Determines whether the {@link GemfireBeanFactoryLocator} has been enabled.
+	 *
+	 * @return a boolean value indicating whether the {@link GemfireBeanFactoryLocator} has been enabled.
+	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
+	 */
+	public boolean isUseBeanFactoryLocator() {
+		return this.useBeanFactoryLocator;
 	}
 
 	/**
@@ -540,16 +540,18 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 
 		Optional.ofNullable(getCriticalHeapPercentage()).ifPresent(criticalHeapPercentage -> {
 
-			Assert.isTrue(isHeapPercentageValid(criticalHeapPercentage), String.format(
-				"criticalHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0", criticalHeapPercentage));
+			Assert.isTrue(isHeapPercentageValid(criticalHeapPercentage),
+				() -> String.format("criticalHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0",
+					criticalHeapPercentage));
 
 			cache.getResourceManager().setCriticalHeapPercentage(criticalHeapPercentage);
 		});
 
 		Optional.ofNullable(getEvictionHeapPercentage()).ifPresent(evictionHeapPercentage -> {
 
-			Assert.isTrue(isHeapPercentageValid(evictionHeapPercentage), String.format(
-				"evictionHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0", evictionHeapPercentage));
+			Assert.isTrue(isHeapPercentageValid(evictionHeapPercentage),
+				() -> String.format("evictionHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0",
+					evictionHeapPercentage));
 
 			cache.getResourceManager().setEvictionHeapPercentage(evictionHeapPercentage);
 		});
@@ -561,16 +563,18 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 
 		Optional.ofNullable(getCriticalOffHeapPercentage()).ifPresent(criticalOffHeapPercentage -> {
 
-			Assert.isTrue(isHeapPercentageValid(criticalOffHeapPercentage), String.format(
-				"criticalOffHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0", criticalOffHeapPercentage));
+			Assert.isTrue(isHeapPercentageValid(criticalOffHeapPercentage),
+				() -> String.format("criticalOffHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0",
+					criticalOffHeapPercentage));
 
 			cache.getResourceManager().setCriticalOffHeapPercentage(criticalOffHeapPercentage);
 		});
 
 		Optional.ofNullable(getEvictionOffHeapPercentage()).ifPresent(evictionOffHeapPercentage -> {
 
-			Assert.isTrue(isHeapPercentageValid(evictionOffHeapPercentage), String.format(
-				"evictionOffHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0", evictionOffHeapPercentage));
+			Assert.isTrue(isHeapPercentageValid(evictionOffHeapPercentage),
+				() -> String.format("evictionOffHeapPercentage [%s] is not valid; must be >= 0.0 and <= 100.0",
+					evictionOffHeapPercentage));
 
 			cache.getResourceManager().setEvictionOffHeapPercentage(evictionOffHeapPercentage);
 		});

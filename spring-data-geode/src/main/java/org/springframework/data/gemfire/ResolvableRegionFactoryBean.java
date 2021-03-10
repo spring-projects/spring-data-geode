@@ -198,7 +198,7 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Class<?> getObjectType() {
 		return Optional.ofNullable(getRegion()).map(Region::getClass).orElse((Class) Region.class);
 	}

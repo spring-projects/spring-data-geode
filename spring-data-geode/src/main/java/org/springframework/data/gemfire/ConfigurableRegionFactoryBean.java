@@ -49,7 +49,7 @@ public abstract class ConfigurableRegionFactoryBean<K, V> extends ResolvableRegi
 
 	private List<RegionConfigurer> regionConfigurers = Collections.emptyList();
 
-	private RegionConfigurer compositeRegionConfigurer = new RegionConfigurer() {
+	private final RegionConfigurer compositeRegionConfigurer = new RegionConfigurer() {
 
 		@Override
 		public void configure(String beanName, ClientRegionFactoryBean<?, ?> bean) {

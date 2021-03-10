@@ -18,7 +18,6 @@ package org.springframework.data.gemfire;
 import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeProductName;
 import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeVersion;
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeCollection;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
 
@@ -297,7 +296,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @return the given {@link CacheFactory}.
 	 * @see org.apache.geode.cache.CacheFactory
 	 */
-	private @NonNull CacheFactory configureSecurity(@NonNull CacheFactory cacheFactory) {
+	protected @NonNull CacheFactory configureSecurity(@NonNull CacheFactory cacheFactory) {
 
 		org.apache.geode.security.SecurityManager securityManager = getSecurityManager();
 
@@ -347,6 +346,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @see #registerTransactionListeners(org.apache.geode.cache.GemFireCache)
 	 * @see #registerTransactionWriter(org.apache.geode.cache.GemFireCache)
 	 */
+	// TODO: Refactor this garbage!
 	protected @NonNull <T extends GemFireCache> T postProcess(@NonNull T cache) {
 
 		loadCacheXml(cache);
@@ -354,11 +354,14 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 		Optional.ofNullable(getCopyOnRead()).ifPresent(cache::setCopyOnRead);
 
 		if (cache instanceof Cache) {
-			Optional.ofNullable(getGatewayConflictResolver()).ifPresent(((Cache) cache)::setGatewayConflictResolver);
-			Optional.ofNullable(getLockLease()).ifPresent(((Cache) cache)::setLockLease);
-			Optional.ofNullable(getLockTimeout()).ifPresent(((Cache) cache)::setLockTimeout);
-			Optional.ofNullable(getMessageSyncInterval()).ifPresent(((Cache) cache)::setMessageSyncInterval);
-			Optional.ofNullable(getSearchTimeout()).ifPresent(((Cache) cache)::setSearchTimeout);
+
+			Cache peerCache = (Cache) cache;
+
+			Optional.ofNullable(getGatewayConflictResolver()).ifPresent(peerCache::setGatewayConflictResolver);
+			Optional.ofNullable(getLockLease()).ifPresent(peerCache::setLockLease);
+			Optional.ofNullable(getLockTimeout()).ifPresent(peerCache::setLockTimeout);
+			Optional.ofNullable(getMessageSyncInterval()).ifPresent(peerCache::setMessageSyncInterval);
+			Optional.ofNullable(getSearchTimeout()).ifPresent(peerCache::setSearchTimeout);
 		}
 
 		configureHeapPercentages(cache);
@@ -372,7 +375,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 
 	private GemFireCache registerJndiDataSources(GemFireCache cache) {
 
-		nullSafeCollection(getJndiDataSources()).forEach(jndiDataSource -> {
+		CollectionUtils.nullSafeCollection(getJndiDataSources()).forEach(jndiDataSource -> {
 
 			String type = jndiDataSource.getAttributes().get("type");
 
@@ -393,7 +396,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 
 	private GemFireCache registerTransactionListeners(GemFireCache cache) {
 
-		nullSafeCollection(getTransactionListeners())
+		CollectionUtils.nullSafeCollection(getTransactionListeners())
 			.forEach(transactionListener -> cache.getCacheTransactionManager().addListener(transactionListener));
 
 		return cache;
@@ -401,7 +404,8 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 
 	private GemFireCache registerTransactionWriter(GemFireCache cache) {
 
-		Optional.ofNullable(getTransactionWriter()).ifPresent(it -> cache.getCacheTransactionManager().setWriter(it));
+		Optional.ofNullable(getTransactionWriter())
+			.ifPresent(transactionWriter -> cache.getCacheTransactionManager().setWriter(transactionWriter));
 
 		return cache;
 	}

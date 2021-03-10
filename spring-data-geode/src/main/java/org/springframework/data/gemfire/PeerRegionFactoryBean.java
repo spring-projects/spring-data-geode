@@ -139,10 +139,10 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	private ExpirationAttributes regionIdleTimeout;
 	private ExpirationAttributes regionTimeToLive;
 
-	private List<AsyncEventQueue> asyncEventQueues = new ArrayList<>();
-	private List<GatewaySender> gatewaySenders = new ArrayList<>();
-	private List<String> asyncEventQueueIds = new ArrayList<>();
-	private List<String> gatewaySenderIds = new ArrayList<>();
+	private final List<AsyncEventQueue> asyncEventQueues = new ArrayList<>();
+	private final List<GatewaySender> gatewaySenders = new ArrayList<>();
+	private final List<String> asyncEventQueueIds = new ArrayList<>();
+	private final List<String> gatewaySenderIds = new ArrayList<>();
 
 	private RegionAttributes<K, V> attributes;
 
@@ -1173,7 +1173,6 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	 * @inheritDoc
 	 */
 	@Override
-	@SuppressWarnings("all")
 	public void stop() {
 
 		if (!this.gatewaySenders.isEmpty()) {

@@ -17,7 +17,6 @@ package org.springframework.data.gemfire;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +32,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.gemfire.config.annotation.LocatorConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -62,12 +62,12 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 	private Integer port = DEFAULT_PORT;
 
-	private List<LocatorConfigurer> locatorConfigurers = new ArrayList<>();
+	private final List<LocatorConfigurer> locatorConfigurers = new ArrayList<>();
 
 	private Locator locator;
 
-	private LocatorConfigurer compositeLocatorConfigurer = (beanName, bean) ->
-		nullSafeList(this.locatorConfigurers).forEach(locatorConfigurer ->
+	private final LocatorConfigurer compositeLocatorConfigurer = (beanName, bean) ->
+		CollectionUtils.nullSafeList(this.locatorConfigurers).forEach(locatorConfigurer ->
 			locatorConfigurer.configure(beanName, bean));
 
 	private LocatorLauncher locatorLauncher;
