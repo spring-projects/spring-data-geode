@@ -17,7 +17,6 @@ package org.springframework.data.gemfire;
 
 import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeProductName;
 import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeVersion;
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
 
@@ -33,8 +32,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.TransactionListener;
-import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.util.GatewayConflictResolver;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.datasource.ConfigProperty;
@@ -48,6 +45,7 @@ import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -88,8 +86,6 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 
 	private List<JndiDataSource> jndiDataSources;
 
-	private List<TransactionListener> transactionListeners;
-
 	private final PeerCacheConfigurer compositePeerCacheConfigurer = (beanName, bean) ->
 		nullSafeList(peerCacheConfigurers).forEach(peerCacheConfigurer ->
 			peerCacheConfigurer.configure(beanName, bean));
@@ -97,8 +93,6 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	private String cacheResolutionMessagePrefix;
 
 	private org.apache.geode.security.SecurityManager securityManager;
-
-	private TransactionWriter transactionWriter;
 
 	/**
 	 * Applies the composite {@link PeerCacheConfigurer PeerCacheConfigurers} to this {@link CacheFactoryBean}
@@ -394,22 +388,6 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 		return cache;
 	}
 
-	private GemFireCache registerTransactionListeners(GemFireCache cache) {
-
-		CollectionUtils.nullSafeCollection(getTransactionListeners())
-			.forEach(transactionListener -> cache.getCacheTransactionManager().addListener(transactionListener));
-
-		return cache;
-	}
-
-	private GemFireCache registerTransactionWriter(GemFireCache cache) {
-
-		Optional.ofNullable(getTransactionWriter())
-			.ifPresent(transactionWriter -> cache.getCacheTransactionManager().setWriter(transactionWriter));
-
-		return cache;
-	}
-
 	/**
 	 * Returns a reference to the Composite {@link PeerCacheConfigurer} used to apply additional configuration
 	 * to this {@link CacheFactoryBean} on Spring container initialization.
@@ -417,7 +395,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @return the Composite {@link PeerCacheConfigurer}.
 	 * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
 	 */
-	public PeerCacheConfigurer getCompositePeerCacheConfigurer() {
+	public @NonNull PeerCacheConfigurer getCompositePeerCacheConfigurer() {
 		return this.compositePeerCacheConfigurer;
 	}
 
@@ -427,7 +405,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @param enableAutoReconnect a boolean value to enable/disable auto-reconnect functionality.
 	 * @since GemFire 8.0
 	 */
-	public void setEnableAutoReconnect(Boolean enableAutoReconnect) {
+	public void setEnableAutoReconnect(@Nullable Boolean enableAutoReconnect) {
 		this.enableAutoReconnect = enableAutoReconnect;
 	}
 
@@ -437,7 +415,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @return a boolean value indicating whether auto-reconnect was specified (non-null) and whether it was enabled
 	 * or not.
 	 */
-	public Boolean getEnableAutoReconnect() {
+	public @Nullable Boolean getEnableAutoReconnect() {
 		return this.enableAutoReconnect;
 	}
 
@@ -447,14 +425,14 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * compatibility with Gemfire 6 compatibility. This must be an instance of
 	 * {@link org.apache.geode.cache.util.GatewayConflictResolver}
 	 */
-	public void setGatewayConflictResolver(GatewayConflictResolver gatewayConflictResolver) {
+	public void setGatewayConflictResolver(@Nullable GatewayConflictResolver gatewayConflictResolver) {
 		this.gatewayConflictResolver = gatewayConflictResolver;
 	}
 
 	/**
 	 * @return the gatewayConflictResolver
 	 */
-	public GatewayConflictResolver getGatewayConflictResolver() {
+	public @Nullable GatewayConflictResolver getGatewayConflictResolver() {
 		return this.gatewayConflictResolver;
 	}
 
@@ -477,14 +455,14 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 *
 	 * @param lockLease an integer value indicating the object lock lease timeout.
 	 */
-	public void setLockLease(Integer lockLease) {
+	public void setLockLease(@Nullable Integer lockLease) {
 		this.lockLease = lockLease;
 	}
 
 	/**
 	 * @return the lockLease
 	 */
-	public Integer getLockLease() {
+	public @Nullable Integer getLockLease() {
 		return this.lockLease;
 	}
 
@@ -493,14 +471,14 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 *
 	 * @param lockTimeout an integer value specifying the object lock request timeout.
 	 */
-	public void setLockTimeout(Integer lockTimeout) {
+	public void setLockTimeout(@Nullable Integer lockTimeout) {
 		this.lockTimeout = lockTimeout;
 	}
 
 	/**
 	 * @return the lockTimeout
 	 */
-	public Integer getLockTimeout() {
+	public @Nullable Integer getLockTimeout() {
 		return this.lockTimeout;
 	}
 
@@ -512,14 +490,14 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @param messageSyncInterval an integer value specifying the number of seconds in which the primary server
 	 * sends messages to secondary servers.
 	 */
-	public void setMessageSyncInterval(Integer messageSyncInterval) {
+	public void setMessageSyncInterval(@Nullable Integer messageSyncInterval) {
 		this.messageSyncInterval = messageSyncInterval;
 	}
 
 	/**
 	 * @return the messageSyncInterval
 	 */
-	public Integer getMessageSyncInterval() {
+	public @Nullable Integer getMessageSyncInterval() {
 		return this.messageSyncInterval;
 	}
 
@@ -533,7 +511,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @see #setPeerCacheConfigurers(List)
 	 */
 	public void setPeerCacheConfigurers(PeerCacheConfigurer... peerCacheConfigurers) {
-		setPeerCacheConfigurers(Arrays.asList(nullSafeArray(peerCacheConfigurers, PeerCacheConfigurer.class)));
+		setPeerCacheConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(peerCacheConfigurers, PeerCacheConfigurer.class)));
 	}
 
 	/**
@@ -553,14 +531,14 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 *
 	 * @param searchTimeout an integer value indicating the netSearch timeout value.
 	 */
-	public void setSearchTimeout(Integer searchTimeout) {
+	public void setSearchTimeout(@Nullable Integer searchTimeout) {
 		this.searchTimeout = searchTimeout;
 	}
 
 	/**
 	 * @return the searchTimeout
 	 */
-	public Integer getSearchTimeout() {
+	public @Nullable Integer getSearchTimeout() {
 		return this.searchTimeout;
 	}
 
@@ -570,7 +548,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @param securityManager {@link org.apache.geode.security.SecurityManager} used to secure this cache.
 	 * @see org.apache.geode.security.SecurityManager
 	 */
-	public void setSecurityManager(SecurityManager securityManager) {
+	public void setSecurityManager(@Nullable SecurityManager securityManager) {
 		this.securityManager = securityManager;
 	}
 
@@ -580,47 +558,8 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @return the {@link org.apache.geode.security.SecurityManager} used to secure this cache.
 	 * @see org.apache.geode.security.SecurityManager
 	 */
-	public SecurityManager getSecurityManager() {
+	public @Nullable SecurityManager getSecurityManager() {
 		return this.securityManager;
-	}
-
-	/**
-	 * Sets the list of TransactionListeners used to configure the Cache to receive transaction events after
-	 * the transaction is processed (committed, rolled back).
-	 *
-	 * @param transactionListeners the list of GemFire TransactionListeners listening for transaction events.
-	 * @see org.apache.geode.cache.TransactionListener
-	 */
-	public void setTransactionListeners(List<TransactionListener> transactionListeners) {
-		this.transactionListeners = transactionListeners;
-	}
-
-	/**
-	 * @return the transactionListeners
-	 */
-	public List<TransactionListener> getTransactionListeners() {
-		return this.transactionListeners;
-	}
-
-	/**
-	 * Sets the {@link TransactionWriter} used to configure the cache for handling transaction events, such as to veto
-	 * the transaction or update an external DB before the commit.
-	 *
-	 * @param transactionWriter configured {@link TransactionWriter} callback receiving transaction events.
-	 * @see org.apache.geode.cache.TransactionWriter
-	 */
-	public void setTransactionWriter(TransactionWriter transactionWriter) {
-		this.transactionWriter = transactionWriter;
-	}
-
-	/**
-	 * Return the configured {@link TransactionWriter} used to process and handle transaction events.
-	 *
-	 * @return the configured {@link TransactionWriter}.
-	 * @see org.apache.geode.cache.TransactionWriter
-	 */
-	public TransactionWriter getTransactionWriter() {
-		return this.transactionWriter;
 	}
 
 	/**
@@ -630,7 +569,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @param useSharedConfiguration boolean value to set the {@literal use-shared-configuration}
 	 * Pivotal GemFire/Apache Geode distribution configuration setting.
 	 */
-	public void setUseClusterConfiguration(Boolean useSharedConfiguration) {
+	public void setUseClusterConfiguration(@Nullable Boolean useSharedConfiguration) {
 		this.useClusterConfiguration = useSharedConfiguration;
 	}
 
@@ -641,7 +580,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @return the current boolean value for the {@literal use-shared-configuration}
 	 * Pivotal GemFire/Apache Geode distribution configuration setting.
 	 */
-	public Boolean getUseClusterConfiguration() {
+	public @Nullable Boolean getUseClusterConfiguration() {
 		return this.useClusterConfiguration;
 	}
 

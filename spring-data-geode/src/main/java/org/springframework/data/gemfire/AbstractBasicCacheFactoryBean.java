@@ -21,6 +21,8 @@ import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newR
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -30,6 +32,8 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.TransactionListener;
+import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 
@@ -47,6 +51,7 @@ import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -112,9 +117,13 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 
 	private GemFireCache cache;
 
+	private List<TransactionListener> transactionListeners;
+
 	private Properties properties;
 
 	private Resource cacheXml;
+
+	private TransactionWriter transactionWriter;
 
 	/**
 	 * Gets a reference to the configured {@link GemfireBeanFactoryLocator} used to resolve Spring bean references
@@ -445,6 +454,53 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
+	 * Configures the cache (transaction manager) with a {@link List} of {@link TransactionListener TransactionListeners}
+	 * implemented by applications to listen for and receive transaction events after a transaction is processed
+	 * (i.e. committed or rolled back).
+	 *
+	 * @param transactionListeners {@link List} of application-defined {@link TransactionListener TransactionListeners}
+	 * registered with the cache to listen for and receive transaction events.
+	 * @see org.apache.geode.cache.TransactionListener
+	 */
+	public void setTransactionListeners(@NonNull List<TransactionListener> transactionListeners) {
+		this.transactionListeners = transactionListeners;
+	}
+
+	/**
+	 * Returns the {@link List} of configured, application-defined {@link TransactionListener TransactionListeners}
+	 * registered with the cache (transaction manager) to enable applications to receive transaction events after a
+	 * transaction is processed (i.e. committed or rolled back).
+	 *
+	 * @return a {@link List} of application-defined {@link TransactionListener TransactionListeners} registered with
+	 * the cache (transaction manager) to listen for and receive transaction events.
+	 * @see org.apache.geode.cache.TransactionListener
+	 */
+	public @NonNull List<TransactionListener> getTransactionListeners() {
+		return CollectionUtils.nullSafeList(this.transactionListeners);
+	}
+
+	/**
+	 * Configures a {@link TransactionWriter} implemented by the application to receive transaction events and perform
+	 * a action, like a veto.
+	 *
+	 * @param transactionWriter {@link TransactionWriter} receiving transaction events.
+	 * @see org.apache.geode.cache.TransactionWriter
+	 */
+	public void setTransactionWriter(@Nullable TransactionWriter transactionWriter) {
+		this.transactionWriter = transactionWriter;
+	}
+
+	/**
+	 * Return the configured {@link TransactionWriter} used to process and handle transaction events.
+	 *
+	 * @return the configured {@link TransactionWriter}.
+	 * @see org.apache.geode.cache.TransactionWriter
+	 */
+	public @Nullable TransactionWriter getTransactionWriter() {
+		return this.transactionWriter;
+	}
+
+	/**
 	 * Sets a boolean value used to determine whether to enable the {@link GemfireBeanFactoryLocator}.
 	 *
 	 * @param use boolean value used to determine whether to enable the {@link GemfireBeanFactoryLocator}.
@@ -661,6 +717,23 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 				throw newRuntimeException(cause, "Failed to load cache.xml [%s]", cacheXml);
 			}
 		});
+
+		return cache;
+	}
+
+	protected GemFireCache registerTransactionListeners(GemFireCache cache) {
+
+		CollectionUtils.nullSafeCollection(getTransactionListeners()).stream()
+			.filter(Objects::nonNull)
+			.forEach(transactionListener -> cache.getCacheTransactionManager().addListener(transactionListener));
+
+		return cache;
+	}
+
+	protected GemFireCache registerTransactionWriter(GemFireCache cache) {
+
+		Optional.ofNullable(getTransactionWriter())
+			.ifPresent(transactionWriter -> cache.getCacheTransactionManager().setWriter(transactionWriter));
 
 		return cache;
 	}
