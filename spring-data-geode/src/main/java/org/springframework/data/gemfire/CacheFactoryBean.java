@@ -15,10 +15,7 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeProductName;
-import static org.springframework.data.gemfire.GemfireUtils.apacheGeodeVersion;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,11 +26,9 @@ import java.util.Properties;
 import java.util.stream.StreamSupport;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.util.GatewayConflictResolver;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.datasource.ConfigProperty;
 import org.apache.geode.internal.jndi.JNDIInvoker;
 import org.apache.geode.pdx.PdxSerializer;
@@ -63,14 +58,11 @@ import org.springframework.util.Assert;
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.apache.geode.security.SecurityManager
- * @see org.apache.geode.distributed.DistributedMember
- * @see org.apache.geode.distributed.DistributedSystem
- * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
  */
 @SuppressWarnings("unused")
-public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
+public class CacheFactoryBean extends AbstractResolvableCacheFactoryBean {
 
 	private Boolean enableAutoReconnect;
 	private Boolean useClusterConfiguration;
@@ -89,8 +81,6 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	private final PeerCacheConfigurer compositePeerCacheConfigurer = (beanName, bean) ->
 		nullSafeList(peerCacheConfigurers).forEach(peerCacheConfigurer ->
 			peerCacheConfigurer.configure(beanName, bean));
-
-	private String cacheResolutionMessagePrefix;
 
 	private org.apache.geode.security.SecurityManager securityManager;
 
@@ -151,8 +141,9 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @inheritDoc
 	 */
 	@Override
-	protected GemFireCache doGetObject() {
-		return init();
+	@SuppressWarnings("unchecked")
+	protected <T extends GemFireCache> T doFetchCache() {
+		return (T) CacheFactory.getAnyInstance();
 	}
 
 	/**
@@ -164,87 +155,6 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	}
 
 	/**
-	 * Initializes the {@link Cache}.
-	 *
-	 * @return a reference to the initialized {@link Cache}.
-	 * @see org.apache.geode.cache.Cache
-	 * @see #resolveCache()
-	 * @see #postProcess(GemFireCache)
-	 * @see #setCache(GemFireCache)
-	 */
-	@SuppressWarnings("deprecation")
-	GemFireCache init() {
-
-		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
-
-		try {
-			// Use Spring Bean ClassLoader to load Spring configured Apache Geode classes
-			Thread.currentThread().setContextClassLoader(getBeanClassLoader());
-
-			setCache(postProcess(resolveCache()));
-
-			Optional.<GemFireCache>ofNullable(getCache()).ifPresent(cache -> {
-
-				Optional.ofNullable(cache.getDistributedSystem())
-					.map(DistributedSystem::getDistributedMember)
-					.ifPresent(member ->
-						logInfo(() -> String.format("Connected to Distributed System [%1$s] as Member [%2$s]"
-								.concat(" in Group(s) [%3$s] with Role(s) [%4$s] on Host [%5$s] having PID [%6$d]"),
-							cache.getDistributedSystem().getName(), member.getId(), member.getGroups(),
-							member.getRoles(), member.getHost(), member.getProcessId())));
-
-				logInfo(() -> String.format("%1$s %2$s version [%3$s] Cache [%4$s]", this.cacheResolutionMessagePrefix,
-					apacheGeodeProductName(), apacheGeodeVersion(), cache.getName()));
-
-			});
-
-			return getCache();
-		}
-		catch (Exception cause) {
-			throw newRuntimeException(cause, "An error occurred while initializing the cache");
-		}
-		finally {
-			Thread.currentThread().setContextClassLoader(currentThreadContextClassLoader);
-		}
-	}
-
-	/**
-	 * Resolves the {@link Cache} by first attempting to lookup an existing {@link Cache} instance in the JVM.
-	 * If an existing {@link Cache} could not be found, then this method proceeds in attempting to create
-	 * a new {@link Cache} instance.
-	 *
-	 * @param <T> parameterized {@link Class} type extension of {@link GemFireCache}.
-	 * @return the resolved {@link Cache} instance.
-	 * @see org.apache.geode.cache.Cache
-	 * @see #fetchCache()
-	 * @see #resolveProperties()
-	 * @see #createFactory(java.util.Properties)
-	 * @see #configureFactory(Object)
-	 * @see #createCache(Object)
-	 */
-	protected <T extends GemFireCache> T resolveCache() {
-
-		try {
-
-			this.cacheResolutionMessagePrefix = "Found existing";
-
-			return fetchCache();
-		}
-		catch (CacheClosedException cause) {
-
-			this.cacheResolutionMessagePrefix = "Created new";
-
-			return createCache(postProcess(configureFactory(initializeFactory(createFactory(resolveProperties())))));
-		}
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected <T extends GemFireCache> T doFetchCache() {
-		return (T) CacheFactory.getAnyInstance();
-	}
-
-	/**
 	 * Constructs a new instance of {@link CacheFactory} initialized with the given Apache Geode {@link Properties}
 	 * used to construct, configure and initialize a new peer {@link Cache} instance.
 	 *
@@ -253,6 +163,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @see org.apache.geode.cache.CacheFactory
 	 * @see java.util.Properties
 	 */
+	@Override
 	protected @NonNull Object createFactory(@NonNull Properties gemfireProperties) {
 		return new CacheFactory(gemfireProperties);
 	}
@@ -266,6 +177,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @see #configureSecurity(CacheFactory)
 	 * @see org.apache.geode.cache.CacheFactory
 	 */
+	@Override
 	protected @NonNull Object configureFactory(@NonNull Object factory) {
 		return configureSecurity(configurePdx((CacheFactory) factory));
 	}
@@ -300,17 +212,6 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	}
 
 	/**
-	 * Post process the {@link CacheFactory} used to create the {@link Cache}.
-	 *
-	 * @param factory {@link CacheFactory} used to create the {@link Cache}.
-	 * @return the post processed {@link CacheFactory}.
-	 * @see org.apache.geode.cache.CacheFactory
-	 */
-	protected @NonNull Object postProcess(@NonNull Object factory) {
-		return factory;
-	}
-
-	/**
 	 * Creates a new {@link Cache} instance using the provided {@link Object factory}.
 	 *
 	 * @param <T> {@link Class sub-type} of {@link GemFireCache}.
@@ -320,6 +221,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	protected @NonNull <T extends GemFireCache> T createCache(@NonNull Object factory) {
 		return (T) ((CacheFactory) factory).create();
 	}
@@ -340,12 +242,10 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 	 * @see #registerTransactionListeners(org.apache.geode.cache.GemFireCache)
 	 * @see #registerTransactionWriter(org.apache.geode.cache.GemFireCache)
 	 */
-	// TODO: Refactor this garbage!
+	@Override
 	protected @NonNull <T extends GemFireCache> T postProcess(@NonNull T cache) {
 
-		loadCacheXml(cache);
-
-		Optional.ofNullable(getCopyOnRead()).ifPresent(cache::setCopyOnRead);
+		super.postProcess(cache);
 
 		if (cache instanceof Cache) {
 
@@ -358,11 +258,7 @@ public class CacheFactoryBean extends AbstractPdxConfigurableCacheFactoryBean {
 			Optional.ofNullable(getSearchTimeout()).ifPresent(peerCache::setSearchTimeout);
 		}
 
-		configureHeapPercentages(cache);
-		configureOffHeapPercentages(cache);
 		registerJndiDataSources(cache);
-		registerTransactionListeners(cache);
-		registerTransactionWriter(cache);
 
 		return cache;
 	}

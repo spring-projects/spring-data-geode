@@ -74,7 +74,6 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.client.SocketFactory
  * @see org.apache.geode.distributed.DistributedSystem
  * @see org.apache.geode.pdx.PdxSerializer
- * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationListener
