@@ -15,16 +15,9 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.function.Function;
 
 import org.apache.geode.GemFireCheckedException;
@@ -40,12 +33,10 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
 import org.apache.geode.pdx.PdxSerializer;
 
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Phased;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
@@ -53,7 +44,6 @@ import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
-import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -67,44 +57,48 @@ import org.springframework.util.StringUtils;
  * This class implements Spring's {@link PersistenceExceptionTranslator} interface and is auto-detected by Spring's
  * {@link PersistenceExceptionTranslationPostProcessor} to enable AOP-based translation of native Apache Geode
  * {@link RuntimeException RuntimeExceptions} to Spring's {@link DataAccessException} hierarchy. Therefore,
- * the presence of this class automatically enables a {@link PersistenceExceptionTranslationPostProcessor}
- * to translate Apache Geode {@link RuntimeException RuntimeExceptions} appropriately.
+ * the presence of this class automatically enables Spring's {@link PersistenceExceptionTranslationPostProcessor}
+ * to translate Apache Geode thrown {@link GemFireException} and {@link GemFireCheckedException} types
+ * as Spring {@link DataAccessException DataAccessExceptions}.
  *
- * Importantly, this abstract class encapsulates configuration applicable to tuning Apache Geode to efficiently use JVM
- * Heap memory. Since Apache Geode stores data in-memory, on the JVM Heap, it is important that Apache Geode be tuned
- * to monitor the JVM Heap and respond accordingly to memory pressure, by evicting data and issuing warnings when the
- * JVM Heap reaches critical mass.
+ * More importantly, this abstract class encapsulates configuration applicable to tuning Apache Geode in order to
+ * efficiently use JVM Heap memory. Since Apache Geode stores data in-memory, on the JVM Heap, it is important that
+ * Apache Geode be tuned to monitor the JVM Heap and respond to memory pressure accordingly, by evicting data
+ * and issuing warnings when the JVM Heap reaches critical mass.
+ *
+ * This abstract class is also concerned with the configuration of PDX and transaction event handling along with
+ * whether the contents (entries) of the cache should be made effectively immutable on reads (i.e. get(key)).
  *
  * @author John Blum
- * @see java.io.File
- * @see java.util.Properties
+ * @see org.apache.geode.GemFireCheckedException
+ * @see org.apache.geode.GemFireException
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.CacheFactory
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.TransactionListener
+ * @see org.apache.geode.cache.TransactionWriter
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.ClientCacheFactory
- * @see org.springframework.beans.factory.BeanFactory
+ * @see org.apache.geode.pdx.PdxSerializer
  * @see org.springframework.beans.factory.DisposableBean
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.beans.factory.InitializingBean
  * @see org.springframework.context.Phased
- * @see org.springframework.core.io.Resource
  * @see org.springframework.dao.DataAccessException
+ * @see org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor
  * @see org.springframework.dao.support.PersistenceExceptionTranslator
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
  * @see org.springframework.data.gemfire.support.AbstractFactoryBeanSupport
- * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  * @since 2.5.0
  */
 public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanSupport<GemFireCache>
 		implements DisposableBean, InitializingBean, PersistenceExceptionTranslator, Phased {
 
 	private boolean close = true;
-	private boolean useBeanFactoryLocator = false;
 
 	private int phase = -1;
 
@@ -120,43 +114,15 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	private Float evictionHeapPercentage;
 	private Float evictionOffHeapPercentage;
 
-	private GemfireBeanFactoryLocator beanFactoryLocator;
-
 	private GemFireCache cache;
 
 	private List<TransactionListener> transactionListeners;
 
 	private PdxSerializer pdxSerializer;
 
-	private Properties properties;
-
-	private Resource cacheXml;
-
 	private String pdxDiskStoreName;
 
 	private TransactionWriter transactionWriter;
-
-	/**
-	 * Gets a reference to the configured {@link GemfireBeanFactoryLocator} used to resolve Spring bean references
-	 * in Apache Geode native configuration metadata (e.g. {@literal cache.xml}).
-	 *
-	 * @param beanFactoryLocator reference to the configured {@link GemfireBeanFactoryLocator}.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
-	 */
-	protected void setBeanFactoryLocator(@Nullable GemfireBeanFactoryLocator beanFactoryLocator) {
-		this.beanFactoryLocator = beanFactoryLocator;
-	}
-
-	/**
-	 * Returns a reference to the configured {@link GemfireBeanFactoryLocator} used to resolve Spring bean references
-	 * in Apache Geode native configuration metadata (e.g. {@literal cache.xml}).
-	 *
-	 * @return a reference to the configured {@link GemfireBeanFactoryLocator}.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
-	 */
-	public @Nullable GemfireBeanFactoryLocator getBeanFactoryLocator() {
-		return this.beanFactoryLocator;
-	}
 
 	/**
 	 * Sets a reference to the constructed, configured an initialized {@link GemFireCache} instance created by
@@ -217,62 +183,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	@SuppressWarnings("rawtypes")
 	public @Nullable CacheFactoryInitializer getCacheFactoryInitializer() {
 		return this.cacheFactoryInitializer;
-	}
-
-	/**
-	 * Sets a reference to an (optional) Apache Geode native {@literal cache.xml} {@link Resource}.
-	 *
-	 * @param cacheXml reference to an (optional) Apache Geode native {@literal cache.xml} {@link Resource}.
-	 * @see org.springframework.core.io.Resource
-	 */
-	public void setCacheXml(@Nullable Resource cacheXml) {
-		this.cacheXml = cacheXml;
-	}
-
-	/**
-	 * Returns a reference to an (optional) Apache Geode native {@literal cache.xml} {@link Resource}.
-	 *
-	 * @return a reference to an (optional) Apache Geode native {@literal cache.xml} {@link Resource}.
-	 * @see org.springframework.core.io.Resource
-	 */
-	public @Nullable Resource getCacheXml() {
-		return this.cacheXml;
-	}
-
-	/**
-	 * Determines whether the {@literal cache.xml} {@link File} is present.
-	 *
-	 * @return boolean value indicating whether a {@literal cache.xml} {@link File} is present.
-	 * @see org.springframework.core.io.Resource#isFile()
-	 * @see #getCacheXml()
-	 */
-	@SuppressWarnings("unused")
-	protected boolean isCacheXmlAvailable() {
-
-		Resource cacheXml = getCacheXml();
-
-		return cacheXml != null && cacheXml.isFile();
-	}
-
-	/**
-	 * Returns the Apache Geode native {@literal cache.xml} {@link Resource} as a {@link File}.
-	 *
-	 * @return the Apache Geode native {@literal cache.xml} {@link Resource} as a {@link File}.
-	 * @throws IllegalStateException if the {@link Resource} is not a valid {@link File} in the file system
-	 * or a general problem exists accessing or reading the {@link File}.
-	 * @see org.springframework.core.io.Resource
-	 * @see java.io.File
-	 * @see #getCacheXml()
-	 */
-	@SuppressWarnings("unused")
-	protected File getCacheXmlFile() {
-
-		try {
-			return getCacheXml().getFile();
-		}
-		catch (Throwable cause) {
-			throw newIllegalStateException(cause, "Resource [%s] is not resolvable as a file", getCacheXml());
-		}
 	}
 
 	/**
@@ -406,9 +316,9 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	protected abstract GemFireCache doGetObject();
 
 	/**
-	 * Returns the {@link Class type} of {@link GemFireCache} produced by this cache {@link FactoryBean}.
+	 * Returns the {@link Class type} of {@link GemFireCache} created by this cache {@link FactoryBean}.
 	 *
-	 * @return the {@link Class type} type of {@link GemFireCache} produced by this cache {@link FactoryBean}.
+	 * @return the {@link Class type} type of {@link GemFireCache} created by this cache {@link FactoryBean}.
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
@@ -419,6 +329,13 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return cache != null ? cache.getClass() : doGetObjectType();
 	}
 
+	/**
+	 * By default, returns {@link GemFireCache} {@link Class}.
+	 *
+	 * @return {@link GemFireCache} {@link Class} by default.
+	 * @see org.apache.geode.cache.GemFireCache#getClass()
+	 * @see java.lang.Class
+	 */
 	protected Class<? extends GemFireCache> doGetObjectType() {
 		return GemFireCache.class;
 	}
@@ -563,40 +480,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Sets and then returns a reference to Apache Geode {@link Properties} used to configure the cache.
-	 *
-	 * @param properties reference to Apache Geode {@link Properties} used to configure the cache.
-	 * @return a reference to Apache Geode {@link Properties} used to configure the cache.
-	 * @see #setProperties(Properties)
-	 * @see #getProperties()
-	 * @see java.util.Properties
-	 */
-	public Properties setAndGetProperties(@Nullable Properties properties) {
-		setProperties(properties);
-		return getProperties();
-	}
-
-	/**
-	 * Sets the Apache Geode {@link Properties} used to configure the cache.
-	 *
-	 * @param properties reference to Apache Geode {@link Properties} used to configure the cache.
-	 * @see java.util.Properties
-	 */
-	public void setProperties(@Nullable Properties properties) {
-		this.properties = properties;
-	}
-
-	/**
-	 * Returns a reference to the Apache Geode {@link Properties} used to configure the cache.
-	 *
-	 * @return a reference to Apache Geode {@link Properties}.
-	 * @see java.util.Properties
-	 */
-	public @Nullable Properties getProperties() {
-		return this.properties;
-	}
-
-	/**
 	 * Configures the cache (transaction manager) with a {@link List} of {@link TransactionListener TransactionListeners}
 	 * implemented by applications to listen for and receive transaction events after a transaction is processed
 	 * (i.e. committed or rolled back).
@@ -605,7 +488,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * registered with the cache to listen for and receive transaction events.
 	 * @see org.apache.geode.cache.TransactionListener
 	 */
-	public void setTransactionListeners(@NonNull List<TransactionListener> transactionListeners) {
+	public void setTransactionListeners(List<TransactionListener> transactionListeners) {
 		this.transactionListeners = transactionListeners;
 	}
 
@@ -618,7 +501,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * the cache (transaction manager) to listen for and receive transaction events.
 	 * @see org.apache.geode.cache.TransactionListener
 	 */
-	public @NonNull List<TransactionListener> getTransactionListeners() {
+	public List<TransactionListener> getTransactionListeners() {
 		return CollectionUtils.nullSafeList(this.transactionListeners);
 	}
 
@@ -644,38 +527,16 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Sets a boolean value used to determine whether to enable the {@link GemfireBeanFactoryLocator}.
-	 *
-	 * @param use boolean value used to determine whether to enable the {@link GemfireBeanFactoryLocator}.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
-	 */
-	public void setUseBeanFactoryLocator(boolean use) {
-		this.useBeanFactoryLocator = use;
-	}
-
-	/**
-	 * Determines whether the {@link GemfireBeanFactoryLocator} has been enabled.
-	 *
-	 * @return a boolean value indicating whether the {@link GemfireBeanFactoryLocator} has been enabled.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
-	 */
-	public boolean isUseBeanFactoryLocator() {
-		return this.useBeanFactoryLocator;
-	}
-
-	/**
 	 * Initializes this cache {@link FactoryBean} after all properties for this cache bean have been set
 	 * by the Spring container.
 	 *
 	 * @throws Exception if initialization fails.
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 * @see #applyCacheConfigurers()
-	 * @see #initBeanFactoryLocator()
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		applyCacheConfigurers();
-		initBeanFactoryLocator();
 	}
 
 	/**
@@ -705,8 +566,8 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * Destroys the cache bean on Spring Container shutdown.
 	 *
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
-	 * @see #destroyBeanFactoryLocator()
 	 * @see #close(GemFireCache)
+	 * @see #fetchCache()
 	 * @see #isClose()
 	 */
 	@Override
@@ -714,48 +575,11 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 
 		if (isClose()) {
 			close(fetchCache());
-			destroyBeanFactoryLocator();
 		}
-	}
-
-	/**
-	 * Destroys the {@link GemfireBeanFactoryLocator}.
-	 *
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator#destroy()
-	 */
-	protected void destroyBeanFactoryLocator() {
-
-		Optional.ofNullable(getBeanFactoryLocator())
-			.ifPresent(GemfireBeanFactoryLocator::destroy);
-
-		setBeanFactoryLocator(null);
 	}
 
 	private boolean isHeapPercentageValid(@NonNull Float heapPercentage) {
 		return heapPercentage >= 0.0f && heapPercentage <= 100.0f;
-	}
-
-	/**
-	 * Configures the cache to use PDX serialization.
-	 *
-	 * @param pdxConfigurer {@link PdxConfigurer} used to configure the cache with PDX serialization.
-	 * @return the {@link PdxConfigurer#getTarget()}.
-	 */
-	protected <T> T configurePdx(PdxConfigurer<T> pdxConfigurer) {
-
-		Optional.ofNullable(getPdxDiskStoreName())
-			.filter(StringUtils::hasText)
-			.ifPresent(pdxConfigurer::setDiskStoreName);
-
-		Optional.ofNullable(getPdxIgnoreUnreadFields()).ifPresent(pdxConfigurer::setIgnoreUnreadFields);
-
-		Optional.ofNullable(getPdxPersistent()).ifPresent(pdxConfigurer::setPersistent);
-
-		Optional.ofNullable(getPdxReadSerialized()).ifPresent(pdxConfigurer::setReadSerialized);
-
-		Optional.ofNullable(getPdxSerializer()).ifPresent(pdxConfigurer::setSerializer);
-
-		return pdxConfigurer.getTarget();
 	}
 
 	/**
@@ -831,6 +655,29 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
+	 * Configures the cache to use PDX serialization.
+	 *
+	 * @param pdxConfigurer {@link PdxConfigurer} used to configure the cache with PDX serialization.
+	 * @return the {@link PdxConfigurer#getTarget()}.
+	 */
+	protected <T> T configurePdx(PdxConfigurer<T> pdxConfigurer) {
+
+		Optional.ofNullable(getPdxDiskStoreName())
+			.filter(StringUtils::hasText)
+			.ifPresent(pdxConfigurer::setDiskStoreName);
+
+		Optional.ofNullable(getPdxIgnoreUnreadFields()).ifPresent(pdxConfigurer::setIgnoreUnreadFields);
+
+		Optional.ofNullable(getPdxPersistent()).ifPresent(pdxConfigurer::setPersistent);
+
+		Optional.ofNullable(getPdxReadSerialized()).ifPresent(pdxConfigurer::setReadSerialized);
+
+		Optional.ofNullable(getPdxSerializer()).ifPresent(pdxConfigurer::setSerializer);
+
+		return pdxConfigurer.getTarget();
+	}
+
+	/**
 	 * Fetches an existing cache instance from the Apache Geode cache factory.
 	 *
 	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
@@ -852,23 +699,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	protected abstract <T extends GemFireCache> T doFetchCache();
 
 	/**
-	 * Initializes the {@link GemfireBeanFactoryLocator} if {@link #isUseBeanFactoryLocator()} returns {@literal true}
-	 * and an existing {@link #getBeanFactoryLocator()} is not already present.
-	 *
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator#newBeanFactoryLocator(BeanFactory, String)
-	 * @see #isUseBeanFactoryLocator()
-	 * @see #getBeanFactoryLocator()
-	 * @see #getBeanFactory()
-	 * @see #getBeanName()
-	 */
-	protected void initBeanFactoryLocator() {
-
-		if (isUseBeanFactoryLocator() && getBeanFactoryLocator() == null) {
-			setBeanFactoryLocator(GemfireBeanFactoryLocator.newBeanFactoryLocator(getBeanFactory(), getBeanName()));
-		}
-	}
-
-	/**
 	 * Initializes the given {@link CacheFactory} or {@link ClientCacheFactory}
 	 * with the configured {@link CacheFactoryInitializer}.
 	 *
@@ -886,33 +716,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return Optional.ofNullable(getCacheFactoryInitializer())
 			.map(cacheFactoryInitializer -> cacheFactoryInitializer.initialize(factory))
 			.orElse(factory);
-	}
-
-	/**
-	 * Loads the configured {@literal cache.xml} to initialize the {@link GemFireCache}.
-	 *
-	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
-	 * @param cache {@link GemFireCache} instance to initialize with {@literal cache.xml}; must not be {@literal null}.
-	 * @return the given {@link GemFireCache}.
-	 * @throws RuntimeException if the configured {@literal cache.xml} file could not be loaded
-	 * into the {@link GemFireCache}.
-	 * @see org.apache.geode.cache.GemFireCache#loadCacheXml(InputStream)
-	 * @see org.apache.geode.cache.GemFireCache
-	 */
-	protected @NonNull <T extends GemFireCache> T loadCacheXml(@NonNull T cache) {
-
-		// Load the cache.xml file (Resource) and initialize the cache
-		Optional.ofNullable(getCacheXml()).ifPresent(cacheXml -> {
-			try {
-				logDebug("Initializing cache with [%s]", cacheXml);
-				cache.loadCacheXml(cacheXml.getInputStream());
-			}
-			catch (IOException cause) {
-				throw newRuntimeException(cause, "Failed to load cache.xml [%s]", cacheXml);
-			}
-		});
-
-		return cache;
 	}
 
 	/**
@@ -957,20 +760,6 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 			.ifPresent(transactionWriter -> cache.getCacheTransactionManager().setWriter(transactionWriter));
 
 		return cache;
-	}
-
-	/**
-	 * Resolves the Apache Geode {@link Properties} used to configure the {@link GemFireCache}.
-	 *
-	 * @return the resolved Apache Geode {@link Properties} used to configure the {@link GemFireCache}.
-	 * @see #setAndGetProperties(Properties)
-	 * @see #getProperties()
-	 * @see java.util.Properties
-	 */
-	protected @NonNull Properties resolveProperties() {
-
-		return Optional.ofNullable(getProperties())
-			.orElseGet(() -> setAndGetProperties(new Properties()));
 	}
 
 	/**

@@ -98,6 +98,7 @@ public class CacheFactoryBeanUnitTests {
 
 		CacheFactoryBean cacheFactoryBean = spy(new CacheFactoryBean());
 
+		cacheFactoryBean.setUseBeanFactoryLocator(true);
 		cacheFactoryBean.afterPropertiesSet();
 
 		InOrder orderVerifier = inOrder(cacheFactoryBean);
@@ -106,7 +107,7 @@ public class CacheFactoryBeanUnitTests {
 		orderVerifier.verify(cacheFactoryBean, times(1)).applyCacheConfigurers();
 		orderVerifier.verify(cacheFactoryBean, times(1)).getCompositePeerCacheConfigurer();
 		orderVerifier.verify(cacheFactoryBean, times(1)).applyPeerCacheConfigurers(isA(PeerCacheConfigurer.class));
-		orderVerifier.verify(cacheFactoryBean, times(1)).initBeanFactoryLocator();
+		orderVerifier.verify(cacheFactoryBean, times(1)).setBeanFactoryLocator(isA(GemfireBeanFactoryLocator.class));
 	}
 
 	@Test
@@ -738,7 +739,6 @@ public class CacheFactoryBeanUnitTests {
 		verify(cacheFactoryBean, times(1)).isClose();
 		verify(cacheFactoryBean, times(1)).fetchCache();
 		verify(cacheFactoryBean, times(1)).close(eq(mockCache));
-		verify(cacheFactoryBean, times(1)).destroyBeanFactoryLocator();
 		verify(mockCache, times(1)).isClosed();
 		verify(mockCache, times(1)).close();
 		verify(mockGemfireBeanFactoryLocator, times(1)).destroy();
@@ -761,7 +761,6 @@ public class CacheFactoryBeanUnitTests {
 		verify(cacheFactoryBean, times(1)).isClose();
 		verify(cacheFactoryBean, times(1)).fetchCache();
 		verify(cacheFactoryBean, times(1)).close(isNull());
-		verify(cacheFactoryBean, times(1)).destroyBeanFactoryLocator();
 	}
 
 	@Test
@@ -776,7 +775,6 @@ public class CacheFactoryBeanUnitTests {
 		verify(cacheFactoryBean, times(1)).isClose();
 		verify(cacheFactoryBean, never()).fetchCache();
 		verify(cacheFactoryBean, never()).close(any());
-		verify(cacheFactoryBean, never()).destroyBeanFactoryLocator();
 	}
 
 	@Test

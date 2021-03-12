@@ -36,10 +36,10 @@ import org.springframework.lang.NonNull;
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.distributed.DistributedMember
  * @see org.apache.geode.distributed.DistributedSystem
- * @see org.springframework.data.gemfire.AbstractBasicCacheFactoryBean
+ * @see org.springframework.data.gemfire.AbstractConfigurableCacheFactoryBean
  * @since 2.5.0
  */
-public abstract class AbstractResolvableCacheFactoryBean extends AbstractBasicCacheFactoryBean {
+public abstract class AbstractResolvableCacheFactoryBean extends AbstractConfigurableCacheFactoryBean {
 
 	private volatile String cacheResolutionMessagePrefix;
 
