@@ -18,46 +18,47 @@ package org.springframework.data.gemfire.config.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-import javax.annotation.Resource;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.TransactionEvent;
 import org.apache.geode.cache.TransactionListener;
 import org.apache.geode.cache.TransactionWriter;
-import org.apache.geode.cache.TransactionWriterException;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author David Turanski
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations="tx-listeners-and-writers.xml",
-	initializers=GemfireTestApplicationContextInitializer.class)
+@RunWith(SpringRunner.class)
+@ContextConfiguration(
+	locations="tx-listeners-and-writers.xml",
+	initializers = GemfireTestApplicationContextInitializer.class
+)
+@SuppressWarnings("unused")
 public class TxEventHandlersTest {
 
 	@Autowired
-	TestListener txListener1;
+	TestTransactionListener txListener1;
 
 	@Autowired
-	TestListener txListener2;
+	private TestTransactionListener txListener2;
 
 	@Autowired
-	TestWriter txWriter;
+	private TestTransactionWriter txWriter;
 
-	@Resource(name = "gemfireCache")
-	Cache cache;
+	@Autowired
+	private Cache cache;
 
 	@Test
-	public void test() throws Exception {
+	public void transactionEventHandlersConfiguredCorrectly() {
+
 		TransactionListener[] listeners = cache.getCacheTransactionManager().getListeners();
 
 		assertEquals(2, listeners.length);
@@ -66,7 +67,7 @@ public class TxEventHandlersTest {
 		assertSame(txWriter, cache.getCacheTransactionManager().getWriter());
 	}
 
-	public static class TestListener implements TransactionListener, BeanNameAware {
+	public static class TestTransactionListener implements TransactionListener, BeanNameAware {
 
 		private String name;
 
@@ -77,51 +78,46 @@ public class TxEventHandlersTest {
 		public boolean afterCommit;
 
 		@Override
-		public void close() {
-			closed = true;
-
+		public void setBeanName(String name) {
+			this.name = name;
 		}
 
 		@Override
-		public void afterCommit(TransactionEvent arg0) {
+		public void afterCommit(TransactionEvent event) {
 			afterCommit = true;
 			value = name;
 		}
 
 		@Override
-		public void afterFailedCommit(TransactionEvent arg0) {
-		}
+		public void afterFailedCommit(TransactionEvent event) { }
 
 		@Override
-		public void afterRollback(TransactionEvent arg0) {
-		}
+		public void afterRollback(TransactionEvent event) { }
 
 		@Override
-		public void setBeanName(String name) {
-			this.name = name;
-		};
+		public void close() {
+			closed = true;
+		}
 	}
 
-	public static class TestWriter implements TransactionWriter, BeanNameAware {
+	public static class TestTransactionWriter implements TransactionWriter, BeanNameAware {
 
 		private String name;
 
 		public String value;
 
 		@Override
-		public void close() {
-		}
-
-		@Override
-		public void beforeCommit(TransactionEvent arg0) throws TransactionWriterException {
-			this.value = name;
-
-		}
-
-		@Override
 		public void setBeanName(String name) {
 			this.name = name;
-		};
+		}
+
+		@Override
+		public void beforeCommit(TransactionEvent event) {
+			this.value = name;
+		}
+
+		@Override
+		public void close() { }
 
 	}
 }

@@ -12,54 +12,48 @@
  */
 package org.springframework.data.gemfire.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.data.gemfire.AbstractBasicCacheFactoryBean;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
+ * Spring {@link BeanPostProcessor} to enable GemFire/Geode Mock Objects for testing.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.springframework.beans.factory.config.BeanPostProcessor
+ * @see org.springframework.data.gemfire.CacheFactoryBean
+ * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
+ * @see org.springframework.data.gemfire.server.CacheServerFactoryBean
  */
 public class GemfireTestBeanPostProcessor implements BeanPostProcessor {
 
-	private static Logger logger = LoggerFactory.getLogger(GemfireTestBeanPostProcessor.class);
+	private static final Logger logger = LoggerFactory.getLogger(GemfireTestBeanPostProcessor.class);
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
-	 */
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
-		if (bean instanceof CacheFactoryBean) {
+		if (bean instanceof AbstractBasicCacheFactoryBean) {
 
 			String beanTypeName = bean.getClass().getName();
 
-			bean = (bean instanceof ClientCacheFactoryBean
+			bean = bean instanceof ClientCacheFactoryBean
 				? new MockClientCacheFactoryBean((ClientCacheFactoryBean) bean)
-				: new MockCacheFactoryBean((CacheFactoryBean) bean));
+				: new MockCacheFactoryBean((CacheFactoryBean) bean);
 
-			logger.info("Replacing the [{}] bean definition having type [{}] with mock [{}]...",
+			logger.info("Replacing the [{}] bean definition of type [{}] with mock [{}]...",
 				beanName, beanTypeName, bean.getClass().getName());
 		}
 		else if (bean instanceof CacheServerFactoryBean) {
 			((CacheServerFactoryBean) bean).setCache(new StubCache());
 		}
 
-		return bean;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
-	 */
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
 }

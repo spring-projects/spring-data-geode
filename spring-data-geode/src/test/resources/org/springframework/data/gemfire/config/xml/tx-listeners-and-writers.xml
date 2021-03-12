@@ -26,8 +26,8 @@
 		<gfe:transaction-writer ref="txWriter"/>
 	</gfe:client-cache>
 
-	<bean id="txListener1" class="org.springframework.data.gemfire.config.xml.TxEventHandlersTest.TestListener"/>
-	<bean id="txListener2" class="org.springframework.data.gemfire.config.xml.TxEventHandlersTest.TestListener"/>
-	<bean id="txWriter" class="org.springframework.data.gemfire.config.xml.TxEventHandlersTest.TestWriter"/>
+	<bean id="txListener1" class="org.springframework.data.gemfire.config.xml.TxEventHandlersTest.TestTransactionListener"/>
+	<bean id="txListener2" class="org.springframework.data.gemfire.config.xml.TxEventHandlersTest.TestTransactionListener"/>
+	<bean id="txWriter" class="org.springframework.data.gemfire.config.xml.TxEventHandlersTest.TestTransactionWriter"/>
 
 </beans>

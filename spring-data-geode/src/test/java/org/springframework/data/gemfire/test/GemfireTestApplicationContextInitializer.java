@@ -10,18 +10,17 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.test;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Spring {@link ApplicationContextInitializer} used to configure the Spring Data GemFire test suite
+ * Spring {@link ApplicationContextInitializer} used to configure the Spring Data for Apache Geode test suite
  * with mocking enabled or disabled.
  *
  * @author David Turanski
@@ -29,7 +28,8 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.context.ApplicationContextInitializer
  * @see org.springframework.context.ConfigurableApplicationContext
  */
-public class GemfireTestApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class GemfireTestApplicationContextInitializer
+		implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
 	public static final String GEMFIRE_TEST_RUNNER_DISABLED =
 		"org.springframework.data.gemfire.test.GemfireTestRunner.nomock";
@@ -45,7 +45,7 @@ public class GemfireTestApplicationContextInitializer implements ApplicationCont
 		String gemfireTestRunnerDisabled = System.getProperty(GEMFIRE_TEST_RUNNER_DISABLED, Boolean.FALSE.toString());
 
 		if (isGemFireTestRunnerDisabled(gemfireTestRunnerDisabled)) {
-			logger.warn("WARNING - Mocks disabled; Using real GemFire components [{} = {}]",
+			logger.warn("WARNING - Mock objects disabled; Using real Apache Geode objects [{} = {}]",
 				GEMFIRE_TEST_RUNNER_DISABLED, gemfireTestRunnerDisabled);
 		}
 		else {
@@ -53,10 +53,10 @@ public class GemfireTestApplicationContextInitializer implements ApplicationCont
 		}
 	}
 
-	/* (non-Javadoc) */
 	private boolean isGemFireTestRunnerDisabled(String systemPropertyValue) {
-		return (Boolean.valueOf(StringUtils.trimAllWhitespace(systemPropertyValue))
+
+		return Boolean.parseBoolean(StringUtils.trimAllWhitespace(systemPropertyValue))
 			|| "yes".equalsIgnoreCase(systemPropertyValue)
-			|| "y".equalsIgnoreCase(systemPropertyValue));
+			|| "y".equalsIgnoreCase(systemPropertyValue);
 	}
 }

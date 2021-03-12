@@ -130,7 +130,11 @@ public abstract class AbstractResolvableCacheFactoryBean extends AbstractBasicCa
 
 			this.cacheResolutionMessagePrefix = "Found existing";
 
-			return fetchCache();
+			T cache = fetchCache();
+
+			cache = postProcess(cache);
+
+			return cache;
 		}
 		catch (CacheClosedException cause) {
 

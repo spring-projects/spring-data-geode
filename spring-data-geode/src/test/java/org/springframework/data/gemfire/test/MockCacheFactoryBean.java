@@ -10,7 +10,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.test;
 
 import java.util.Optional;
@@ -20,7 +19,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.springframework.data.gemfire.CacheFactoryBean;
 
 /**
- * Mock {@link CacheFactoryBean} used in Unit Tests.
+ * Mock {@link CacheFactoryBean} used in tests.
  *
  * @author David Turanski
  * @author John Blum
@@ -69,7 +68,7 @@ public class MockCacheFactoryBean extends CacheFactoryBean {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T extends GemFireCache> T fetchCache() {
+	protected <T extends GemFireCache> T doFetchCache() {
 		StubCache stubCache = new StubCache();
 		stubCache.setProperties(getProperties());
 		return (T) stubCache;
