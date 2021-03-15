@@ -75,9 +75,9 @@ public class CacheFactoryBean extends AbstractResolvableCacheFactoryBean {
 	private Integer messageSyncInterval;
 	private Integer searchTimeout;
 
-	private final List<PeerCacheConfigurer> peerCacheConfigurers = new ArrayList<>();
-
 	private List<JndiDataSource> jndiDataSources;
+
+	private final List<PeerCacheConfigurer> peerCacheConfigurers = new ArrayList<>();
 
 	private final PeerCacheConfigurer compositePeerCacheConfigurer = (beanName, bean) ->
 		nullSafeList(peerCacheConfigurers).forEach(peerCacheConfigurer ->
@@ -174,7 +174,7 @@ public class CacheFactoryBean extends AbstractResolvableCacheFactoryBean {
 	 *
 	 * @param factory {@link CacheFactory} used to create the {@link Cache}.
 	 * @return the configured {@link CacheFactory}.
-	 * @see #configurePdx(org.springframework.data.gemfire.AbstractPdxConfigurableCacheFactoryBean.PdxConfigurer)
+	 * @see #configurePdx(CacheFactory)
 	 * @see #configureSecurity(CacheFactory)
 	 * @see org.apache.geode.cache.CacheFactory
 	 */
@@ -286,10 +286,10 @@ public class CacheFactoryBean extends AbstractResolvableCacheFactoryBean {
 	}
 
 	/**
-	 * Returns a reference to the Composite {@link PeerCacheConfigurer} used to apply additional configuration
-	 * to this {@link CacheFactoryBean} on Spring container initialization.
+	 * Returns a reference to the {@literal Composite} {@link PeerCacheConfigurer} used to
+	 * apply additional configuration to this {@link CacheFactoryBean} during Spring container initialization.
 	 *
-	 * @return the Composite {@link PeerCacheConfigurer}.
+	 * @return the {@literal Composite} {@link PeerCacheConfigurer}.
 	 * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
 	 */
 	public @NonNull PeerCacheConfigurer getCompositePeerCacheConfigurer() {

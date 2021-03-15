@@ -46,6 +46,7 @@ import org.springframework.lang.Nullable;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.core.io.Resource
+ * @see org.springframework.data.gemfire.AbstractBasicCacheFactoryBean
  * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  * @since 2.5.0
  */
@@ -218,8 +219,8 @@ public abstract class AbstractConfigurableCacheFactoryBean extends AbstractBasic
 	 * and an existing {@link #getBeanFactoryLocator() GemfireBeanFactoryLocator} is not already present.
 	 *
 	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator#newBeanFactoryLocator(BeanFactory, String)
+	 * @see #getOptionalBeanFactoryLocator()
 	 * @see #isUseBeanFactoryLocator()
-	 * @see #getBeanFactoryLocator()
 	 * @see #getBeanFactory()
 	 * @see #getBeanName()
 	 */
@@ -234,13 +235,14 @@ public abstract class AbstractConfigurableCacheFactoryBean extends AbstractBasic
 	}
 
 	private boolean useBeanFactoryLocator() {
-		return isUseBeanFactoryLocator() && getBeanFactoryLocator() == null;
+		return isUseBeanFactoryLocator() && !getOptionalBeanFactoryLocator().isPresent();
 	}
 
 	/**
 	 * Destroys and releases resources used by the {@link GemfireBeanFactoryLocator}, if present.
 	 *
 	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator#destroy()
+	 * @see #getOptionalBeanFactoryLocator()
 	 */
 	@Override
 	public void destroy() {
@@ -262,6 +264,7 @@ public abstract class AbstractConfigurableCacheFactoryBean extends AbstractBasic
 	 * into the {@link GemFireCache}.
 	 * @see org.apache.geode.cache.GemFireCache#loadCacheXml(InputStream)
 	 * @see org.apache.geode.cache.GemFireCache
+	 * @see #getOptionalCacheXml()
 	 */
 	protected @NonNull <T extends GemFireCache> T loadCacheXml(@NonNull T cache) {
 

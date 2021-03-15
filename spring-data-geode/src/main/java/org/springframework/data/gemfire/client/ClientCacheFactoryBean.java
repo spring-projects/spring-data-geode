@@ -197,7 +197,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
-	public Class<? extends GemFireCache> doGetObjectType() {
+	protected Class<? extends GemFireCache> doGetObjectType() {
 		return ClientCache.class;
 	}
 
@@ -411,7 +411,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	}
 
 	/**
-	 * Inform the Pivotal GemFire/Apache Geode cluster that this cache client is ready to receive events
+	 * Inform the Apache Geode cluster that this {@link ClientCache} is ready to receive events
 	 * iff the client is non-durable.
 	 *
 	 * @param event {@link ApplicationContextEvent} fired when the {@link ApplicationContext} is refreshed.
@@ -465,8 +465,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * Null-safe operation to set an array of {@link ClientCacheConfigurer ClientCacheConfigurers} used to apply
 	 * additional configuration to this {@link ClientCacheFactoryBean} when using Annotation-based configuration.
 	 *
-	 * @param clientCacheConfigurers array of {@link ClientCacheConfigurer ClientCacheConfigurers} used to apply
-	 * additional configuration to this {@link ClientCacheFactoryBean}.
+	 * @param clientCacheConfigurers array of {@link ClientCacheConfigurer ClientCacheConfigurers} used to
+	 * apply additional configuration to this {@link ClientCacheFactoryBean}.
 	 * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
 	 * @see #setClientCacheConfigurers(List)
 	 */
@@ -475,25 +475,26 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	}
 
 	/**
-	 * Null-safe operation to set an {@link Iterable} of {@link ClientCacheConfigurer ClientCacheConfigurers} to apply
+	 * Null-safe operation to set an {@link List} of {@link ClientCacheConfigurer ClientCacheConfigurers} to apply
 	 * additional configuration to this {@link ClientCacheFactoryBean} when using Annotation-based configuration.
 	 *
-	 * @param peerCacheConfigurers {@link Iterable} of {@link ClientCacheConfigurer ClientCacheConfigurers} used to apply
-	 * additional configuration to this {@link ClientCacheFactoryBean}.
+	 * @param clientCacheConfigurers {@link List} of {@link ClientCacheConfigurer ClientCacheConfigurers} used to
+	 * apply additional configuration to this {@link ClientCacheFactoryBean}.
 	 * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
+	 * @see #setClientCacheConfigurers(ClientCacheConfigurer...)
 	 */
-	public void setClientCacheConfigurers(List<ClientCacheConfigurer> peerCacheConfigurers) {
-		this.clientCacheConfigurers = peerCacheConfigurers != null ? peerCacheConfigurers : Collections.emptyList();
+	public void setClientCacheConfigurers(List<ClientCacheConfigurer> clientCacheConfigurers) {
+		this.clientCacheConfigurers = clientCacheConfigurers != null ? clientCacheConfigurers : Collections.emptyList();
 	}
 
 	/**
-	 * Returns a reference to the Composite {@link ClientCacheConfigurer} used to apply additional configuration
-	 * to this {@link ClientCacheFactoryBean} on Spring container initialization.
+	 * Returns a reference to the {@literal Composite} {@link ClientCacheConfigurer} used to apply additional
+	 * configuration to this {@link ClientCacheFactoryBean} on Spring container initialization.
 	 *
-	 * @return the Composite {@link ClientCacheConfigurer}.
+	 * @return the {@literal Composite} {@link ClientCacheConfigurer}.
 	 * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
 	 */
-	public ClientCacheConfigurer getCompositeClientCacheConfigurer() {
+	public @NonNull ClientCacheConfigurer getCompositeClientCacheConfigurer() {
 		return this.compositeClientCacheConfigurer;
 	}
 

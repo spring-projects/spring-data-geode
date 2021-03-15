@@ -29,7 +29,7 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.springframework.lang.NonNull;
 
 /**
- * Abstract base class encapsulating logic to resolve or create a {@link GemFireCache cache} instance.
+ * Abstract base class encapsulating logic to resolve or create a {@link GemFireCache} instance.
  *
  * @author John Blum
  * @see java.util.Properties

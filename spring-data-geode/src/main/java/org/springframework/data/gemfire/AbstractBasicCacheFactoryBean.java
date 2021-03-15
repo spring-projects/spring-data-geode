@@ -58,8 +58,11 @@ import org.springframework.util.StringUtils;
  * {@link PersistenceExceptionTranslationPostProcessor} to enable AOP-based translation of native Apache Geode
  * {@link RuntimeException RuntimeExceptions} to Spring's {@link DataAccessException} hierarchy. Therefore,
  * the presence of this class automatically enables Spring's {@link PersistenceExceptionTranslationPostProcessor}
- * to translate Apache Geode thrown {@link GemFireException} and {@link GemFireCheckedException} types
+ * to translate native Apache Geode thrown {@link GemFireException} and {@link GemFireCheckedException} types
  * as Spring {@link DataAccessException DataAccessExceptions}.
+ *
+ * In addition, this class also assumes the responsibility of positioning the creation of the cache in the appropriate
+ * phase of the Spring container's lifecycle, providing default callbacks for both initialization and destruction.
  *
  * More importantly, this abstract class encapsulates configuration applicable to tuning Apache Geode in order to
  * efficiently use JVM Heap memory. Since Apache Geode stores data in-memory, on the JVM Heap, it is important that
@@ -68,6 +71,17 @@ import org.springframework.util.StringUtils;
  *
  * This abstract class is also concerned with the configuration of PDX and transaction event handling along with
  * whether the contents (entries) of the cache should be made effectively immutable on reads (i.e. get(key)).
+ *
+ * In summary, this abstract class primarily handles and encapsulates the configuration of the following concerns:
+ *
+ * <ul>
+ *     <li>copy-on-read semantics</li>
+ *     <li>JVM Heap memory management</li>
+ *     <li>PDX serialization</li>
+ *     <li>Transaction event processing</li>
+ * </ul>
+ *
+ * All of these concerns are applicable to both Apache Geode {@link ClientCache} and peer {@link Cache} instances.
  *
  * @author John Blum
  * @see org.apache.geode.GemFireCheckedException
@@ -114,7 +128,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	private Float evictionHeapPercentage;
 	private Float evictionOffHeapPercentage;
 
-	private GemFireCache cache;
+	private volatile GemFireCache cache;
 
 	private List<TransactionListener> transactionListeners;
 
@@ -128,7 +142,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * Sets a reference to the constructed, configured an initialized {@link GemFireCache} instance created by
 	 * this cache {@link FactoryBean}.
 	 *
-	 * @param cache {@link GemFireCache} created by this {@link FactoryBean}.
+	 * @param cache {@link GemFireCache} created by this cache {@link FactoryBean}.
 	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	protected void setCache(@Nullable GemFireCache cache) {
@@ -139,7 +153,8 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * Returns a reference to the constructed, configured an initialized {@link GemFireCache} instance created by
 	 * this cache {@link FactoryBean}.
 	 *
-	 * @return a reference to the {@link GemFireCache} created by this {@link FactoryBean}.
+	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
+	 * @return a reference to the {@link GemFireCache} created by this cache {@link FactoryBean}.
 	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	@SuppressWarnings("unchecked")
@@ -152,7 +167,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * instance created by this cache {@link FactoryBean}.
 	 *
 	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
-	 * @return an {@link Optional} reference to the {@link GemFireCache} created by this {@link FactoryBean}.
+	 * @return an {@link Optional} reference to the {@link GemFireCache} created by this {cache @link FactoryBean}.
 	 * @see org.apache.geode.cache.GemFireCache
 	 * @see java.util.Optional
 	 * @see #getCache()
@@ -186,123 +201,141 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	}
 
 	/**
-	 * Sets a boolean value used to determine whether the cache should be closed on shutdown of the Spring application.
+	 * Sets a boolean value used to determine whether the cache should be closed on shutdown of the Spring container.
 	 *
-	 * @param close boolean value used to determine whether the cache will be closed on shutdown
-	 * of the Spring application.
+	 * @param close boolean value used to determine whether the cache will be closed on shutdown of the Spring container.
 	 */
 	public void setClose(boolean close) {
 		this.close = close;
 	}
 
 	/**
-	 * Returns a boolean value used to determine whether the cache will be closed on shutdown of the Spring application.
+	 * Returns a boolean value used to determine whether the cache will be closed on shutdown of the Spring container.
 	 *
-	 * @return a boolean value used to determine whether the cache will be closed on shutdown of the Spring application.
+	 * Defaults to {@literal true}.
+	 *
+	 * @return a boolean value used to determine whether the cache will be closed on shutdown of the Spring container.
 	 */
 	public boolean isClose() {
 		return this.close;
 	}
 
 	/**
-	 * Sets the {@link GemFireCache#getCopyOnRead()} property of the {@link GemFireCache cache}.
+	 * Sets the {@link GemFireCache#getCopyOnRead()} property of the {@link GemFireCache}.
 	 *
-	 * @param copyOnRead a {@link Boolean value} indicating whether {@link Object objects}
-	 * stored in the {@link GemFireCache cache} are copied on read (i.e. {@link Region#get(Object)}.
+	 * @param copyOnRead a {@link Boolean} value to indicate whether {@link Object objects}
+	 * stored in the {@link GemFireCache} are copied on read (i.e. {@link Region#get(Object)}.
 	 */
 	public void setCopyOnRead(@Nullable Boolean copyOnRead) {
 		this.copyOnRead = copyOnRead;
 	}
 
 	/**
-	 * Returns the configuration of the {@link GemFireCache#getCopyOnRead()} property on the {@link GemFireCache cache}.
+	 * Returns the configuration of the {@link GemFireCache#getCopyOnRead()} property set on the {@link GemFireCache}.
 	 *
-	 * @return a {@link Boolean value} indicating whether {@link Object objects}
-	 * stored in the {@link GemFireCache cache} are copied on read (i.e. {@link Region#get(Object)}.
+	 * @return a {@link Boolean} value to indicate whether {@link Object objects}
+	 * stored in the {@link GemFireCache} are copied on read (i.e. {@link Region#get(Object)}.
 	 */
 	public @Nullable Boolean getCopyOnRead() {
 		return this.copyOnRead;
 	}
 
 	/**
-	 * Determines whether {@link Object objects} stored in the {@link GemFireCache cache} are copied
-	 * when read (i.e. {@link Region#get(Object)}.
+	 * Determines whether {@link Object objects} stored in the {@link GemFireCache} are copied when read
+	 * (i.e. {@link Region#get(Object)}.
 	 *
-	 * @return a boolean value indicating whether {@link Object objects} stored in the {@link GemFireCache cache}
-	 * are copied on read (i.e. {@link Region#get(Object)}.
+	 * Defaults to {@literal false}.
+	 *
+	 * @return a boolean value indicating whether {@link Object objects} stored in the {@link GemFireCache}
+	 * are copied when read (i.e. {@link Region#get(Object)}.
+	 * @see #getCopyOnRead()
 	 */
 	public boolean isCopyOnRead() {
-		return Boolean.TRUE.equals(this.copyOnRead);
+		return Boolean.TRUE.equals(getCopyOnRead());
 	}
 
 	/**
-	 * Set the Cache's critical heap percentage attribute.
+	 * Set the {@link GemFireCache} critical heap percentage property.
 	 *
-	 * @param criticalHeapPercentage floating point value indicating the critical heap percentage.
+	 * @param criticalHeapPercentage {@link Float} value specifying the configuration for the {@link GemFireCache}
+	 * critical heap percentage.
 	 */
 	public void setCriticalHeapPercentage(@Nullable Float criticalHeapPercentage) {
 		this.criticalHeapPercentage = criticalHeapPercentage;
 	}
 
 	/**
-	 * @return the criticalHeapPercentage
+	 * Gets the configuration of the {@link GemFireCache} critical heap percentage property.
+	 *
+	 * @return a {@link Float} value specifying the configuration for the {@link GemFireCache} critical heap percentage.
 	 */
 	public Float getCriticalHeapPercentage() {
 		return this.criticalHeapPercentage;
 	}
 
 	/**
-	 * Set the cache's critical off-heap percentage property.
+	 * Set the {@link GemFireCache} critical off-heap percentage property.
 	 *
-	 * @param criticalOffHeapPercentage floating point value indicating the critical off-heap percentage.
+	 * @param criticalOffHeapPercentage {@link Float} value specifying the configuration for the {@link GemFireCache}
+	 * critical off-heap percentage.
 	 */
 	public void setCriticalOffHeapPercentage(@Nullable Float criticalOffHeapPercentage) {
 		this.criticalOffHeapPercentage = criticalOffHeapPercentage;
 	}
 
 	/**
-	 * @return the criticalOffHeapPercentage
+	 * Gets the configuration of the {@link GemFireCache} critical off-heap percentage property.
+	 *
+	 * @return a {@link Float} value specifying the configuration for the {@link GemFireCache} critical off-heap
+	 * percentage.
 	 */
 	public Float getCriticalOffHeapPercentage() {
 		return this.criticalOffHeapPercentage;
 	}
 
 	/**
-	 * Set the Cache's eviction heap percentage attribute.
+	 * Set the {@link GemFireCache} eviction heap percentage property.
 	 *
-	 * @param evictionHeapPercentage float-point value indicating the Cache's heap use percentage to trigger eviction.
+	 * @param evictionHeapPercentage {@link Float} value specifying the configuration for the {@link GemFireCache}
+	 * eviction heap percentage.
 	 */
 	public void setEvictionHeapPercentage(Float evictionHeapPercentage) {
 		this.evictionHeapPercentage = evictionHeapPercentage;
 	}
 
 	/**
-	 * @return the evictionHeapPercentage
+	 * Gets the configuration of the {@link GemFireCache} eviction heap percentage property.
+	 *
+	 * @return a {@link Float} value specifying the configuration for the {@link GemFireCache} eviction heap percentage.
 	 */
 	public Float getEvictionHeapPercentage() {
 		return this.evictionHeapPercentage;
 	}
 
 	/**
-	 * Set the cache's eviction off-heap percentage property.
+	 * Set the {@link GemFireCache} eviction off-heap percentage property.
 	 *
-	 * @param evictionOffHeapPercentage float-point value indicating the percentage of off-heap use triggering eviction.
+	 * @param evictionOffHeapPercentage {@link Float} value specifying the configuration for the {@link GemFireCache}
+	 * eviction off-heap percentage.
 	 */
 	public void setEvictionOffHeapPercentage(Float evictionOffHeapPercentage) {
 		this.evictionOffHeapPercentage = evictionOffHeapPercentage;
 	}
 
 	/**
-	 * @return the evictionOffHeapPercentage
+	 * Gets the configuration of the {@link GemFireCache} eviction off-heap percentage property.
+	 *
+	 * @return a {@link Float} value specifying the configuration for the {@link GemFireCache} eviction off-heap
+	 * percentage.
 	 */
 	public Float getEvictionOffHeapPercentage() {
 		return this.evictionOffHeapPercentage;
 	}
 
 	/**
-	 * Returns the cache object reference created by this cache {@link FactoryBean}.
+	 * Returns the {@link GemFireCache cache object reference} created by this cache {@link FactoryBean}.
 	 *
-	 * @return the cache object reference created by this cache {@link FactoryBean}.
+	 * @return the {@link GemFireCache cache object reference} created by this cache {@link FactoryBean}.
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
 	 * @see org.apache.geode.cache.GemFireCache
 	 * @see #doGetObject()
@@ -310,16 +343,27 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 */
 	@Override
 	public GemFireCache getObject() throws Exception {
-		return Optional.<GemFireCache>ofNullable(getCache()).orElseGet(this::doGetObject);
+
+		GemFireCache cache = getCache();
+
+		return cache != null ? cache : doGetObject();
 	}
 
+	/**
+	 * Called if {@link #getCache()} returns a {@literal null} {@link GemFireCache} reference from {@link #getObject()}.
+	 *
+	 * @return a new constructed, configured and initialized {@link GemFireCache} instance.
+	 * @see org.apache.geode.cache.GemFireCache
+	 * @see #getObject()
+	 */
 	protected abstract GemFireCache doGetObject();
 
 	/**
 	 * Returns the {@link Class type} of {@link GemFireCache} created by this cache {@link FactoryBean}.
 	 *
-	 * @return the {@link Class type} type of {@link GemFireCache} created by this cache {@link FactoryBean}.
+	 * @return the {@link Class type} of {@link GemFireCache} created by this cache {@link FactoryBean}.
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
+	 * @see #doGetObjectType()
 	 */
 	@Override
 	public Class<? extends GemFireCache> getObjectType() {
@@ -334,6 +378,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 *
 	 * @return {@link GemFireCache} {@link Class} by default.
 	 * @see org.apache.geode.cache.GemFireCache#getClass()
+	 * @see #getObjectType()
 	 * @see java.lang.Class
 	 */
 	protected Class<? extends GemFireCache> doGetObjectType() {
@@ -461,7 +506,8 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	/**
 	 * Set the lifecycle phase for this cache bean in the Spring container.
 	 *
-	 * @param phase {@link Integer#TYPE} value used as the lifecycle phase for this cache bean in the Spring container.
+	 * @param phase {@link Integer#TYPE} value specifying the lifecycle phase for this cache bean
+	 * in the Spring container.
 	 * @see org.springframework.context.Phased#getPhase()
 	 */
 	protected void setPhase(int phase) {
@@ -471,7 +517,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	/**
 	 * Returns the configured lifecycle phase for this cache bean in the Spring container.
 	 *
-	 * @return an {@link Integer#TYPE} used as the lifecycle phase for this cache bean in the Spring container.
+	 * @return an {@link Integer#TYPE} used specifying the lifecycle phase for this cache bean in the Spring container.
 	 * @see org.springframework.context.Phased#getPhase()
 	 */
 	@Override
@@ -696,6 +742,19 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 		return cache != null ? cache : doFetchCache();
 	}
 
+	/**
+	 * Called by {@link #fetchCache()} if the {@link GemFireCache} reference returned by {@link #getCache()}
+	 * is {@literal null}.
+	 *
+	 * This method is typically implemented by calling {@link CacheFactory#getAnyInstance()}
+	 * or {@link ClientCacheFactory#getAnyInstance()} depending on the {@link GemFireCache} type declared
+	 * and used in the Spring application.
+	 *
+	 * @param <T> parameterized {@link Class} type extending {@link GemFireCache}.
+	 * @return a (existing) reference to a {@link GemFireCache} instance.
+	 * @throws org.apache.geode.cache.CacheClosedException if a {@link GemFireCache} reference does not exist.
+	 * @see #fetchCache()
+	 */
 	protected abstract <T extends GemFireCache> T doFetchCache();
 
 	/**
