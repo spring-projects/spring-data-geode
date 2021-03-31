@@ -3,6 +3,12 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.4.7 (2021-03-31)
+-------------------------------------
+* #499 - Upgrade to Apache Geode 1.13.2.
+* #37 - DATAGEODE-295 - Functions return results from all servers.
+
+
 Changes in version 2.5.0-RC1 (2021-03-31)
 -----------------------------------------
 * #499 - Upgrade to Apache Geode 1.13.2.
@@ -945,6 +951,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
