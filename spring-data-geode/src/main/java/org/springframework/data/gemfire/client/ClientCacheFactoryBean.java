@@ -212,11 +212,11 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return resolveProperties(GemfireUtils::getDistributedSystem);
 	}
 
-	@NonNull Properties resolveProperties(@NonNull Supplier<DistributedSystem> distributeSystemSupplier) {
+	@NonNull Properties resolveProperties(@NonNull Supplier<DistributedSystem> distributedSystemSupplier) {
 
 		Properties gemfireProperties = super.resolveProperties();
 
-		DistributedSystem distributedSystem = distributeSystemSupplier.get();
+		DistributedSystem distributedSystem = distributedSystemSupplier.get();
 
 		if (GemfireUtils.isConnected(distributedSystem)) {
 			Properties distributedSystemProperties = (Properties) distributedSystem.getProperties().clone();
