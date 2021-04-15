@@ -24,6 +24,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.lang.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	private String beanName;
 
 	/**
-	 * Constructs a new instance of {@link AbstractFactoryBeanSupport} and initialized the logger.
+	 * Constructs a new instance of {@link AbstractFactoryBeanSupport} initializing an object instance {@link Logger}.
 	 *
 	 * @see #newLog()
 	 */
@@ -77,25 +78,27 @@ public abstract class AbstractFactoryBeanSupport<T>
 	}
 
 	/**
-	 * Sets a reference to the {@link ClassLoader} used by the Spring container to load and create bean classes.
+	 * Sets a reference to the {@link ClassLoader} used by the Spring container to load bean {@link Class classes}.
 	 *
-	 * @param classLoader {@link ClassLoader} used by the Spring container to load and create bean classes.
+	 * @param classLoader {@link ClassLoader} used by the Spring container to load bean {@link Class classes}.
 	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(ClassLoader)
 	 * @see java.lang.ClassLoader
+	 * @see java.lang.Class
 	 */
 	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
+	public void setBeanClassLoader(@Nullable ClassLoader classLoader) {
 		this.beanClassLoader = classLoader;
 	}
 
 	/**
-	 * Returns a reference to the {@link ClassLoader} used by the Spring container to load and create bean classes.
+	 * Returns a reference to the {@link ClassLoader} used by the Spring container to load bean {@link Class classes}.
 	 *
-	 * @return the {@link ClassLoader} used by the Spring container to load and create bean classes.
+	 * @return the {@link ClassLoader} used by the Spring container to load bean {@link Class classes}.
 	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(ClassLoader)
 	 * @see java.lang.ClassLoader
+	 * @see java.lang.Class
 	 */
-	public ClassLoader getBeanClassLoader() {
+	public @Nullable ClassLoader getBeanClassLoader() {
 		return this.beanClassLoader;
 	}
 
@@ -107,7 +110,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
 	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+	public void setBeanFactory(@Nullable BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
 	}
 
@@ -118,7 +121,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(BeanFactory)
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
-	public BeanFactory getBeanFactory() {
+	public @Nullable BeanFactory getBeanFactory() {
 		return this.beanFactory;
 	}
 
@@ -130,7 +133,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see java.lang.String
 	 */
 	@Override
-	public void setBeanName(String name) {
+	public void setBeanName(@Nullable String name) {
 		this.beanName = name;
 	}
 
@@ -141,7 +144,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see org.springframework.beans.factory.BeanNameAware#setBeanName(String)
 	 * @see java.lang.String
 	 */
-	public String getBeanName() {
+	public @Nullable String getBeanName() {
 		return this.beanName;
 	}
 
@@ -151,7 +154,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @return a reference to the {@link Logger} used by this {@link FactoryBean} to log {@link String messages}.
 	 * @see org.apache.commons.logging.Log
 	 */
-	protected Logger getLog() {
+	protected @Nullable Logger getLog() {
 		return this.log;
 	}
 

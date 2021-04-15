@@ -43,6 +43,8 @@ import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.annotation.LocatorConfigurer;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -87,15 +89,15 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 	 * @see org.springframework.data.gemfire.config.annotation.AbstractCacheConfiguration
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends AbstractCacheConfiguration> T getCacheConfiguration() {
+	protected @NonNull <T extends AbstractCacheConfiguration> T getCacheConfiguration() {
 
 		return Optional.ofNullable((T) this.cacheConfiguration)
 			.orElseThrow(() -> newIllegalStateException("AbstractCacheConfiguration is required"));
 	}
 
 	@Override
-	public final void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-			BeanDefinitionRegistry registry) {
+	public final void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata,
+			@NonNull BeanDefinitionRegistry registry) {
 
 		if (isAnnotationPresent(importingClassMetadata)) {
 
@@ -106,14 +108,19 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		}
 	}
 
-	@SuppressWarnings("unused")
-	protected void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-			Map<String, Object> annotationAttributes, BeanDefinitionRegistry registry) {
+	protected void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata,
+			@NonNull AnnotationAttributes annotationAttributes, @NonNull BeanDefinitionRegistry registry) {
+
+		registerBeanDefinitions(importingClassMetadata, (Map<String, Object>) annotationAttributes, registry);
+	}
+
+	protected void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata,
+			@NonNull Map<String, Object> annotationAttributes, @NonNull BeanDefinitionRegistry registry) {
 
 	}
 
-	protected void setGemFireProperties(AnnotationMetadata importingClassMetadata,
-			AnnotationAttributes annotationAttributes, BeanDefinitionRegistry registry) {
+	protected void setGemFireProperties(@NonNull AnnotationMetadata importingClassMetadata,
+			@NonNull AnnotationAttributes annotationAttributes, @NonNull BeanDefinitionRegistry registry) {
 
 		Properties gemfireProperties = toGemFireProperties(annotationAttributes);
 
@@ -129,27 +136,28 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		}
 	}
 
-	protected abstract Properties toGemFireProperties(Map<String, Object> annotationAttributes);
+	protected abstract @Nullable Properties toGemFireProperties(@NonNull Map<String, Object> annotationAttributes);
 
-	protected boolean hasProperties(Properties properties) {
+	protected boolean hasProperties(@Nullable Properties properties) {
 		return !CollectionUtils.isEmpty(properties);
 	}
 
-	protected void registerGemFirePropertiesBeanPostProcessor(BeanDefinitionRegistry registry,
+	protected void registerGemFirePropertiesBeanPostProcessor(@NonNull BeanDefinitionRegistry registry,
 			Properties gemFireProperties) {
 
 		registerBeanDefinition(registry, GemFirePropertiesBeanPostProcessor.class, gemFireProperties);
 	}
 
-	protected void registerGemFirePropertiesConfigurer(BeanDefinitionRegistry registry, Properties gemfireProperties) {
+	protected void registerGemFirePropertiesConfigurer(@NonNull BeanDefinitionRegistry registry,
+			Properties gemfireProperties) {
 
 		registerClientGemFirePropertiesConfigurer(registry, gemfireProperties);
 		registerLocatorGemFirePropertiesConfigurer(registry, gemfireProperties);
 		registerPeerGemFirePropertiesConfigurer(registry, gemfireProperties);
 	}
 
-	private void registerBeanDefinition(BeanDefinitionRegistry registry, Class<?> beanType,
-		Properties gemfireProperties) {
+	private void registerBeanDefinition(@NonNull BeanDefinitionRegistry registry, @NonNull Class<?> beanType,
+			@NonNull Properties gemfireProperties) {
 
 		BeanDefinitionBuilder builder =
 			BeanDefinitionBuilder.genericBeanDefinition(beanType);
@@ -231,39 +239,34 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		}
 	}
 
-	protected String resolveHost(String hostname) {
+	protected @Nullable String resolveHost(@Nullable String hostname) {
 		return resolveHost(hostname, DEFAULT_HOST);
 	}
 
-	protected String resolveHost(String hostname, String defaultHostname) {
-
-		return Optional.ofNullable(hostname)
-			.filter(StringUtils::hasText)
-			.orElse(defaultHostname);
+	protected @Nullable String resolveHost(@Nullable String hostname, @Nullable String defaultHostname) {
+		return StringUtils.hasText(hostname) ? hostname : defaultHostname;
 	}
 
-	protected Integer resolvePort(Integer port) {
+	protected @Nullable Integer resolvePort(@Nullable Integer port) {
 		return resolvePort(port, DEFAULT_PORT);
 	}
 
-	protected Integer resolvePort(Integer port, Integer defaultPort) {
-
-		return Optional.ofNullable(port)
-			.orElse(defaultPort);
+	protected @Nullable Integer resolvePort(@Nullable Integer port, @Nullable Integer defaultPort) {
+		return port != null ? port : defaultPort;
 	}
 
 	protected static class AbstractGemFirePropertiesConfigurer {
 
 		private final Properties gemfireProperties;
 
-		protected AbstractGemFirePropertiesConfigurer(Properties gemfireProperties) {
+		protected AbstractGemFirePropertiesConfigurer(@NonNull Properties gemfireProperties) {
 
-			Assert.notEmpty(gemfireProperties, "GemFire Properties are required");
+			Assert.notEmpty(gemfireProperties, "GemFire Properties must not be null");
 
 			this.gemfireProperties = gemfireProperties;
 		}
 
-		protected void configureGemFireProperties(CacheFactoryBean bean) {
+		protected void configureGemFireProperties(@NonNull CacheFactoryBean bean) {
 			bean.getProperties().putAll(this.gemfireProperties);
 		}
 	}
@@ -271,12 +274,12 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 	protected static class ClientGemFirePropertiesConfigurer extends AbstractGemFirePropertiesConfigurer
 			implements ClientCacheConfigurer {
 
-		protected ClientGemFirePropertiesConfigurer(Properties gemfireProperties) {
+		protected ClientGemFirePropertiesConfigurer(@NonNull Properties gemfireProperties) {
 			super(gemfireProperties);
 		}
 
 		@Override
-		public void configure(String beanName, ClientCacheFactoryBean bean) {
+		public void configure(@Nullable String beanName, @NonNull ClientCacheFactoryBean bean) {
 			configureGemFireProperties(bean);
 		}
 	}
@@ -285,15 +288,15 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 
 		private final Properties gemfireProperties;
 
-		public LocatorGemFirePropertiesConfigurer(Properties gemfireProperties) {
+		public LocatorGemFirePropertiesConfigurer(@NonNull Properties gemfireProperties) {
 
-			Assert.notEmpty(gemfireProperties, "GemFire Properties are required");
+			Assert.notEmpty(gemfireProperties, "GemFire Properties must not be null");
 
 			this.gemfireProperties = gemfireProperties;
 		}
 
 		@Override
-		public void configure(String beanName, LocatorFactoryBean bean) {
+		public void configure(@Nullable String beanName, @NonNull LocatorFactoryBean bean) {
 
 			Properties gemfireProperties = bean.getGemFireProperties();
 
@@ -306,12 +309,12 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 	protected static class PeerGemFirePropertiesConfigurer extends AbstractGemFirePropertiesConfigurer
 			implements PeerCacheConfigurer {
 
-		protected PeerGemFirePropertiesConfigurer(Properties gemfireProperties) {
+		protected PeerGemFirePropertiesConfigurer(@NonNull Properties gemfireProperties) {
 			super(gemfireProperties);
 		}
 
 		@Override
-		public void configure(String beanName, CacheFactoryBean bean) {
+		public void configure(@Nullable String beanName, @NonNull CacheFactoryBean bean) {
 			configureGemFireProperties(bean);
 		}
 	}
@@ -336,9 +339,9 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		 * @throws IllegalArgumentException if {@link Properties} are {@literal null} or empty.
 		 * @see java.util.Properties
 		 */
-		protected GemFirePropertiesBeanPostProcessor(Properties gemfireProperties) {
+		protected GemFirePropertiesBeanPostProcessor(@NonNull Properties gemfireProperties) {
 
-			Assert.notEmpty(gemfireProperties, "GemFire Properties are required");
+			Assert.notEmpty(gemfireProperties, "GemFire Properties must not be null");
 
 			this.gemfireProperties = gemfireProperties;
 		}
