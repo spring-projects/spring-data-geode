@@ -348,7 +348,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #findPool(String)
 	 * @see #isPoolNameResolvable(String)
 	 */
-	protected Pool resolvePool() {
+	protected @Nullable Pool resolvePool() {
 
 		Pool pool = getPool();
 
@@ -372,21 +372,22 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		return pool;
 	}
 
-	private boolean isPoolNameResolvable(String poolName) {
+	private boolean isPoolNameResolvable(@Nullable String poolName) {
 
 		return Optional.ofNullable(poolName)
+			.filter(StringUtils::hasText)
 			.filter(getBeanFactory()::containsBean)
 			.isPresent();
 	}
 
-	String resolvePoolName() {
+	@NonNull String resolvePoolName() {
 
 		return Optional.ofNullable(getPoolName())
 			.filter(StringUtils::hasText)
 			.orElseGet(this::getDefaultPoolName);
 	}
 
-	String getDefaultPoolName() {
+	@NonNull String getDefaultPoolName() {
 		return GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME;
 	}
 
@@ -406,7 +407,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T extends GemFireCache> T createCache(Object factory) {
+	protected @NonNull <T extends GemFireCache> T createCache(@NonNull Object factory) {
 		return (T) ((ClientCacheFactory) factory).create();
 	}
 
