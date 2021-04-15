@@ -44,7 +44,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * Spring {@link FactoryBean} used to construct, configure and initialize a {@literal peer} {@link Cache) instance.
+ * Spring {@link FactoryBean} used to construct, configure and initialize a {@literal peer} {@link Cache} instance.
  *
  * Allows either the retrieval of an existing, open {@link Cache} or the creation of a new {@link Cache}.
  *
