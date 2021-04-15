@@ -1,6 +1,6 @@
 image:https://spring.io/badges/spring-data-geode/ga.svg[Spring Data Geode,link=https://projects.spring.io/spring-data-geode#quick-start] image:https://spring.io/badges/spring-data-geode/snapshot.svg[Spring Data Geode,link=https://projects.spring.io/spring-data-geode#quick-start]
 
-= Spring Data for Apache Geode image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-geode%2Fmaster&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-geode/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
+= Spring Data for Apache Geode image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-geode%2Fmain&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-geode/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
 
 Spring Data for Apache Geode brings the full power of the Spring Framework to your Apache Geode applications.
 
