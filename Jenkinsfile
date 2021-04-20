@@ -15,7 +15,7 @@ pipeline {
 		stage("Test") {
 			when {
 				anyOf {
-					branch '2.2.x'
+					branch '2.2.x-apache-geode-1.10.x'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
@@ -42,7 +42,7 @@ pipeline {
 		stage('Release to artifactory') {
 			when {
 				anyOf {
-					branch '2.2.x'
+					branch '2.2.x-apache-geode-1.10.x'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
@@ -73,7 +73,7 @@ pipeline {
 		}
 		stage('Publish documentation') {
 			when {
-				branch '2.2.x'
+				branch '2.2.x-apache-geode-1.10.x'
 			}
 			agent {
 				docker {
