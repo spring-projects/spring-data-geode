@@ -23,6 +23,9 @@ pipeline {
 				label 'data'
 			}
 			options { timeout(time: 30, unit: 'MINUTES') }
+			environment {
+				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+			}
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
@@ -33,7 +36,7 @@ pipeline {
 							sh 'rm -Rf `find . -name "newDB"`'
 							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 							sh 'rm -Rf `find . -name "*.log"`'
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw clean dependency:list test -Dsort -U -B'
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
 						}
 					}
 				}
@@ -53,6 +56,9 @@ pipeline {
 						label 'data'
 					}
 					options { timeout(time: 30, unit: 'MINUTES') }
+					environment {
+						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+					}
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
@@ -63,7 +69,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "newDB"`'
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
 								}
 							}
 						}
@@ -75,6 +81,9 @@ pipeline {
 						label 'data'
 					}
 					options { timeout(time: 30, unit: 'MINUTES') }
+					environment {
+						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+					}
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
@@ -85,7 +94,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "newDB"`'
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -Pjava11 clean dependency:list test -Dsort -U -B'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
 								}
 							}
 						}
@@ -120,7 +129,7 @@ pipeline {
 							sh 'rm -Rf `find . -name "newDB"`'
 							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 							sh 'rm -Rf `find . -name "*.log"`'
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -Pci,artifactory ' +
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -s settings.xml -Pci,artifactory ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
 									"-Dartifactory.password=${ARTIFACTORY_PSW} " +
@@ -150,7 +159,7 @@ pipeline {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
 						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -Pci,distribute ' +
+							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pci,distribute ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
 									"-Dartifactory.password=${ARTIFACTORY_PSW} " +
