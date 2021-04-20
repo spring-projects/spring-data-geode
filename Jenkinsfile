@@ -3,7 +3,7 @@ pipeline {
 
 	triggers {
 		pollSCM 'H/10 * * * *'
-		upstream(upstreamProjects: "spring-data-commons/2.2.x", threshold: hudson.model.Result.SUCCESS)
+		upstream(upstreamProjects: "spring-data-commons/ 2.2.x", threshold: hudson.model.Result.SUCCESS)
 	}
 
 	options {
@@ -15,7 +15,7 @@ pipeline {
 		stage("Test") {
 			when {
 				anyOf {
-					branch '2.2.x'
+					branch ' 2.2.x-apache-geode-1.11.x'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
@@ -42,7 +42,7 @@ pipeline {
 		stage('Release to artifactory') {
 			when {
 				anyOf {
-					branch '2.2.x'
+					branch ' 2.2.x-apache-geode-1.11.x'
 					not { triggeredBy 'UpstreamCause' }
 				}
 			}
@@ -73,7 +73,7 @@ pipeline {
 		}
 		stage('Publish documentation') {
 			when {
-				branch '2.2.x'
+				branch ' 2.2.x-apache-geode-1.11.x'
 			}
 			agent {
 				docker {
