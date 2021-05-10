@@ -14,12 +14,13 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.test.model;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -68,14 +69,15 @@ public class Person implements Comparable<Person>, Serializable {
 
 	public static Date newBirthDate(int year, int month, int dayOfMonth) {
 
-		Calendar birthDate = Calendar.getInstance();
+		return new Date(LocalDate.of(year, month, dayOfMonth)
+			.atStartOfDay()
+			.atZone(ZoneOffset.systemDefault())
+			.toInstant()
+			.toEpochMilli());
+	}
 
-		birthDate.clear();
-		birthDate.set(Calendar.YEAR, year);
-		birthDate.set(Calendar.MONTH, month);
-		birthDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-		return birthDate.getTime();
+	public static Date newBirthDate(int year, Month month, int dayOfMonth) {
+		return newBirthDate(year, month.getValue(), dayOfMonth);
 	}
 
 	public static Person newPerson(String firstName, String lastName, Date birthDate, Gender gender) {

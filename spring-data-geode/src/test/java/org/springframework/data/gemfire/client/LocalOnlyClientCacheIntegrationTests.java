@@ -14,12 +14,11 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Calendar;
+import java.time.Month;
 
 import javax.annotation.Resource;
 
@@ -73,7 +72,7 @@ public class LocalOnlyClientCacheIntegrationTests {
 	public void putAndGetPersonIsSuccessful() {
 
 		Person jonDoe = Person.newPerson("Jon", "Doe",
-			Person.newBirthDate(1974, Calendar.MAY, 5), Gender.MALE);
+			Person.newBirthDate(1974, Month.MAY, 5), Gender.MALE);
 
 		assertThat(this.people).hasSize(0);
 		assertThat(this.people.put(jonDoe.getId(), jonDoe));

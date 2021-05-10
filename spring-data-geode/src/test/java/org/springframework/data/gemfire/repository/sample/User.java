@@ -15,6 +15,7 @@
  */
 package org.springframework.data.gemfire.repository.sample;
 
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -39,7 +40,7 @@ public class User implements Comparable<User> {
 
 	private Boolean active = true;
 
-	private Calendar since;
+	private Instant since;
 
 	private String email;
 
@@ -71,11 +72,16 @@ public class User implements Comparable<User> {
 		return this.email;
 	}
 
-	public void setSince(final Calendar since) {
+	@Deprecated
+	public void setSince(Calendar since) {
+		setSince(Instant.ofEpochMilli(since.getTimeInMillis()));
+	}
+
+	public void setSince(Instant since) {
 		this.since = since;
 	}
 
-	public Calendar getSince() {
+	public Instant getSince() {
 		return this.since;
 	}
 

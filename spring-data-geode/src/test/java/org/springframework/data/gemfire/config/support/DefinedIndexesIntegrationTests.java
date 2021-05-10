@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.gemfire.test.model.Person.newBirthDate;
 import static org.springframework.data.gemfire.test.model.Person.newPerson;
 
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
@@ -33,10 +36,6 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.query.QueryService;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +53,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for {@link DefinedIndexesApplicationListener}.
+ * Integration Tests for {@link DefinedIndexesApplicationListener}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -102,10 +101,10 @@ public class DefinedIndexesIntegrationTests {
 	@Before
 	public void setup() {
 
-		put(people, newPerson("Jon", "Doe", newBirthDate(1989, Calendar.NOVEMBER, 11), Gender.MALE));
-		put(people, newPerson("Jane", "Doe", newBirthDate(1991, Calendar.APRIL, 4), Gender.FEMALE));
-		put(people, newPerson("Pie", "Doe", newBirthDate(2008, Calendar.JUNE, 21), Gender.FEMALE));
-		put(people, newPerson("Cookie", "Doe", newBirthDate(2008, Calendar.AUGUST, 14), Gender.FEMALE));
+		put(people, newPerson("Jon", "Doe", newBirthDate(1989, Month.NOVEMBER, 11), Gender.MALE));
+		put(people, newPerson("Jane", "Doe", newBirthDate(1991, Month.APRIL, 4), Gender.FEMALE));
+		put(people, newPerson("Pie", "Doe", newBirthDate(2008, Month.JUNE, 21), Gender.FEMALE));
+		put(people, newPerson("Cookie", "Doe", newBirthDate(2008, Month.AUGUST, 14), Gender.FEMALE));
 	}
 
 	@Test

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -32,6 +32,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
@@ -39,10 +43,6 @@ import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -267,20 +267,21 @@ public class SpringContextBootstrappingInitializerIntegrationTest {
 		private DataSource userDataSource;
 
 		protected static User createUser(String username) {
-			return createUser(username, true, Calendar.getInstance(), String.format("%1$s@xcompay.com", username));
+			return createUser(username, true, Instant.now(), String.format("%1$s@xcompay.com", username));
 		}
 
 		protected static User createUser(String username, Boolean active) {
-			return createUser(username, active, Calendar.getInstance(), String.format("%1$s@xcompay.com", username));
+			return createUser(username, active, Instant.now(), String.format("%1$s@xcompay.com", username));
 		}
 
-		protected static User createUser(String username, Boolean active, Calendar since) {
+		protected static User createUser(String username, Boolean active, Instant since) {
 			return createUser(username, active, since, String.format("%1$s@xcompay.com", username));
 		}
 
-		protected static User createUser(String username, Boolean active, Calendar since, String email) {
+		protected static User createUser(String username, Boolean active, Instant since, String email) {
 
 			User user = new User(username);
+
 			user.setActive(active);
 			user.setEmail(email);
 			user.setSince(since);

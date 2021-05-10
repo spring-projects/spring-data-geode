@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.sample;
 
 import static org.junit.Assert.assertEquals;
@@ -21,22 +20,22 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import org.apache.geode.cache.Region;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Region;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * The RepositoryQueriesTest class is a test suite of test cases testing the GemFire Query capability of Spring Data
@@ -46,24 +45,26 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.3.3
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration("userRepositoryQueriesIntegrationTest.xml")
 @SuppressWarnings("unused")
 public class UserRepositoryQueriesIntegrationTest {
 
 	@Resource(name = "Users")
+	@SuppressWarnings("rawtypes")
 	private Region users;
 
 	@Autowired
 	private UserRepository userRepository;
 
-	protected static void assertQueryResults(final Iterable<User> actualUsers, final String... expectedUsernames) {
+	private static void assertQueryResults(Iterable<User> actualUsers, String... expectedUsernames) {
+
 		assertNotNull("The query did not return any results!", actualUsers);
 
-		List<String> actualUsernames = new ArrayList<String>(expectedUsernames.length);
+		List<String> actualUsernames = new ArrayList<>(expectedUsernames.length);
 
 		for (User actualUser : actualUsers) {
 			actualUsernames.add(actualUser.getUsername());
@@ -73,28 +74,32 @@ public class UserRepositoryQueriesIntegrationTest {
 		assertTrue(actualUsernames.containsAll(Arrays.asList(expectedUsernames)));
 	}
 
-	protected static User createUser(final String username) {
+	private static User createUser(String username) {
 		return createUser(username, true);
 	}
 
-	protected static User createUser(final String username, final Boolean active) {
-		return createUser(username, active, Calendar.getInstance(), String.format("%1$s@xcompany.com", username));
+	private static User createUser(String username, Boolean active) {
+		return createUser(username, active, Instant.now(), String.format("%1$s@xcompany.com", username));
 	}
 
-	protected static User createUser(final String username, final Boolean active, final Calendar since, final String email) {
+	private static User createUser(String username, Boolean active, Instant since, String email) {
+
 		User user = new User(username);
+
 		user.setActive(active);
 		user.setEmail(email);
 		user.setSince(since);
+
 		return user;
 	}
 
-  protected static int toIntValue(final Integer value) {
-    return (value == null ? 0 : value);
-  }
+	private static int toIntValue(final Integer value) {
+		return value != null ? value : 0;
+	}
 
 	@Before
 	public void setup() {
+
 		assertNotNull("The 'Users' GemFire Cache Region cannot be null!", users);
 
 		if (users.isEmpty()) {
@@ -115,6 +120,7 @@ public class UserRepositoryQueriesIntegrationTest {
 
 	@Test
 	public void testMultiResultQueries() {
+
 		List<User> activeUsers = userRepository.findDistinctByActiveTrue();
 
 		assertQueryResults(activeUsers, "blumj", "blums", "handyj", "doej");
@@ -126,28 +132,22 @@ public class UserRepositoryQueriesIntegrationTest {
 		List<User> blumUsers = userRepository.findDistinctByUsernameLike("blum%");
 
 		assertQueryResults(blumUsers, "blumj", "blums", "blume");
-
-		/*
-		List<User> nonHandyUsers = userRepository.findDistinctByUsernameNotLike("handy%");
-
-		assertQueryResults(nonHandyUsers, "blumj", "blums", "blume", "bloomr", "doej", "doep", "doec");
-		*/
 	}
 
-  @Test
-  public void testNonCollectionNonEntityResultQueries() {
-    Integer count = userRepository.countUsersByUsernameLike("doe%");
+	@Test
+	public void testNonCollectionNonEntityResultQueries() {
 
-    assertEquals(3, toIntValue(count));
+		Integer count = userRepository.countUsersByUsernameLike("doe%");
 
-    count = userRepository.countUsersByUsernameLike("handy%");
+		assertEquals(3, toIntValue(count));
 
-    assertEquals(2, toIntValue(count));
+		count = userRepository.countUsersByUsernameLike("handy%");
 
-    count = userRepository.countUsersByUsernameLike("smith%");
+		assertEquals(2, toIntValue(count));
 
-    assertNotNull(count);
-    assertEquals(0, toIntValue(count));
-  }
+		count = userRepository.countUsersByUsernameLike("smith%");
 
+		assertNotNull(count);
+		assertEquals(0, toIntValue(count));
+	}
 }

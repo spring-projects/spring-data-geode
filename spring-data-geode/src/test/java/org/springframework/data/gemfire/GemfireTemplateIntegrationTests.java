@@ -19,9 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeThat;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,15 +92,15 @@ public class GemfireTemplateIntegrationTests {
 	@Resource(name = "Users")
 	private Region<String, User> users;
 
-	protected static User newUser(String username) {
+	private static User newUser(String username) {
 		return newUser(username, true);
 	}
 
-	protected static User newUser(String username, Boolean active) {
-		return newUser(username, String.format("%1$s@companyx.com", username), Calendar.getInstance(), active);
+	private static User newUser(String username, Boolean active) {
+		return newUser(username, String.format("%1$s@companyx.com", username), Instant.now(), active);
 	}
 
-	protected static User newUser(String username, String email, Calendar since, Boolean active) {
+	private static User newUser(String username, String email, Instant since, Boolean active) {
 
 		User user = new User(username);
 
@@ -111,11 +111,11 @@ public class GemfireTemplateIntegrationTests {
 		return user;
 	}
 
-	protected String getKey(User user) {
+	private String getKey(User user) {
 		return user != null ? user.getUsername() : null;
 	}
 
-	protected User getUser(String username) {
+	private User getUser(String username) {
 
 		for (User user : TEST_USERS) {
 			if (user.getUsername().equals(username)) {
@@ -126,7 +126,7 @@ public class GemfireTemplateIntegrationTests {
 		return null;
 	}
 
-	protected List<User> getUsers(String... usernames) {
+	private List<User> getUsers(String... usernames) {
 
 		List<String> usernameList = Arrays.asList(usernames);
 		List<User> users = new ArrayList<>(usernames.length);
@@ -140,15 +140,15 @@ public class GemfireTemplateIntegrationTests {
 		return users;
 	}
 
-	protected Map<String, User> getUsersAsMap(String... usernames) {
+	private Map<String, User> getUsersAsMap(String... usernames) {
 		return getUsersAsMap(getUsers(usernames));
 	}
 
-	protected Map<String, User> getUsersAsMap(User... users) {
+	private Map<String, User> getUsersAsMap(User... users) {
 		return getUsersAsMap(Arrays.asList(users));
 	}
 
-	protected Map<String, User> getUsersAsMap(Iterable<User> users) {
+	private Map<String, User> getUsersAsMap(Iterable<User> users) {
 
 		Map<String, User> userMap = new HashMap<>();
 
@@ -159,7 +159,7 @@ public class GemfireTemplateIntegrationTests {
 		return userMap;
 	}
 
-	protected void assertNullEquals(Object value1, Object value2) {
+	private void assertNullEquals(Object value1, Object value2) {
 		assertThat(Objects.equals(value1, value2)).isTrue();
 	}
 
