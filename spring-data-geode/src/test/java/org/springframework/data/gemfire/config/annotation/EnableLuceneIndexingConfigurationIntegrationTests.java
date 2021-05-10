@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,11 +22,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -39,9 +38,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The EnableLuceneIndexingConfigurationIntegrationTests class...
+ * Integration Tests for Lucene Indexing Configuration.
  *
  * @author John Blum
+ * @see org.junit.Test
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)

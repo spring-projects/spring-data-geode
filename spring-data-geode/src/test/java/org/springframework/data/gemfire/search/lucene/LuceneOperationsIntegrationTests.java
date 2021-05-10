@@ -28,16 +28,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.LuceneService;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +46,10 @@ import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Integration tests for the Spring Data Geode, Apache Geode and Apache Lucene Integration.
@@ -74,13 +74,13 @@ public class LuceneOperationsIntegrationTests {
 
 	protected static final String GEMFIRE_LOG_LEVEL = "none";
 
-	private static Person jonDoe = Person.newPerson(LocalDate.of(1969, Month.JULY, 4), "Jon", "Doe").with("Master of Science");
-	private static Person janeDoe = Person.newPerson(LocalDate.of(1969, Month.AUGUST, 16), "Jane", "Doe").with("Doctor of Astrophysics");
-	private static Person cookieDoe = Person.newPerson(LocalDate.of(1991, Month.APRIL, 2), "Cookie", "Doe").with("Bachelor of Physics");
-	private static Person froDoe = Person.newPerson(LocalDate.of(1988, Month.MAY, 25), "Fro", "Doe").with("Doctor of Computer Science");
-	private static Person hoDoe = Person.newPerson(LocalDate.of(1984, Month.NOVEMBER, 11), "Ho", "Doe").with("Doctor of Math");
-	private static Person pieDoe = Person.newPerson(LocalDate.of(1996, Month.JUNE, 4), "Pie", "Doe").with("Master of Astronomy");
-	private static Person sourDoe = Person.newPerson(LocalDate.of(1999, Month.DECEMBER, 1), "Sour", "Doe").with("Bachelor of Art");
+	private static final Person jonDoe = Person.newPerson(LocalDate.of(1969, Month.JULY, 4), "Jon", "Doe").with("Master of Science");
+	private static final Person janeDoe = Person.newPerson(LocalDate.of(1969, Month.AUGUST, 16), "Jane", "Doe").with("Doctor of Astrophysics");
+	private static final Person cookieDoe = Person.newPerson(LocalDate.of(1991, Month.APRIL, 2), "Cookie", "Doe").with("Bachelor of Physics");
+	private static final Person froDoe = Person.newPerson(LocalDate.of(1988, Month.MAY, 25), "Fro", "Doe").with("Doctor of Computer Science");
+	private static final Person hoDoe = Person.newPerson(LocalDate.of(1984, Month.NOVEMBER, 11), "Ho", "Doe").with("Doctor of Math");
+	private static final Person pieDoe = Person.newPerson(LocalDate.of(1996, Month.JUNE, 4), "Pie", "Doe").with("Master of Astronomy");
+	private static final Person sourDoe = Person.newPerson(LocalDate.of(1999, Month.DECEMBER, 1), "Sour", "Doe").with("Bachelor of Art");
 
 	private static List<String> asNames(List<? extends Nameable> nameables) {
 
@@ -110,7 +110,6 @@ public class LuceneOperationsIntegrationTests {
 	}
 
 	@Test
-	@SuppressWarnings("all")
 	public void findsMasterDoesAsTypeUserSuccessfully() {
 
 		List<User> masterDoes = template.query("title: Master*", "title", User.class);

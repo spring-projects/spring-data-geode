@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,19 +26,15 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.Pool;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -52,7 +47,6 @@ import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.mapping.annotation.Region;
-import org.springframework.data.gemfire.process.ProcessExecutor;
 import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
@@ -62,10 +56,14 @@ import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 /**
- * Integrations tests for {@link GemfireTemplate} testing proper function and behavior of executing (OQL) queries
+ * Integrations Tests for {@link GemfireTemplate} testing the proper function and behavior of executing (OQL) queries
  * from a cache client application using the {@link GemfireTemplate} to a cluster of GemFire servers that have
- * been grouped according to business function and data access, primarily to distribute the load.
+ * been grouped according to business function and data access in order to distribute the load.
  *
  * Each GemFire {@link Pool} is configured to target a specific server group.  Each group of servers in the cluster
  * defines specific {@link Region Regions} to manage data independently and separately from other data that might
@@ -73,7 +71,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * Spring Data GemFire's {@link GemfireTemplate} should intelligently employ the right
  * {@link org.apache.geode.cache.query.QueryService} configured with the {@link Region Region's} {@link Pool}
- * meta-data when executing the query in order to ensure the right servers containing the {@link Region Region's}
+ * metadata when executing the query in order to ensure the right servers containing the {@link Region Region's}
  * with the data of interest are targeted.
  *
  * @author John Blum
@@ -104,21 +102,26 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 	private GemfireTemplate dogsTemplate;
 
 	@BeforeClass
-	public static void setupGemFireCluster() throws Exception {
-		serverOne = ProcessExecutor.launch(createDirectory("serverOne"), GemFireCacheServerOneConfiguration.class);
+	public static void runGemFireCluster() throws Exception {
+
+		serverOne = run(createDirectory("serverOne"), GemFireCacheServerOneConfiguration.class);
+
 		waitForServerToStart("localhost", 41414);
-		serverTwo = ProcessExecutor.launch(createDirectory("serverTwo"), GemFireCacheServerTwoConfiguration.class);
+
+		serverTwo = run(createDirectory("serverTwo"), GemFireCacheServerTwoConfiguration.class);
+
 		waitForServerToStart("localhost", 42424);
 	}
 
 	@AfterClass
 	public static void shutdownGemFireCluster() {
-		serverOne.stop();
-		serverTwo.stop();
+		stop(serverOne);
+		stop(serverTwo);
 	}
 
 	@Test
 	public void findsAllCats() {
+
 		List<String> catNames = catsTemplate.<String>find("SELECT c.name FROM /Cats c").asList();
 
 		assertThat(catNames).isNotNull();
@@ -128,6 +131,7 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 
 	@Test
 	public void findsAllDogs() {
+
 		List<String> dogNames = dogsTemplate.<String>find("SELECT d.name FROM /Dogs d").asList();
 
 		assertThat(dogNames).isNotNull();
@@ -161,7 +165,7 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		}
 
 		String applicationName() {
-			return GemFireClientCacheConfiguration.class.getName();
+			return GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationTests.class.getName();
 		}
 
 		String logLevel() {
@@ -217,7 +221,6 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			ClientRegionFactoryBean<String, Cat> catsRegion = new ClientRegionFactoryBean<>();
 
 			catsRegion.setCache(gemfireCache);
-			catsRegion.setClose(false);
 			catsRegion.setPoolName(serverOnePool.getName());
 			catsRegion.setShortcut(ClientRegionShortcut.PROXY);
 
@@ -231,7 +234,6 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			ClientRegionFactoryBean<String, Cat> dogsRegion = new ClientRegionFactoryBean<>();
 
 			dogsRegion.setCache(gemfireCache);
-			dogsRegion.setClose(false);
 			dogsRegion.setPoolName(serverTwoPool.getName());
 			dogsRegion.setShortcut(ClientRegionShortcut.PROXY);
 
@@ -263,7 +265,6 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 				.setProperty("name", applicationName())
 				.setProperty("log-level", logLevel())
 				.setProperty("locators", "localhost[11235]")
-				.setProperty("enable-cluster-configuration", "false")
 				.setProperty("groups", groups())
 				.setProperty("start-locator", startLocator())
 				.build();
@@ -315,6 +316,11 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 	@SuppressWarnings("all")
 	static class GemFireCacheServerOneConfiguration extends AbstractGemFireCacheServerConfiguration {
 
+		public static void main(String[] args) {
+			new AnnotationConfigApplicationContext(GemFireCacheServerOneConfiguration.class)
+				.registerShutdownHook();
+		}
+
 		@Resource(name = "Cats")
 		private org.apache.geode.cache.Region<String, Cat> cats;
 
@@ -353,21 +359,20 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			LocalRegionFactoryBean catsRegion = new LocalRegionFactoryBean();
 
 			catsRegion.setCache(gemfireCache);
-			catsRegion.setClose(false);
 			catsRegion.setPersistent(false);
 
 			return catsRegion;
-		}
-
-		public static void main(String[] args) {
-			new AnnotationConfigApplicationContext(GemFireCacheServerOneConfiguration.class)
-				.registerShutdownHook();
 		}
 	}
 
 	@Configuration
 	@SuppressWarnings("all")
 	static class GemFireCacheServerTwoConfiguration extends AbstractGemFireCacheServerConfiguration {
+
+		public static void main(String[] args) {
+			new AnnotationConfigApplicationContext(GemFireCacheServerTwoConfiguration.class)
+				.registerShutdownHook();
+		}
 
 		@Resource(name = "Dogs")
 		private org.apache.geode.cache.Region<String, Dog> dogs;
@@ -399,15 +404,9 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			LocalRegionFactoryBean<String, Dog> dogsRegion = new LocalRegionFactoryBean<String, Dog>();
 
 			dogsRegion.setCache(gemfireCache);
-			dogsRegion.setClose(false);
 			dogsRegion.setPersistent(false);
 
 			return dogsRegion;
-		}
-
-		public static void main(String[] args) {
-			new AnnotationConfigApplicationContext(GemFireCacheServerTwoConfiguration.class)
-				.registerShutdownHook();
 		}
 	}
 }

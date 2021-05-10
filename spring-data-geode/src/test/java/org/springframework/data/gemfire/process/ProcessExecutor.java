@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.process;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -86,6 +86,12 @@ public abstract class ProcessExecutor {
 		command.add(JAVA_EXE.getAbsolutePath());
 		command.add("-server");
 		command.add("-ea");
+		command.add("--add-opens");
+		command.add("java.base/java.lang=ALL-UNNAMED");
+		command.add("--add-opens");
+		command.add("java.base/java.nio=ALL-UNNAMED");
+		command.add("--add-opens");
+		command.add("java.base/java.util=ALL-UNNAMED");
 		command.add("-classpath");
 		command.add(StringUtils.hasText(classpath) ? classpath : JAVA_CLASSPATH);
 		command.addAll(getSpringGemFireSystemProperties());
@@ -94,7 +100,7 @@ public abstract class ProcessExecutor {
 			if (isJvmOption(arg)) {
 				command.add(arg);
 			}
-			else if (!StringUtils.isEmpty(arg)) {
+			else if (StringUtils.hasText(arg)) {
 				programArguments.add(arg);
 			}
 		}
@@ -102,7 +108,21 @@ public abstract class ProcessExecutor {
 		command.add(type.getName());
 		command.addAll(programArguments);
 
+		//System.err.printf("JAVA COMMAND (%s)%n", toExecutableCommandString(command));
+		//System.err.flush();
+
 		return command.toArray(new String[0]);
+	}
+
+	private static String toExecutableCommandString(Iterable<String> command) {
+
+		StringBuilder commandString = new StringBuilder();
+
+		for (String commandPart : CollectionUtils.nullSafeIterable(command)) {
+			commandString.append(" ").append(commandPart);
+		}
+
+		return commandString.toString().trim();
 	}
 
 	protected static Collection<? extends String> getSpringGemFireSystemProperties() {
