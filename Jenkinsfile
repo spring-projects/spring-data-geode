@@ -76,7 +76,7 @@ pipeline {
 					}
 				}
 
-				stage("test: baseline (jdk15)") {
+				stage("test: baseline (jdk16)") {
 					agent {
 						label 'data'
 					}
@@ -87,7 +87,7 @@ pipeline {
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image('adoptopenjdk/openjdk15:latest').inside('-v $HOME:/tmp/jenkins-home') {
+								docker.image('adoptopenjdk/openjdk16:latest').inside('-v $HOME:/tmp/jenkins-home') {
 									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
