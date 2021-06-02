@@ -113,7 +113,7 @@ public abstract class RegionUtils extends CacheUtils {
 	 * @return a boolean indicating whether the target {@link Region} is a {@literal client} {@link Region}.
 	 * @see org.apache.geode.cache.Region
 	 */
-	public static boolean isClient(Region<?, ?> region) {
+	public static boolean isClient(@Nullable Region<?, ?> region) {
 
 		return Optional.ofNullable(region)
 			.map(Region::getAttributes)
@@ -174,5 +174,16 @@ public abstract class RegionUtils extends CacheUtils {
 	@NonNull
 	public static String toRegionPath(String regionName) {
 		return String.format("%1$s%2$s", Region.SEPARATOR, regionName);
+	}
+
+	/**
+	 * Determines whether the target {@link Region} is a {@literal server-side} {@link Region}.
+	 *
+	 * @param region {@link Region} to evaluate.
+	 * @return a boolean indicating whether the target {@link Region} is a {@literal server-side} {@link Region}.
+	 * @see org.apache.geode.cache.Region
+	 */
+	public static boolean isServer(@Nullable Region<?, ?> region) {
+		return region != null && !isClient(region);
 	}
 }
