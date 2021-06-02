@@ -28,6 +28,8 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.internal.cache.GemFireCacheImpl;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -51,10 +53,9 @@ public abstract class CacheUtils extends DistributedSystemUtils {
 
 	public static final String DEFAULT_POOL_NAME = "DEFAULT";
 
-	@SuppressWarnings("all")
-	public static boolean isClient(GemFireCache cache) {
+	public static boolean isClient(@Nullable GemFireCache cache) {
 
-		boolean client = (cache instanceof ClientCache);
+		boolean client = cache instanceof ClientCache;
 
 		if (cache instanceof GemFireCacheImpl) {
 			client &= ((GemFireCacheImpl) cache).isClient();
@@ -63,23 +64,27 @@ public abstract class CacheUtils extends DistributedSystemUtils {
 		return client;
 	}
 
-	public static boolean isDefaultPool(Pool pool) {
-		return Optional.ofNullable(pool).map(Pool::getName).filter(CacheUtils::isDefaultPool).isPresent();
+	public static boolean isDefaultPool(@Nullable Pool pool) {
+
+		return Optional.ofNullable(pool)
+			.map(Pool::getName)
+			.filter(CacheUtils::isDefaultPool)
+			.isPresent();
 	}
 
-	public static boolean isNotDefaultPool(Pool pool) {
+	public static boolean isNotDefaultPool(@Nullable Pool pool) {
 		return !isDefaultPool(pool);
 	}
 
-	public static boolean isDefaultPool(String poolName) {
+	public static boolean isDefaultPool(@Nullable String poolName) {
 		return DEFAULT_POOL_NAME.equals(poolName);
 	}
 
-	public static boolean isNotDefaultPool(String poolName) {
+	public static boolean isNotDefaultPool(@Nullable String poolName) {
 		return !isDefaultPool(poolName);
 	}
 
-	public static boolean isDurable(ClientCache clientCache) {
+	public static boolean isDurable(@Nullable ClientCache clientCache) {
 
 		// NOTE: Technically, the following code snippet would be more useful/valuable but is not "testable"!
 		//((InternalDistributedSystem) distributedSystem).getConfig().getDurableClientId();
@@ -93,10 +98,9 @@ public abstract class CacheUtils extends DistributedSystemUtils {
 			.isPresent();
 	}
 
-	@SuppressWarnings("all")
-	public static boolean isPeer(GemFireCache cache) {
+	public static boolean isPeer(@Nullable GemFireCache cache) {
 
-		boolean peer = (cache instanceof Cache);
+		boolean peer = cache instanceof Cache;
 
 		if (cache instanceof GemFireCacheImpl) {
 			peer &= !((GemFireCacheImpl) cache).isClient();
@@ -109,17 +113,17 @@ public abstract class CacheUtils extends DistributedSystemUtils {
 		return close(resolveGemFireCache());
 	}
 
-	public static boolean close(GemFireCache gemfireCache) {
+	public static boolean close(@NonNull GemFireCache gemfireCache) {
 		return close(gemfireCache, () -> {});
 	}
 
-	public static boolean close(GemFireCache gemfireCache, Runnable shutdownHook) {
+	public static boolean close(@NonNull GemFireCache gemfireCache, @Nullable Runnable shutdownHook) {
 
 		try {
 			gemfireCache.close();
 			return true;
 		}
-		catch (Exception ignore) {
+		catch (Throwable ignore) {
 			return false;
 		}
 		finally {
