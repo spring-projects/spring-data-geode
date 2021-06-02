@@ -26,9 +26,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
 
@@ -42,6 +42,7 @@ import org.springframework.data.gemfire.repository.Wrapper;
 import org.springframework.data.gemfire.repository.query.QueryString;
 import org.springframework.data.gemfire.repository.query.support.PagingUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -144,6 +145,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return this.template;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public <U extends T> U save(@NonNull U entity) {
 
@@ -159,6 +163,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return entity;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public T save(@NonNull Wrapper<T, ID> wrapper) {
 
@@ -174,6 +181,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return entity;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public <U extends T> Iterable<U> saveAll(@NonNull Iterable<U> entities) {
 
@@ -227,6 +237,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return findById(id).isPresent();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public @NonNull Iterable<T> findAll() {
 
@@ -238,6 +251,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return toList(selectResults);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Page<T> findAll(@NonNull Pageable pageable) {
 
@@ -248,6 +264,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return toPage(results, pageable);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public @NonNull Iterable<T> findAll(@NonNull Sort sort) {
 
@@ -260,6 +279,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return toList(selectResults);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public @NonNull Iterable<T> findAllById(@NonNull Iterable<ID> ids) {
 
@@ -278,6 +300,9 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return values;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Optional<T> findById(@NonNull ID id) {
 
@@ -288,11 +313,17 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		return Optional.ofNullable(value);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void delete(@NonNull T entity) {
 		deleteById(getEntityInformation().getRequiredId(entity));
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void deleteAll() {
 
@@ -309,11 +340,17 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		});
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void deleteAll(@NonNull Iterable<? extends T> entities) {
 		CollectionUtils.nullSafeIterable(entities).forEach(this::delete);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void deleteAllById(@NonNull Iterable<? extends ID> ids) {
 
@@ -327,34 +364,45 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void deleteById(@NonNull ID id) {
 		getTemplate().remove(id);
 	}
 
-	boolean isPartitioned(Region<?, ?> region) {
+	boolean isPartitioned(@Nullable Region<?, ?> region) {
 
 		return region != null
 			&& region.getAttributes() != null
 			&& isPartitioned(region.getAttributes().getDataPolicy());
 	}
 
-	boolean isPartitioned(DataPolicy dataPolicy) {
+	boolean isPartitioned(@Nullable DataPolicy dataPolicy) {
 		return dataPolicy != null && dataPolicy.withPartitioning();
 	}
 
-	boolean isTransactionPresent(Region<?, ?> region) {
+	boolean isTransactionPresent(@Nullable Region<?, ?> region) {
 
-		return region.getRegionService() instanceof Cache
-			&& isTransactionPresent(((Cache) region.getRegionService()).getCacheTransactionManager());
+		return region != null
+			&& region.getRegionService() instanceof GemFireCache
+			&& isTransactionPresent(((GemFireCache) region.getRegionService()).getCacheTransactionManager());
 	}
 
-	boolean isTransactionPresent(CacheTransactionManager cacheTransactionManager) {
+	boolean isTransactionPresent(@Nullable CacheTransactionManager cacheTransactionManager) {
 		return cacheTransactionManager != null && cacheTransactionManager.exists();
 	}
 
-	<K> void  doRegionClear(Region<K, ?> region) {
-		region.removeAll(region.keySet());
+	<K> void  doRegionClear(@NonNull Region<K, ?> region) {
+		region.removeAll(resolveRegionKeys(region));
+	}
+
+	@NonNull <K> Set<K> resolveRegionKeys(@NonNull Region<K, ?> region) {
+
+		return RegionUtils.isClient(region) ? region.keySetOnServer()
+			: RegionUtils.isServer(region) ? region.keySet()
+			: Collections.emptySet();
 	}
 
 	@NonNull List<T> toList(@Nullable Iterable<T> iterable) {
