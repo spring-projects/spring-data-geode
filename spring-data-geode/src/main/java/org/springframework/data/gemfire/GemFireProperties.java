@@ -24,6 +24,7 @@ import org.apache.geode.distributed.ConfigurationProperties;
 
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -156,7 +157,7 @@ public enum GemFireProperties {
 	USER_COMMAND_PACKAGES(ConfigurationProperties.USER_COMMAND_PACKAGES, String.class),
 	VALIDATE_SERIALIZABLE_OBJECTS(ConfigurationProperties.VALIDATE_SERIALIZABLE_OBJECTS, Boolean.class, false);
 
-	public static GemFireProperties from(String propertyName) {
+	public static @NonNull GemFireProperties from(@Nullable String propertyName) {
 
 		return Arrays.stream(values())
 			.filter(it -> equals(it, propertyName))
@@ -164,11 +165,11 @@ public enum GemFireProperties {
 			.orElseThrow(() -> newIllegalArgumentException("[%s] is not a valid Apache Geode property", propertyName));
 	}
 
-	private static boolean equals(GemFireProperties property, String propertyName) {
+	private static boolean equals(@Nullable GemFireProperties property, @Nullable String propertyName) {
 		return property != null && property.getName().equals(normalizePropertyName(propertyName));
 	}
 
-	private static String normalizePropertyName(@Nullable String propertyName) {
+	private static @Nullable String normalizePropertyName(@Nullable String propertyName) {
 
 		String safePropertyName = String.valueOf(propertyName).trim();
 
@@ -176,10 +177,10 @@ public enum GemFireProperties {
 
 		int index = safePropertyName.lastIndexOf(".");
 
-		return index > -1 && gemfireDotPrefixed ? safePropertyName.substring(index + 1) : propertyName;
+		return gemfireDotPrefixed && index > -1 ? safePropertyName.substring(index + 1) : propertyName;
 	}
 
-	private Class<?> nullSafeType(Object target, Class<?> defaultType) {
+	private @Nullable Class<?> nullSafeType(@Nullable Object target, @Nullable Class<?> defaultType) {
 		return target != null ? target.getClass() : defaultType;
 	}
 
@@ -198,29 +199,29 @@ public enum GemFireProperties {
 
 	private final String propertyName;
 
-	GemFireProperties(String propertyName, Class<?> propertyType) {
+	GemFireProperties(@NonNull String propertyName, @Nullable Class<?> propertyType) {
 		this(propertyName, propertyType, null);
 	}
 
-	GemFireProperties(String propertyName, Class<?> propertyType, Object defaultValue) {
+	GemFireProperties(@NonNull String propertyName, @Nullable Class<?> propertyType, @Nullable Object defaultValue) {
 
 		Assert.hasText(propertyName, "Property name is required");
 
 		this.conversionService = DefaultConversionService.getSharedInstance();
-		this.defaultValue = defaultValue;
 		this.propertyName = propertyName;
 		this.propertyType = propertyType;
+		this.defaultValue = defaultValue;
 	}
 
-	public Object getDefaultValue() {
+	public @Nullable Object getDefaultValue() {
 		return this.defaultValue != null ? this.defaultValue : DEFAULT_PROPERTY_VALUE;
 	}
 
-	public String getDefaultValueAsString() {
+	public @NonNull String getDefaultValueAsString() {
 		return String.valueOf(getDefaultValue());
 	}
 
-	public <T> T getDefaultValueAsType() {
+	public @NonNull <T> T getDefaultValueAsType() {
 		return getDefaultValueAsType(getType());
 	}
 
@@ -239,11 +240,11 @@ public enum GemFireProperties {
 			defaultValue, defaultValueType, type);
 	}
 
-	public String getName() {
+	public @NonNull String getName() {
 		return this.propertyName;
 	}
 
-	public Class<?> getType() {
+	public @NonNull Class<?> getType() {
 		return this.propertyType != null ? this.propertyType : DEFAULT_PROPERTY_TYPE;
 	}
 
