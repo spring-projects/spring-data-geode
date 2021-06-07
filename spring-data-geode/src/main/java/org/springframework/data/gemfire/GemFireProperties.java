@@ -29,7 +29,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * An enumeration of Apache Geode {@literal gemfire.properties}.
+ * An Enum (enumeration) of Apache Geode {@literal gemfire.properties}.
  *
  * @author John Blum
  * @see org.apache.geode.distributed.ConfigurationProperties
@@ -157,6 +157,15 @@ public enum GemFireProperties {
 	USER_COMMAND_PACKAGES(ConfigurationProperties.USER_COMMAND_PACKAGES, String.class),
 	VALIDATE_SERIALIZABLE_OBJECTS(ConfigurationProperties.VALIDATE_SERIALIZABLE_OBJECTS, Boolean.class, false);
 
+	/**
+	 * Factory method used to get a {@link GemFireProperties} enumerated value for the given {@link String property name}.
+	 *
+	 * @param propertyName {@link String name} of the {@link GemFireProperties} enumerated value to return.
+	 * @return a {@link GemFireProperties} enumerated value for the given {@link String property name}.
+	 * @throws IllegalArgumentException if a {@link GemFireProperties} enumerated value cannot be found
+	 * for the given {@link String property name}.
+	 * @see #values()
+	 */
 	public static @NonNull GemFireProperties from(@Nullable String propertyName) {
 
 		return Arrays.stream(values())
@@ -213,18 +222,53 @@ public enum GemFireProperties {
 		this.defaultValue = defaultValue;
 	}
 
+	/**
+	 * Gets this property's {@link Object default value}.
+	 *
+	 * @return this property's {@link Object default value}.
+	 * @see java.lang.Object
+	 */
 	public @Nullable Object getDefaultValue() {
 		return this.defaultValue != null ? this.defaultValue : DEFAULT_PROPERTY_VALUE;
 	}
 
+	/**
+	 * Gets this property's {@link Object default value} as a {@link String}.
+	 *
+	 * @return this property's {@link Object default value} as a {@link String}. If this property's
+	 * {@link Object default value} is {@literal null}, then this method return the {@literal "null"} {@link String}.
+	 * @see #getDefaultValue()
+	 * @see java.lang.String
+	 */
 	public @NonNull String getDefaultValueAsString() {
 		return String.valueOf(getDefaultValue());
 	}
 
+	/**
+	 * Gets this property's {@link Object default value} converted to the property's declared {@link Class type}.
+	 *
+	 * @param <T> declared {@link Class type} of this property.
+	 * @return this property's {@link Object default value} converted to the property's declared {@link Class type}.
+	 * @throws IllegalArgumentException if this property's {@link Object default value} cannot be converted to
+	 * the property's declared {@link Class type}.
+	 * @see #getDefaultValueAsType(Class)
+	 * @see #getType()
+	 */
 	public @NonNull <T> T getDefaultValueAsType() {
 		return getDefaultValueAsType(getType());
 	}
 
+	/**
+	 * Gets this property's {@link Object default value} converted to the given {@link Class type}.
+	 *
+	 * @param <T> desired {@link Class type} for this property's {@link Object default value}.
+	 * @param type {@link Class type} to convert the property's {@link Object default value} to.
+	 * @return this property's {@link Object default value} converted to an instance of the given {@link Class type}.
+	 * @throws IllegalArgumentException if this property's {@link Object default value} cannot be converted to
+	 * an instance of the given {@link Class type}.
+	 * @see #getDefaultValue()
+	 * @see #getType()
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getDefaultValueAsType(Class<?> type) {
 
@@ -233,21 +277,36 @@ public enum GemFireProperties {
 		Class<?> defaultValueType = nullSafeType(defaultValue, getType());
 
 		if (this.conversionService.canConvert(defaultValueType, type)) {
-			return (T) this.conversionService.convert(getDefaultValue(), type);
+			return (T) this.conversionService.convert(defaultValue, type);
 		}
 
 		throw newIllegalArgumentException("Cannot convert value [%s] from type [%s] to type [%s]",
 			defaultValue, defaultValueType, type);
 	}
 
+	/**
+	 * Gets the {@link String name} of this property.
+	 *
+	 * @return the {@link String name} of this property.
+	 * @see java.lang.String
+	 */
 	public @NonNull String getName() {
 		return this.propertyName;
 	}
 
+	/**
+	 * Gets the declared {@link Class type} of this property.
+	 *
+	 * @return the declared {@link Class type} of this property.
+	 * @see java.lang.Class
+	 */
 	public @NonNull Class<?> getType() {
 		return this.propertyType != null ? this.propertyType : DEFAULT_PROPERTY_TYPE;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public String toString() {
 		return getName();
