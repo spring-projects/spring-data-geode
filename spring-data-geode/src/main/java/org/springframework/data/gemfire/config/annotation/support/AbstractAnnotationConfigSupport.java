@@ -113,7 +113,7 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param value {@link Number} to evaluate.
 	 * @return a boolean value indicating whether the given {@link Number} has value.
 	 */
-	protected static boolean hasValue(@Nullable Number value) {
+	public static boolean hasValue(@Nullable Number value) {
 		return Optional.ofNullable(value).filter(it -> it.doubleValue() != 0.0d).isPresent();
 	}
 
@@ -124,7 +124,7 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param value {@link Object} to evaluate.
 	 * @return a boolean value indicating whether the given {@link Object} has value.
 	 */
-	protected static boolean hasValue(@Nullable Object value) {
+	public static boolean hasValue(@Nullable Object value) {
 		return value != null;
 	}
 
@@ -135,7 +135,7 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param value {@link String} to evaluate.
 	 * @return a boolean value indicating whether the given {@link String} is valuable.
 	 */
-	protected static boolean hasValue(@Nullable String value) {
+	public static boolean hasValue(@Nullable String value) {
 		return StringUtils.hasText(value);
 	}
 
