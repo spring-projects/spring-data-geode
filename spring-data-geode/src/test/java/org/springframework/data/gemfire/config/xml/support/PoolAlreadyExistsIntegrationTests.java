@@ -43,7 +43,6 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.Pool
- * @see <a href=""></a>
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)

@@ -47,8 +47,7 @@ import org.springframework.data.gemfire.expiration.TimeToLiveExpiration;
  * @see org.springframework.data.gemfire.expiration.IdleTimeoutExpiration
  * @see org.springframework.data.gemfire.expiration.TimeToLiveExpiration
  * @see <a href="https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/#bootstrap:region:expiration:annotation">Annotation-based Data Expiration</a>
- * @see <a href="https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/expiration/chapter_overview.html">GemFire Expiration</a>
- * @see <a href="https://geode.docs.pivotal.io/docs/guide/developing/expiration/chapter_overview.html">Geode Expiration</a>
+ * @see <a href="https://geode.apache.org/docs/guide/113/developing/expiration/chapter_overview.html">Geode Expiration</a>
  * @since 1.9.0
  */
 @Target(ElementType.TYPE)
@@ -130,8 +129,7 @@ public @interface EnableExpiration {
 	 * {@link ExpirationType} defines different types of GemFire/Geode Expiration policies such as
 	 * (Entry) Idle Timeout (TTI) and (Entry) Time to Live (TTL).
 	 *
-	 * @see <a href="https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/expiration/chapter_overview.html">GemFire Expiration</a>
-	 * @see <a href="https://geode.docs.pivotal.io/docs/guide/developing/expiration/chapter_overview.html">Geode Expiration</a>
+	 * @see <a href="https://geode.apache.org/docs/guide/113/developing/expiration/chapter_overview.html">Geode Expiration</a>
 	 */
 	enum ExpirationType {
 

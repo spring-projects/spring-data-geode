@@ -32,8 +32,7 @@ import org.springframework.context.annotation.Import;
  *
  * @author John Blum
  * @see org.springframework.data.gemfire.config.annotation.GemFirePropertiesConfiguration
- * @see <a href="https://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html">GemFire System Properties</a>
- * @see <a href="https://geode.docs.pivotal.io/docs/reference/topics/gemfire_properties.html">Geode System Properties</a>
+ * @see <a href="https://geode.apache.org/docs/guide/113/reference/topics/gemfire_properties.html">Geode Properties</a>
  * @since 1.9.0
  */
 @Target(ElementType.TYPE)
@@ -320,7 +319,7 @@ public @interface EnableGemFireProperties {
 	 *
 	 * Defaults to unset.
 	 *
-	 * @see <a href="https://geode.docs.pivotal.io/docs/developing/partitioned_regions/configuring_ha_for_pr.html">Configure High Availability for a Partitioned Region</a>
+	 * @see <a href="https://geode.apache.org/docs/guide/113/developing/partitioned_regions/overview_how_pr_ha_works.html">Configure High Availability for a Partitioned Region</a>
 	 */
 	String redundancyZone() default GemFirePropertiesConfiguration.DEFAULT_REDUNDANCY_ZONE;
 
@@ -411,7 +410,7 @@ public @interface EnableGemFireProperties {
 	 *
 	 * Defaults to {@literal 100000} tombstones.
 	 *
-	 * @see <a href="https://geode.docs.pivotal.io/docs/developing/distributed_regions/how_region_versioning_works.html#topic_321B05044B6641FCAEFABBF5066BD399">How Destroy and Clear Operations Are Resolved</a>
+	 * @see <a href="https://geode.apache.org/docs/guide/113/developing/distributed_regions/how_region_versioning_works.html#topic_321B05044B6641FCAEFABBF5066BD399">How Destroy and Clear Operations Are Resolved</a>
 	 */
 	int tombstoneGcThreshold() default GemFirePropertiesConfiguration.DEFAULT_TOMBSTONE_THRESHOLD;
 
