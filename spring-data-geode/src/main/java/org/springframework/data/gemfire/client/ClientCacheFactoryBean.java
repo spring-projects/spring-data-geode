@@ -15,7 +15,6 @@
  */
 package org.springframework.data.gemfire.client;
 
-import static java.util.stream.StreamSupport.stream;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeCollection;
 
 import java.net.InetSocketAddress;
@@ -155,7 +154,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #applyClientCacheConfigurers(Iterable)
 	 */
 	protected void applyClientCacheConfigurers(ClientCacheConfigurer... clientCacheConfigurers) {
-		applyClientCacheConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(clientCacheConfigurers, ClientCacheConfigurer.class)));
+		applyClientCacheConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(clientCacheConfigurers,
+			ClientCacheConfigurer.class)));
 	}
 
 	/**
@@ -320,7 +320,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 			Iterable<InetSocketAddress> servers = pool.getServers(getServers().toInetSocketAddresses());
 
-			stream(servers.spliterator(), false).forEach(server -> {
+			StreamSupport.stream(servers.spliterator(), false).forEach(server -> {
 				clientCacheFactory.addPoolServer(server.getHostName(), server.getPort());
 				noServers.set(false);
 			});
@@ -330,7 +330,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 			Iterable<InetSocketAddress> locators = pool.getLocators(getLocators().toInetSocketAddresses());
 
-			stream(locators.spliterator(), false).forEach(locator ->
+			StreamSupport.stream(locators.spliterator(), false).forEach(locator ->
 				clientCacheFactory.addPoolLocator(locator.getHostName(), locator.getPort()));
 		}
 
@@ -421,7 +421,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #fetchCache()
 	 */
 	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
+	public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
 
 		if (isReadyForEvents()) {
 			try {
@@ -442,7 +442,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	 * @see #isKeepAlive()
 	 */
 	@Override
-	protected void close(GemFireCache cache) {
+	protected void close(@NonNull GemFireCache cache) {
 		((ClientCache) cache).close(isKeepAlive());
 	}
 
