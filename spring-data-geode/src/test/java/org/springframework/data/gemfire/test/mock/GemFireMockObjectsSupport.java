@@ -2036,15 +2036,17 @@ public abstract class GemFireMockObjectsSupport extends MockObjectsSupport {
 
 	@SuppressWarnings("unchecked")
 	public static <K, V> Region<K, V> mockRegion(RegionService regionService, String name,
-		RegionAttributes<K, V> regionAttributes) {
+			RegionAttributes<K, V> regionAttributes) {
 
 		Map<K, V> data = new ConcurrentHashMap<>();
 
 		Region<K, V> mockRegion = mock(Region.class, name);
 
+		RegionAttributes<K, V> mockRegionAttributes = mockRegionAttributes(mockRegion, regionAttributes);
+
 		Set<Region<?, ?>> subRegions = new CopyOnWriteArraySet<>();
 
-		when(mockRegion.getAttributes()).thenAnswer(invocation -> mockRegionAttributes(mockRegion, regionAttributes));
+		when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
 		when(mockRegion.getFullPath()).thenReturn(toRegionPath(name));
 		when(mockRegion.getName()).thenReturn(toRegionName(name));
 		when(mockRegion.getRegionService()).thenReturn(regionService);
