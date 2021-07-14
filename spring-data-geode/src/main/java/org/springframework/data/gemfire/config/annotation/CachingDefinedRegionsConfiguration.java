@@ -117,10 +117,10 @@ public class CachingDefinedRegionsConfiguration extends AbstractAnnotationConfig
 
 	private ClientRegionShortcut clientRegionShortcut = ClientRegionShortcut.PROXY;
 
-	private CompositeLifecycle compositeLifecycle = new CompositeLifecycle();
+	private final CompositeLifecycle compositeLifecycle = new CompositeLifecycle();
 
 	@Autowired(required = false)
-	private List<RegionConfigurer> regionConfigurers = Collections.emptyList();
+	private final List<RegionConfigurer> regionConfigurers = Collections.emptyList();
 
 	private RegionShortcut serverRegionShortcut = RegionShortcut.PARTITION;
 
@@ -314,6 +314,7 @@ public class CachingDefinedRegionsConfiguration extends AbstractAnnotationConfig
 					regionFactoryBean.setRegionConfigurers(resolveRegionConfigurers());
 					regionFactoryBean.setRegionName(cacheName);
 					regionFactoryBean.setServerRegionShortcut(resolveServerRegionShortcut());
+					regionFactoryBean.setStatisticsEnabled(true);
 
 					String poolName = resolvePoolName();
 
@@ -391,6 +392,7 @@ public class CachingDefinedRegionsConfiguration extends AbstractAnnotationConfig
 
 		protected abstract Class<? extends Annotation>[] getMethodCacheAnnotationTypes();
 
+		@SuppressWarnings("rawtypes")
 		protected Class[] append(Class[] annotationTypes, Class... additionalAnnotationTypes) {
 
 			List<Class> annotationTypeList = new ArrayList<>(Arrays.asList(annotationTypes));
