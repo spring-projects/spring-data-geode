@@ -13,33 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
-import org.junit.After;
-import org.junit.Test;
-
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.eviction.EvictionActionType;
 import org.springframework.data.gemfire.eviction.EvictionPolicyType;
+import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.stereotype.Service;
 
 /**
- * The EnableEvictionConfigurationIntegrationTests class...
+ * Integration Tests for {@link EnableEviction} and {@link EvictionConfiguration}.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.config.annotation.EnableEviction
+ * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration
+ * @since 1.9.0
  */
+@SuppressWarnings("unused")
 public class EnableEvictionConfigurationIntegrationTests {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
@@ -82,6 +89,18 @@ public class EnableEvictionConfigurationIntegrationTests {
 	}
 
 	@Test
+	public void assertApplicationCachingDefinedRegionsEvictionPolicyIsCorrect() {
+
+		ConfigurableApplicationContext applicationContext = newApplicationContext(ApplicationConfiguration.class);
+
+		assertRegionEvictionConfiguration(applicationContext, "CacheOne",
+			EvictionActionType.LOCAL_DESTROY, 100);
+
+		assertRegionEvictionConfiguration(applicationContext, "CacheTwo",
+			EvictionActionType.LOCAL_DESTROY, 100);
+	}
+
+	@Test
 	public void assertClientCacheRegionEvictionPolicyIsCorrect() {
 		assertRegionEvictionConfiguration(newApplicationContext(ClientCacheRegionEvictionConfiguration.class),
 			"People", EvictionActionType.LOCAL_DESTROY, 100);
@@ -94,14 +113,42 @@ public class EnableEvictionConfigurationIntegrationTests {
 	}
 
 	@ClientCacheApplication(name = "EnableEvictionConfigurationIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
+	@EnableCachingDefinedRegions(clientRegionShortcut = ClientRegionShortcut.LOCAL)
+	@EnableEviction(policies = @EnableEviction.EvictionPolicy(maximum = 100))
+	@EnableGemFireMockObjects
+	static class ApplicationConfiguration {
+
+		@Bean
+		ApplicationService applicationService() {
+			return new ApplicationService();
+		}
+	}
+
+	@Service
+	static class ApplicationService {
+
+		@Cacheable("CacheOne")
+		public Object someMethod(Object key) {
+			return null;
+		}
+
+		@Cacheable("CacheTwo")
+		public Object someOtherMethod(Object key) {
+			return null;
+		}
+	}
+
+	@ClientCacheApplication(name = "EnableEvictionConfigurationIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
 	@EnableEntityDefinedRegions(basePackageClasses = Person.class, clientRegionShortcut = ClientRegionShortcut.LOCAL)
 	@EnableEviction(policies = @EnableEviction.EvictionPolicy(regionNames = "People", maximum = 100))
+	@EnableGemFireMockObjects
 	static class ClientCacheRegionEvictionConfiguration { }
 
 	@PeerCacheApplication(name = "EnableEvictionConfigurationIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
 	@EnableEntityDefinedRegions(basePackageClasses = Person.class, serverRegionShortcut = RegionShortcut.LOCAL)
 	@EnableEviction(policies = @EnableEviction.EvictionPolicy(regionNames = "People",
 		action = EvictionActionType.OVERFLOW_TO_DISK, maximum = 10000))
+	@EnableGemFireMockObjects
 	static class PeerCacheRegionEvictionConfiguration { }
 
 }

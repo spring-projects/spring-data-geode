@@ -17,9 +17,6 @@
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.springframework.data.gemfire.config.annotation.EnableEviction.EvictionPolicy;
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
 import java.lang.annotation.Annotation;
@@ -30,8 +27,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.util.ObjectSizer;
 
 import org.springframework.beans.BeansException;
@@ -41,6 +40,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
@@ -51,7 +52,10 @@ import org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean;
 import org.springframework.data.gemfire.eviction.EvictionActionType;
 import org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean;
 import org.springframework.data.gemfire.eviction.EvictionPolicyType;
+import org.springframework.data.gemfire.util.ArrayUtils;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -60,22 +64,22 @@ import org.springframework.util.StringUtils;
  * Eviction policy configuration on cache {@link Region Regions}.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.EvictionAttributes
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.util.ObjectSizer
  * @see org.springframework.beans.factory.config.BeanPostProcessor
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.context.annotation.ImportAware
- * @see PeerRegionFactoryBean
+ * @see org.springframework.data.gemfire.PeerRegionFactoryBean
  * @see org.springframework.data.gemfire.ResolvableRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport
  * @see org.springframework.data.gemfire.eviction.EvictionActionType
  * @see org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean
  * @see org.springframework.data.gemfire.eviction.EvictionPolicyType
- * @see org.apache.geode.cache.EvictionAttributes
- * @see org.apache.geode.cache.Region
- * @see org.apache.geode.cache.util.ObjectSizer
  * @since 1.9.0
  */
 @Configuration
@@ -94,7 +98,7 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 	 * @see java.lang.Class
 	 */
 	@Override
-	protected Class<? extends Annotation> getAnnotationType() {
+	protected @NonNull Class<? extends Annotation> getAnnotationType() {
 		return EnableEviction.class;
 	}
 
@@ -115,7 +119,7 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 	 * @inheritDoc
 	 */
 	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
+	public void setImportMetadata(@NonNull AnnotationMetadata importMetadata) {
 
 		if (isAnnotationPresent(importMetadata)) {
 
@@ -123,7 +127,9 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 
 			AnnotationAttributes[] policies = enableEvictionAttributes.getAnnotationArray("policies");
 
-			for (AnnotationAttributes evictionPolicyAttributes : nullSafeArray(policies, AnnotationAttributes.class)) {
+			for (AnnotationAttributes evictionPolicyAttributes :
+					ArrayUtils.nullSafeArray(policies, AnnotationAttributes.class)) {
+
 				this.evictionPolicyConfigurer =
 					ComposableEvictionPolicyConfigurer.compose(this.evictionPolicyConfigurer,
 						EvictionPolicyMetaData.from(evictionPolicyAttributes, this.applicationContext));
@@ -173,23 +179,47 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		};
 	}
 
+	@SuppressWarnings("unused")
+	@EventListener(ContextRefreshedEvent.class)
+	public void evictionContextRefreshedListener(@NonNull ContextRefreshedEvent event) {
+
+		ApplicationContext applicationContext = event.getApplicationContext();
+
+		for (Region<?, ?> region : applicationContext.getBeansOfType(Region.class).values()) {
+			getEvictionPolicyConfigurer().configure(region);
+		}
+	}
+
 	/**
-	 * {@link EvictionPolicyConfigurer} configures the Eviction policy of a GemFire {@link Region}.
+	 * {@link EvictionPolicyConfigurer} configures the Eviction policy of an Apache Geode {@link Region}.
+	 *
+	 * @see java.lang.FunctionalInterface
 	 */
+	@FunctionalInterface
 	protected interface EvictionPolicyConfigurer {
 
 		/**
-		 * Configure the Eviction policy on the given SDG {@link PeerRegionFactoryBean} or {@link ClientRegionFactoryBean}
-		 * used to create a GemFire {@link Region}.
+		 * Configure the Eviction policy on the given SDG {@link ClientRegionFactoryBean}
+		 * or {@link PeerRegionFactoryBean} used to create an Apache Geode {@link Region}.
 		 *
-		 * @param regionFactoryBean {@link PeerRegionFactoryBean} or {@link ClientRegionFactoryBean} used to create
-		 * a GemFire {@link Region}.
+		 * @param regionBean {@link ClientRegionFactoryBean} or {@link PeerRegionFactoryBean} used to create
+		 * an Apache Geode {@link Region}.
 		 * @return the given {@code regionFactoryBean}.
-		 * @see PeerRegionFactoryBean
+		 * @see org.springframework.data.gemfire.PeerRegionFactoryBean
 		 * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
 		 */
-		Object configure(Object regionFactoryBean);
+		Object configure(Object regionBean);
 
+		/**
+		 * Configures the Eviction policy of the given Apache Geode {@link Region}.
+		 *
+		 * @param region {@link Region} on which to configure the Eviction policy.
+		 * @return the given {@link Region}.
+		 * @see org.apache.geode.cache.Region
+		 */
+		default Region<?, ?> configure(Region<?, ?> region) {
+			return region;
+		}
 	}
 
 	/**
@@ -200,9 +230,6 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 	 * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration.EvictionPolicyConfigurer
 	 */
 	protected static class ComposableEvictionPolicyConfigurer implements EvictionPolicyConfigurer {
-
-		private final EvictionPolicyConfigurer one;
-		private final EvictionPolicyConfigurer two;
 
 		/**
 		 * Composes the array of {@link EvictionPolicyConfigurer} objects into a single
@@ -215,8 +242,8 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @see #compose(Iterable)
 		 */
 		@SuppressWarnings("unused")
-		protected static EvictionPolicyConfigurer compose(EvictionPolicyConfigurer[] array) {
-			return compose(Arrays.asList(nullSafeArray(array, EvictionPolicyConfigurer.class)));
+		protected static @Nullable EvictionPolicyConfigurer compose(EvictionPolicyConfigurer[] array) {
+			return compose(Arrays.asList(ArrayUtils.nullSafeArray(array, EvictionPolicyConfigurer.class)));
 		}
 
 		/**
@@ -229,11 +256,11 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration.EvictionPolicyConfigurer
 		 * @see #compose(EvictionPolicyConfigurer, EvictionPolicyConfigurer)
 		 */
-		protected static EvictionPolicyConfigurer compose(Iterable<EvictionPolicyConfigurer> iterable) {
+		protected static @Nullable EvictionPolicyConfigurer compose(Iterable<EvictionPolicyConfigurer> iterable) {
 
 			EvictionPolicyConfigurer current = null;
 
-			for (EvictionPolicyConfigurer evictionPolicyConfigurer : nullSafeIterable(iterable)) {
+			for (EvictionPolicyConfigurer evictionPolicyConfigurer : CollectionUtils.nullSafeIterable(iterable)) {
 				current = compose(current, evictionPolicyConfigurer);
 			}
 
@@ -249,12 +276,16 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @return an {@link EvictionPolicyConfigurer} object implementation composed of
 		 * multiple {@link EvictionPolicyConfigurer} objects using the Composite Software Design Pattern.
 		 */
-		protected static EvictionPolicyConfigurer compose(EvictionPolicyConfigurer one, EvictionPolicyConfigurer two) {
+		protected static @Nullable EvictionPolicyConfigurer compose(@Nullable EvictionPolicyConfigurer one,
+				@Nullable EvictionPolicyConfigurer two) {
 
 			return one == null ? two
-				: (two == null ? one
-				: new ComposableEvictionPolicyConfigurer(one, two));
+				: two == null ? one
+				: new ComposableEvictionPolicyConfigurer(one, two);
 		}
+
+		private final EvictionPolicyConfigurer one;
+		private final EvictionPolicyConfigurer two;
 
 		/**
 		 * Constructs a new instance of the {@link ComposableEvictionPolicyConfigurer} initialized with the two
@@ -273,18 +304,23 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @inheritDoc
 		 */
 		@Override
-		public Object configure(Object regionFactoryBean) {
-			return this.two.configure(this.one.configure(regionFactoryBean));
+		public Object configure(Object regionBean) {
+			return this.two.configure(this.one.configure(regionBean));
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		@Override
+		public Region<?, ?> configure(Region<?, ?> region) {
+			return this.two.configure(this.one.configure(region));
 		}
 	}
 
+	@SuppressWarnings("unused")
 	protected static class EvictionPolicyMetaData implements EvictionPolicyConfigurer {
 
 		protected static final String[] ALL_REGIONS = new String[0];
-
-		private final EvictionAttributes evictionAttributes;
-
-		private final Set<String> regionNames = new HashSet<>();
 
 		protected static EvictionPolicyMetaData from(@NonNull AnnotationAttributes evictionPolicyAttributes,
 				@NonNull ApplicationContext applicationContext) {
@@ -347,6 +383,10 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 			return EvictionPolicyType.HEAP_PERCENTAGE.equals(type) ? null : maximum;
 		}
 
+		private final EvictionAttributes evictionAttributes;
+
+		private final Set<String> regionNames = new HashSet<>();
+
 		/**
 		 * Constructs an instance of {@link EvictionPolicyMetaData} initialized with the given
 		 * {@link EvictionAttributes} applying to all {@link Region Regions}.
@@ -371,25 +411,11 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 */
 		protected EvictionPolicyMetaData(EvictionAttributes evictionAttributes, String[] regionNames) {
 
-			this.evictionAttributes = Optional.ofNullable(evictionAttributes).orElseThrow(() ->
-				newIllegalArgumentException("EvictionAttributes are required"));
+			Assert.notNull(evictionAttributes, "EvictionAttributes must not be null");
 
-			Collections.addAll(this.regionNames, nullSafeArray(regionNames, String.class));
-		}
+			this.evictionAttributes = evictionAttributes;
 
-		/**
-		 * Returns an instance of the {@link EvictionAttributes} specifying the Eviction policy configuration
-		 * captured in this Eviction policy meta-data.
-		 *
-		 * @return an instance of the {@link EvictionAttributes} specifying the {@link Region}
-		 * Eviction policy configuration.
-		 * @throws IllegalStateException if the {@link EvictionAttributes} were not properly initialized.
-		 * @see org.apache.geode.cache.EvictionAttributes
-		 */
-		protected EvictionAttributes getEvictionAttributes() {
-
-			return Optional.ofNullable(this.evictionAttributes).orElseThrow(() ->
-				newIllegalStateException("EvictionAttributes was not properly configured and initialized"));
+			Collections.addAll(this.regionNames, ArrayUtils.nullSafeArray(regionNames, String.class));
 		}
 
 		/**
@@ -401,8 +427,21 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @see #resolveRegionName(Object)
 		 * @see #accepts(Supplier)
 		 */
-		protected boolean accepts(Object regionFactoryBean) {
+		protected boolean accepts(@Nullable Object regionFactoryBean) {
 			return isRegionFactoryBean(regionFactoryBean) && accepts(() -> resolveRegionName(regionFactoryBean));
+		}
+
+		/**
+		 * Determines whether the given {@link Region} is accepted for Eviction policy configuration.
+		 *
+		 * @param region {@link Region} evaluated for Eviction policy configuration.
+		 * @return a boolean value indicating whether the given {@link Region} is accepted for
+		 * Eviction policy configuration.
+		 * @see org.apache.geode.cache.Region
+		 * @see #accepts(Supplier)
+		 */
+		protected boolean accepts(@Nullable Region<?, ?> region) {
+			return region != null && accepts(() -> region.getName());
 		}
 
 		/**
@@ -425,7 +464,7 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		protected String resolveRegionName(Object regionFactoryBean) {
 
 			return regionFactoryBean instanceof ResolvableRegionFactoryBean
-				? ((ResolvableRegionFactoryBean) regionFactoryBean).resolveRegionName()
+				? ((ResolvableRegionFactoryBean<?, ?>) regionFactoryBean).resolveRegionName()
 				: null;
 		}
 
@@ -447,12 +486,59 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 			return regionFactoryBean;
 		}
 
-		@Override
-		public Object configure(Object regionFactoryBean) {
+		/**
+		 * Returns an instance of the {@link EvictionAttributes} specifying the Eviction policy configuration
+		 * captured in this Eviction policy meta-data.
+		 *
+		 * @return an instance of the {@link EvictionAttributes} specifying the {@link Region}
+		 * Eviction policy configuration.
+		 * @throws IllegalStateException if the {@link EvictionAttributes} were not properly initialized.
+		 * @see org.apache.geode.cache.EvictionAttributes
+		 */
+		protected EvictionAttributes getEvictionAttributes() {
 
-			return accepts(regionFactoryBean)
-				? setEvictionAttributes((EvictingRegionFactoryBean) regionFactoryBean)
-				: regionFactoryBean;
+			return Optional.ofNullable(this.evictionAttributes).orElseThrow(() ->
+				newIllegalStateException("EvictionAttributes was not properly configured and initialized"));
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		@Override
+		public Object configure(Object regionBean) {
+
+			return accepts(regionBean)
+				? setEvictionAttributes((EvictingRegionFactoryBean) regionBean)
+				: regionBean;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		@Override
+		public Region<?, ?> configure(Region<?, ?> region) {
+
+			Optional.ofNullable(region)
+				.filter(this::accepts)
+				.filter(this::isDefaultEvictionEntryMaximum)
+				.map(Region::getAttributesMutator)
+				.map(AttributesMutator::getEvictionAttributesMutator)
+				.ifPresent(evictionAttributesMutator ->
+					evictionAttributesMutator.setMaximum(getEvictionAttributes().getMaximum()));
+
+			return region;
+		}
+
+		private boolean isDefaultEvictionEntryMaximum(Region<?, ?> region) {
+			return region != null && isDefaultEvictionEntryMaximum(region.getAttributes());
+		}
+
+		private boolean isDefaultEvictionEntryMaximum(RegionAttributes<?, ?> regionAttributes) {
+			return regionAttributes != null && isDefaultEvictionEntryMaximum(regionAttributes.getEvictionAttributes());
+		}
+
+		private boolean isDefaultEvictionEntryMaximum(EvictionAttributes evictionAttributes) {
+			return EvictionAttributes.DEFAULT_ENTRIES_MAXIMUM == evictionAttributes.getMaximum();
 		}
 	}
 }
