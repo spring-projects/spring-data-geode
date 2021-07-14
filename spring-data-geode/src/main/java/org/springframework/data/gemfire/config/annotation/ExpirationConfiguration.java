@@ -47,7 +47,9 @@ import org.springframework.data.gemfire.config.annotation.support.AbstractAnnota
 import org.springframework.data.gemfire.expiration.AnnotationBasedExpiration;
 import org.springframework.data.gemfire.expiration.ExpirationActionType;
 import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
+import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -83,7 +85,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 	 * @see java.lang.annotation.Annotation
 	 * @see java.lang.Class
 	 */
-	protected Class<? extends Annotation> getAnnotationType() {
+	protected @NonNull Class<? extends Annotation> getAnnotationType() {
 		return EnableExpiration.class;
 	}
 
@@ -91,7 +93,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 	 * @inheritDoc
 	 */
 	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
+	public void setImportMetadata(@NonNull AnnotationMetadata importMetadata) {
 
 		if (isAnnotationPresent(importMetadata)) {
 
@@ -182,7 +184,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		 * @see #compose(Iterable)
 		 */
 		protected static ExpirationPolicyConfigurer compose(ExpirationPolicyConfigurer[] array) {
-			return compose(Arrays.asList(nullSafeArray(array, ExpirationPolicyConfigurer.class)));
+			return compose(Arrays.asList(ArrayUtils.nullSafeArray(array, ExpirationPolicyConfigurer.class)));
 		}
 
 		/**
@@ -217,8 +219,8 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 				ExpirationPolicyConfigurer two) {
 
 			return one == null ? two
-				: (two == null ? one
-				: new ComposableExpirationPolicyConfigurer(one, two));
+				: two == null ? one
+				: new ComposableExpirationPolicyConfigurer(one, two);
 		}
 
 		/**
@@ -229,7 +231,8 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		 * @param two second {@link ComposableExpirationPolicyConfigurer} to compose.
 		 * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration.ExpirationPolicyConfigurer
 		 */
-		private ComposableExpirationPolicyConfigurer(ExpirationPolicyConfigurer one, ExpirationPolicyConfigurer two) {
+		private ComposableExpirationPolicyConfigurer(@NonNull ExpirationPolicyConfigurer one,
+				@NonNull ExpirationPolicyConfigurer two) {
 
 			this.one = one;
 			this.two = two;
@@ -490,7 +493,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		protected String resolveRegionName(Object regionFactoryBean) {
 
 			return regionFactoryBean instanceof ResolvableRegionFactoryBean
-				? ((ResolvableRegionFactoryBean) regionFactoryBean).resolveRegionName()
+				? ((ResolvableRegionFactoryBean<?, ?>) regionFactoryBean).resolveRegionName()
 				: null;
 		}
 
@@ -530,7 +533,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		public Object configure(Object regionFactoryBean) {
 
 			return accepts(regionFactoryBean)
-				? setExpirationAttributes((ExpiringRegionFactoryBean) regionFactoryBean)
+				? setExpirationAttributes((ExpiringRegionFactoryBean<?, ?>) regionFactoryBean)
 				: regionFactoryBean;
 		}
 
