@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationPolicy;
 import static org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationType;
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
@@ -29,15 +28,21 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.apache.geode.cache.AttributesMutator;
+import org.apache.geode.cache.CustomExpiry;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
@@ -49,6 +54,7 @@ import org.springframework.data.gemfire.expiration.ExpirationActionType;
 import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -102,7 +108,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 			AnnotationAttributes[] policies = enableExpirationAttributes.getAnnotationArray("policies");
 
 			for (AnnotationAttributes expirationPolicyAttributes :
-					nullSafeArray(policies, AnnotationAttributes.class)) {
+					ArrayUtils.nullSafeArray(policies, AnnotationAttributes.class)) {
 
 				this.expirationPolicyConfigurer =
 					ComposableExpirationPolicyConfigurer.compose(this.expirationPolicyConfigurer,
@@ -146,20 +152,44 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		};
 	}
 
+	@SuppressWarnings("unused")
+	@EventListener(ContextRefreshedEvent.class)
+	public void expirationContextRefreshedListener(@NonNull ContextRefreshedEvent event) {
+
+		ApplicationContext applicationContext = event.getApplicationContext();
+
+		for (Region<?, ?> region : applicationContext.getBeansOfType(Region.class).values()) {
+			getExpirationPolicyConfigurer().configure(region);
+		}
+	}
+
 	/**
 	 * Interface defining a contract for implementations that configure a {@link Region Region's} expiration policy.
+	 *
+	 * @see java.lang.FunctionalInterface
 	 */
+	@FunctionalInterface
 	protected interface ExpirationPolicyConfigurer {
 
 		/**
 		 * Configures the expiration policy for the given {@link Region}.
 		 *
-		 * @param regionFactoryBean {@link Region} object who's expiration policy will be configured.
+		 * @param regionBean {@link Region} object who's expiration policy will be configured.
 		 * @return the given {@link Region} object.
 		 * @see org.apache.geode.cache.Region
 		 */
-		Object configure(Object regionFactoryBean);
+		Object configure(Object regionBean);
 
+		/**
+		 * Configures the expiration policy for the given {@link Region}.
+		 *
+		 * @param region {@link Region} who's expiration policy will be configured.
+		 * @return the given {@link Region}.
+		 * @see org.apache.geode.cache.Region
+		 */
+		default Region<?, ?> configure(Region<?, ?> region) {
+			return region;
+		}
 	}
 
 	/**
@@ -242,8 +272,16 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		 * @inheritDoc
 		 */
 		@Override
-		public Object configure(Object regionFactoryBean) {
-			return this.two.configure(this.one.configure(regionFactoryBean));
+		public Object configure(Object regionBean) {
+			return this.two.configure(this.one.configure(regionBean));
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		@Override
+		public Region<?, ?> configure(Region<?, ?> region) {
+			return this.two.configure(this.one.configure(region));
 		}
 	}
 
@@ -260,12 +298,6 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 	protected static class ExpirationPolicyMetaData implements ExpirationPolicyConfigurer {
 
 		protected static final String[] ALL_REGIONS = new String[0];
-
-		private final ExpirationAttributes defaultExpirationAttributes;
-
-		private final Set<String> regionNames = new HashSet<>();
-
-		private final Set<ExpirationType> types = new HashSet<>();
 
 		/**
 		 * Factory method to construct an instance of {@link ExpirationPolicyMetaData} initialized with
@@ -367,8 +399,8 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 				String[] regionNames, ExpirationType[] types) {
 
 			return new ExpirationPolicyMetaData(newExpirationAttributes(timeout, action),
-				CollectionUtils.asSet(nullSafeArray(regionNames, String.class)),
-				CollectionUtils.asSet(nullSafeArray(types, ExpirationType.class)));
+				CollectionUtils.asSet(ArrayUtils.nullSafeArray(regionNames, String.class)),
+				CollectionUtils.asSet(ArrayUtils.nullSafeArray(types, ExpirationType.class)));
 		}
 
 		/**
@@ -380,7 +412,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		 * @see ExpirationActionType
 		 */
 		protected static ExpirationActionType resolveAction(ExpirationActionType action) {
-			return Optional.ofNullable(action).orElse(DEFAULT_ACTION);
+			return action != null ? action : DEFAULT_ACTION;
 		}
 
 		/**
@@ -393,6 +425,12 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		protected static int resolveTimeout(int timeout) {
 			return Math.max(timeout, DEFAULT_TIMEOUT);
 		}
+
+		private final ExpirationAttributes defaultExpirationAttributes;
+
+		private final Set<String> regionNames = new HashSet<>();
+
+		private final Set<ExpirationType> types = new HashSet<>();
 
 		/**
 		 * Constructs an instance of {@link ExpirationPolicyMetaData} initialized with the given expiration policy
@@ -442,14 +480,27 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		/**
 		 * Determines whether the given {@link Object} (e.g. Spring bean) is accepted for Eviction policy configuration.
 		 *
-		 * @param regionFactoryBean {@link Object} being evaluated as an Eviction policy configuration candidate.
+		 * @param regionBean {@link Object} being evaluated as an Eviction policy configuration candidate.
 		 * @return a boolean value indicating whether the {@link Object} is accepted for Eviction policy configuration.
 		 * @see #isRegionFactoryBean(Object)
 		 * @see #resolveRegionName(Object)
 		 * @see #accepts(Supplier)
 		 */
-		protected boolean accepts(Object regionFactoryBean) {
-			return isRegionFactoryBean(regionFactoryBean) && accepts(() -> resolveRegionName(regionFactoryBean));
+		protected boolean accepts(Object regionBean) {
+			return isRegionFactoryBean(regionBean) && accepts(() -> resolveRegionName(regionBean));
+		}
+
+		/**
+		 * Determines whether the given {@link Region} is accepted for Eviction policy configuration.
+		 *
+		 * @param region {@link Region} being evaluated as a Eviction policy configuration candidate.
+		 * @return a boolean value indicated whether the given {@link Region} is accepted as an Expiration policy
+		 * configuration candidate.
+		 * @see org.apache.geode.cache.Region
+		 * @see #accepts(Supplier)
+		 */
+		protected boolean accepts(Region<?, ?> region) {
+			return region != null && accepts(() -> region.getName());
 		}
 
 		/**
@@ -530,15 +581,49 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		 * @inheritDoc
 		 */
 		@Override
-		public Object configure(Object regionFactoryBean) {
+		public Object configure(Object regionBean) {
 
-			return accepts(regionFactoryBean)
-				? setExpirationAttributes((ExpiringRegionFactoryBean<?, ?>) regionFactoryBean)
-				: regionFactoryBean;
+			return accepts(regionBean)
+				? setExpirationAttributes((ExpiringRegionFactoryBean<?, ?>) regionBean)
+				: regionBean;
 		}
 
 		/**
-		 * Returns the default, fallback {@link ExpirationAttributes}.
+		 * @inheritDoc
+		 */
+		@Override
+		public Region<?, ?> configure(Region<?, ?> region) {
+
+			if (accepts(region)) {
+
+				RegionAttributes<?, ?> regionAttributes = region.getAttributes();
+
+				ExpirationAttributes expirationAttributes = defaultExpirationAttributes();
+
+				AttributesMutator<?, ?> regionAttributesMutator = region.getAttributesMutator();
+
+				if (SpringUtils.areNotNull(regionAttributes, regionAttributesMutator)) {
+
+					CustomExpiry<?, ?> customEntryIdleTimeout = regionAttributes.getCustomEntryIdleTimeout();
+					CustomExpiry<?, ?> customEntryTimeToLive = regionAttributes.getCustomEntryTimeToLive();
+
+					if (isIdleTimeout() && customEntryIdleTimeout == null) {
+						regionAttributesMutator.setCustomEntryIdleTimeout(
+							AnnotationBasedExpiration.forIdleTimeout(expirationAttributes));
+					}
+
+					if (isTimeToLive() && customEntryTimeToLive == null) {
+						regionAttributesMutator.setCustomEntryTimeToLive(
+							AnnotationBasedExpiration.forTimeToLive(expirationAttributes));
+					}
+				}
+			}
+
+			return region;
+		}
+
+		/**
+		 * Returns the default {@link ExpirationAttributes}.
 		 *
 		 * @return an {@link ExpirationAttributes} containing the defaults.
 		 * @see org.apache.geode.cache.ExpirationAttributes
