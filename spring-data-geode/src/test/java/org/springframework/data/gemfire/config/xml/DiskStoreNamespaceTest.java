@@ -22,10 +22,10 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.util.Properties;
 
-import org.apache.geode.cache.DiskStore;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.DiskStore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

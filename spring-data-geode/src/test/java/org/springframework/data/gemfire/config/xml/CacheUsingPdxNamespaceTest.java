@@ -21,10 +21,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.geode.pdx.PdxSerializer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

@@ -34,9 +34,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +41,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
 
 import org.springframework.cache.Cache;
 

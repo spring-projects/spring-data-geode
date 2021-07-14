@@ -20,9 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.apache.geode.cache.wan.GatewaySender;
-
 import org.junit.Test;
+
+import org.apache.geode.cache.wan.GatewaySender;
 
 /**
  * The OrderPolicyTypeTest class is a test suite of test cases testing the contract and functionality

@@ -24,10 +24,10 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.geode.internal.datasource.ConfigProperty;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.internal.datasource.ConfigProperty;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

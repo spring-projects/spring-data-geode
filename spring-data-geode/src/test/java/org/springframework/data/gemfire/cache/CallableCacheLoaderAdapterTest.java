@@ -30,10 +30,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.geode.cache.CacheLoader;
-import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,6 +38,10 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import org.apache.geode.cache.CacheLoader;
+import org.apache.geode.cache.LoaderHelper;
+import org.apache.geode.cache.Region;
 
 /**
  * Unit tests to test the adaption of the {@link java.util.concurrent.Callable}

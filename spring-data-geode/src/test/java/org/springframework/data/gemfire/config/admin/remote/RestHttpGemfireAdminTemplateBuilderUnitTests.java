@@ -23,12 +23,12 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.apache.geode.cache.client.ClientCache;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.data.gemfire.util.NetworkUtils;
 import org.springframework.http.client.ClientHttpRequestFactory;

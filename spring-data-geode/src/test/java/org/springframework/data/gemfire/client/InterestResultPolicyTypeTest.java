@@ -21,9 +21,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import org.apache.geode.cache.InterestResultPolicy;
-
 import org.junit.Test;
+
+import org.apache.geode.cache.InterestResultPolicy;
 
 /**
  * The InterestResultPolicyTypeTest class is a test suite of test cases testing the contract and functionality

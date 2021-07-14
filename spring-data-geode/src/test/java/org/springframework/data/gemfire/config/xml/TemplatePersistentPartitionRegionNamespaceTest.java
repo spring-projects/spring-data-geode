@@ -23,6 +23,10 @@ import java.io.File;
 
 import javax.annotation.Resource;
 
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EntryOperation;
@@ -30,10 +34,6 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
-
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;

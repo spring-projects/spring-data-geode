@@ -20,12 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import org.apache.geode.cache.InterestResultPolicy;
-
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.apache.geode.cache.InterestResultPolicy;
 
 /**
  * Unit tests for {@link InterestResultPolicyConverter}.

@@ -19,9 +19,9 @@ package org.springframework.data.gemfire.client;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
 import org.junit.Test;
+
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 /**
  * The ClientRegionShortcutConverterTest class is a test suite of test cases testing the contract and functionality

@@ -16,12 +16,12 @@ package org.springframework.data.gemfire.fork;
 import java.io.IOException;
 import java.util.Scanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.ForkUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link SpringContainerProcess} launches a Spring {@link ConfigurableApplicationContext} in this JVM process.

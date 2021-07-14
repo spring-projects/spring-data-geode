@@ -25,15 +25,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.query.Index;
-import org.apache.geode.cache.query.QueryService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.query.Index;
+import org.apache.geode.cache.query.QueryService;
 
 /**
  * Unit tests for {@link ListIndexesFunction}.

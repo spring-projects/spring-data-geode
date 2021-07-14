@@ -21,12 +21,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geode.cache.GemFireCache;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.apache.geode.cache.GemFireCache;
 
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 import org.springframework.data.gemfire.test.StubCache;

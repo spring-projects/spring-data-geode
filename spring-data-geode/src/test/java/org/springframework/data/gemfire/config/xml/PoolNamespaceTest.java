@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Iterator;
 
-import org.apache.geode.cache.client.Pool;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.client.Pool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

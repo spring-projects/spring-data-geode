@@ -19,11 +19,11 @@ package org.springframework.data.gemfire.test;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.Scope;
-
-import org.junit.Test;
 public class MockRegionFactoryTest {
 	@Test
 	public void testBasicAttributes() {

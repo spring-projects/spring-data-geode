@@ -27,12 +27,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import edu.umd.cs.mtc.TestFramework;
 
-import org.apache.geode.cache.CacheFactory;
-import org.apache.geode.cache.Region;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.apache.geode.cache.CacheFactory;
+import org.apache.geode.cache.Region;
 
 import org.springframework.cache.Cache;
 import org.springframework.data.gemfire.GemfireUtils;

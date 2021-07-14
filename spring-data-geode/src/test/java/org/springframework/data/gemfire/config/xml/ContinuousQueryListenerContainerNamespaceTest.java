@@ -29,14 +29,14 @@ import java.util.concurrent.Executor;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.query.CqListener;
-import org.apache.geode.cache.query.CqQuery;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.query.CqListener;
+import org.apache.geode.cache.query.CqQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.TestUtils;

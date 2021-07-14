@@ -26,11 +26,11 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolFactory;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.PoolFactory;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;

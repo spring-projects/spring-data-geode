@@ -36,6 +36,10 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.ExpirationAttributes;
@@ -47,10 +51,6 @@ import org.apache.geode.cache.client.ClientRegionFactory;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.compression.Compressor;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactory;

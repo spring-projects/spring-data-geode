@@ -22,9 +22,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
 import org.junit.Test;
+
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 /**
  * The ClientRegionShortcutWrapperTest class is a test suite of test cases testing the contract and functionality of the
