@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation.support;
 
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
@@ -171,6 +170,7 @@ public class CacheTypeAwareRegionFactoryBean<K, V> extends ResolvableRegionFacto
 		clientRegionFactory.setRegionConfigurers(this.regionConfigurers);
 		clientRegionFactory.setRegionName(regionName);
 		clientRegionFactory.setShortcut(getClientRegionShortcut());
+		clientRegionFactory.setStatisticsEnabled(getStatisticsEnabled());
 		clientRegionFactory.setValueConstraint(getValueConstraint());
 
 		getPoolName().ifPresent(clientRegionFactory::setPoolName);
@@ -228,6 +228,7 @@ public class CacheTypeAwareRegionFactoryBean<K, V> extends ResolvableRegionFacto
 		serverRegionFactory.setRegionConfigurers(this.regionConfigurers);
 		serverRegionFactory.setRegionName(regionName);
 		serverRegionFactory.setShortcut(getServerRegionShortcut());
+		serverRegionFactory.setStatisticsEnabled(getStatisticsEnabled());
 		serverRegionFactory.setValueConstraint(getValueConstraint());
 
 		configureEviction(serverRegionFactory);
@@ -500,6 +501,14 @@ public class CacheTypeAwareRegionFactoryBean<K, V> extends ResolvableRegionFacto
 
 	protected Optional<SmartLifecycle> getSmartLifecycleComponent() {
 		return Optional.ofNullable(this.smartLifecycleComponent);
+	}
+
+	public void setStatisticsEnabled(Boolean statisticsEnabled) {
+		this.statisticsEnabled = statisticsEnabled;
+	}
+
+	public Boolean getStatisticsEnabled() {
+		return statisticsEnabled;
 	}
 
 	public void setValueConstraint(Class<V> valueConstraint) {
