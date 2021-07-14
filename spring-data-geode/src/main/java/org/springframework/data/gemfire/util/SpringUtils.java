@@ -69,6 +69,26 @@ import org.springframework.util.StringUtils;
 public abstract class SpringUtils {
 
 	/**
+	 * Determines whether all the {@link Object} values in the array are {@literal non-null}
+	 *
+	 * @param values array of {@link Object Objects} to evaluate.
+	 * @return a boolean value indicating whether all of the {@link Object} values
+	 * in the array are {@literal non-null}.
+	 */
+	public static boolean areNotNull(Object... values) {
+
+		if (values != null) {
+			for (Object value : values) {
+				if (value == null) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines whether a given bean registered in the {@link BeanFactory Spring container} matches by
 	 * both {@link String name} and {@link Class type}.
 	 *

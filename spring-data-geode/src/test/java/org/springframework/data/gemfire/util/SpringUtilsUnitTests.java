@@ -78,6 +78,29 @@ public class SpringUtilsUnitTests {
 	private BeanDefinition mockBeanDefinition;
 
 	@Test
+	public void areNotNullIsNullSafe() {
+		assertThat(SpringUtils.areNotNull((Object[]) null)).isTrue();
+	}
+
+	@Test
+	public void areNotNullWithAllNullValuesReturnsFalse() {
+		assertThat(SpringUtils.areNotNull(null, null, null)).isFalse();
+	}
+
+	@Test
+	public void areNotNullWithNoNullValuesReturnsTrue() {
+		assertThat(SpringUtils.areNotNull(1, 2, 3)).isTrue();
+	}
+
+	@Test
+	public void areNotNullWithOneNullValueIsFalse() {
+
+		assertThat(SpringUtils.areNotNull(null, 2, 3)).isFalse();
+		assertThat(SpringUtils.areNotNull(1, null, 3)).isFalse();
+		assertThat(SpringUtils.areNotNull(1, 2, null)).isFalse();
+	}
+
+	@Test
 	public void isMatchingBeanReturnsTrue() {
 
 		BeanFactory mockBeanFactory = mock(BeanFactory.class);
