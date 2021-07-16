@@ -3,6 +3,16 @@ SPRING DATA GEODE CHANGELOG
 https://projects.spring.io/spring-data-gemfire/
 ===============================================
 
+Changes in version 2.6.0-M1 (2021-07-16)
+----------------------------------------
+* #519 - Apply eviction to caching-defined Regions using @EnableEviction annotation configuration.
+* #518 - Apply expiration to caching-defined Regions using @EnableExpiration annotation configuration.
+* #515 - Upgrade to Apache Geode 1.13.3.
+* #512 - CrudRepository.deleteAll not working.
+* #511 - Upgrade to Apache Shiro 1.7.1.
+* #497 - Update CI to Java 16.
+
+
 Changes in version 2.4.11 (2021-07-16)
 --------------------------------------
 * #515 - Upgrade to Apache Geode 1.13.3.
@@ -989,6 +999,7 @@ Changes in version 1.7.0.APACHE-GEODE-EA-M1 (2016-02-12)
 * SGF-467 - Add Code of Conduct
 * SGF-468 - Improve coordination between the PoolFactoryBean and ClientCacheFactoryBean when configuring and resolving the GemFire DistributedSystem
 * SGF-471 - Release 1.7.0.APACHE-GEODE-EA-M1
+
 
 
 
