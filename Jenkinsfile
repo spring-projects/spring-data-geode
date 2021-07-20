@@ -94,7 +94,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "newDB"`'
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -P java11,remote-java16 clean dependency:list test -Dsort -U -B'
 								}
 							}
 						}
