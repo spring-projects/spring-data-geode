@@ -23,6 +23,7 @@
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
 		<geode.version>1.14.0</geode.version>
+		<spring-test-data-geode.version>0.0.25</spring-test-data-geode.version>
 	</properties>
 
 	<dependencies>
@@ -118,7 +119,7 @@
 			</exclusions>
 		</dependency>
 
-		<!-- Core Spring Framework -->
+		<!-- Spring Framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
@@ -141,7 +142,7 @@
 			<version>${springdata.commons}</version>
 		</dependency>
 
-		<!-- Spring Data Geode & GemFire common dependencies -->
+		<!-- Spring Data for Apache Geode & GemFire common dependencies -->
 		<dependency>
 			<groupId>antlr</groupId>
 			<artifactId>antlr</artifactId>
@@ -235,6 +236,19 @@
 			<artifactId>snappy</artifactId>
 			<version>${snappy.version}</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-geode-test</artifactId>
+			<version>${spring-test-data-geode.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.data</groupId>
+					<artifactId>spring-data-geode</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
