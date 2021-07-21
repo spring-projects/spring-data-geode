@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,23 +34,30 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
-import org.springframework.data.gemfire.test.mock.context.GemFireMockObjectsApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
 /**
- * Unit tests for {@link LuceneIndexRegionBeanFactoryPostProcessor}.
+ * Integration Tests for {@link LuceneIndexRegionBeanFactoryPostProcessor}.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.support.LuceneIndexRegionBeanFactoryPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
-public class LuceneIndexRegionBeanFactoryPostProcessorIntegrationTests {
+@SuppressWarnings("unused")
+public class LuceneIndexRegionBeanFactoryPostProcessorIntegrationTests extends IntegrationTestsSupport {
 
 	private static final List<String> beanNames = new CopyOnWriteArrayList<>();
 

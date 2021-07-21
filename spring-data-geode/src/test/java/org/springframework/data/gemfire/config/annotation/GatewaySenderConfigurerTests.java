@@ -22,7 +22,9 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.geode.cache.DataPolicy;
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
@@ -32,9 +34,6 @@ import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 
-import org.junit.After;
-import org.junit.Test;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +41,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
 /**
@@ -51,16 +51,21 @@ import org.springframework.mock.env.MockPropertySource;
  * @author Udo Kohlmeyer
  * @see org.junit.Test
  * @see org.mockito.Mockito
- * @see GatewaySenderConfigurer
- * @see GatewaySenderConfiguration
- * @see org.apache.geode.cache.server.CacheServer
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.wan.GatewaySender
  * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfigurer
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.wan.GatewaySenderFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
- * @see org.springframework.data.gemfire.wan.GatewaySenderFactoryBean
  * @since 2.2.0
  */
-public class GatewaySenderConfigurerTests {
+@SuppressWarnings("unused")
+public class GatewaySenderConfigurerTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -147,12 +152,12 @@ public class GatewaySenderConfigurerTests {
 	static class BaseGatewaySenderTestConfiguration {
 
 		@Bean("Region1")
-		PartitionedRegionFactoryBean createRegion1(GemFireCache gemFireCache) {
+		PartitionedRegionFactoryBean<?, ?> createRegion1(GemFireCache gemFireCache) {
 			return createRegion("Region1", gemFireCache);
 		}
 
 		@Bean("Region2")
-		PartitionedRegionFactoryBean createRegion2(GemFireCache gemFireCache) {
+		PartitionedRegionFactoryBean<?, ?> createRegion2(GemFireCache gemFireCache) {
 			return createRegion("Region2", gemFireCache);
 		}
 
@@ -171,18 +176,20 @@ public class GatewaySenderConfigurerTests {
 			return new TestGatewayEventFilter("SomeEventFilter");
 		}
 
-		public PartitionedRegionFactoryBean createRegion(String name, GemFireCache gemFireCache) {
-			final PartitionedRegionFactoryBean regionFactoryBean = new PartitionedRegionFactoryBean();
+		public PartitionedRegionFactoryBean<?, ?> createRegion(String name, GemFireCache gemFireCache) {
+
+			PartitionedRegionFactoryBean<?, ?> regionFactoryBean = new PartitionedRegionFactoryBean<>();
+
 			regionFactoryBean.setCache(gemFireCache);
-			regionFactoryBean.setDataPolicy(DataPolicy.PARTITION);
 			regionFactoryBean.setName(name);
+
 			return regionFactoryBean;
 		}
 	}
 
 	private static class TestGatewayEventFilter implements GatewayEventFilter {
 
-		private String name;
+		private final String name;
 
 		public TestGatewayEventFilter(String name) {
 			this.name = name;
@@ -203,9 +210,9 @@ public class GatewaySenderConfigurerTests {
 
 	}
 
-	private static class TestGatewayEventSubstitutionFilter implements GatewayEventSubstitutionFilter {
+	private static class TestGatewayEventSubstitutionFilter implements GatewayEventSubstitutionFilter<Object, Object> {
 
-		private String name;
+		private final String name;
 
 		public TestGatewayEventSubstitutionFilter(String name) {
 			this.name = name;
@@ -223,7 +230,7 @@ public class GatewaySenderConfigurerTests {
 
 	private static class TestGatewayTransportFilter implements GatewayTransportFilter {
 
-		private String name;
+		private final String name;
 
 		public TestGatewayTransportFilter(String name) {
 			this.name = name;
@@ -239,11 +246,22 @@ public class GatewaySenderConfigurerTests {
 			return null;
 		}
 
-		@Override public int hashCode() {
-			return name.hashCode();
+		@Override
+		public int hashCode() {
+			return this.name.hashCode();
 		}
 
-		@Override public boolean equals(Object obj) {
+		@Override
+		public boolean equals(Object obj) {
+
+			if (this == obj) {
+				return true;
+			}
+
+			if (!(obj instanceof TestGatewayTransportFilter)) {
+				return false;
+			}
+
 			return this.name.equals(((TestGatewayTransportFilter) obj).name);
 		}
 	}

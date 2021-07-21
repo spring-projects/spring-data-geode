@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.data.gemfire.support.SpringContextBootstrappingInitializerIntegrationTest;
+import org.springframework.data.gemfire.support.SpringContextBootstrappingInitializerIntegrationTests;
 
 /**
  * The UserApplicationConfiguration class is a configuration component for configuring the user's application.
@@ -39,7 +39,7 @@ public class UserApplicationConfiguration {
 
 	@Bean
 	public DataSource userDataSource() {
-		return new SpringContextBootstrappingInitializerIntegrationTest.TestDataSource();
+		return new SpringContextBootstrappingInitializerIntegrationTests.TestDataSource();
 	}
 
 }

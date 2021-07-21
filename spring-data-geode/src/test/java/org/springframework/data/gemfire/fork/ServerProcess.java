@@ -20,8 +20,8 @@ import java.io.IOException;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.gemfire.process.support.ProcessUtils;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.process.ProcessUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.util.Assert;
 
 import org.slf4j.Logger;

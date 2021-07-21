@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.test.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,13 +36,15 @@ public abstract class AbstractNativeCacheTests<T> {
 	protected static final String CACHE_NAME = "Example";
 
 	private T nativeCache;
+
 	private Cache cache;
 
 	@Before
 	public void setUp() throws Exception {
-		nativeCache = newNativeCache();
-		cache = newCache(nativeCache);
-		cache.clear();
+
+		this.nativeCache = newNativeCache();
+		this.cache = newCache(nativeCache);
+		this.cache.clear();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,50 +57,53 @@ public abstract class AbstractNativeCacheTests<T> {
 	protected abstract T newNativeCache() throws Exception;
 
 	@Test
-	public void cacheNameIsEqualToExpected() throws Exception {
+	public void cacheNameIsEqualToExpected() {
 		assertThat(cache.getName()).isEqualTo(CACHE_NAME);
 	}
 
 	@Test
-	public void nativeCacheIsSameAsExpected() throws Exception {
-		assertThat(cache.getNativeCache()).isSameAs(nativeCache);
+	public void nativeCacheIsSameAsExpected() {
+		assertThat(this.cache.getNativeCache()).isSameAs(this.nativeCache);
 	}
 
 	@Test
-	public void cachePutIsSuccessful() throws Exception {
-		assertThat(cache.get("enescu")).isNull();
+	public void cachePutIsSuccessful() {
 
-		cache.put("enescu", "george");
+		assertThat(this.cache.get("enescu")).isNull();
 
-		assertThat(cache.get("enescu").get()).isEqualTo("george");
+		this.cache.put("enescu", "george");
+
+		assertThat(this.cache.get("enescu").get()).isEqualTo("george");
 	}
 
 	@Test
-	public void cachePutThenClearIsSuccessful() throws Exception {
-		cache.put("enescu", "george");
-		cache.put("vlaicu", "aurel");
+	public void cachePutThenClearIsSuccessful() {
 
-		assertThat(cache.get("enescu", String.class)).isEqualTo("george");
-		assertThat(cache.get("vlaicu", String.class)).isEqualTo("aurel");
+		this.cache.put("enescu", "george");
+		this.cache.put("vlaicu", "aurel");
 
-		cache.clear();
+		assertThat(this.cache.get("enescu", String.class)).isEqualTo("george");
+		assertThat(this.cache.get("vlaicu", String.class)).isEqualTo("aurel");
 
-		assertThat(cache.get("vlaicu")).isNull();
-		assertThat(cache.get("enescu")).isNull();
+		this.cache.clear();
+
+		assertThat(this.cache.get("vlaicu")).isNull();
+		assertThat(this.cache.get("enescu")).isNull();
 	}
 
 	@Test
 	public void cachePutThenGetForClassTypeIsSuccessful() {
-		cache.put("one", Boolean.TRUE);
-		cache.put("two", 'X');
-		cache.put("three", 101);
-		cache.put("four", Math.PI);
-		cache.put("five", "TEST");
 
-		assertThat(cache.get("one", Boolean.class)).isTrue();
-		assertThat(cache.get("two", Character.class)).isEqualTo('X');
-		assertThat(cache.get("three", Integer.class)).isEqualTo(101);
-		assertThat(cache.get("four", Double.class)).isEqualTo(Math.PI);
-		assertThat(cache.get("five", String.class)).isEqualTo("TEST");
+		this.cache.put("one", Boolean.TRUE);
+		this.cache.put("two", 'X');
+		this.cache.put("three", 101);
+		this.cache.put("four", Math.PI);
+		this.cache.put("five", "TEST");
+
+		assertThat(this.cache.get("one", Boolean.class)).isTrue();
+		assertThat(this.cache.get("two", Character.class)).isEqualTo('X');
+		assertThat(this.cache.get("three", Integer.class)).isEqualTo(101);
+		assertThat(this.cache.get("four", Double.class)).isEqualTo(Math.PI);
+		assertThat(this.cache.get("five", String.class)).isEqualTo("TEST");
 	}
 }

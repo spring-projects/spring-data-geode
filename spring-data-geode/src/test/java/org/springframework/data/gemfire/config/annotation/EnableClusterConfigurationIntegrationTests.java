@@ -20,15 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,9 +43,8 @@ import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
 import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -68,7 +66,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableClusterConfiguration
  * @see org.springframework.data.gemfire.process.ProcessWrapper
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
@@ -76,11 +74,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnableClusterConfigurationIntegrationTests.TestConfiguration.class)
 @SuppressWarnings("unused")
-public class EnableClusterConfigurationIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static final String GEMFIRE_LOG_LEVEL = "error";
-
-	private static ProcessWrapper gemfireServer;
+public class EnableClusterConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache gemfireCache;
@@ -89,22 +83,7 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerTestConfiguration.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-
-		stop(gemfireServer);
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
+		startGemFireServer(ServerTestConfiguration.class);
 	}
 
 	@Before
@@ -136,7 +115,7 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 	@Import(ClientTestConfiguration.class)
 	static class TestConfiguration { }
 
-	@ClientCacheApplication(logLevel = GEMFIRE_LOG_LEVEL, subscriptionEnabled = true)
+	@ClientCacheApplication(subscriptionEnabled = true)
 	static class ClientTestConfiguration {
 
 		@Bean
@@ -198,7 +177,7 @@ public class EnableClusterConfigurationIntegrationTests extends ClientServerInte
 		}
 	}
 
-	@CacheServerApplication(name = "EnableClusterConfigurationIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
+	@CacheServerApplication(name = "EnableClusterConfigurationIntegrationTests")
 	static class ServerTestConfiguration {
 
 		public static void main(String[] args) {

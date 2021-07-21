@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.springframework.data.gemfire.test.support.FileSystemUtils.FileExtensionFilter.newFileExtensionFilter;
+import static org.springframework.data.gemfire.tests.util.FileSystemUtils.FileExtensionFilter.newFileExtensionFilter;
 
 import java.io.FileFilter;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
@@ -28,18 +31,15 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.CacheUtils;
 
 /**
- * Unit tests for {@link GenericRegionFactoryBean}.
+ * Unit Tests for {@link GenericRegionFactoryBean}.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.GenericRegionFactoryBean
  * @since 1.7.0
  */
@@ -64,14 +64,16 @@ public class GenericRegionFactoryBeanTest {
 			.set("log-level", "error")
 			.create();
 
-		PeerRegionFactoryBean<Object, Object> defaultRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> defaultRegionFactory = new GenericRegionFactoryBean<>();
+
 		defaultRegionFactory.setCache(gemfireCache);
 		defaultRegionFactory.setName("DefaultRegion");
 		defaultRegionFactory.afterPropertiesSet();
 
 		defaultRegion = defaultRegionFactory.getObject();
 
-		PeerRegionFactoryBean<Object, Object> emptyRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> emptyRegionFactory = new GenericRegionFactoryBean<>();
+
 		emptyRegionFactory.setCache(gemfireCache);
 		emptyRegionFactory.setDataPolicy(DataPolicy.EMPTY);
 		emptyRegionFactory.setName("EmptyRegion");
@@ -80,7 +82,8 @@ public class GenericRegionFactoryBeanTest {
 
 		emptyRegion = emptyRegionFactory.getObject();
 
-		PeerRegionFactoryBean<Object, Object> localRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> localRegionFactory = new GenericRegionFactoryBean<>();
+
 		localRegionFactory.setCache(gemfireCache);
 		localRegionFactory.setDataPolicy(DataPolicy.NORMAL);
 		localRegionFactory.setName("LocalRegion");
@@ -89,7 +92,8 @@ public class GenericRegionFactoryBeanTest {
 
 		localRegion = localRegionFactory.getObject();
 
-		PeerRegionFactoryBean<Object, Object> normalRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> normalRegionFactory = new GenericRegionFactoryBean<>();
+
 		normalRegionFactory.setCache(gemfireCache);
 		normalRegionFactory.setDataPolicy(DataPolicy.NORMAL);
 		normalRegionFactory.setName("NormalRegion");
@@ -98,7 +102,8 @@ public class GenericRegionFactoryBeanTest {
 
 		normalRegion = normalRegionFactory.getObject();
 
-		PeerRegionFactoryBean<Object, Object> persistentPartitionRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> persistentPartitionRegionFactory = new GenericRegionFactoryBean<>();
+
 		persistentPartitionRegionFactory.setCache(gemfireCache);
 		persistentPartitionRegionFactory.setDataPolicy(DataPolicy.PERSISTENT_PARTITION);
 		persistentPartitionRegionFactory.setName("PersistentPartitionRegion");
@@ -107,7 +112,8 @@ public class GenericRegionFactoryBeanTest {
 
 		persistentPartitionRegion = persistentPartitionRegionFactory.getObject();
 
-		PeerRegionFactoryBean<Object, Object> preloadedRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> preloadedRegionFactory = new GenericRegionFactoryBean<>();
+
 		preloadedRegionFactory.setCache(gemfireCache);
 		preloadedRegionFactory.setDataPolicy(DataPolicy.PRELOADED);
 		preloadedRegionFactory.setName("PreloadedRegion");
@@ -115,7 +121,8 @@ public class GenericRegionFactoryBeanTest {
 
 		preloadedRegion = preloadedRegionFactory.getObject();
 
-		PeerRegionFactoryBean<Object, Object> replicateRegionFactory = new GenericRegionFactoryBean<Object, Object>();
+		PeerRegionFactoryBean<Object, Object> replicateRegionFactory = new GenericRegionFactoryBean<>();
+
 		replicateRegionFactory.setCache(gemfireCache);
 		replicateRegionFactory.setDataPolicy(DataPolicy.REPLICATE);
 		replicateRegionFactory.setName("ReplicateRegion");

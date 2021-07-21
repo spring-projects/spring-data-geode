@@ -37,7 +37,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
 /**
@@ -47,14 +48,15 @@ import org.springframework.mock.env.MockPropertySource;
  * @see java.util.Properties
  * @see org.junit.Test
  * @see org.apache.geode.cache.client.ClientCache
- * @see org.apache.geode.cache.client.Pool
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.mock.env.MockPropertySource
  * @since 2.0.0
  */
-public class ClientCachePropertiesIntegrationTests {
+public class ClientCachePropertiesIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

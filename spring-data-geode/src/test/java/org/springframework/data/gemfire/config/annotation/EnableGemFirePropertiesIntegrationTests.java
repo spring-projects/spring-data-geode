@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,11 +21,11 @@ import static org.mockito.Mockito.mock;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.pdx.PdxSerializer;
-
 import org.junit.After;
 import org.junit.Test;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -34,7 +33,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.CacheFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
 import org.springframework.util.StringUtils;
@@ -50,11 +50,14 @@ import org.springframework.util.StringUtils;
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.core.env.PropertySource
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
-public class EnableGemFirePropertiesIntegrationTests {
+@SuppressWarnings("rawtypes")
+public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

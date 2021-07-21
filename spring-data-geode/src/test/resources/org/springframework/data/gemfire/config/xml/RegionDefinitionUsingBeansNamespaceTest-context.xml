@@ -17,7 +17,7 @@
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<bean id="Example" class="org.springframework.data.gemfire.config.xml.RegionDefinitionUsingBeansNamespaceTest$TestRegionFactoryBean"
+	<bean id="Example" class="org.springframework.data.gemfire.config.xml.RegionDefinitionUsingBeansNamespaceIntegrationTests$TestRegionFactoryBean"
 		  p:cache-ref="gemfireCache">
 		<property name="attributes">
 			<bean class="org.springframework.data.gemfire.RegionAttributesFactoryBean"
@@ -31,7 +31,7 @@
 		</property>
 	</bean>
 
-	<bean id="AnotherExample" class="org.springframework.data.gemfire.config.xml.RegionDefinitionUsingBeansNamespaceTest$TestRegionFactoryBean"
+	<bean id="AnotherExample" class="org.springframework.data.gemfire.config.xml.RegionDefinitionUsingBeansNamespaceIntegrationTests$TestRegionFactoryBean"
 		  p:cache-ref="gemfireCache" p:dataPolicy="PERSISTENT_PARTITION" p:persistent="true">
 		<property name="attributes">
 			<bean class="org.springframework.data.gemfire.RegionAttributesFactoryBean" p:dataPolicy="PARTITION">

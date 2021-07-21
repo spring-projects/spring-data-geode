@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,13 +24,13 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneService;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.lucene.LuceneIndex;
+import org.apache.geode.cache.lucene.LuceneService;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -48,10 +47,10 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean;
-import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
+import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 
 /**
- * Integration tests for {@link IndexConfigurer}.
+ * Integration Tests for {@link IndexConfigurer}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -61,6 +60,7 @@ import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
  * @see org.springframework.data.gemfire.IndexFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.IndexConfigurer
  * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
+ * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
@@ -145,8 +145,8 @@ public class IndexConfigurerIntegrationTests {
 		}
 
 		@Bean
-		GemfireTestBeanPostProcessor testBeanPostProcessor() {
-			return new GemfireTestBeanPostProcessor();
+		GemFireMockObjectsBeanPostProcessor testBeanPostProcessor() {
+			return new GemFireMockObjectsBeanPostProcessor();
 		}
 
 		@Bean

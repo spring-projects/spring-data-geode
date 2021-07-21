@@ -10,7 +10,7 @@
 			<value-constraint>org.springframework.data.gemfire.repository.sample.User</value-constraint>
 			<cache-loader>
 				<class-name>
-					org.springframework.data.gemfire.support.SpringContextBootstrappingInitializerIntegrationTest$UserDataStoreCacheLoader
+					org.springframework.data.gemfire.support.SpringContextBootstrappingInitializerIntegrationTests$UserDataStoreCacheLoader
 				</class-name>
 			</cache-loader>
 		</region-attributes>

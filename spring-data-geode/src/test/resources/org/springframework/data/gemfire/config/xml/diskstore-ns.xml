@@ -80,10 +80,10 @@
 	<gfe:replicated-region id="replicated-data-custom-expiry" close="true" destroy="false">
 		<gfe:custom-entry-ttl ref="customExpiry"/>
 		<gfe:custom-entry-tti>
-			<bean class="org.springframework.data.gemfire.config.xml.DiskStoreAndEvictionRegionParsingTest.TestCustomExpiry"/>
+			<bean class="org.springframework.data.gemfire.config.xml.DiskStoreEvictionAndExpirationRegionParsingIntegrationTests.TestCustomExpiry"/>
 		</gfe:custom-entry-tti>
 	</gfe:replicated-region>
 
-    <bean id="customExpiry" class="org.springframework.data.gemfire.config.xml.DiskStoreAndEvictionRegionParsingTest.TestCustomExpiry"/>
+    <bean id="customExpiry" class="org.springframework.data.gemfire.config.xml.DiskStoreEvictionAndExpirationRegionParsingIntegrationTests.TestCustomExpiry"/>
 
 </beans>

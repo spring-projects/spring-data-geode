@@ -26,7 +26,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
  * Integration Tests for {@link EnableBeanFactoryLocator} and {@link BeanFactoryLocatorConfiguration}.
@@ -34,14 +35,14 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
  * @author John Blum
  * @see org.junit.Test
  * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.data.gemfire.CacheFactoryBean
- * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.BeanFactoryLocatorConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableBeanFactoryLocator
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
-public class EnableBeanFactoryLocatorConfigurationIntegrationTests {
+public class EnableBeanFactoryLocatorConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

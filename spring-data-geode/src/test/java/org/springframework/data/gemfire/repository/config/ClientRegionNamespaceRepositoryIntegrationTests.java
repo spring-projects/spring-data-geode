@@ -14,17 +14,15 @@ package org.springframework.data.gemfire.repository.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -34,40 +32,25 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author David Turanski
  * @author John Blum
- * @see org.springframework.data.gemfire.process.ProcessWrapper
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.fork.ServerProcess
  * @see org.springframework.data.gemfire.repository.GemfireRepository
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ClientRegionNamespaceRepositoryIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ClientRegionNamespaceRepositoryIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private PersonRepository repository;
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(ClientRegionNamespaceRepositoryIntegrationTests.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		stop(gemfireServer);
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
 	}
 
 	@Test

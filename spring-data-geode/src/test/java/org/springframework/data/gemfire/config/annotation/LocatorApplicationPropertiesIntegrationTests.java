@@ -22,10 +22,10 @@ import static org.mockito.Mockito.spy;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.apache.geode.distributed.Locator;
-
 import org.junit.After;
 import org.junit.Test;
+
+import org.apache.geode.distributed.Locator;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -35,7 +35,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.LocatorFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.lang.Nullable;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -47,16 +48,15 @@ import org.springframework.mock.env.MockPropertySource;
  * @see java.util.Properties
  * @see org.junit.Test
  * @see org.apache.geode.distributed.Locator
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
- * @see org.springframework.core.env.PropertySource
+\ * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.LocatorFactoryBean
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.mock.env.MockPropertySource
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
-public class LocatorApplicationPropertiesIntegrationTests {
+public class LocatorApplicationPropertiesIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

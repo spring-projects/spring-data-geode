@@ -26,13 +26,13 @@ import org.apache.geode.distributed.internal.InternalLocator;
 
 import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.GemfireUtils;
-import org.springframework.data.gemfire.process.support.ProcessUtils;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.process.ProcessUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 
 /**
- * The {@link LocatorProcess} class is a main Java class that is used fork and launch a {@link Locator} process
- * using the {@link LocatorLauncher} class.
+ * The {@link LocatorProcess} class is a main Java class that is used fork and launch an Apache Geode {@link Locator}
+ * process using the {@link LocatorLauncher} class.
  *
  * @author John Blum
  * @see org.apache.geode.distributed.Locator

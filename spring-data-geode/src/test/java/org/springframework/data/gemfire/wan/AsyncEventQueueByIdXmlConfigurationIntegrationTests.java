@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 import javax.annotation.Resource;
 
@@ -40,8 +41,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.EnableLocator;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -58,7 +59,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
  * @see org.springframework.data.gemfire.config.annotation.EnableLocator
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.2.0
@@ -66,9 +67,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "AsyncEventQueueByIdXmlConfigurationIntegrationTests-context.xml")
 @SuppressWarnings("unused")
-public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static final String GEMFIRE_LOG_LEVEL = "error";
+public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static ProcessWrapper geodeServer;
 
@@ -80,17 +79,13 @@ public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends ClientS
 		System.setProperty("spring.data.gemfire.locator.port", String.valueOf(port));
 
 		geodeServer = run(GeodeServerConfiguration.class, "-Dspring.data.gemfire.locator.port=" + port);
+
 		waitForServerToStart("localhost", port);
 	}
 
 	@AfterClass
 	public static void stopGeodeServer() {
-
 		stop(geodeServer);
-
-		System.getProperties().stringPropertyNames().stream()
-			.filter(propertyName -> propertyName.startsWith("spring.data.gemfire"))
-			.forEach(System::clearProperty);
 	}
 
 	@Resource(name = "Example")
@@ -111,15 +106,14 @@ public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends ClientS
 	}
 
 	@EnableLocator
-	@PeerCacheApplication(logLevel = GEMFIRE_LOG_LEVEL)
+	@PeerCacheApplication
 	static class GeodeServerConfiguration {
 
 		public static void main(String[] args) {
 
-			//System.err.printf("Locator Port [%s]%n", System.getProperty("spring.data.gemfire.locator.port"));
-
 			runSpringApplication(GeodeServerConfiguration.class, args);
-			block();
+
+			new Scanner(System.in).nextLine();
 		}
 
 		@Bean("TestAsyncEventQueueOne")

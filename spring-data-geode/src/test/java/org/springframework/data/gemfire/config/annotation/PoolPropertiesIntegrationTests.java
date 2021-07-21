@@ -34,7 +34,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
 /**
@@ -45,17 +46,17 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.client.PoolFactory
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
- * @see org.springframework.context.annotation.Bean
  * @see org.springframework.core.env.PropertySource
+ * @see org.springframework.data.gemfire.config.annotation.AddPoolConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.AddPoolsConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnablePool
  * @see org.springframework.data.gemfire.config.annotation.EnablePools
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class PoolPropertiesIntegrationTests {
+public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

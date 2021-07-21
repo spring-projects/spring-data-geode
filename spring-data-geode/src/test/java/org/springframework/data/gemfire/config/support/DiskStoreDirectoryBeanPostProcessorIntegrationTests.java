@@ -22,17 +22,17 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.apache.geode.cache.GemFireCache;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.GemFireCache;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.DiskStoreFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 

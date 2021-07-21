@@ -33,8 +33,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.eviction.EvictionActionType;
 import org.springframework.data.gemfire.eviction.EvictionPolicyType;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,10 +45,12 @@ import org.springframework.stereotype.Service;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.EnableEviction
  * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 @SuppressWarnings("unused")
-public class EnableEvictionConfigurationIntegrationTests {
+public class EnableEvictionConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
 

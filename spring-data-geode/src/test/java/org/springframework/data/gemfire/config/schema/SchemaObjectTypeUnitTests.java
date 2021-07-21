@@ -24,6 +24,10 @@ import static org.springframework.data.gemfire.util.CollectionUtils.asSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.Region;
@@ -35,10 +39,6 @@ import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.query.Index;
 import org.apache.geode.cache.wan.GatewayReceiver;
 import org.apache.geode.cache.wan.GatewaySender;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Unit tests for {@link SchemaObjectType}.

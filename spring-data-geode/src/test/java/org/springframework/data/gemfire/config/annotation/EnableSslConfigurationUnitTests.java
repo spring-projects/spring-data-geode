@@ -28,13 +28,14 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
 import org.springframework.util.StringUtils;
 
 /**
- * Unit tests for {@link EnableSsl} and {@link SslConfiguration}.
+ * Unit Tests for {@link EnableSsl} and {@link SslConfiguration}.
  *
  * @author John Blum
  * @author Srikanth Manvi
@@ -42,9 +43,11 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.GemFireCache
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
  * @see org.springframework.data.gemfire.config.annotation.SslConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.1.0
  */
-public class EnableSslConfigurationUnitTests {
+public class EnableSslConfigurationUnitTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -107,7 +110,7 @@ public class EnableSslConfigurationUnitTests {
 	@Test
 	public void sslPropertyBasedConfigurationIsCorrect() {
 
-		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
+		PropertySource<?> testPropertySource = new MockPropertySource("TestPropertySource")
 			.withProperty("spring.data.gemfire.security.ssl.ciphers", "Scream, SEAL, SNOW")
 			.withProperty("spring.data.gemfire.security.ssl.components", "locator, server, gateway")
 			.withProperty("spring.data.gemfire.security.ssl.certificate.alias.default", "MockCert")
@@ -124,7 +127,6 @@ public class EnableSslConfigurationUnitTests {
 			.withProperty("spring.data.gemfire.security.ssl.truststore.type", "C3PO")
 			.withProperty("spring.data.gemfire.security.ssl.use-default-context", "true")
 			.withProperty("spring.data.gemfire.security.ssl.web-require-authentication", "true");
-
 
 		this.applicationContext = newApplicationContext(testPropertySource, SslPropertyBasedConfiguration.class);
 

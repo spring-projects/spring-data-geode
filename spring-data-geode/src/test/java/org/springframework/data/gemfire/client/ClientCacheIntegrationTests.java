@@ -28,25 +28,28 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.data.gemfire.test.support.IOUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.util.IOUtils;
 
 /**
- * Integration tests for {@link org.apache.geode.cache.client.ClientCache}.
+ * Integration Tests for {@link org.apache.geode.cache.client.ClientCache}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
- * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
- * @see EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  */
-public class ClientCacheIntegrationTests {
+@SuppressWarnings("unused")
+public class ClientCacheIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
 		return new AnnotationConfigApplicationContext(annotatedClasses);
@@ -83,7 +86,6 @@ public class ClientCacheIntegrationTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void multipleClientCachesAreTheSame() {
 
 		ConfigurableApplicationContext applicationContextOne = newApplicationContext(MultiClientCacheConfiguration.class);
@@ -95,8 +97,8 @@ public class ClientCacheIntegrationTests {
 		assertThat(clientCacheOne).isNotNull();
 		assertThat(clientCacheTwo).isSameAs(clientCacheOne);
 
-		Region regionOne = applicationContextOne.getBean(Region.class);
-		Region regionTwo = applicationContextTwo.getBean(Region.class);
+		Region<?, ?> regionOne = applicationContextOne.getBean(Region.class);
+		Region<?, ?> regionTwo = applicationContextTwo.getBean(Region.class);
 
 		assertThat(regionOne).isNotNull();
 		assertThat(regionTwo).isSameAs(regionTwo);

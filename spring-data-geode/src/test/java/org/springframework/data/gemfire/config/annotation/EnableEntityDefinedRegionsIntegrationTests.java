@@ -30,8 +30,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.GemfireUtils;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
 /**
@@ -40,12 +41,15 @@ import org.springframework.mock.env.MockPropertySource;
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.EntityDefinedRegionsConfiguration
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.2
  */
-public class EnableEntityDefinedRegionsIntegrationTests {
+public class EnableEntityDefinedRegionsIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

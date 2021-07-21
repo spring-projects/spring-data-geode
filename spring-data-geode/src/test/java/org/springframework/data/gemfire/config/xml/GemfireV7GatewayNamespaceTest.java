@@ -40,7 +40,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 import org.springframework.data.gemfire.RecreatingSpringApplicationContextTest;
 import org.springframework.data.gemfire.TestUtils;
-import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
+import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 import org.springframework.data.gemfire.wan.GatewaySenderFactoryBean;
 
 /**
@@ -67,7 +67,7 @@ public class GemfireV7GatewayNamespaceTest extends RecreatingSpringApplicationCo
 
 	@Override
 	protected <T extends ConfigurableApplicationContext> T configureContext(T context) {
-		context.getBeanFactory().addBeanPostProcessor(new GemfireTestBeanPostProcessor());
+		context.getBeanFactory().addBeanPostProcessor(new GemFireMockObjectsBeanPostProcessor());
 		return context;
 	}
 

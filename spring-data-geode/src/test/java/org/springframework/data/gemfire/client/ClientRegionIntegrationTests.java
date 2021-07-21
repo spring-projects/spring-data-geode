@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,23 +28,29 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for client {@link Region Regions} created with SDG's {@link ClientRegionFactoryBean}.
+ * Integration Tests for client {@link Region Regions} created with SDG's {@link ClientRegionFactoryBean}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class ClientRegionIntegrationTests {
+@SuppressWarnings("unused")
+public class ClientRegionIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<Object, Object> example;

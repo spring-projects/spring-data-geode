@@ -29,12 +29,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.internal.cache.PartitionedRegion;
-
-import org.junit.Test;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;

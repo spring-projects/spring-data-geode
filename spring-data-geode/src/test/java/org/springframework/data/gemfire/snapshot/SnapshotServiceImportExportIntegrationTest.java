@@ -13,48 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.snapshot;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.geode.cache.Region;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.geode.cache.Region;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.repository.sample.Person;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.util.FileCopyUtils;
 
 /**
- * The SnapshotServiceImportExportIntegrationTest class is a test suite of test cases testing the import and export
- * of GemFire Cache Region data configured with SDG's Data Namespace &gt;gfe-data:snapshot-service&lt; (XML) element.
+ * Integration Tests with test cases testing the import and export of cache {@link Region} data configured with
+ * SDG's Data Namespace &gt;gfe-data:snapshot-service&lt; (XML) element.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.context.support.ClassPathXmlApplicationContext
- * @see org.springframework.data.gemfire.snapshot.SnapshotServiceFactoryBean
- * @see org.springframework.data.gemfire.repository.sample.Person
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.snapshot.SnapshotServiceFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 1.7.0
  */
 @SuppressWarnings("unused")
-public class SnapshotServiceImportExportIntegrationTest {
+public class SnapshotServiceImportExportIntegrationTest extends IntegrationTestsSupport {
 
 	private static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
 
@@ -65,27 +60,27 @@ public class SnapshotServiceImportExportIntegrationTest {
 
 	private static Region<Long, Person> people;
 
-	protected static void assertPerson(Person expectedPerson, Person actualPerson) {
+	private static void assertPerson(Person expectedPerson, Person actualPerson) {
 
-		assertThat(actualPerson, is(notNullValue()));
-		assertThat(actualPerson.getId(), is(equalTo(expectedPerson.getId())));
-		assertThat(actualPerson.getFirstname(), is(equalTo(expectedPerson.getFirstname())));
-		assertThat(actualPerson.getLastname(), is(equalTo(expectedPerson.getLastname())));
+		assertThat(actualPerson).isNotNull();
+		assertThat(actualPerson.getId()).isEqualTo(expectedPerson.getId());
+		assertThat(actualPerson.getFirstname()).isEqualTo(expectedPerson.getFirstname());
+		assertThat(actualPerson.getLastname()).isEqualTo(expectedPerson.getLastname());
 	}
 
-	protected static void assertRegion(Region<?, ?> actualRegion, String expectedName, int expectedSize) {
+	private static void assertRegion(Region<?, ?> actualRegion, String expectedName, int expectedSize) {
 
-		assertThat(actualRegion, is(notNullValue()));
-		assertThat(actualRegion.getName(), is(equalTo("People")));
-		assertThat(actualRegion.getFullPath(), is(equalTo(String.format("%1$s%2$s", Region.SEPARATOR, expectedName))));
-		assertThat(actualRegion.size(), is(expectedSize));
+		assertThat(actualRegion).isNotNull();
+		assertThat(actualRegion.getName()).isEqualTo("People");
+		assertThat(actualRegion.getFullPath()).isEqualTo(String.format("%1$s%2$s", Region.SEPARATOR, expectedName));
+		assertThat(actualRegion.size()).isEqualTo(expectedSize);
 	}
 
-	protected static Person newPerson(String firstName, String lastName) {
+	private static Person newPerson(String firstName, String lastName) {
 		return newPerson(ID_SEQUENCE.incrementAndGet(), firstName, lastName);
 	}
 
-	protected static Person newPerson(Long id, String firstName, String lastName) {
+	private static Person newPerson(Long id, String firstName, String lastName) {
 		return new Person(id, firstName, lastName);
 	}
 
@@ -98,15 +93,15 @@ public class SnapshotServiceImportExportIntegrationTest {
 		File exportDirectory = new File(snapshotsDirectory, "export");
 		File importDirectory = new File(snapshotsDirectory, "import");
 
-		assertThat(exportDirectory.isDirectory() || exportDirectory.mkdirs(), is(true));
-		assertThat(importDirectory.isDirectory() || importDirectory.mkdirs(), is(true));
+		assertThat(exportDirectory.isDirectory() || exportDirectory.mkdirs()).isTrue();
+		assertThat(importDirectory.isDirectory() || importDirectory.mkdirs()).isTrue();
 
 		importPeopleSnapshot = new File(importDirectory, "people-snapshot.gfd");
 
 		FileCopyUtils.copy(new ClassPathResource("/people.snapshot").getFile(), importPeopleSnapshot);
 
-		assertThat(importPeopleSnapshot.isFile(), is(true));
-		assertThat(importPeopleSnapshot.length() > 0, is(true));
+		assertThat(importPeopleSnapshot.isFile()).isTrue();
+		assertThat(importPeopleSnapshot.length() > 0).isTrue();
 
 		applicationContext = new ClassPathXmlApplicationContext(
 			SnapshotServiceImportExportIntegrationTest.class.getName().replace(".", "/").concat("-context.xml"));
@@ -123,8 +118,8 @@ public class SnapshotServiceImportExportIntegrationTest {
 
 		File exportPeopleSnapshot = new File(new File(snapshotsDirectory, "export"), "people-snapshot.gfd");
 
-		assertThat(exportPeopleSnapshot.isFile(), is(true));
-		assertThat(exportPeopleSnapshot.length(), is(equalTo(importPeopleSnapshot.length())));
+		assertThat(exportPeopleSnapshot.isFile()).isTrue();
+		assertThat(exportPeopleSnapshot.length()).isEqualTo(importPeopleSnapshot.length());
 
 		FileSystemUtils.deleteRecursive(snapshotsDirectory.getParentFile());
 	}
@@ -135,7 +130,8 @@ public class SnapshotServiceImportExportIntegrationTest {
 		ThreadUtils.timedWait(TimeUnit.SECONDS.toMillis(5), 500, () -> !(people.size() > 0));
 	}
 
-	protected void setupPeople() {
+	private void setupPeople() {
+
 		put(newPerson("Jon", "Doe"));
 		put(newPerson("Jane", "Doe"));
 		put(newPerson("Cookie", "Doe"));
@@ -147,13 +143,14 @@ public class SnapshotServiceImportExportIntegrationTest {
 		put(newPerson("Sour", "Doe"));
 	}
 
-	protected Person put(Person person) {
+	private Person put(Person person) {
 		people.putIfAbsent(person.getId(), person);
 		return person;
 	}
 
 	@Test
 	public void peopleRegionIsLoaded() {
+
 		assertRegion(people, "People", 9);
 		assertPerson(people.get(1L), newPerson(1L, "Jon", "Doe"));
 		assertPerson(people.get(2L), newPerson(2L, "Jane", "Doe"));

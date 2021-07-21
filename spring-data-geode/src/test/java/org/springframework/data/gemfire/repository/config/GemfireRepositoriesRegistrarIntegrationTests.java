@@ -1,5 +1,4 @@
 /*
- /*
  * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +23,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -40,14 +40,15 @@ import example.app.repo.UserRepository;
  * @author John Blum
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.repository.config.GemfireRepositoriesRegistrar
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class GemfireRepositoriesRegistrarIntegrationTests {
+public class GemfireRepositoriesRegistrarIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private UserRepository repository;

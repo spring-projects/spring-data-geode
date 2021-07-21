@@ -9,11 +9,11 @@
 
     <gfe:function-service>
         <gfe:function>
-         <bean class="org.springframework.data.gemfire.config.xml.FunctionServiceNamespaceTest.Function1"/>
+         <bean class="org.springframework.data.gemfire.config.xml.FunctionServiceNamespaceIntegrationTests.Function1"/>
          <ref bean="function2"/>
         </gfe:function>
     </gfe:function-service>
 
-    <bean id="function2" class="org.springframework.data.gemfire.config.xml.FunctionServiceNamespaceTest.Function2"/>
+    <bean id="function2" class="org.springframework.data.gemfire.config.xml.FunctionServiceNamespaceIntegrationTests.Function2"/>
 
 </beans>

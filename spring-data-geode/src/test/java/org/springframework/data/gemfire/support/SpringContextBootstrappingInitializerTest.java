@@ -77,7 +77,7 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.data.gemfire.support.SpringContextBootstrappingInitializer
- * @see org.springframework.data.gemfire.support.SpringContextBootstrappingInitializerIntegrationTest
+ * @see SpringContextBootstrappingInitializerIntegrationTests
  * @since 1.4.0
  */
 @SuppressWarnings("unused")

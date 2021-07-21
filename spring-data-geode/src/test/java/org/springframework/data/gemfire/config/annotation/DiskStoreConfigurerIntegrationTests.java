@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.DiskStoreFactoryBean;
-import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
+import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -48,6 +48,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.DiskStoreConfigurer
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStore
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStores
+ * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.1.0
@@ -90,8 +91,8 @@ public class DiskStoreConfigurerIntegrationTests {
 	static class TestConfiguration {
 
 		@Bean
-		GemfireTestBeanPostProcessor testBeanPostProcessor() {
-			return new GemfireTestBeanPostProcessor();
+		GemFireMockObjectsBeanPostProcessor testBeanPostProcessor() {
+			return new GemFireMockObjectsBeanPostProcessor();
 		}
 
 		@Bean

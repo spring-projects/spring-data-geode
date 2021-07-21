@@ -41,7 +41,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
 import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.support.RestTemplateConfigurer;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
@@ -60,7 +61,8 @@ import org.springframework.web.client.RestTemplate;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableClusterConfiguration
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.http.client.ClientHttpRequestInterceptor
  * @see org.springframework.http.client.InterceptingClientHttpRequestFactory
  * @see org.springframework.test.context.ContextConfiguration
@@ -70,7 +72,7 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ClusterConfigurationWithClientHttpRequestInterceptorsIntegrationTests {
+public class ClusterConfigurationWithClientHttpRequestInterceptorsIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;

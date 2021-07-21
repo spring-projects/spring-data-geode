@@ -12,13 +12,12 @@
  */
 package org.springframework.data.gemfire.function.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
-import org.apache.geode.cache.Region;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -28,39 +27,42 @@ import org.springframework.data.gemfire.TestUtils;
 import org.springframework.data.gemfire.function.config.two.TestOnRegionFunction;
 import org.springframework.data.gemfire.function.execution.GemfireOnRegionFunctionTemplate;
 import org.springframework.data.gemfire.function.execution.OnRegionFunctionProxyFactoryBean;
-import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author David Turanski
- *
+ * @author John Blum
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { TestConfig.class }, initializers = GemfireTestApplicationContextInitializer.class)
-public class FunctionExecutionIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = TestConfig.class, initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@SuppressWarnings("unused")
+public class FunctionExecutionIntegrationTests extends IntegrationTestsSupport {
+
 	@Autowired
-	ApplicationContext context;
+	private ApplicationContext applicationContext;
 
 	@Test
 	public void testProxyFactoryBeanCreated() throws Exception {
-		OnRegionFunctionProxyFactoryBean factoryBean = (OnRegionFunctionProxyFactoryBean) context
-				.getBean("&testFunction");
-		Class<?> serviceInterface = TestUtils.readField("functionExecutionInterface", factoryBean);
-		assertEquals(serviceInterface, TestOnRegionFunction.class);
 
-		Region<?, ?> r1 = context.getBean("r1", Region.class);
+		OnRegionFunctionProxyFactoryBean factoryBean =
+			applicationContext.getBean("&testFunction", OnRegionFunctionProxyFactoryBean.class);
+
+		Class<?> serviceInterface = TestUtils.readField("functionExecutionInterface", factoryBean);
+
+		assertThat(TestOnRegionFunction.class).isEqualTo(serviceInterface);
+
+		Region<?, ?> regionOne = applicationContext.getBean("r1", Region.class);
 
 		GemfireOnRegionFunctionTemplate template = TestUtils.readField("gemfireFunctionOperations", factoryBean);
 
-		assertSame(r1, TestUtils.readField("region", template));
+		assertThat(TestUtils.<Region<?, ?>>readField("region", template)).isSameAs(regionOne);
 	}
-
 }
 
-@ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionIntegrationTests-context.xml")
-@EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.two")
 @Configuration
-class TestConfig {
-
-}
+@EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.two")
+@ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionIntegrationTests-context.xml")
+class TestConfig { }

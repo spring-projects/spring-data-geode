@@ -26,11 +26,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.ClusterSchemaObjectInitializer;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.SchemaObjectContext;
 
-import java.lang.reflect.Field;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -48,7 +46,9 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
 import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.util.ReflectionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -56,11 +56,10 @@ import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Integration Test for {@link EnableClusterConfiguration} and {@link EnableSecurity}.
+ * Integration Tests for {@link EnableClusterConfiguration} and {@link EnableSecurity}.
  *
  * @author John Blum
  * @see java.net.Authenticator
@@ -74,7 +73,7 @@ import org.springframework.web.client.RestTemplate;
  * @see org.springframework.core.env.ConfigurableEnvironment
  * @see org.springframework.core.env.PropertiesPropertySource
  * @see org.springframework.data.gemfire.config.admin.GemfireAdminOperations
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.http.client.ClientHttpRequestInterceptor
  * @see org.springframework.http.client.InterceptingClientHttpRequestFactory
  * @see org.springframework.test.context.ContextConfiguration
@@ -84,8 +83,9 @@ import org.springframework.web.client.RestTemplate;
  */
 @SuppressWarnings("unused")
 @RunWith(SpringRunner.class)
-@ContextConfiguration(initializers = EnableClusterConfigurationWithSecurityIntegrationTests.SecurityConfigurationApplicationContextInitializer.class)
-public class EnableClusterConfigurationWithSecurityIntegrationTests {
+@ContextConfiguration(initializers =
+	EnableClusterConfigurationWithSecurityIntegrationTests.SecurityConfigurationApplicationContextInitializer.class)
+public class EnableClusterConfigurationWithSecurityIntegrationTests extends IntegrationTestsSupport {
 
 	private static final String SECURITY_USERNAME = "security-username";
 	private static final String SECURITY_PASSWORD = "security-password";
@@ -99,23 +99,6 @@ public class EnableClusterConfigurationWithSecurityIntegrationTests {
 
 	@Autowired
 	private ClusterSchemaObjectInitializer initializer;
-
-	// TODO: Replace with STDG.
-	@SuppressWarnings("unchecked")
-	private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
-
-		Field field = ReflectionUtils.findField(target.getClass(), fieldName);
-
-		return Optional.ofNullable(field)
-			.map(it -> {
-				ReflectionUtils.makeAccessible(it);
-				return field;
-			})
-			.map(it -> (T) ReflectionUtils.getField(it, target))
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field with name [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
-	}
 
 	@Before
 	public void setup() {
@@ -146,7 +129,7 @@ public class EnableClusterConfigurationWithSecurityIntegrationTests {
 
 		RestHttpGemfireAdminTemplate template = schemaObjectContext.getGemfireAdminOperations();
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).hasSize(2);

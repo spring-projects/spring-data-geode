@@ -64,8 +64,8 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
-import org.springframework.data.gemfire.test.mock.MockObjectsSupport;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.MockObjectsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
  * Unit Tests for the {@link EnableEntityDefinedRegions} annotation and {@link EntityDefinedRegionsConfiguration} class.
@@ -75,6 +75,8 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.EntityDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.mapping.annotation.ClientRegion
@@ -82,8 +84,8 @@ import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockOb
  * @see org.springframework.data.gemfire.mapping.annotation.PartitionRegion
  * @see org.springframework.data.gemfire.mapping.annotation.ReplicateRegion
  * @see org.springframework.data.gemfire.mapping.annotation.ReplicateRegion
- * @see org.springframework.data.gemfire.test.mock.MockObjectsSupport
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.mock.MockObjectsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 @SuppressWarnings({ "unchecked", "unused" })

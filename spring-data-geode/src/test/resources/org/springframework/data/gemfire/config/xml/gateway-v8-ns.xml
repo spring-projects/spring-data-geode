@@ -20,7 +20,7 @@
 	<gfe:gateway-sender id="gateway-sender-with-event-substitution-filter" remote-distributed-system-id="3"
 						dispatcher-threads="10" parallel="true" manual-start="true">
 		<gfe:event-substitution-filter>
-			<bean class="org.springframework.data.gemfire.config.xml.GemfireV8GatewayNamespaceTest$TestGatewayEventSubstitutionFilter" p:name="inner"/>
+			<bean class="org.springframework.data.gemfire.config.xml.GemfireV8GatewayNamespaceIntegrationTests$TestGatewayEventSubstitutionFilter" p:name="inner"/>
 		</gfe:event-substitution-filter>
 	</gfe:gateway-sender>
 
@@ -29,6 +29,6 @@
 		<gfe:event-substitution-filter ref="testGatewayEventSubstitutionFilter"/>
 	</gfe:gateway-sender>
 
-	<bean id="testGatewayEventSubstitutionFilter" class="org.springframework.data.gemfire.config.xml.GemfireV8GatewayNamespaceTest$TestGatewayEventSubstitutionFilter" p:name="ref"/>
+	<bean id="testGatewayEventSubstitutionFilter" class="org.springframework.data.gemfire.config.xml.GemfireV8GatewayNamespaceIntegrationTests$TestGatewayEventSubstitutionFilter" p:name="ref"/>
 
 </beans>

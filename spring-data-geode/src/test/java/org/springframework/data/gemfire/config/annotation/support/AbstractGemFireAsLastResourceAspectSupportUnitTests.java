@@ -40,8 +40,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.geode.cache.GemFireCache;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +48,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.GemFireCache;
+
 import org.slf4j.Logger;
 
 /**

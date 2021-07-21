@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,26 +29,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.CacheFactoryBean;
-import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests using Java-based configuration for {@link GemfireBeanFactoryLocator}.
+ * Integration Tests using Java-based configuration for {@link GemfireBeanFactoryLocator}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.context.annotation.Bean
+ * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
- * @see org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class GemfireBeanFactoryLocatorJavaConfigIntegrationTests {
+public class GemfireBeanFactoryLocatorJavaConfigIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	@SuppressWarnings("unused")
@@ -88,8 +91,8 @@ public class GemfireBeanFactoryLocatorJavaConfigIntegrationTests {
 	static class TestConfiguration {
 
 		@Bean
-		GemfireTestBeanPostProcessor gemfireTestBeanPostProcessor() {
-			return new GemfireTestBeanPostProcessor();
+		GemFireMockObjectsBeanPostProcessor gemfireTestBeanPostProcessor() {
+			return new GemFireMockObjectsBeanPostProcessor();
 		}
 
 		@Bean

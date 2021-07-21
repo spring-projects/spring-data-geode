@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import org.junit.After;
@@ -21,20 +20,24 @@ import org.junit.Before;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
- * The RecreatingSpringApplicationContextTest class is an abstract base class that creates the app context after each method.
+ * Abstract base test class that creates the Spring {@link ConfigurableApplicationContext} after each method (test case).
  * Used to properly destroy the beans defined inside Spring.
  *
  * @author Costin Leau
  * @author John Blum
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  */
-public abstract class RecreatingSpringApplicationContextTest {
+public abstract class RecreatingSpringApplicationContextTest extends IntegrationTestsSupport {
 
 	protected GenericXmlApplicationContext applicationContext;
 
 	@Before
 	public void createContext() {
+
 		applicationContext = configureContext(new GenericXmlApplicationContext());
 		applicationContext.load(location());
 		applicationContext.registerShutdownHook();
@@ -53,5 +56,4 @@ public abstract class RecreatingSpringApplicationContextTest {
 			applicationContext.destroy();
 		}
 	}
-
 }

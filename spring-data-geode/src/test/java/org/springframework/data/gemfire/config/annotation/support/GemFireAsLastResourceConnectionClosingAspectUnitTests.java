@@ -25,13 +25,14 @@ import static org.mockito.Mockito.when;
 
 import javax.resource.ResourceException;
 
-import org.apache.geode.ra.GFConnection;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.ra.GFConnection;
+
 import org.slf4j.Logger;
 
 /**

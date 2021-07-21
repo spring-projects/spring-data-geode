@@ -23,14 +23,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.wan.GatewaySender;
-
-import org.junit.Test;
 
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.data.gemfire.IndexMaintenancePolicyConverter;

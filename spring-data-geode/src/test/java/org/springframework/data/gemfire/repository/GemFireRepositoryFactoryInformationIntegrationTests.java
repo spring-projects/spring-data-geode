@@ -29,7 +29,8 @@ import org.springframework.data.gemfire.config.annotation.ClientCacheApplication
 import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.RepositoryFactoryInformation;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,11 +45,13 @@ import example.app.repo.UserRepository;
  * in the Spring {@link ApplicationContext}.
  *
  * @author John Blum
+ * @see org.junit.Test
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
- * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
  * @see org.springframework.data.gemfire.repository.config.EnableGemfireRepositories
  * @see org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.data.repository.Repository
  * @see org.springframework.data.repository.core.support.RepositoryFactoryInformation
  * @see org.springframework.test.context.ContextConfiguration
@@ -58,7 +61,7 @@ import example.app.repo.UserRepository;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class GemFireRepositoryFactoryInformationIntegrationTests {
+public class GemFireRepositoryFactoryInformationIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;

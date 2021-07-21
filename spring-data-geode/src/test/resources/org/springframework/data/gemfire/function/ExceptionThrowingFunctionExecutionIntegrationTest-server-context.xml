@@ -31,7 +31,7 @@
 
 	<gfe:function-service>
 		<gfe:function>
-			<bean class="org.springframework.data.gemfire.function.ExceptionThrowingFunctionExecutionIntegrationTest$ExceptionThrowingFunction"/>
+			<bean class="org.springframework.data.gemfire.function.ExceptionThrowingFunctionExecutionIntegrationTests$ExceptionThrowingFunction"/>
 		</gfe:function>
 	</gfe:function-service>
 

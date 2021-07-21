@@ -26,16 +26,16 @@ import static org.springframework.data.gemfire.config.annotation.EnableEviction.
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.After;
+import org.junit.Test;
+import org.mockito.stubbing.Answer;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.util.ObjectSizer;
-
-import org.junit.After;
-import org.junit.Test;
-import org.mockito.stubbing.Answer;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,12 +23,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.geode.cache.query.CqEvent;
-
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.query.CqEvent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,18 +36,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.gemfire.listener.annotation.ContinuousQuery;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.test.model.Gender;
 import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.data.gemfire.test.repo.PersonRepository;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests testing the combination of {@link EnableContinuousQueries} with {@link EnableClusterConfiguration}.
+ * Integration Tests testing the combination of {@link EnableContinuousQueries} with {@link EnableClusterConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -57,6 +54,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.EnableClusterConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableContinuousQueries
  * @see org.springframework.data.gemfire.listener.annotation.ContinuousQuery
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://jira.spring.io/browse/DATAGEODE-73">Fix race condition between ContinuousQuery registration and EnableClusterConfiguration Region creation.</a>
@@ -66,29 +64,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = EnableContinuousQueriesWithClusterConfigurationIntegrationTests.TestConfiguration.class)
 @SuppressWarnings("unused")
 public class EnableContinuousQueriesWithClusterConfigurationIntegrationTests
-		extends ClientServerIntegrationTestsSupport {
+		extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final BlockingQueue<Person> events = new ArrayBlockingQueue<>(2);
 
-	private static ProcessWrapper gemfireServer;
-
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(EnableContinuousQueriesWithClusterConfigurationIntegrationTests.GemFireServerConfiguration.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		startGemFireServer(GemFireServerConfiguration.class);
 	}
 
 	@Autowired

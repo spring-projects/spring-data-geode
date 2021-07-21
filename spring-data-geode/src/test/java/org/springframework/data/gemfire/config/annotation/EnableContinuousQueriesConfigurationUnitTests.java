@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +27,7 @@ import static org.springframework.data.gemfire.util.ArrayUtils.asArray;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.Executor;
 
-import lombok.Data;
+import org.junit.Test;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
@@ -39,8 +38,6 @@ import org.apache.geode.cache.query.CqAttributes;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqQuery;
 import org.apache.geode.cache.query.QueryService;
-
-import org.junit.Test;
 
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
@@ -61,25 +58,29 @@ import org.springframework.data.gemfire.listener.annotation.ContinuousQuery;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
-import org.springframework.data.gemfire.test.mock.GemFireMockObjectsSupport;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.data.gemfire.test.repo.PersonRepository;
-import org.springframework.data.gemfire.test.support.IOUtils;
+import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.util.IOUtils;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ErrorHandler;
 
+import lombok.Data;
+
 /**
- * Unit tests for {@link EnableContinuousQueries}, {@link ContinuousQueryConfiguration}, {@link ContinuousQuery}
+ * Unit Tests for {@link EnableContinuousQueries}, {@link ContinuousQueryConfiguration}, {@link ContinuousQuery}
  * and {@link ContinuousQueryListenerContainer}.
  *
  * @author John Blum
  * @see java.lang.reflect.Proxy
+ * @see java.util.concurrent.Executor
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.query.CqEvent
  * @see org.apache.geode.cache.query.CqQuery
  * @see org.apache.geode.cache.query.QueryService
  * @see org.springframework.aop.framework.ProxyFactory
@@ -176,6 +177,7 @@ public class EnableContinuousQueriesConfigurationUnitTests {
 	@EnableGemFireMockObjects
 	@EnableContinuousQueries(errorHandlerBeanName = "mockErrorHandler", phase = 1, poolName = "mockPool",
 		queryServiceBeanName = "mockQueryService", taskExecutorBeanName = "mockTaskExecutor")
+	@SuppressWarnings("unused")
 	static class TestContinuousQueryListenerContainerConfiguration {
 
 		@Bean
@@ -261,7 +263,7 @@ public class EnableContinuousQueriesConfigurationUnitTests {
 		}
 
 		@Bean
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		RegionAttributesFactoryBean peopleRegionAttributes() {
 
 			RegionAttributesFactoryBean peopleRegionAttributes = new RegionAttributesFactoryBean();
@@ -281,7 +283,7 @@ public class EnableContinuousQueriesConfigurationUnitTests {
 		}
 
 		@Bean
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		RegionAttributesFactoryBean examplesRegionAttributes() {
 
 			RegionAttributesFactoryBean examplesRegionAttributes = new RegionAttributesFactoryBean();
@@ -293,6 +295,7 @@ public class EnableContinuousQueriesConfigurationUnitTests {
 		}
 
 		@Bean
+		@SuppressWarnings("all")
 		ExampleDataAccessObject exampleDao() {
 
 			return (ExampleDataAccessObject) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
@@ -300,6 +303,7 @@ public class EnableContinuousQueriesConfigurationUnitTests {
 		}
 
 		@Bean
+		@SuppressWarnings("rawtypes")
 		GemfireRepositoryFactoryBean exampleRepository() {
 
 			GemfireRepositoryFactoryBean<ExampleRepository, Example, Long> exampleRepositoryFactory =
@@ -340,9 +344,8 @@ public class EnableContinuousQueriesConfigurationUnitTests {
 		@Id Long id;
 	}
 
-	interface ExampleDataAccessObject {
-	}
+	interface ExampleDataAccessObject { }
 
-	interface ExampleRepository extends CrudRepository<Example, Long> {
-	}
+	interface ExampleRepository extends CrudRepository<Example, Long> { }
+
 }

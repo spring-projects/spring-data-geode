@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,14 +22,14 @@ import static org.springframework.data.gemfire.config.annotation.CompressionConf
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
-
-import org.junit.After;
-import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -40,16 +39,24 @@ import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
- * The EnableCompressionConfigurationUnitTests class...
+ * Integration Tests for {@link EnableCompression} and {@link CompressionConfiguration}.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.config.annotation.CompressionConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.EnableCompression
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @since 2.0.0
  */
-public class EnableCompressionConfigurationUnitTests {
+public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,26 +23,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.client.ClientRegionShortcut;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect;
-import org.springframework.data.gemfire.test.logging.slf4j.logback.TestAppender;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.logging.slf4j.logback.TestAppender;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ClassUtils;
 
 /**
- * Unit tests for {@link RegionDataAccessTracingAspect}.
+ * Unit Tests for {@link RegionDataAccessTracingAspect}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -51,15 +51,17 @@ import org.springframework.util.ClassUtils;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect
- * @see org.springframework.data.gemfire.test.logging.slf4j.logback.TestAppender
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.logging.slf4j.logback.TestAppender
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.2
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class RegionDataAccessTracingAspectUnitTests {
+@SuppressWarnings("unused")
+public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupport {
 
 	private static final String LOGBACK_LOGGER_CLASS_NAME = "ch.qos.logback.classic.Logger";
 
@@ -75,7 +77,6 @@ public class RegionDataAccessTracingAspectUnitTests {
 	}
 
 	@Resource(name = "ClientRegion")
-	@SuppressWarnings("all")
 	private Region<Object, Object> region;
 
 	private Runnable regionCallbackArgument(AtomicBoolean called) {
@@ -450,7 +451,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	}
 
 	@Test
-	public void logsRegionSize() throws Exception {
+	public void logsRegionSize() {
 
 		this.region.size();
 
@@ -463,7 +464,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	}
 
 	@Test
-	public void logsRegionSizeOnServer() throws Exception {
+	public void logsRegionSizeOnServer() {
 
 		this.region.sizeOnServer();
 
@@ -476,7 +477,7 @@ public class RegionDataAccessTracingAspectUnitTests {
 	}
 
 	@Test
-	public void logsRegionValues() throws Exception {
+	public void logsRegionValues() {
 
 		this.region.values();
 

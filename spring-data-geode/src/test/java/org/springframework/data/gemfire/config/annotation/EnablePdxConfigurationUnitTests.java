@@ -34,12 +34,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.geode.pdx.PdxSerializer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;

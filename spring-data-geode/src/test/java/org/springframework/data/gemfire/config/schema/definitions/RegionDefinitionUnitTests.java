@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.schema.definitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,21 +24,21 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionShortcut;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionShortcut;
+
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
 import org.springframework.data.gemfire.config.schema.SchemaObjectType;
-import org.springframework.data.gemfire.test.support.IOUtils;
+import org.springframework.data.gemfire.tests.util.IOUtils;
 
 /**
- * Unit tests for {@link RegionDefinition}.
+ * Unit Tests for {@link RegionDefinition}.
  *
  * @author John Blum
  * @see org.junit.Test

@@ -36,19 +36,25 @@ import org.springframework.data.gemfire.function.config.EnableGemfireFunctions;
 import org.springframework.data.gemfire.function.sample.AllServersAdminFunctions;
 import org.springframework.data.gemfire.function.sample.Metric;
 import org.springframework.data.gemfire.function.sample.SingleServerAdminFunctions;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author Patrick Johnson
+ * @author John Blum
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
+ * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions
+ * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctions
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  */
 @SuppressWarnings("unused")
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = FunctionsReturnResultsFromAllServersIntegrationTests.TestConfiguration.class)
-public class FunctionsReturnResultsFromAllServersIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class FunctionsReturnResultsFromAllServersIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final int NUMBER_OF_METRICS = 10;
 
@@ -89,7 +95,9 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Client
 
 	@Test
 	public void executeFunctionOnAllServers() {
+
 		List<List<Metric>> metrics = allServersAdminFunctions.getAllMetrics();
+
 		assertThat(metrics.size()).isEqualTo(2);
 		assertThat(metrics.get(0).size()).isEqualTo(NUMBER_OF_METRICS);
 		assertThat(metrics.get(1).size()).isEqualTo(NUMBER_OF_METRICS);
@@ -97,15 +105,16 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Client
 
 	@Test
 	public void executeFunctionOnSingleServer() {
+
 		List<Metric> metrics = singleServerAdminFunctions.getAllMetrics();
+
 		assertThat(metrics.size()).isEqualTo(NUMBER_OF_METRICS);
 	}
 
 	@ClientCacheApplication
 	@EnableGemfireFunctionExecutions(basePackageClasses = AllServersAdminFunctions.class)
 	@EnableTransactionManagement
-	static class TestConfiguration {
-	}
+	static class TestConfiguration { }
 
 	@CacheServerApplication
 	@EnableGemfireFunctions
@@ -121,11 +130,14 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Client
 
 		@GemfireFunction(id = "GetAllMetricsFunction", hasResult = true)
 		public List<Metric> getMetrics() {
+
 			List<Metric> allMetrics = new ArrayList<>();
+
 			for (int i = 0; i < NUMBER_OF_METRICS; i++) {
 				Metric metric = new Metric("statName" + i, i, "statCat" + i, "statType" + i);
 				allMetrics.add(metric);
 			}
+
 			return allMetrics;
 		}
 	}

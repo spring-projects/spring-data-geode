@@ -15,21 +15,20 @@ package org.springframework.data.gemfire.function.config;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author David Turanski
  * @author John Blum
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(initializers = GemfireTestApplicationContextInitializer.class)
+@RunWith(SpringRunner.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 public class FunctionsWithClientCacheTests {
 
 	@Test
 	public void doNothing() {
 		// Just make sure this comes up for SGF-186.
 	}
-
 }

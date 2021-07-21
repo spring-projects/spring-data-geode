@@ -40,7 +40,7 @@
 
 	<gfe:replicated-region id="Example" persistent="false" key-constraint="java.lang.String" value-constraint="java.lang.Integer">
 		<gfe:cache-loader>
-			<bean class="org.springframework.data.gemfire.client.ClientCacheVariableServersTest.CacheMissCounterCacheLoader"/>
+			<bean class="org.springframework.data.gemfire.client.ClientCacheVariableServersIntegrationTests.CacheMissCounterCacheLoader"/>
 		</gfe:cache-loader>
 	</gfe:replicated-region>
 

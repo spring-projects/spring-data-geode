@@ -22,18 +22,19 @@ import static org.mockito.Mockito.spy;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.ClusterSchemaObjectInitializer;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.SchemaObjectContext;
 
-import org.apache.geode.cache.client.ClientCache;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,7 +48,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.data.gemfire.config.admin.GemfireAdminOperations
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.2.0
@@ -55,7 +57,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ClusterConfigurationWithCustomGemfireAdminOperationsIntegrationTests {
+public class ClusterConfigurationWithCustomGemfireAdminOperationsIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;

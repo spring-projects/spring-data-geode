@@ -22,7 +22,6 @@ import java.util.Collections;
 
 import javax.annotation.Resource;
 
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,10 +45,9 @@ import org.springframework.data.gemfire.config.annotation.ClientCacheApplication
 import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
 import org.springframework.data.gemfire.config.annotation.EnablePdx;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -63,11 +61,13 @@ import example.app.repo.UserRepository;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.CacheServerApplication
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.repository.config.EnableGemfireRepositories
  * @see org.springframework.data.gemfire.repository.support.SimpleGemfireRepository
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.data.repository.CrudRepository
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -77,27 +77,11 @@ import example.app.repo.UserRepository;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = SimpleGemfireRepositoryRegionDeleteAllIntegrationTests.GeodeClientTestConfiguration.class)
 @SuppressWarnings("unused")
-public class SimpleGemfireRepositoryRegionDeleteAllIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class SimpleGemfireRepositoryRegionDeleteAllIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGeodeServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(GeodeServerTestConfiguration.class, "-Dspring.profiles.active=partition",
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		startGemFireServer(GeodeServerTestConfiguration.class);
 	}
 
 	@Resource(name = "Users")

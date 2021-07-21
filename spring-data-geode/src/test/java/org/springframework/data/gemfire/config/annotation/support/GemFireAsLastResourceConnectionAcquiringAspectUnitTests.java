@@ -30,14 +30,15 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.resource.ResourceException;
 
-import org.apache.geode.ra.GFConnection;
-import org.apache.geode.ra.GFConnectionFactory;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.ra.GFConnection;
+import org.apache.geode.ra.GFConnectionFactory;
+
 import org.slf4j.Logger;
 
 /**

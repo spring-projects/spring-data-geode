@@ -16,16 +16,8 @@
 package org.springframework.data.gemfire.snapshot;
 
 import static org.apache.geode.cache.snapshot.SnapshotOptions.SnapshotFormat;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,6 +39,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.snapshot.CacheSnapshotService;
@@ -54,19 +51,13 @@ import org.apache.geode.cache.snapshot.RegionSnapshotService;
 import org.apache.geode.cache.snapshot.SnapshotFilter;
 import org.apache.geode.cache.snapshot.SnapshotOptions;
 
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentMatchers;
-import org.slf4j.Logger;
-
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.snapshot.event.ExportSnapshotApplicationEvent;
 import org.springframework.data.gemfire.snapshot.event.ImportSnapshotApplicationEvent;
 import org.springframework.data.gemfire.snapshot.event.SnapshotApplicationEvent;
-import org.springframework.data.gemfire.test.support.FileSystemUtils;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
+
+import org.slf4j.Logger;
 
 /**
  * The SnapshotServiceFactoryBeanTest class is a test suite of test cases testing the contract and functionality
@@ -86,10 +77,7 @@ public class SnapshotServiceFactoryBeanTest {
 
 	private static File snapshotDat;
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
-	private SnapshotServiceFactoryBean factoryBean = new SnapshotServiceFactoryBean();
+	private final SnapshotServiceFactoryBean factoryBean = new SnapshotServiceFactoryBean();
 
 	protected static File mockFile(String filename) {
 
@@ -163,50 +151,60 @@ public class SnapshotServiceFactoryBeanTest {
 
 	@Test
 	public void nullSafeIsDirectoryWithDirectory() {
-		assertThat(SnapshotServiceFactoryBean.nullSafeIsDirectory(new File(System.getProperty("user.dir"))), is(true));
+		assertThat(SnapshotServiceFactoryBean.nullSafeIsDirectory(new File(System.getProperty("user.dir")))).isTrue();
 	}
 
 	@Test
 	public void nullSafeIsDirectoryWithNonDirectories() {
 
-		assertThat(SnapshotServiceFactoryBean.nullSafeIsDirectory(new File("path/to/non-existing/directory")),
-			is(false));
+		assertThat(SnapshotServiceFactoryBean.nullSafeIsDirectory(new File("path/to/non-existing/directory")))
+			.isFalse();
 
-		assertThat(SnapshotServiceFactoryBean.nullSafeIsDirectory(FileSystemUtils.JAVA_EXE), is(false));
+		assertThat(SnapshotServiceFactoryBean.nullSafeIsDirectory(FileSystemUtils.JAVA_EXE)).isFalse();
 	}
 
 	@Test
 	public void nullSafeIsFileWithFile() {
 
-		assertThat(SnapshotServiceFactoryBean.nullSafeIsFile(FileSystemUtils.JAVA_EXE),
-			is(FileSystemUtils.JAVA_EXE.isFile()));
+		assertThat(SnapshotServiceFactoryBean.nullSafeIsFile(FileSystemUtils.JAVA_EXE))
+			.isEqualTo(FileSystemUtils.JAVA_EXE.isFile());
 	}
 
 	@Test
 	public void nullSafeIsFileWithNonFiles() {
 
-		assertThat(SnapshotServiceFactoryBean.nullSafeIsFile(new File("/path/to/non-existing/file.ext")), is(false));
-		assertThat(SnapshotServiceFactoryBean.nullSafeIsFile(new File(System.getProperty("user.dir"))), is(false));
+		assertThat(SnapshotServiceFactoryBean.nullSafeIsFile(new File("/path/to/non-existing/file.ext"))).isFalse();
+		assertThat(SnapshotServiceFactoryBean.nullSafeIsFile(new File(System.getProperty("user.dir")))).isFalse();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setCacheToNull() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The GemFire Cache must not be null");
+		try {
+			factoryBean.setCache(null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		factoryBean.setCache(null);
+			assertThat(expected).hasMessage("The GemFire Cache must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void getCacheWhenUninitialized() {
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The GemFire Cache was not properly initialized");
+		try {
+			factoryBean.getCache();
+		}
+		catch (IllegalStateException expected) {
 
-		factoryBean.getCache();
+			assertThat(expected).hasMessage("The GemFire Cache was not properly initialized");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
@@ -218,7 +216,7 @@ public class SnapshotServiceFactoryBeanTest {
 
 		factoryBean.setCache(mockCache);
 
-		assertThat(factoryBean.getCache(), is(sameInstance(mockCache)));
+		assertThat(factoryBean.getCache()).isSameAs(mockCache);
 	}
 
 	@Test
@@ -226,22 +224,22 @@ public class SnapshotServiceFactoryBeanTest {
 
 		SnapshotMetadata[] actualExports = factoryBean.getExports();
 
-		assertThat(actualExports, is(notNullValue()));
-		assertThat(actualExports.length, is(equalTo(0)));
+		assertThat(actualExports).isNotNull();
+		assertThat(actualExports.length).isEqualTo(0);
 
 		SnapshotMetadata[] expectedExports = toArray(newSnapshotMetadata());
 
 		factoryBean.setExports(expectedExports);
 		actualExports = factoryBean.getExports();
 
-		assertThat(actualExports, is(sameInstance(expectedExports)));
+		assertThat(actualExports).isSameAs(expectedExports);
 
 		factoryBean.setExports(null);
 		actualExports = factoryBean.getExports();
 
-		assertThat(actualExports, is(not(sameInstance(expectedExports))));
-		assertThat(actualExports, is(notNullValue()));
-		assertThat(actualExports.length, is(equalTo(0)));
+		assertThat(actualExports).isNotSameAs(expectedExports);
+		assertThat(actualExports).isNotNull();
+		assertThat(actualExports.length).isEqualTo(0);
 	}
 
 	@Test
@@ -249,61 +247,61 @@ public class SnapshotServiceFactoryBeanTest {
 
 		SnapshotMetadata[] actualImports = factoryBean.getImports();
 
-		assertThat(actualImports, is(notNullValue()));
-		assertThat(actualImports.length, is(equalTo(0)));
+		assertThat(actualImports).isNotNull();
+		assertThat(actualImports.length).isEqualTo(0);
 
 		SnapshotMetadata[] expectedImports = toArray(newSnapshotMetadata());
 
 		factoryBean.setImports(expectedImports);
 		actualImports = factoryBean.getImports();
 
-		assertThat(actualImports, is(sameInstance(expectedImports)));
+		assertThat(actualImports).isSameAs(expectedImports);
 
 		factoryBean.setImports(null);
 		actualImports = factoryBean.getImports();
 
-		assertThat(actualImports, is(not(sameInstance(expectedImports))));
-		assertThat(actualImports, is(notNullValue()));
-		assertThat(actualImports.length, is(equalTo(0)));
+		assertThat(actualImports).isNotSameAs(expectedImports);
+		assertThat(actualImports).isNotNull();
+		assertThat(actualImports.length).isEqualTo(0);
 	}
 
 	@Test
 	public void setAndGetRegionSuccessfully() {
 
-		assertThat(factoryBean.getRegion(), is(nullValue()));
+		assertThat(factoryBean.getRegion()).isNull();
 
 		Region mockRegion = mock(Region.class, "MockRegion");
 
 		factoryBean.setRegion(mockRegion);
 
-		assertThat(factoryBean.getRegion(), is(sameInstance(mockRegion)));
+		assertThat(factoryBean.getRegion()).isSameAs(mockRegion);
 
 		factoryBean.setRegion(null);
 
-		assertThat(factoryBean.getRegion(), is(nullValue()));
+		assertThat(factoryBean.getRegion()).isNull();
 	}
 
 	@Test
 	public void setAndGetSuppressImportOnInitSuccessfully() {
 
-		assertThat(factoryBean.getSuppressImportOnInit(), is(false));
+		assertThat(factoryBean.getSuppressImportOnInit()).isFalse();
 
 		factoryBean.setSuppressImportOnInit(true);
 
-		assertThat(factoryBean.getSuppressImportOnInit(), is(true));
+		assertThat(factoryBean.getSuppressImportOnInit()).isTrue();
 
 		factoryBean.setSuppressImportOnInit(false);
 
-		assertThat(factoryBean.getSuppressImportOnInit(), is(false));
+		assertThat(factoryBean.getSuppressImportOnInit()).isFalse();
 
 		factoryBean.setSuppressImportOnInit(null);
 
-		assertThat(factoryBean.getSuppressImportOnInit(), is(false));
+		assertThat(factoryBean.getSuppressImportOnInit()).isFalse();
 	}
 
 	@Test
 	public void isSingletonIsTrue() {
-		assertThat(factoryBean.isSingleton(), is(true));
+		assertThat(factoryBean.isSingleton()).isTrue();
 	}
 
 	@Test
@@ -325,7 +323,7 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setImports(toArray(expectedSnapshotMetadata));
 		factoryBean.afterPropertiesSet();
 
-		assertThat(factoryBean.getImports()[0], is(equalTo(expectedSnapshotMetadata)));
+		assertThat(factoryBean.getImports()[0]).isEqualTo(expectedSnapshotMetadata);
 
 		verify(mockSnapshotService, times(1)).doImport(eq(expectedSnapshotMetadata));
 	}
@@ -347,7 +345,7 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setSuppressImportOnInit(true);
 		factoryBean.afterPropertiesSet();
 
-		assertThat(factoryBean.getSuppressImportOnInit(), is(true));
+		assertThat(factoryBean.getSuppressImportOnInit()).isTrue();
 
 		verify(mockSnapshotService, never()).doImport(any(SnapshotMetadata[].class));
 	}
@@ -367,7 +365,7 @@ public class SnapshotServiceFactoryBeanTest {
 
 		SnapshotServiceAdapter adapter = factoryBean.create();
 
-		assertThat(adapter, is(instanceOf(CacheSnapshotServiceAdapter.class)));
+		assertThat(adapter).isInstanceOf(CacheSnapshotServiceAdapter.class);
 
 		verify(mockCache, times(1)).getSnapshotService();
 	}
@@ -387,29 +385,39 @@ public class SnapshotServiceFactoryBeanTest {
 
 		SnapshotServiceAdapter adapter = factoryBean.create();
 
-		assertThat(adapter, is(instanceOf(RegionSnapshotServiceAdapter.class)));
+		assertThat(adapter).isInstanceOf(RegionSnapshotServiceAdapter.class);
 
 		verify(mockRegion, times(1)).getSnapshotService();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void wrapNullCacheSnapshotService() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The backing CacheSnapshotService must not be null");
+		try {
+			factoryBean.wrap((CacheSnapshotService) null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		factoryBean.wrap((CacheSnapshotService) null);
+			assertThat(expected).hasMessage("The backing CacheSnapshotService must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void wrapNullRegionSnapshotService() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The backing RegionSnapshotService must not be null");
+		try {
+			factoryBean.wrap((RegionSnapshotService) null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		factoryBean.wrap((RegionSnapshotService) null);
+			assertThat(expected).hasMessage("The backing RegionSnapshotService must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
@@ -431,7 +439,7 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setExports(toArray(expectedSnapshotMetadata));
 		factoryBean.destroy();
 
-		assertThat(factoryBean.getExports()[0], is(equalTo(expectedSnapshotMetadata)));
+		assertThat(factoryBean.getExports()[0]).isEqualTo(expectedSnapshotMetadata);
 
 		verify(mockSnapshotService, times(1)).doExport(eq(expectedSnapshotMetadata));
 	}
@@ -464,8 +472,8 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setExports(toArray(newSnapshotMetadata()));
 		factoryBean.setRegion(mockRegion);
 
-		assertThat(factoryBean.getExports()[0], is(not(sameInstance(eventSnapshotMetadata))));
-		assertThat(factoryBean.getRegion(), is(sameInstance(mockRegion)));
+		assertThat(factoryBean.getExports()[0]).isNotSameAs(eventSnapshotMetadata);
+		assertThat(factoryBean.getRegion()).isSameAs(mockRegion);
 
 		factoryBean.onApplicationEvent(mockSnapshotEvent);
 
@@ -500,8 +508,8 @@ public class SnapshotServiceFactoryBeanTest {
 
 		factoryBean.setImports(toArray(factorySnapshotMetadata));
 
-		assertThat(factoryBean.getImports()[0], is(equalTo(factorySnapshotMetadata)));
-		assertThat(factoryBean.getRegion(), is(nullValue()));
+		assertThat(factoryBean.getImports()[0]).isEqualTo(factorySnapshotMetadata);
+		assertThat(factoryBean.getRegion()).isNull();
 
 		factoryBean.onApplicationEvent(mockSnapshotEvent);
 
@@ -534,8 +542,8 @@ public class SnapshotServiceFactoryBeanTest {
 
 		factoryBean.setExports(toArray(newSnapshotMetadata()));
 
-		assertThat(factoryBean.getExports()[0], isA(SnapshotMetadata.class));
-		assertThat(factoryBean.getRegion(), is(nullValue()));
+		assertThat(factoryBean.getExports()[0]).isInstanceOf(SnapshotMetadata.class);
+		assertThat(factoryBean.getRegion()).isNull();
 
 		factoryBean.onApplicationEvent(mockSnapshotEvent);
 
@@ -571,8 +579,8 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setImports(toArray(newSnapshotMetadata()));
 		factoryBean.setRegion(mockRegion);
 
-		assertThat(factoryBean.getImports()[0], isA(SnapshotMetadata.class));
-		assertThat(factoryBean.getRegion(), is(equalTo(mockRegion)));
+		assertThat(factoryBean.getImports()[0]).isInstanceOf(SnapshotMetadata.class);
+		assertThat(factoryBean.getRegion()).isEqualTo(mockRegion);
 
 		factoryBean.onApplicationEvent(mockSnapshotEvent);
 
@@ -597,9 +605,9 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setExports(toArray(factoryExportSnapshotMetadata));
 		factoryBean.setImports(toArray(factoryImportSnapshotMetadata));
 
-		assertThat(factoryBean.getExports()[0], is(equalTo(factoryExportSnapshotMetadata)));
-		assertThat(factoryBean.getImports()[0], is(equalTo(factoryImportSnapshotMetadata)));
-		assertThat(factoryBean.resolveSnapshotMetadata(mockSnapshotEvent)[0], is(equalTo(eventSnapshotMetadata)));
+		assertThat(factoryBean.getExports()[0]).isEqualTo(factoryExportSnapshotMetadata);
+		assertThat(factoryBean.getImports()[0]).isEqualTo(factoryImportSnapshotMetadata);
+		assertThat(factoryBean.resolveSnapshotMetadata(mockSnapshotEvent)[0]).isEqualTo(eventSnapshotMetadata);
 
 		verify(mockSnapshotEvent, times(1)).getSnapshotMetadata();
 	}
@@ -618,9 +626,9 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setExports(toArray(factoryExportSnapshotMetadata));
 		factoryBean.setImports(toArray(factoryImportSnapshotMetadata));
 
-		assertThat(factoryBean.getExports()[0], is(equalTo(factoryExportSnapshotMetadata)));
-		assertThat(factoryBean.getImports()[0], is(equalTo(factoryImportSnapshotMetadata)));
-		assertThat(factoryBean.resolveSnapshotMetadata(mockSnapshotEvent)[0], is(equalTo(factoryExportSnapshotMetadata)));
+		assertThat(factoryBean.getExports()[0]).isEqualTo(factoryExportSnapshotMetadata);
+		assertThat(factoryBean.getImports()[0]).isEqualTo(factoryImportSnapshotMetadata);
+		assertThat(factoryBean.resolveSnapshotMetadata(mockSnapshotEvent)[0]).isEqualTo(factoryExportSnapshotMetadata);
 
 		verify(mockSnapshotEvent, times(1)).getSnapshotMetadata();
 	}
@@ -639,9 +647,9 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setExports(toArray(factoryExportSnapshotMetadata));
 		factoryBean.setImports(toArray(factoryImportSnapshotMetadata));
 
-		assertThat(factoryBean.getExports()[0], is(equalTo(factoryExportSnapshotMetadata)));
-		assertThat(factoryBean.getImports()[0], is(equalTo(factoryImportSnapshotMetadata)));
-		assertThat(factoryBean.resolveSnapshotMetadata(mockSnapshotEvent)[0], is(equalTo(factoryImportSnapshotMetadata)));
+		assertThat(factoryBean.getExports()[0]).isEqualTo(factoryExportSnapshotMetadata);
+		assertThat(factoryBean.getImports()[0]).isEqualTo(factoryImportSnapshotMetadata);
+		assertThat(factoryBean.resolveSnapshotMetadata(mockSnapshotEvent)[0]).isEqualTo(factoryImportSnapshotMetadata);
 
 		verify(mockSnapshotEvent, times(1)).getSnapshotMetadata();
 	}
@@ -654,8 +662,8 @@ public class SnapshotServiceFactoryBeanTest {
 
 		when(mockSnapshotEvent.isCacheSnapshotEvent()).thenReturn(true);
 
-		assertThat(factoryBean.getRegion(), is(nullValue()));
-		assertThat(factoryBean.isMatch(mockSnapshotEvent), is(true));
+		assertThat(factoryBean.getRegion()).isNull();
+		assertThat(factoryBean.isMatch(mockSnapshotEvent)).isTrue();
 
 		verify(mockSnapshotEvent, times(1)).isCacheSnapshotEvent();
 		verify(mockSnapshotEvent, never()).matches(any(Region.class));
@@ -670,8 +678,8 @@ public class SnapshotServiceFactoryBeanTest {
 		when(mockSnapshotEvent.isCacheSnapshotEvent()).thenReturn(false);
 		when(mockSnapshotEvent.matches(any(Region.class))).thenReturn(false);
 
-		assertThat(factoryBean.getRegion(), is(nullValue()));
-		assertThat(factoryBean.isMatch(mockSnapshotEvent), is(false));
+		assertThat(factoryBean.getRegion()).isNull();
+		assertThat(factoryBean.isMatch(mockSnapshotEvent)).isFalse();
 
 		verify(mockSnapshotEvent, times(1)).isCacheSnapshotEvent();
 		verify(mockSnapshotEvent, times(1)).matches(ArgumentMatchers.<Region>isNull());
@@ -687,8 +695,8 @@ public class SnapshotServiceFactoryBeanTest {
 
 		factoryBean.setRegion(mock(Region.class, "MockRegion"));
 
-		assertThat(factoryBean.getRegion(), is(notNullValue()));
-		assertThat(factoryBean.isMatch(mockSnapshotEvent), is(true));
+		assertThat(factoryBean.getRegion()).isNotNull();
+		assertThat(factoryBean.isMatch(mockSnapshotEvent)).isTrue();
 
 		verify(mockSnapshotEvent, times(1)).isCacheSnapshotEvent();
 		verify(mockSnapshotEvent, never()).matches(any(Region.class));
@@ -707,8 +715,8 @@ public class SnapshotServiceFactoryBeanTest {
 
 		factoryBean.setRegion(mockRegion);
 
-		assertThat(factoryBean.getRegion(), is(sameInstance(mockRegion)));
-		assertThat(factoryBean.isMatch(mockSnapshotEvent), is(true));
+		assertThat(factoryBean.getRegion()).isSameAs(mockRegion);
+		assertThat(factoryBean.isMatch(mockSnapshotEvent)).isTrue();
 
 		verify(mockSnapshotEvent, times(1)).isCacheSnapshotEvent();
 		verify(mockSnapshotEvent, times(1)).matches(eq(mockRegion));
@@ -749,15 +757,14 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setImports(expectedImports);
 		factoryBean.setRegion(null);
 
-		assertThat(factoryBean.getObject(), is(nullValue()));
-		assertThat((Class<SnapshotServiceAdapter>) factoryBean.getObjectType(),
-			is(equalTo(SnapshotServiceAdapter.class)));
+		assertThat(factoryBean.getObject()).isNull();
+		assertThat((Class<SnapshotServiceAdapter>) factoryBean.getObjectType()).isEqualTo(SnapshotServiceAdapter.class);
 
 		factoryBean.afterPropertiesSet();
 
-		assertThat(factoryBean.getObject(), is(instanceOf(CacheSnapshotServiceAdapter.class)));
-		assertThat((Class<CacheSnapshotServiceAdapter>) factoryBean.getObjectType(),
-			is(equalTo(CacheSnapshotServiceAdapter.class)));
+		assertThat(factoryBean.getObject()).isInstanceOf(CacheSnapshotServiceAdapter.class);
+		assertThat((Class<CacheSnapshotServiceAdapter>) factoryBean.getObjectType())
+			.isEqualTo(CacheSnapshotServiceAdapter.class);
 
 		verify(mockCache, times(1)).getSnapshotService();
 		verify(mockCacheSnapshotService, times(2)).createOptions();
@@ -817,15 +824,14 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.setImports(expectedImports);
 		factoryBean.setRegion(mockRegion);
 
-		assertThat(factoryBean.getObject(), is(nullValue()));
-		assertThat((Class<SnapshotServiceAdapter>) factoryBean.getObjectType(),
-			is(equalTo(SnapshotServiceAdapter.class)));
+		assertThat(factoryBean.getObject()).isNull();
+		assertThat((Class<SnapshotServiceAdapter>) factoryBean.getObjectType()).isEqualTo(SnapshotServiceAdapter.class);
 
 		factoryBean.afterPropertiesSet();
 
-		assertThat(factoryBean.getObject(), is(instanceOf(RegionSnapshotServiceAdapter.class)));
-		assertThat((Class<RegionSnapshotServiceAdapter>) factoryBean.getObjectType(),
-			is(equalTo(RegionSnapshotServiceAdapter.class)));
+		assertThat(factoryBean.getObject()).isInstanceOf(RegionSnapshotServiceAdapter.class);
+		assertThat((Class<RegionSnapshotServiceAdapter>) factoryBean.getObjectType())
+			.isEqualTo(RegionSnapshotServiceAdapter.class);
 
 		verify(mockCache, never()).getSnapshotService();
 		verify(mockRegion, times(1)).getSnapshotService();
@@ -880,7 +886,7 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.afterPropertiesSet();
 		factoryBean.destroy();
 
-		assertThat(factoryBean.getObject(), is(instanceOf(CacheSnapshotServiceAdapter.class)));
+		assertThat(factoryBean.getObject()).isInstanceOf(CacheSnapshotServiceAdapter.class);
 
 		verify(mockCache, times(1)).getSnapshotService();
 		verify(mockCacheSnapshotService, times(2)).createOptions();
@@ -937,7 +943,7 @@ public class SnapshotServiceFactoryBeanTest {
 		factoryBean.afterPropertiesSet();
 		factoryBean.destroy();
 
-		assertThat(factoryBean.getObject(), is(instanceOf(RegionSnapshotServiceAdapter.class)));
+		assertThat(factoryBean.getObject()).isInstanceOf(RegionSnapshotServiceAdapter.class);
 
 		verify(mockCache, never()).getSnapshotService();
 		verify(mockRegion, times(1)).getSnapshotService();
@@ -980,7 +986,7 @@ public class SnapshotServiceFactoryBeanTest {
 		snapshotMetadata.setInvokeCallbacks(true);
 		snapshotMetadata.setParallel(true);
 
-		assertThat(snapshotService.createOptions(snapshotMetadata), is(equalTo(mockSnapshotOptions)));
+		assertThat(snapshotService.createOptions(snapshotMetadata)).isEqualTo(mockSnapshotOptions);
 
 		verify(mockSnapshotOptions, times(1)).invokeCallbacks(eq(true));
 		verify(mockSnapshotOptions, times(1)).setFilter(eq(mockSnapshotFilter));
@@ -992,7 +998,7 @@ public class SnapshotServiceFactoryBeanTest {
 
 		Closeable mockCloseable = mock(Closeable.class, "MockCloseable");
 
-		assertThat(new TestSnapshotServiceAdapter().exceptionSuppressingClose(mockCloseable), is(true));
+		assertThat(new TestSnapshotServiceAdapter().exceptionSuppressingClose(mockCloseable)).isTrue();
 
 		verify(mockCloseable, times(1)).close();
 	}
@@ -1004,7 +1010,7 @@ public class SnapshotServiceFactoryBeanTest {
 
 		doThrow(new IOException("TEST")).when(mockCloseable).close();
 
-		assertThat(new TestSnapshotServiceAdapter().exceptionSuppressingClose(mockCloseable), is(false));
+		assertThat(new TestSnapshotServiceAdapter().exceptionSuppressingClose(mockCloseable)).isFalse();
 
 		verify(mockCloseable, times(1)).close();
 	}
@@ -1058,14 +1064,14 @@ public class SnapshotServiceFactoryBeanTest {
 
 		TestSnapshotServiceAdapter snapshotService = new TestSnapshotServiceAdapter();
 
-		assertThat(snapshotService.toSimpleFilename(toPathname("path", "to", "file.ext")), is(equalTo("file.ext")));
-		assertThat(snapshotService.toSimpleFilename(toPathname("path", "to", "file   ")), is(equalTo("file")));
-		assertThat(snapshotService.toSimpleFilename(toPathname("  file.ext ")), is(equalTo("file.ext")));
-		assertThat(snapshotService.toSimpleFilename("  file.ext "), is(equalTo("file.ext")));
-		assertThat(snapshotService.toSimpleFilename(File.separator.concat(" ")), is(equalTo("")));
-		assertThat(snapshotService.toSimpleFilename("  "), is(equalTo("")));
-		assertThat(snapshotService.toSimpleFilename(""), is(equalTo("")));
-		assertThat(snapshotService.toSimpleFilename(null), is(nullValue()));
+		assertThat(snapshotService.toSimpleFilename(toPathname("path", "to", "file.ext"))).isEqualTo("file.ext");
+		assertThat(snapshotService.toSimpleFilename(toPathname("path", "to", "file   "))).isEqualTo("file");
+		assertThat(snapshotService.toSimpleFilename(toPathname("  file.ext "))).isEqualTo("file.ext");
+		assertThat(snapshotService.toSimpleFilename("  file.ext ")).isEqualTo("file.ext");
+		assertThat(snapshotService.toSimpleFilename(File.separator.concat(" "))).isEqualTo("");
+		assertThat(snapshotService.toSimpleFilename("  ")).isEqualTo("");
+		assertThat(snapshotService.toSimpleFilename("")).isEqualTo("");
+		assertThat(snapshotService.toSimpleFilename(null)).isNull();
 	}
 
 	@Test(expected = ImportSnapshotException.class)
@@ -1078,18 +1084,18 @@ public class SnapshotServiceFactoryBeanTest {
 
 		CacheSnapshotServiceAdapter adapter = new CacheSnapshotServiceAdapter(mockCacheSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockCacheSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockCacheSnapshotService);
 
 		try {
 			adapter.load(FileSystemUtils.WORKING_DIRECTORY, SnapshotFormat.GEMFIRE);
 		}
 		catch (ImportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
+			assertThat(expected.getMessage()).isEqualTo(String.format(
 				"Failed to load snapshots from directory [%1$s] in format [GEMFIRE]",
-					FileSystemUtils.WORKING_DIRECTORY))));
-			assertThat(expected.getCause(), is(instanceOf(IOException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+				FileSystemUtils.WORKING_DIRECTORY));
+			assertThat(expected.getCause()).isInstanceOf(IOException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1112,18 +1118,18 @@ public class SnapshotServiceFactoryBeanTest {
 
 		CacheSnapshotServiceAdapter adapter = new CacheSnapshotServiceAdapter(mockCacheSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockCacheSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockCacheSnapshotService);
 
 		try {
 			adapter.load(SnapshotFormat.GEMFIRE, mockSnapshotOptions, snapshotDat);
 		}
 		catch (ImportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
+			assertThat(expected.getMessage()).isEqualTo(String.format(
 				"Failed to load snapshots [%1$s] in format [GEMFIRE] using options [%2$s]",
-					Arrays.toString(new File[] { snapshotDat }), mockSnapshotOptions))));
-			assertThat(expected.getCause(), is(instanceOf(ClassCastException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+				Arrays.toString(new File[] { snapshotDat }), mockSnapshotOptions));
+			assertThat(expected.getCause()).isInstanceOf(ClassCastException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1143,18 +1149,18 @@ public class SnapshotServiceFactoryBeanTest {
 
 		CacheSnapshotServiceAdapter adapter = new CacheSnapshotServiceAdapter(mockCacheSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockCacheSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockCacheSnapshotService);
 
 		try {
 			adapter.save(FileSystemUtils.WORKING_DIRECTORY, SnapshotFormat.GEMFIRE);
 		}
 		catch (ExportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
+			assertThat(expected.getMessage()).isEqualTo(String.format(
 				"Failed to save snapshots to directory [%1$s] in format [GEMFIRE]",
-					FileSystemUtils.WORKING_DIRECTORY))));
-			assertThat(expected.getCause(), is(instanceOf(IOException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+				FileSystemUtils.WORKING_DIRECTORY));
+			assertThat(expected.getCause()).isInstanceOf(IOException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1177,18 +1183,18 @@ public class SnapshotServiceFactoryBeanTest {
 
 		CacheSnapshotServiceAdapter adapter = new CacheSnapshotServiceAdapter(mockCacheSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockCacheSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockCacheSnapshotService);
 
 		try {
 			adapter.save(FileSystemUtils.USER_HOME, SnapshotFormat.GEMFIRE, mockSnapshotOptions);
 		}
 		catch (ExportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
+			assertThat(expected.getMessage()).isEqualTo(String.format(
 				"Failed to save snapshots to directory [%1$s] in format [GEMFIRE] using options [%2$s]",
-					FileSystemUtils.USER_HOME, mockSnapshotOptions))));
-			assertThat(expected.getCause(), is(instanceOf(ClassCastException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+				FileSystemUtils.USER_HOME, mockSnapshotOptions));
+			assertThat(expected.getCause()).isInstanceOf(ClassCastException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1209,17 +1215,17 @@ public class SnapshotServiceFactoryBeanTest {
 
 		RegionSnapshotServiceAdapter adapter = new RegionSnapshotServiceAdapter(mockRegionSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockRegionSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockRegionSnapshotService);
 
 		try {
 			adapter.load(snapshotDat, SnapshotFormat.GEMFIRE);
 		}
 		catch (ImportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
-				"Failed to load snapshot from file [%1$s] in format [GEMFIRE]", snapshotDat))));
-			assertThat(expected.getCause(), is(instanceOf(IOException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+			assertThat(expected.getMessage()).isEqualTo(String.format(
+				"Failed to load snapshot from file [%1$s] in format [GEMFIRE]", snapshotDat));
+			assertThat(expected.getCause()).isInstanceOf(IOException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1241,18 +1247,18 @@ public class SnapshotServiceFactoryBeanTest {
 
 		RegionSnapshotServiceAdapter adapter = new RegionSnapshotServiceAdapter(mockRegionSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockRegionSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockRegionSnapshotService);
 
 		try {
 			adapter.load(SnapshotFormat.GEMFIRE, mockSnapshotOptions, snapshotDat);
 		}
 		catch (ImportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
+			assertThat(expected.getMessage()).isEqualTo(String.format(
 				"Failed to load snapshots [%1$s] in format [GEMFIRE] using options [%2$s]",
-					Arrays.toString(new File[] { snapshotDat }), mockSnapshotOptions))));
-			assertThat(expected.getCause(), is(instanceOf(ClassCastException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+				Arrays.toString(new File[] { snapshotDat }), mockSnapshotOptions));
+			assertThat(expected.getCause()).isInstanceOf(ClassCastException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1273,17 +1279,17 @@ public class SnapshotServiceFactoryBeanTest {
 
 		RegionSnapshotServiceAdapter adapter = new RegionSnapshotServiceAdapter(mockRegionSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockRegionSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockRegionSnapshotService);
 
 		try {
 			adapter.save(snapshotDat, SnapshotFormat.GEMFIRE);
 		}
 		catch (ExportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
-				"Failed to save snapshot to file [%1$s] in format [GEMFIRE]", snapshotDat))));
-			assertThat(expected.getCause(), is(instanceOf(IOException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+			assertThat(expected.getMessage()).isEqualTo(String.format(
+				"Failed to save snapshot to file [%1$s] in format [GEMFIRE]", snapshotDat));
+			assertThat(expected.getCause()).isInstanceOf(IOException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1306,18 +1312,18 @@ public class SnapshotServiceFactoryBeanTest {
 
 		RegionSnapshotServiceAdapter adapter = new RegionSnapshotServiceAdapter(mockRegionSnapshotService);
 
-		assertThat(adapter.getSnapshotService(), is(equalTo(mockRegionSnapshotService)));
+		assertThat(adapter.getSnapshotService()).isEqualTo(mockRegionSnapshotService);
 
 		try {
 			adapter.save(snapshotDat, SnapshotFormat.GEMFIRE, mockSnapshotOptions);
 		}
 		catch (ExportSnapshotException expected) {
 
-			assertThat(expected.getMessage(), is(equalTo(String.format(
+			assertThat(expected.getMessage()).isEqualTo(String.format(
 				"Failed to save snapshot to file [%1$s] in format [GEMFIRE] using options [%2$s]",
-					snapshotDat, mockSnapshotOptions))));
-			assertThat(expected.getCause(), is(instanceOf(ClassCastException.class)));
-			assertThat(expected.getCause().getMessage(), is(equalTo("TEST")));
+				snapshotDat, mockSnapshotOptions));
+			assertThat(expected.getCause()).isInstanceOf(ClassCastException.class);
+			assertThat(expected.getCause().getMessage()).isEqualTo("TEST");
 
 			throw expected;
 		}
@@ -1327,14 +1333,19 @@ public class SnapshotServiceFactoryBeanTest {
 		}
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void createSnapshotMetadataWithNullLocation() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Location is required");
+		try {
+			new SnapshotMetadata(null, SnapshotFormat.GEMFIRE, mock(SnapshotFilter.class));
+		}
+		catch (IllegalArgumentException expected) {
 
-		new SnapshotMetadata(null, SnapshotFormat.GEMFIRE, mock(SnapshotFilter.class));
+			assertThat(expected).hasMessage("Location is required");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
@@ -1342,13 +1353,13 @@ public class SnapshotServiceFactoryBeanTest {
 
 		SnapshotMetadata snapshotMetadata = new SnapshotMetadata(snapshotDat, SnapshotFormat.GEMFIRE, null);
 
-		assertThat(snapshotMetadata.getLocation(), is(equalTo(snapshotDat)));
-		assertThat(snapshotMetadata.isDirectory(), is(false));
-		assertThat(snapshotMetadata.isFile(), is(true));
-		assertThat(snapshotMetadata.getFormat(), is(equalTo(SnapshotFormat.GEMFIRE)));
-		assertThat(snapshotMetadata.isFilterPresent(), is(false));
-		assertThat(snapshotMetadata.getFilter(), is(nullValue()));
-		assertThat(snapshotMetadata.isParallel(), is(false));
+		assertThat(snapshotMetadata.getLocation()).isEqualTo(snapshotDat);
+		assertThat(snapshotMetadata.isDirectory()).isFalse();
+		assertThat(snapshotMetadata.isFile()).isTrue();
+		assertThat(snapshotMetadata.getFormat()).isEqualTo(SnapshotFormat.GEMFIRE);
+		assertThat(snapshotMetadata.isFilterPresent()).isFalse();
+		assertThat(snapshotMetadata.getFilter()).isNull();
+		assertThat(snapshotMetadata.isParallel()).isFalse();
 	}
 
 	@Test
@@ -1359,13 +1370,13 @@ public class SnapshotServiceFactoryBeanTest {
 		SnapshotMetadata snapshotMetadata =
 			new SnapshotMetadata(FileSystemUtils.WORKING_DIRECTORY, null, mockSnapshotFilter);
 
-		assertThat(snapshotMetadata.getLocation(), is(equalTo(FileSystemUtils.WORKING_DIRECTORY)));
-		assertThat(snapshotMetadata.isDirectory(), is(true));
-		assertThat(snapshotMetadata.isFile(), is(false));
-		assertThat(snapshotMetadata.getFormat(), is(equalTo(SnapshotFormat.GEMFIRE)));
-		assertThat(snapshotMetadata.isFilterPresent(), is(true));
-		assertThat(snapshotMetadata.getFilter(), is(equalTo(mockSnapshotFilter)));
-		assertThat(snapshotMetadata.isParallel(), is(false));
+		assertThat(snapshotMetadata.getLocation()).isEqualTo(FileSystemUtils.WORKING_DIRECTORY);
+		assertThat(snapshotMetadata.isDirectory()).isTrue();
+		assertThat(snapshotMetadata.isFile()).isFalse();
+		assertThat(snapshotMetadata.getFormat()).isEqualTo(SnapshotFormat.GEMFIRE);
+		assertThat(snapshotMetadata.isFilterPresent()).isTrue();
+		assertThat(snapshotMetadata.getFilter()).isEqualTo(mockSnapshotFilter);
+		assertThat(snapshotMetadata.isParallel()).isFalse();
 	}
 
 	@Test
@@ -1377,44 +1388,44 @@ public class SnapshotServiceFactoryBeanTest {
 		// JDK
 		if (!runtimeDotJar.isFile()) {
 			runtimeDotJar = new File(new File(new File(FileSystemUtils.JAVA_HOME, "jre"), "lib"), "rt.jar");
-			assumeThat(runtimeDotJar.isFile(), is(true));
+			assumeThat(runtimeDotJar.isFile()).isTrue();
 		}
 
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(runtimeDotJar), is(true));
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(runtimeDotJar)).isTrue();
 	}
 
 	@Test
 	public void isJarFileIsFalse() throws Exception {
 
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("/path/to/non-existing/file.jar")), is(false));
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new ClassPathResource("/cluster_config.zip").getFile()), is(false));
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("to/file.tar")), is(false));
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("jar.file")), is(false));
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("  ")), is(false));
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("")), is(false));
-		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(null), is(false));
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("/path/to/non-existing/file.jar"))).isFalse();
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new ClassPathResource("/cluster_config.zip").getFile())).isFalse();
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("to/file.tar"))).isFalse();
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("jar.file"))).isFalse();
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File("  "))).isFalse();
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(new File(""))).isFalse();
+		assertThat(ArchiveFileFilter.INSTANCE.isJarFile(null)).isFalse();
 	}
 
 	@Test
 	public void getFileExtensionOfVariousFiles() throws Exception {
 
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new ClassPathResource("/cluster_config.zip").getFile()), is(equalTo("zip")));
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("/path/to/non-existing/file.jar")), is(equalTo("")));
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("to/non-existing/file.tar")), is(equalTo("")));
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(FileSystemUtils.WORKING_DIRECTORY), is(equalTo("")));
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("  ")), is(equalTo("")));
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("")), is(equalTo("")));
-		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(null), is(equalTo("")));
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new ClassPathResource("/cluster_config.zip").getFile())).isEqualTo("zip");
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("/path/to/non-existing/file.jar"))).isEqualTo("");
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("to/non-existing/file.tar"))).isEqualTo("");
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(FileSystemUtils.WORKING_DIRECTORY)).isEqualTo("");
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File("  "))).isEqualTo("");
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(new File(""))).isEqualTo("");
+		assertThat(ArchiveFileFilter.INSTANCE.getFileExtension(null)).isEqualTo("");
 	}
 
 	@Test
 	public void archiveFileFilterAcceptsJarOrZipFile() throws Exception {
-		assertThat(ArchiveFileFilter.INSTANCE.accept(new ClassPathResource("/cluster_config.zip").getFile()), is(true));
+		assertThat(ArchiveFileFilter.INSTANCE.accept(new ClassPathResource("/cluster_config.zip").getFile())).isTrue();
 	}
 
 	@Test
 	public void archiveFileFilterRejectsTarFile() {
-		assertThat(ArchiveFileFilter.INSTANCE.accept(new File("/path/to/file.tar")), is(false));
+		assertThat(ArchiveFileFilter.INSTANCE.accept(new File("/path/to/file.tar"))).isFalse();
 	}
 
 	protected static class TestSnapshotServiceAdapter extends SnapshotServiceAdapterSupport<Object, Object> {

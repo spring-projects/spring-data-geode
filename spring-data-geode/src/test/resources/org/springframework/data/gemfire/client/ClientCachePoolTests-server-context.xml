@@ -22,7 +22,7 @@
 	<gfe:replicated-region id="Factorials" persistent="false" key-constraint="java.lang.Long"
 						   value-constraint="java.lang.Long">
 		<gfe:cache-loader>
-			<bean class="org.springframework.data.gemfire.client.ClientCachePoolTests$FactorialsClassLoader"/>
+			<bean class="org.springframework.data.gemfire.client.ClientCachePoolIntegrationTests$FactorialsClassLoader"/>
 		</gfe:cache-loader>
 	</gfe:replicated-region>
 

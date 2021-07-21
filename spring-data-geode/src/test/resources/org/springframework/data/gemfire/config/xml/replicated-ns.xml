@@ -67,7 +67,7 @@
 		<gfe:compressor ref="testCompressor"/>
 	</gfe:replicated-region>
 
-	<bean id="testCompressor" class="org.springframework.data.gemfire.config.xml.ReplicatedRegionNamespaceTest$TestCompressor" p:name="XYZ"/>
+	<bean id="testCompressor" class="org.springframework.data.gemfire.config.xml.ReplicatedRegionNamespaceIntegrationTests$TestCompressor" p:name="XYZ"/>
 
 	<gfe:lookup-region id="lookup" name="existing"/>
 

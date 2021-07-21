@@ -24,12 +24,12 @@ import javax.cache.annotation.CacheDefaults;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;

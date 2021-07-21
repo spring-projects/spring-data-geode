@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,35 +24,38 @@ import static org.springframework.data.gemfire.config.annotation.EnableExpiratio
 
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.CustomExpiry;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
-import org.junit.After;
-import org.junit.Test;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpirationActionType;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
 /**
- * Unit tests for the {@link EnableExpiration} annotation and {@link ExpirationConfiguration} class.
+ * Unit Tests for the {@link EnableExpiration} annotation and {@link ExpirationConfiguration} class.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
- * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration
  * @see org.apache.geode.cache.CustomExpiry
  * @see org.apache.geode.cache.ExpirationAttributes
+ * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
+ * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
+ * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 public class EnableExpirationConfigurationUnitTests {
@@ -106,8 +108,7 @@ public class EnableExpirationConfigurationUnitTests {
 		assertExpiration(customExpiry.getExpiry(regionEntry), expectedExpirationAttributes);
 	}
 
-	@SuppressWarnings({ "unchecked", "unused" })
-	private <K, V> void assertExpiration(ExpirationAttributes actualExpirationAttributes,
+	private void assertExpiration(ExpirationAttributes actualExpirationAttributes,
 			ExpirationAttributes expectedExpirationAttributes) {
 
 		assertThat(actualExpirationAttributes).isEqualTo(expectedExpirationAttributes);
@@ -131,7 +132,7 @@ public class EnableExpirationConfigurationUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesDefaultExpirationPolicyConfiguration() {
 
 		this.applicationContext = newApplicationContext(DefaultExpirationPolicyConfiguration.class);
@@ -148,7 +149,7 @@ public class EnableExpirationConfigurationUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesCustomIdleTimeoutExpirationPolicyConfiguration() {
 
 		this.applicationContext = newApplicationContext(CustomIdleTimeoutExpirationPolicyConfiguration.class);
@@ -166,7 +167,7 @@ public class EnableExpirationConfigurationUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesCustomTimeToLiveExpirationPolicyConfiguration() {
 
 		this.applicationContext = newApplicationContext(CustomTimeToLiveTimeoutExpirationPolicyConfiguration.class);
@@ -184,7 +185,7 @@ public class EnableExpirationConfigurationUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesRegionSpecificExpirationPolicyConfiguration() {
 
 		this.applicationContext = newApplicationContext(RegionSpecificExpirationPolicyConfiguration.class);
@@ -203,7 +204,7 @@ public class EnableExpirationConfigurationUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesMixedExpirationPolicyConfiguration() {
 
 		this.applicationContext = newApplicationContext(MixedExpirationPolicyConfiguration.class);

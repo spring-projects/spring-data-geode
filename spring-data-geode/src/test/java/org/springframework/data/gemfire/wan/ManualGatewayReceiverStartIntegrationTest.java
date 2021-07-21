@@ -15,10 +15,7 @@
  */
 package org.springframework.data.gemfire.wan;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
@@ -29,24 +26,26 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
 
-import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The ManualGatewayReceiverStartIntegrationTest class is a test suite of test cases testing the manual start capability
- * of Gateway Receivers when configured with the Spring Data GemFire XML namespace.
+ * Integration Tests with test cases testing the manual start capability of {@link GatewayReceiver GatewayReceivers}
+ * when configured with SDG XML namespace configuration metadata.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
- * @see org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer
+ * @see org.apache.geode.cache.wan.GatewayReceiver
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.5.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(initializers = GemfireTestApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class ManualGatewayReceiverStartIntegrationTest {
 
@@ -56,19 +55,22 @@ public class ManualGatewayReceiverStartIntegrationTest {
 	@Resource(name = "Manual")
 	private GatewayReceiver manualGatewayReceiver;
 
-	protected void assertGreaterThanEqualToLessThanEqualTo(String message,
+	private void assertGreaterThanEqualToLessThanEqualTo(String message,
 			int actualValue, int lowerBound, int upperBound) {
 
-		assertTrue(message, actualValue >= lowerBound && actualValue <= upperBound);
+		assertThat(actualValue >= lowerBound && actualValue <= upperBound).as(message).isTrue();
 	}
 
 	@Test
 	public void testAutoGatewayReceiver() {
 
-		assertNotNull("The 'Auto' GatewayReceiver was not properly configured or initialized!", autoGatewayReceiver);
-		assertTrue(autoGatewayReceiver.isRunning());
-		assertEquals(7070, autoGatewayReceiver.getStartPort());
-		assertEquals(7700, autoGatewayReceiver.getEndPort());
+		assertThat(autoGatewayReceiver)
+			.describedAs("The 'Auto' GatewayReceiver was not properly configured or initialized!")
+			.isNotNull();
+
+		assertThat(autoGatewayReceiver.isRunning()).isTrue();
+		assertThat(autoGatewayReceiver.getStartPort()).isEqualTo(7070);
+		assertThat(autoGatewayReceiver.getEndPort()).isEqualTo(7700);
 
 		int gatewayReceiverPort = autoGatewayReceiver.getPort();
 
@@ -79,20 +81,23 @@ public class ManualGatewayReceiverStartIntegrationTest {
 
 		autoGatewayReceiver.stop();
 
-		assertFalse(autoGatewayReceiver.isRunning());
+		assertThat(autoGatewayReceiver.isRunning()).isFalse();
 	}
 
 	@Test
 	public void testManualGatewayReceiverConfiguration() throws IOException {
 
-		assertNotNull("The 'Manual' GatewayReceiver was not properly configured or initialized!", manualGatewayReceiver);
-		assertFalse(manualGatewayReceiver.isRunning());
-		assertEquals(6060, manualGatewayReceiver.getStartPort());
-		assertEquals(6600, manualGatewayReceiver.getEndPort());
+		assertThat(manualGatewayReceiver)
+			.describedAs("The 'Manual' GatewayReceiver was not properly configured or initialized!")
+			.isNotNull();
+
+		assertThat(manualGatewayReceiver.isRunning()).isFalse();
+		assertThat(manualGatewayReceiver.getStartPort()).isEqualTo(6060);
+		assertThat(manualGatewayReceiver.getEndPort()).isEqualTo(6600);
 
 		manualGatewayReceiver.start();
 
-		assertTrue(manualGatewayReceiver.isRunning());
+		assertThat(manualGatewayReceiver.isRunning()).isTrue();
 
 		int gatewayReceiverPort = manualGatewayReceiver.getPort();
 
@@ -103,6 +108,6 @@ public class ManualGatewayReceiverStartIntegrationTest {
 
 		manualGatewayReceiver.stop();
 
-		assertFalse(manualGatewayReceiver.isRunning());
+		assertThat(manualGatewayReceiver.isRunning()).isFalse();
 	}
 }

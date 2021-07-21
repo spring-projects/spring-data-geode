@@ -18,6 +18,7 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Scanner;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,8 +32,8 @@ import org.apache.geode.cache.server.CacheServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.gemfire.GemFireProperties;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -44,6 +45,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.server.CacheServer
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.2.0
  */
@@ -51,7 +54,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = PeerCacheApplicationWithAddedCacheServerIntegrationTests.TestPeerCacheConfiguration.class)
 @SuppressWarnings("unused")
 // TODO: Convert to Unit Test once STDG is used by SDG.
-public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
+		extends ForkingClientServerIntegrationTestsSupport {
 
 	private static int cacheServerPort;
 	private static int locatorPort;
@@ -80,12 +84,7 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 
 	@AfterClass
 	public static void stopGemFireLocator() {
-
 		stop(gemfireLocator);
-
-		System.getProperties().stringPropertyNames().stream()
-			.filter(propertyName -> propertyName.startsWith("spring.data.gemfire."))
-			.forEach(System::clearProperty);
 	}
 
 	@Autowired
@@ -128,7 +127,7 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 
 			applicationContext.registerShutdownHook();
 
-			block();
+			new Scanner(System.in).nextLine();
 		}
 	}
 

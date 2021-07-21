@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 import static org.junit.Assert.assertEquals;
@@ -28,38 +27,37 @@ import org.apache.geode.cache.server.ClientSubscriptionConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
 
 /**
- * The CacheServerNamespaceTest class is a test suite of test cases testing the functionality of the SDG XML namespace
- * when configuring a GemFire Cache Servers and Client Subscription.
+ * Integration Tests for the {@link CacheServer} SDG XML namespace configuration metadata.
  *
  * @author Costin Leau
  * @author David Turanski
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.data.gemfire.test.GemfireTestApplicationContextInitializer
+ * @see org.apache.geode.cache.server.CacheServer
  * @see org.springframework.context.ApplicationContext
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
- * @see org.apache.geode.cache.server.CacheServer
- * @see org.apache.geode.cache.server.ClientSubscriptionConfig
  */
-@ContextConfiguration(locations="server-ns.xml", initializers=GemfireTestApplicationContextInitializer.class)
+@ContextConfiguration(locations="server-ns.xml", initializers= GemFireMockObjectsApplicationContextInitializer.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 @SuppressWarnings("unused")
 public class CacheServerNamespaceTest {
 
 	@Autowired
-	private ApplicationContext context;
+	private ApplicationContext applicationContext;
 
 	@Test
 	@SuppressWarnings("deprecation")
-	public void testBasicCacheServer() throws Exception {
-		CacheServer cacheServer = context.getBean("advanced-config", CacheServer.class);
+	public void testBasicCacheServer() {
+
+		CacheServer cacheServer = applicationContext.getBean("advanced-config", CacheServer.class);
 
 		assertNotNull(cacheServer);
 		assertEquals(1, cacheServer.getGroups().length);
@@ -67,7 +65,7 @@ public class CacheServerNamespaceTest {
 		assertTrue(cacheServer.getPort() != 0);
 		assertEquals("localhost", cacheServer.getHostnameForClients());
 		assertEquals("test-server", cacheServer.getGroups()[0]);
-		assertEquals(2000l, cacheServer.getLoadPollInterval());
+		assertEquals(2000L, cacheServer.getLoadPollInterval());
 		assertEquals(22, cacheServer.getMaxConnections());
 		assertEquals(16, cacheServer.getMaxThreads());
 		assertEquals(1000, cacheServer.getMaximumMessageCount());
@@ -82,5 +80,4 @@ public class CacheServerNamespaceTest {
 		assertTrue(String.format("Expected empty DiskStoreName; but was (%1$s)", clientSubscriptionConfig.getDiskStoreName()),
 			StringUtils.isEmpty(clientSubscriptionConfig.getDiskStoreName()));
 	}
-
 }

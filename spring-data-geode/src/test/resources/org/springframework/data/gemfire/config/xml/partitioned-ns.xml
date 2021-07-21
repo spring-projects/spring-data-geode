@@ -45,13 +45,13 @@
 		<gfe:cache-loader ref="c-loader"/>
 		<gfe:cache-writer ref="c-writer"/>
 		<gfe:partition-listener>
-			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceTest.TestPartitionListener"/>
+			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceIntegrationTests.TestPartitionListener"/>
 		</gfe:partition-listener>
 	</gfe:partitioned-region>
 
 	<gfe:partitioned-region id="compressed" persistent="false">
 		<gfe:compressor>
-			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceTest$TestCompressor" p:name="testCompressor"/>
+			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceIntegrationTests$TestCompressor" p:name="testCompressor"/>
 		</gfe:compressor>
 	</gfe:partitioned-region>
 
@@ -63,9 +63,9 @@
 
 	<gfe:partitioned-region id="listeners" persistent="false">
 		<gfe:partition-listener>
-			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceTest$TestPartitionListener" p:name="X"/>
-			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceTest$TestPartitionListener" p:name="Y"/>
-			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceTest$TestPartitionListener" p:name="Z"/>
+			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceIntegrationTests$TestPartitionListener" p:name="X"/>
+			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceIntegrationTests$TestPartitionListener" p:name="Y"/>
+			<bean class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceIntegrationTests$TestPartitionListener" p:name="Z"/>
 			<ref bean="p-listener"/>
 		</gfe:partition-listener>
 	</gfe:partitioned-region>
@@ -75,7 +75,7 @@
 	</gfe:partitioned-region>
 
 	<bean id="c-listener" class="org.springframework.data.gemfire.SimpleCacheListener"/>
-	<bean id="p-listener" class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceTest$TestPartitionListener" p:name="ABC"/>
+	<bean id="p-listener" class="org.springframework.data.gemfire.config.xml.PartitionedRegionNamespaceIntegrationTests$TestPartitionListener" p:name="ABC"/>
 	<bean id="c-loader" class="org.springframework.data.gemfire.SimpleCacheLoader"/>
 	<bean id="c-writer" class="org.springframework.data.gemfire.SimpleCacheWriter"/>
 

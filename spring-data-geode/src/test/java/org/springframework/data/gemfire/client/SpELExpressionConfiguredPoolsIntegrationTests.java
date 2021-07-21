@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,31 +38,33 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
-import org.springframework.data.gemfire.test.mock.GemFireMockObjectsSupport;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests that test the use of property placeholders in nested &lt;gfe:locator&gt; and &lt;gfe:server&gt;
+ * Integration Tests that test the use of property placeholders in nested &lt;gfe:locator&gt; and &lt;gfe:server&gt;
  * elements of the SDG XML namespace &lt;gfe:pool&gt; element along with testing property placeholders in
  * the &lt;gfe:pool&gt; element <code>locators</code> and <code>servers</code> attributes.
  *
  * @author John Blum
+ * @see java.util.Properties
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.client.PoolFactory
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringRunner
  * @see org.springframework.data.gemfire.client.PoolFactoryBean
  * @see org.springframework.data.gemfire.config.xml.PoolParser
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://jira.spring.io/browse/SGF-433">SGF-433</a>
  * @since 1.6.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class SpELExpressionConfiguredPoolsIntegrationTests {
+public class SpELExpressionConfiguredPoolsIntegrationTests extends IntegrationTestsSupport {
 
 	private static final ConnectionEndpointList anotherLocators = new ConnectionEndpointList();
 	private static final ConnectionEndpointList anotherServers = new ConnectionEndpointList();

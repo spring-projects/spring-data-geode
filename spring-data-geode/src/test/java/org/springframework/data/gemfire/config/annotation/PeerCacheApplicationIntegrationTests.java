@@ -21,14 +21,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;

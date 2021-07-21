@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,59 +30,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.ServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for a GemFire DataSource.
+ * Integration Tests for an Apache Geode DataSource.
  *
  * @author David Turanski
  * @author John Blum
+ * @see org.junit.Test
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
 // TODO: merge with o.s.d.g.client.GemfireDataSourceIntegrationTest
-public class GemFireDataSourceIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
-
-	@Autowired
-	private ApplicationContext applicationContext;
-
-	@BeforeClass
-	public static void setGemFireLogLevel() {
-		System.setProperty("gemfire.log-level", "error");
-	}
-
-	@AfterClass
-	public static void unsetGemFireLogLevel() {
-		System.clearProperty("gemfire.log-level");
-	}
+public class GemFireDataSourceIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(GemFireDataSourceIntegrationTests.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
 	}
 
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
-	}
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	private void assertRegion(Region<?, ?> region, String name, DataPolicy dataPolicy) {
 		assertRegion(region, name, GemfireUtils.toRegionPath("simple"), dataPolicy);

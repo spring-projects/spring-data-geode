@@ -48,7 +48,7 @@ import org.apache.geode.cache.query.QueryService;
 import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationTestsWithMockSupport;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
  * Unit Tests for {@link GemfireTemplate}
@@ -66,11 +66,11 @@ import org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationT
  * @see org.apache.geode.cache.query.QueryService
  * @see org.apache.geode.cache.query.SelectResults
  * @see org.springframework.data.gemfire.GemfireTemplate
- * @see org.springframework.data.gemfire.test.support.AbstractUnitAndIntegrationTestsWithMockSupport
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  */
 @SuppressWarnings("unused")
 @RunWith(MockitoJUnitRunner.class)
-public class GemfireTemplateUnitTests extends AbstractUnitAndIntegrationTestsWithMockSupport {
+public class GemfireTemplateUnitTests extends IntegrationTestsSupport {
 
 	private GemfireTemplate template;
 

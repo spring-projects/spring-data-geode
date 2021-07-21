@@ -47,7 +47,7 @@
 
 	<gfe:local-region id="Compressed" persistent="false">
 		<gfe:compressor>
-			<bean class="org.springframework.data.gemfire.config.xml.LocalRegionNamespaceTest$TestCompressor" p:name="ABC"/>
+			<bean class="org.springframework.data.gemfire.config.xml.LocalRegionNamespaceIntegrationTests$TestCompressor" p:name="ABC"/>
 		</gfe:compressor>
 	</gfe:local-region>
 

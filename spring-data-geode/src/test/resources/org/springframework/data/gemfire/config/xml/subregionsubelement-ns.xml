@@ -21,7 +21,7 @@
 			<gfe:async-event-queue name="testQueue" maximum-queue-memory="50" parallel="false" dispatcher-threads="4"
 								   order-policy="KEY">
 				<gfe:async-event-listener>
-					<bean class="org.springframework.data.gemfire.config.xml.SubRegionSubElementNamespaceTest.TestNoOpAsyncEventListener"/>
+					<bean class="org.springframework.data.gemfire.config.xml.SubRegionSubElementNamespaceIntegrationTests.TestNoOpAsyncEventListener"/>
 				</gfe:async-event-listener>
 			</gfe:async-event-queue>
 		</gfe:replicated-region>
@@ -30,7 +30,7 @@
 	<gfe:replicated-region id="Customers" persistent="false">
 		<gfe:replicated-region name="Accounts" persistent="false">
 			<gfe:cache-listener>
-				<bean class="org.springframework.data.gemfire.config.xml.SubRegionSubElementNamespaceTest.TestNoOpCacheListener"/>
+				<bean class="org.springframework.data.gemfire.config.xml.SubRegionSubElementNamespaceIntegrationTests.TestNoOpCacheListener"/>
 			</gfe:cache-listener>
 		</gfe:replicated-region>
 	</gfe:replicated-region>

@@ -56,10 +56,10 @@
 
 	<gfe:client-region id="loadWithWrite" name="LoadedFullOfWrites" shortcut="LOCAL">
 		<gfe:cache-loader>
-			<bean class="org.springframework.data.gemfire.config.xml.ClientRegionNamespaceTest$TestCacheLoader"/>
+			<bean class="org.springframework.data.gemfire.config.xml.ClientRegionNamespaceTests$TestCacheLoader"/>
 		</gfe:cache-loader>
 		<gfe:cache-writer>
-			<bean class="org.springframework.data.gemfire.config.xml.ClientRegionNamespaceTest$TestCacheWriter"/>
+			<bean class="org.springframework.data.gemfire.config.xml.ClientRegionNamespaceTests$TestCacheWriter"/>
 		</gfe:cache-writer>
 	</gfe:client-region>
 
@@ -92,6 +92,6 @@
 	</gfe:client-region>
 
 	<bean id="c-listener" class="org.springframework.data.gemfire.SimpleCacheListener"/>
-	<bean id="testCompressor" class="org.springframework.data.gemfire.config.xml.ClientRegionNamespaceTest$TestCompressor" p:name="STD"/>
+	<bean id="testCompressor" class="org.springframework.data.gemfire.config.xml.ClientRegionNamespaceTests$TestCompressor" p:name="STD"/>
 
 </beans>

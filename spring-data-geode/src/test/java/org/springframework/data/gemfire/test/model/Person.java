@@ -27,7 +27,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.gemfire.mapping.annotation.Indexed;
 import org.springframework.data.gemfire.mapping.annotation.Region;
-import org.springframework.data.gemfire.test.support.IdentifierSequence;
+import org.springframework.data.gemfire.tests.support.IdentifierSequence;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;

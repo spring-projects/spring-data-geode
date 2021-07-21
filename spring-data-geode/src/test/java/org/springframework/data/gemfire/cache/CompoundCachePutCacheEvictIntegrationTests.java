@@ -47,7 +47,7 @@ import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
-import org.springframework.data.gemfire.test.support.IdentifierSequence;
+import org.springframework.data.gemfire.tests.support.IdentifierSequence;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;

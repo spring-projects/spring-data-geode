@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,12 +30,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
-import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for {@link CacheServerConfigurer}.
+ * Integration Tests for {@link CacheServerConfigurer}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -47,6 +47,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.EnableCacheServer
  * @see org.springframework.data.gemfire.config.annotation.EnableCacheServers
  * @see org.springframework.data.gemfire.server.CacheServerFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.1.0
@@ -54,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class CacheServerConfigurerIntegrationTests {
+public class CacheServerConfigurerIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	@Qualifier("configurerOne")
@@ -94,8 +96,8 @@ public class CacheServerConfigurerIntegrationTests {
 	static class TestConfiguration {
 
 		@Bean
-		GemfireTestBeanPostProcessor testBeanPostProcessor() {
-			return new GemfireTestBeanPostProcessor();
+		GemFireMockObjectsBeanPostProcessor testBeanPostProcessor() {
+			return new GemFireMockObjectsBeanPostProcessor();
 		}
 
 		@Bean

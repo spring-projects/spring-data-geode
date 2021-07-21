@@ -22,12 +22,12 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-
-import org.junit.Test;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.type.AnnotationMetadata;

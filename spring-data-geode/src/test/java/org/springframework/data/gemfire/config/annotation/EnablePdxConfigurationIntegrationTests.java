@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,12 +20,12 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.pdx.PdxSerializer;
-
-import org.junit.After;
-import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -38,15 +37,23 @@ import org.springframework.data.gemfire.DiskStoreFactoryBean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
- * The EnablePdxConfigurationIntegrationTests class...
+ * Integration Tests for {@link EnablePdx} and {@link PdxConfiguration}.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.pdx.PdxSerializer
+ * @see org.springframework.data.gemfire.config.annotation.EnablePdx
+ * @see org.springframework.data.gemfire.config.annotation.PdxConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @since 1.9.0
  */
-public class EnablePdxConfigurationIntegrationTests {
+public class EnablePdxConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ConfigurableApplicationContext applicationContext;

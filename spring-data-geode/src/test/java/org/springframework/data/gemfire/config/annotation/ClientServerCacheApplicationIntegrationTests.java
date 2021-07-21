@@ -14,12 +14,15 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheLoader;
@@ -29,56 +32,38 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Test suite of test cases testing the contract and functionality of the {@link CacheServerApplication}
- * and {@link ClientCacheApplication} SDG annotations for configuring and bootstrapping a Pivotal GemFire
- * or Apache Geode client/server topology
+ * Integration Tests testing the contract and functionality of the {@link CacheServerApplication}
+ * and {@link ClientCacheApplication} SDG annotations for configuring and bootstrapping an Apache Geode
+ * client/server topology
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.data.gemfire.config.annotation.CacheServerApplication
- * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringRunner
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.server.CacheServer
+ * @see org.springframework.data.gemfire.config.annotation.CacheServerApplication
+ * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.9.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ClientServerCacheApplicationIntegrationTests.ClientTestConfiguration.class)
 @SuppressWarnings("all")
-public class ClientServerCacheApplicationIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static final int PORT = 12480;
-
-	private static ProcessWrapper gemfireServerProcess;
+public class ClientServerCacheApplicationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
-
-		gemfireServerProcess = run(ServerTestConfiguration.class, String.format("-Dgemfire.name=%1$s",
-			asApplicationName(ClientServerCacheApplicationIntegrationTests.class)));
-
-		waitForServerToStart("localhost", PORT);
-	}
-
-	@AfterClass
-	public static void tearDownGemFireServer() {
-		stop(gemfireServerProcess);
+		startGemFireServer(ServerTestConfiguration.class);
 	}
 
 	@Autowired
@@ -93,7 +78,7 @@ public class ClientServerCacheApplicationIntegrationTests extends ClientServerIn
 		assertThat(echo.get("Test")).isEqualTo("Test");
 	}
 
-	@ClientCacheApplication(logLevel = TEST_GEMFIRE_LOG_LEVEL, servers = { @ClientCacheApplication.Server(port = PORT)})
+	@ClientCacheApplication
 	static class ClientTestConfiguration {
 
 		@Bean(name = "Echo")
@@ -109,8 +94,7 @@ public class ClientServerCacheApplicationIntegrationTests extends ClientServerIn
 		}
 	}
 
-	@CacheServerApplication(name = "ClientServerCacheApplicationIntegrationTests",
-		logLevel = TEST_GEMFIRE_LOG_LEVEL, port = PORT)
+	@CacheServerApplication(name = "ClientServerCacheApplicationIntegrationTests")
 	public static class ServerTestConfiguration {
 
 		public static void main(String[] args) {

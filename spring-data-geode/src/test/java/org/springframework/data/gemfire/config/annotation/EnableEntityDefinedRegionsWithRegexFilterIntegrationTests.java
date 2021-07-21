@@ -43,7 +43,8 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.data.gemfire.repository.sample.Account;
 import org.springframework.data.gemfire.repository.sample.Programmer;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -54,10 +55,10 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see java.util.regex.Pattern
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
- * @see org.springframework.context.ApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.EntityDefinedRegionsConfiguration
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.4.0
@@ -65,7 +66,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class EnableEntityDefinedRegionsWithRegexFilterIntegrationTests {
+public class EnableEntityDefinedRegionsWithRegexFilterIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;

@@ -24,18 +24,19 @@ import java.util.Arrays;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.InterestResultPolicy;
-import org.apache.geode.cache.Region;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.InterestResultPolicy;
+import org.apache.geode.cache.Region;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.client.Interest;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,10 +50,10 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
  * @see org.springframework.cache.annotation.Cacheable
- * @see org.springframework.context.Lifecycle
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
- * @see org.springframework.data.gemfire.client.Interest
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://jira.spring.io/browse/DATAGEODE-219">DATAGEODE-219</a>
@@ -60,8 +61,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-@SuppressWarnings({ "unchecked", "unused" })
-public class CachingDefinedRegionsRegistersInterestsIntegrationTests {
+@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
+public class CachingDefinedRegionsRegistersInterestsIntegrationTests extends IntegrationTestsSupport {
 
 	private static final Interest testInterest =
 		new Interest<>("TestKey", InterestResultPolicy.KEYS_VALUES, false, true);
@@ -80,11 +81,10 @@ public class CachingDefinedRegionsRegistersInterestsIntegrationTests {
 		assertThat(this.cacheTwo).isNotNull();
 		assertThat(this.cacheTwo.getName()).isEqualTo("CacheTwo");
 
-		Arrays.asList(this.cacheOne, this.cacheTwo).forEach(cache -> {
+		Arrays.asList(this.cacheOne, this.cacheTwo).forEach(cache ->
 			verify(cache, times(1))
 				.registerInterest(eq(testInterest.getKey()), eq(testInterest.getPolicy()), eq(testInterest.isDurable()),
-					eq(testInterest.isReceiveValues()));
-		});
+					eq(testInterest.isReceiveValues())));
 	}
 
 	@ClientCacheApplication

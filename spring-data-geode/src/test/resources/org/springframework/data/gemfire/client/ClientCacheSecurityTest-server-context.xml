@@ -46,7 +46,7 @@
 
 	<gfe:replicated-region id="Example" persistent="false">
 		<gfe:cache-loader>
-			<bean class="org.springframework.data.gemfire.client.ClientCacheSecurityTest$TestCacheLoader"/>
+			<bean class="org.springframework.data.gemfire.client.ClientCacheSecurityIntegrationTests$TestCacheLoader"/>
 		</gfe:cache-loader>
 	</gfe:replicated-region>
 

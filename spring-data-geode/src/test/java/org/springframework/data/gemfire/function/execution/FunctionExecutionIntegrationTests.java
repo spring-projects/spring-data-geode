@@ -14,13 +14,13 @@ package org.springframework.data.gemfire.function.execution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
@@ -30,44 +30,32 @@ import org.apache.geode.cache.client.Pool;
 import org.springframework.data.gemfire.client.PoolResolver;
 import org.springframework.data.gemfire.client.support.PoolManagerPoolResolver;
 import org.springframework.data.gemfire.fork.FunctionCacheServerProcess;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.util.SpringUtils;
 
 /**
+ * Integration Tests for SDG Function support.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  */
-public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static int availablePort;
-
-	private static ProcessWrapper gemfireServer;
+public class FunctionExecutionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private ClientCache gemfireCache = null;
 
 	private Pool gemfirePool = null;
 
-	private PoolResolver poolResolver = new PoolManagerPoolResolver();
+	private final PoolResolver poolResolver = new PoolManagerPoolResolver();
 
 	private Region<String, String> gemfireRegion = null;
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		availablePort = findAvailablePort();
-
-		gemfireServer = run(FunctionCacheServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
+		startGemFireServer(FunctionCacheServerProcess.class);
 	}
 
 	@Before
@@ -77,7 +65,7 @@ public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTe
 			.set("name", FunctionExecutionIntegrationTests.class.getSimpleName())
 			.set("log-level", "error")
 			.setPoolSubscriptionEnabled(true)
-			.addPoolServer("localhost", availablePort)
+			.addPoolServer("localhost", Integer.getInteger(GEMFIRE_POOL_SERVERS_PROPERTY))
 			.create();
 
 		assertThat(this.gemfireCache).isNotNull();
@@ -97,14 +85,7 @@ public class FunctionExecutionIntegrationTests extends ClientServerIntegrationTe
 
 	@After
 	public void tearDownGemFireClient() {
-
-		if (this.gemfireCache != null) {
-			try {
-				this.gemfireCache.close();
-			}
-			catch (CacheClosedException ignore) {
-			}
-		}
+		Optional.ofNullable(this.gemfireCache).ifPresent(cache -> SpringUtils.safeDoOperation(() -> cache.close()));
 	}
 
 	@Test

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import java.io.BufferedReader;
@@ -27,36 +26,36 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.fork.FunctionCacheServerProcess;
-import org.springframework.data.gemfire.test.support.IOUtils;
-import org.springframework.data.gemfire.test.support.ThreadUtils;
+import org.springframework.data.gemfire.tests.process.ProcessExecutor;
+import org.springframework.data.gemfire.tests.util.IOUtils;
+import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.util.StringUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class used to fork Java, JVM processes.
  *
  * @author Costin Leau
  * @author John Blum
- * @deprecated ForkUtils has serious design flaws; please use ProcessExecutor instead
+ * @deprecated {@link ForkUtil} has serious design flaws; please use {@link ProcessExecutor} from STDG instead
  */
 @Deprecated
 public class ForkUtil {
 
 	private static final long TIMEOUT = 30000L;
 
-	@SuppressWarnings("all")
 	private static final Logger logger = LoggerFactory.getLogger(ForkUtil.class);
 
 	private static OutputStream processStandardInStream;
 
-	private static String JAVA_CLASSPATH = System.getProperty("java.class.path");
-	private static String JAVA_HOME = System.getProperty("java.home");
-	private static String JAVA_EXE = JAVA_HOME.concat(File.separator).concat("bin").concat(File.separator).concat("java");
-	private static String TEMP_DIRECTORY = System.getProperty("java.io.tmpdir");
+	private static final String JAVA_CLASSPATH = System.getProperty("java.class.path");
+	private static final String JAVA_HOME = System.getProperty("java.home");
+	private static final String JAVA_EXE = JAVA_HOME.concat(File.separator).concat("bin").concat(File.separator).concat("java");
+	private static final String TEMP_DIRECTORY = System.getProperty("java.io.tmpdir");
 
 	private static List<String> buildJavaCommand(String arguments) {
 		return buildJavaCommand(arguments.split("\\s+"));
@@ -136,7 +135,9 @@ public class ForkUtil {
 	}
 
 	private static void registerShutdownHook(AtomicBoolean runCondition, Process javaProcess) {
+
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+
 			runCondition.set(false);
 			processStandardInStream = null;
 
@@ -167,6 +168,7 @@ public class ForkUtil {
 	}
 
 	protected static OutputStream startGemFireProcess(String args, String processName) {
+
 		String className = args.split(" ")[0];
 
 		if (controlFileExists(className)) {
@@ -189,6 +191,7 @@ public class ForkUtil {
 	}
 
 	public static void sendSignal() {
+
 		try {
 			processStandardInStream.write("\n".getBytes());
 			processStandardInStream.flush();

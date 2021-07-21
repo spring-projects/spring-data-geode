@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,17 +21,16 @@ import static org.springframework.data.gemfire.config.annotation.TestSecurityMan
 
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -41,38 +39,28 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.mock.env.MockPropertySource;
 
 /**
- * The AutoConfiguredAuthenticationConfigurationIntegrationTests class...
+ * Integration Tests for auto-configured authentication configuration.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @since 1.9.0
  */
 @SuppressWarnings("unused")
-public class AutoConfiguredAuthenticationConfigurationIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static final int PORT = 42124;
-
-	private static ProcessWrapper gemfireServerProcess;
+public class AutoConfiguredAuthenticationConfigurationIntegrationTests
+		extends ForkingClientServerIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
-
-		gemfireServerProcess = run(TestGemFireServerConfiguration.class, String.format("-Dgemfire.name=%1$s",
-			asApplicationName(AutoConfiguredAuthenticationConfigurationIntegrationTests.class)));
-
-		Optional.ofNullable(gemfireServerProcess)
-			.ifPresent(server -> waitForServerToStart("localhost", PORT));
-	}
-
-	@AfterClass
-	public static void tearDownGemFireServer() {
-		stop(gemfireServerProcess);
+		startGemFireServer(TestGemFireServerConfiguration.class);
 	}
 
 	@After
@@ -116,8 +104,8 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests extends C
 		assertThat(echo.get("Good-Bye")).isEqualTo("Good-Bye");
 	}
 
+	@ClientCacheApplication
 	@EnableSecurity
-	@ClientCacheApplication(logLevel = TEST_GEMFIRE_LOG_LEVEL, servers = @ClientCacheApplication.Server(port = PORT))
 	static class TestGemFireClientConfiguration {
 
 		@Bean("Echo")
@@ -133,7 +121,7 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests extends C
 		}
 	}
 
-	@CacheServerApplication(logLevel = TEST_GEMFIRE_LOG_LEVEL, port = PORT)
+	@CacheServerApplication
 	@EnableSecurity(securityManagerClassName = "org.springframework.data.gemfire.config.annotation.TestSecurityManager")
 	static class TestGemFireServerConfiguration {
 

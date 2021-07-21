@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,15 +41,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
- * Integration Test for SDG's Function annotation support and interaction between an Apache Geode client
+ * Integration Tests for SDG's Function annotation support and interaction between an Apache Geode client
  * and server cache when PDX is configured and read-serialized is set to {@literal true}.
  *
  * @author John Blum
@@ -64,8 +62,7 @@ import org.springframework.util.ObjectUtils;
  * @see org.apache.geode.pdx.internal.PdxInstanceEnum
  * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
  * @see org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions
- * @see org.springframework.data.gemfire.process.ProcessWrapper
- * @see org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.5.2
@@ -74,9 +71,7 @@ import org.springframework.util.ObjectUtils;
 @ContextConfiguration
 @SuppressWarnings("unused")
 // TODO: Convert to a ClientCache test.
-public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache gemfireClientCache;
@@ -86,22 +81,8 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ClientSe
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort),
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(ClientCacheFunctionExecutionWithPdxIntegrationTest.class));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
-	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
 	}
 
 	private PdxInstance toPdxInstance(Map<String, Object> pdxData) {

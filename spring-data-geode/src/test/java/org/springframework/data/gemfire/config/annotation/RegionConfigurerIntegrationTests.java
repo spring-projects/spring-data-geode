@@ -23,10 +23,10 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.geode.cache.GemFireCache;
-
 import org.junit.After;
 import org.junit.Test;
+
+import org.apache.geode.cache.GemFireCache;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -42,27 +42,25 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
-import org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Integration tests for {@link RegionConfigurer}.
+ * Integration Tests for {@link RegionConfigurer}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
- * @see org.springframework.context.annotation.Bean
- * @see org.springframework.data.gemfire.PartitionedRegionFactoryBean
  * @see org.springframework.data.gemfire.PeerRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.RegionConfigurer
- * @see org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @since 2.1.0
  */
-public class RegionConfigurerIntegrationTests {
+public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -84,7 +82,7 @@ public class RegionConfigurerIntegrationTests {
 				return beanNamesField;
 			})
 			.map(beanNamesField -> (Set<String>) ReflectionUtils.getField(beanNamesField, target))
-			.orElseGet(() -> Collections.emptySet());
+			.orElseGet(Collections::emptySet);
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
@@ -160,8 +158,8 @@ public class RegionConfigurerIntegrationTests {
 	static class AbstractTestConfiguration {
 
 		@Bean
-		GemfireTestBeanPostProcessor testBeanPostProcessor() {
-			return new GemfireTestBeanPostProcessor();
+		GemFireMockObjectsBeanPostProcessor testBeanPostProcessor() {
+			return new GemFireMockObjectsBeanPostProcessor();
 		}
 
 		@Bean

@@ -13,60 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.listener.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.query.CqQuery;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
+ * Integration Tests for CQ Listener Container
+ *
  * @author Costin Leau
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.query.CqQuery
+ * @see org.springframework.data.gemfire.fork.CqCacheServerProcess
+ * @see org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
 // TODO change this test to use mocks!!
-public class ContainerXmlSetupIntegrationTests extends ClientServerIntegrationTestsSupport {
-
-	private static ProcessWrapper gemfireServer;
+public class ContainerXmlSetupIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(CqCacheServerProcess.class,
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart(DEFAULT_HOSTNAME, availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.valueOf(availablePort));
+		startGemFireServer(CqCacheServerProcess.class);
 	}
-
-	@AfterClass
-	public static void stopGemFireServer() {
-		System.clearProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY);
-		stop(gemfireServer);
-	}
-
 
 	@Autowired
 	private ApplicationContext applicationContext;

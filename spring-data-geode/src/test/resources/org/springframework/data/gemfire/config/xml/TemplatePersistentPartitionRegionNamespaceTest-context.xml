@@ -24,7 +24,7 @@
 	<gfe:partitioned-region-template id="PartitionRegionTemplate" copies="1" persistent="true" total-buckets="163"
 									 disk-store-ref="ExampleDataStore">
 		<gfe:partition-resolver>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplatePersistentPartitionRegionNamespaceTest$TestPartitionResolver"
+			<bean class="org.springframework.data.gemfire.config.xml.TemplatePersistentPartitionRegionNamespaceIntegrationTests$TestPartitionResolver"
 				  p:name="TestPartitionResolver"/>
 		</gfe:partition-resolver>
 		<gfe:eviction type="HEAP_PERCENTAGE" action="OVERFLOW_TO_DISK"/>

@@ -19,6 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.GemFireCache;
@@ -26,35 +31,35 @@ import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.process.ProcessWrapper;
-import org.springframework.data.gemfire.test.support.ClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for {@link EnableSsl} and {@link SslConfiguration}.
+ * Integration Tests for {@link EnableSsl} and {@link SslConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
  * @see org.springframework.data.gemfire.config.annotation.SslConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EnableSslConfigurationIntegrationTests.ClientTestConfiguration.class)
 @SuppressWarnings("all")
-public class EnableSslConfigurationIntegrationTests extends ClientServerIntegrationTestsSupport {
+public class EnableSslConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final String LOG_LEVEL = "error";
 

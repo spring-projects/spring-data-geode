@@ -22,19 +22,19 @@
 		<gfe:async-event-listener ref="asyncEventListener"/>
 	</gfe:async-event-queue>
 
-	<bean id="asyncEventListener" class="org.springframework.data.gemfire.wan.AsyncEventQueueWithListenerIntegrationTest$TestAsyncEventListener"
+	<bean id="asyncEventListener" class="org.springframework.data.gemfire.wan.AsyncEventQueueWithListenerIntegrationTests$TestAsyncEventListener"
 		  init-method="init">
 		<property name="queue" ref="Q1"/>
 	</bean>
 
 	<gfe:async-event-queue id="Q2" name="QueueTwo" persistent="false" parallel="true" maximum-queue-memory="150">
 		<gfe:async-event-listener>
-			<bean class="org.springframework.data.gemfire.wan.AsyncEventQueueWithListenerIntegrationTest$TestAsyncEventListener"
+			<bean class="org.springframework.data.gemfire.wan.AsyncEventQueueWithListenerIntegrationTests$TestAsyncEventListener"
 				  p:name="ListenerTwo"/>
 		</gfe:async-event-listener>
 	</gfe:async-event-queue>
 
-	<bean id="anotherAsyncEventListener" class="org.springframework.data.gemfire.wan.AsyncEventQueueWithListenerIntegrationTest$TestAsyncEventListener"
+	<bean id="anotherAsyncEventListener" class="org.springframework.data.gemfire.wan.AsyncEventQueueWithListenerIntegrationTests$TestAsyncEventListener"
 		  init-method="init">
 		<property name="queue" ref="Q3"/>
 	</bean>

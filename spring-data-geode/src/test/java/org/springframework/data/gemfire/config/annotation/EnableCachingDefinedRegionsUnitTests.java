@@ -52,22 +52,23 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
-import org.springframework.data.gemfire.test.mock.GemFireMockObjectsSupport;
 import org.springframework.data.gemfire.test.support.MapBuilder;
+import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
 import org.springframework.stereotype.Service;
 
 /**
- * Unit tests for {@link EnableCachingDefinedRegions} and {@link CachingDefinedRegionsConfiguration}.
+ * Unit Tests for {@link EnableCachingDefinedRegions} and {@link CachingDefinedRegionsConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
- * @see org.springframework.beans.factory.config.BeanDefinition
- * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
  * @see org.springframework.cache.annotation.Cacheable
  * @see org.springframework.cache.annotation.CacheEvict
  * @see org.springframework.cache.annotation.CachePut
  * @see org.springframework.cache.annotation.Caching
+ * @see org.springframework.data.gemfire.config.annotation.CachingDefinedRegionsConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
+ * @see org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport
  * @see org.springframework.stereotype.Service
  * @since 2.0.0
  */

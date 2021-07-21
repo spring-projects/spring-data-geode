@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.test.support;
 
 import java.io.File;
@@ -29,7 +28,7 @@ import org.junit.Test;
 import org.apache.geode.cache.GemFireCache;
 
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
-import org.springframework.data.gemfire.test.StubCache;
+import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
 
 /**
  * @author David Turanski
@@ -39,41 +38,46 @@ public abstract class AbstractRegionFactoryBeanTests {
 
 	private GemFireCache cache;
 
-	private Map<String, RegionFactoryBeanConfig> regionFactoryBeanConfigs = new HashMap<>();
+	private final Map<String, RegionFactoryBeanConfig> regionFactoryBeanConfigs = new HashMap<>();
 
 	@AfterClass
-	public static void cleanUp() {
+	public static void cleanup() {
+
 		for (String name : new File(".").list((dir, name1) -> name1.startsWith("BACKUP"))) {
 			new File(name).delete();
 		}
+
+		GemFireMockObjectsSupport.destroy();
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		cache = new StubCache();
+		this.cache = GemFireMockObjectsSupport.mockPeerCache();
 	}
 
 	@After
 	public void tearDown() {
-		cache.close();
-		cache = null;
+		this.cache.close();
+		this.cache = null;
 	}
 
 	@Test
-	public void testAll() throws Exception {
+	public void testAll() {
+
 		createRegionFactoryBeanConfigs();
 
-		for (RegionFactoryBeanConfig regionFactoryBeanConfig : regionFactoryBeanConfigs.values()) {
+		for (RegionFactoryBeanConfig regionFactoryBeanConfig : this.regionFactoryBeanConfigs.values()) {
 			regionFactoryBeanConfig.test();
 		}
 	}
 
 	protected void add(RegionFactoryBeanConfig regionFactoryBeanConfig) {
-		if (regionFactoryBeanConfigs.containsKey(regionFactoryBeanConfig.regionName)) {
+
+		if (this.regionFactoryBeanConfigs.containsKey(regionFactoryBeanConfig.regionName)) {
 			throw new RuntimeException("duplicate region name " + regionFactoryBeanConfig.regionName);
 		}
 
-		regionFactoryBeanConfigs.put(regionFactoryBeanConfig.regionName, regionFactoryBeanConfig);
+		this.regionFactoryBeanConfigs.put(regionFactoryBeanConfig.regionName, regionFactoryBeanConfig);
 	}
 
 	protected abstract void createRegionFactoryBeanConfigs();
@@ -89,6 +93,7 @@ public abstract class AbstractRegionFactoryBeanTests {
 
 		@SuppressWarnings("rawtypes")
 		public RegionFactoryBeanConfig(PeerRegionFactoryBean regionFactoryBean, String regionName) {
+
 			this.regionFactoryBean = regionFactoryBean;
 			this.regionName = regionName;
 			regionFactoryBean.setBeanName(regionName);
@@ -98,6 +103,7 @@ public abstract class AbstractRegionFactoryBeanTests {
 		public abstract void configureRegionFactoryBean();
 
 		public void test() {
+
 			configureRegionFactoryBean();
 
 			try {
@@ -111,5 +117,6 @@ public abstract class AbstractRegionFactoryBeanTests {
 		}
 
 		public abstract void verify();
+
 	}
 }
