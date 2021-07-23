@@ -15,19 +15,16 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheListener;
+import org.apache.geode.cache.CacheLoader;
+import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
@@ -74,109 +71,113 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 	@Test
 	public void testSimpleReplicateRegion() throws Exception {
 
-		assertTrue(applicationContext.containsBean("simple"));
+		assertThat(applicationContext.containsBean("simple")).isTrue();
 
 		PeerRegionFactoryBean<?, ?> simpleRegionFactoryBean =
 			applicationContext.getBean("&simple", PeerRegionFactoryBean.class);
 
-		assertEquals("simple", TestUtils.readField("beanName", simpleRegionFactoryBean));
-		assertEquals(false, TestUtils.readField("close", simpleRegionFactoryBean));
-		assertNull(TestUtils.readField("scope", simpleRegionFactoryBean));
+		assertThat(TestUtils.<String>readField("beanName", simpleRegionFactoryBean)).isEqualTo("simple");
+		assertThat(TestUtils.<Boolean>readField("close", simpleRegionFactoryBean)).isEqualTo(false);
+		assertThat(TestUtils.<Scope>readField("scope", simpleRegionFactoryBean)).isNull();
 
 		RegionAttributes<?, ?> simpleRegionAttributes = TestUtils.readField("attributes", simpleRegionFactoryBean);
 
-		assertNotNull(simpleRegionAttributes);
-		assertFalse(simpleRegionAttributes.getConcurrencyChecksEnabled());
-		assertEquals(13, simpleRegionAttributes.getConcurrencyLevel());
-		assertEquals(Scope.DISTRIBUTED_NO_ACK, simpleRegionAttributes.getScope());
+		assertThat(simpleRegionAttributes).isNotNull();
+		assertThat(simpleRegionAttributes.getConcurrencyChecksEnabled()).isFalse();
+		assertThat(simpleRegionAttributes.getConcurrencyLevel()).isEqualTo(13);
+		assertThat(simpleRegionAttributes.getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
 	}
 
 	@Test
 	@SuppressWarnings({ "deprecation", "rawtypes" })
 	public void testPublishReplicateRegion() throws Exception {
 
-		assertTrue(applicationContext.containsBean("pub"));
+		assertThat(applicationContext.containsBean("pub")).isTrue();
 
 		PeerRegionFactoryBean publisherRegionFactoryBean =
 			applicationContext.getBean("&pub", PeerRegionFactoryBean.class);
 
-		assertTrue(publisherRegionFactoryBean instanceof ReplicatedRegionFactoryBean);
-		assertEquals("publisher", TestUtils.readField("name", publisherRegionFactoryBean));
-		assertEquals(Scope.DISTRIBUTED_ACK, TestUtils.readField("scope", publisherRegionFactoryBean));
+		assertThat(publisherRegionFactoryBean instanceof ReplicatedRegionFactoryBean).isTrue();
+		assertThat(TestUtils.<String>readField("name", publisherRegionFactoryBean)).isEqualTo("publisher");
+		assertThat(TestUtils.<Scope>readField("scope", publisherRegionFactoryBean)).isEqualTo(Scope.DISTRIBUTED_ACK);
 
 		RegionAttributes publisherRegionAttributes = TestUtils.readField("attributes", publisherRegionFactoryBean);
 
-		assertTrue(publisherRegionAttributes.getConcurrencyChecksEnabled());
-		assertFalse(publisherRegionAttributes.getPublisher());
+		assertThat(publisherRegionAttributes.getConcurrencyChecksEnabled()).isTrue();
+		assertThat(publisherRegionAttributes.getPublisher()).isFalse();
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testComplexReplicateRegion() throws Exception {
 
-		assertTrue(applicationContext.containsBean("complex"));
+		assertThat(applicationContext.containsBean("complex")).isTrue();
 
 		PeerRegionFactoryBean complexRegionFactoryBean =
 			applicationContext.getBean("&complex", PeerRegionFactoryBean.class);
 
-		assertNotNull(complexRegionFactoryBean);
-		assertEquals("complex", TestUtils.readField("beanName", complexRegionFactoryBean));
+		assertThat(complexRegionFactoryBean).isNotNull();
+		assertThat(TestUtils.<String>readField("beanName", complexRegionFactoryBean)).isEqualTo("complex");
 
 		CacheListener[] cacheListeners = TestUtils.readField("cacheListeners", complexRegionFactoryBean);
 
-		assertFalse(ObjectUtils.isEmpty(cacheListeners));
-		assertEquals(2, cacheListeners.length);
-		assertSame(applicationContext.getBean("c-listener"), cacheListeners[0]);
-		assertTrue(cacheListeners[1] instanceof SimpleCacheListener);
-		assertNotSame(cacheListeners[0], cacheListeners[1]);
-		assertSame(applicationContext.getBean("c-loader"), TestUtils.readField("cacheLoader", complexRegionFactoryBean));
-		assertSame(applicationContext.getBean("c-writer"), TestUtils.readField("cacheWriter", complexRegionFactoryBean));
+		assertThat(ObjectUtils.isEmpty(cacheListeners)).isFalse();
+		assertThat(cacheListeners.length).isEqualTo(2);
+		assertThat(cacheListeners[0]).isSameAs(applicationContext.getBean("c-listener"));
+		assertThat(cacheListeners[1] instanceof SimpleCacheListener).isTrue();
+		assertThat(cacheListeners[1]).isNotSameAs(cacheListeners[0]);
+		assertThat(TestUtils.<CacheLoader>readField("cacheLoader", complexRegionFactoryBean))
+			.isSameAs(applicationContext.getBean("c-loader"));
+		assertThat(TestUtils.<CacheWriter>readField("cacheWriter", complexRegionFactoryBean))
+			.isSameAs(applicationContext.getBean("c-writer"));
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testReplicatedRegionWithAttributes() {
 
-		assertTrue(applicationContext.containsBean("replicated-with-attributes"));
+		assertThat(applicationContext.containsBean("replicated-with-attributes")).isTrue();
 
-		Region region = applicationContext.getBean("replicated-with-attributes", Region.class);
+		Region<?, ?> region = applicationContext.getBean("replicated-with-attributes", Region.class);
 
-		assertNotNull("The 'replicated-with-attributes' Region was not properly configured and initialized!", region);
+		assertThat(region)
+			.describedAs("The 'replicated-with-attributes' Region was not properly configured and initialized!")
+			.isNotNull();
 
 		RegionAttributes regionAttributes = region.getAttributes();
 
-		assertNotNull(regionAttributes);
-		assertFalse(regionAttributes.getCloningEnabled());
-		assertEquals(10, regionAttributes.getConcurrencyLevel());
-		assertTrue(regionAttributes.isDiskSynchronous());
-		assertTrue(regionAttributes.getEnableAsyncConflation());
-		assertTrue(regionAttributes.getEnableSubscriptionConflation());
-		assertTrue(regionAttributes.getIgnoreJTA());
-		assertEquals(10, regionAttributes.getInitialCapacity());
-		assertFalse(regionAttributes.getIndexMaintenanceSynchronous());
-		assertEquals(String.class, regionAttributes.getKeyConstraint());
-		assertEquals(0.50, regionAttributes.getLoadFactor(), 0.001);
-		assertTrue(regionAttributes.isLockGrantor());
-		assertTrue(regionAttributes.getMulticastEnabled());
-		assertTrue(regionAttributes.getOffHeap());
-		assertEquals(Scope.GLOBAL, regionAttributes.getScope());
-		assertEquals(String.class, regionAttributes.getValueConstraint());
+		assertThat(regionAttributes).isNotNull();
+		assertThat(regionAttributes.getCloningEnabled()).isFalse();
+		assertThat(regionAttributes.getConcurrencyLevel()).isEqualTo(10);
+		assertThat(regionAttributes.isDiskSynchronous()).isTrue();
+		assertThat(regionAttributes.getEnableAsyncConflation()).isTrue();
+		assertThat(regionAttributes.getEnableSubscriptionConflation()).isTrue();
+		assertThat(regionAttributes.getIgnoreJTA()).isTrue();
+		assertThat(regionAttributes.getInitialCapacity()).isEqualTo(10);
+		assertThat(regionAttributes.getIndexMaintenanceSynchronous()).isFalse();
+		assertThat(regionAttributes.getKeyConstraint()).isEqualTo(String.class);
+		assertThat(regionAttributes.getLoadFactor()).isCloseTo(0.50f, offset(0.001f));
+		assertThat(regionAttributes.isLockGrantor()).isTrue();
+		assertThat(regionAttributes.getMulticastEnabled()).isTrue();
+		assertThat(regionAttributes.getOffHeap()).isTrue();
+		assertThat(regionAttributes.getScope()).isEqualTo(Scope.GLOBAL);
+		assertThat(regionAttributes.getValueConstraint()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testReplicatedWithSynchronousIndexUpdates() {
 
-		assertTrue(applicationContext.containsBean("replicated-with-synchronous-index-updates"));
+		assertThat(applicationContext.containsBean("replicated-with-synchronous-index-updates")).isTrue();
 
 		Region<?, ?> region = applicationContext.getBean("replicated-with-synchronous-index-updates", Region.class);
 
-		assertNotNull(String.format("The '%1$s' Region was not properly configured and initialized!",
-			"replicated-with-synchronous-index-updates"), region);
+		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized!",
+			"replicated-with-synchronous-index-updates")).isNotNull();
 
 		RegionAttributes<?, ?> regionAttributes = region.getAttributes();
 
-		assertNotNull(regionAttributes);
-		assertTrue(regionAttributes.getIndexMaintenanceSynchronous());
+		assertThat(regionAttributes).isNotNull();
+		assertThat(regionAttributes.getIndexMaintenanceSynchronous()).isTrue();
 	}
 
 	@Test
@@ -187,31 +188,32 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 
 		Region existing = cache.createRegionFactory().create("existing");
 
-		assertTrue(applicationContext.containsBean("lookup"));
+		assertThat(applicationContext.containsBean("lookup")).isTrue();
 
 		ResolvableRegionFactoryBean regionFactoryBean =
 			applicationContext.getBean("&lookup", ResolvableRegionFactoryBean.class);
 
-		assertNotNull(regionFactoryBean);
-		assertEquals("existing", TestUtils.readField("name", regionFactoryBean));
-		assertSame(existing, applicationContext.getBean("lookup"));
+		assertThat(regionFactoryBean).isNotNull();
+		assertThat(TestUtils.<String>readField("name", regionFactoryBean)).isEqualTo("existing");
+		assertThat(applicationContext.getBean("lookup")).isSameAs(existing);
 	}
 
 	@Test
 	public void testCompressedReplicateRegion() {
 
-		assertTrue(applicationContext.containsBean("Compressed"));
+		assertThat(applicationContext.containsBean("Compressed")).isTrue();
 
 		Region<?, ?> compressed = applicationContext.getBean("Compressed", Region.class);
 
-		assertNotNull("The 'Compressed' REPLICATE Region was not properly configured and initialized!", compressed);
-		assertEquals("Compressed", compressed.getName());
-		assertEquals(Region.SEPARATOR + "Compressed", compressed.getFullPath());
-		assertNotNull(compressed.getAttributes());
-		assertEquals(DataPolicy.REPLICATE, compressed.getAttributes().getDataPolicy());
-		assertEquals(Scope.DISTRIBUTED_NO_ACK, compressed.getAttributes().getScope());
-		assertTrue(compressed.getAttributes().getCompressor() instanceof TestCompressor);
-		assertEquals("XYZ", compressed.getAttributes().getCompressor().toString());
+		assertThat(compressed).as("The 'Compressed' REPLICATE Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(compressed.getName()).isEqualTo("Compressed");
+		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "Compressed");
+		assertThat(compressed.getAttributes()).isNotNull();
+		assertThat(compressed.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(compressed.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
+		assertThat(compressed.getAttributes().getCompressor() instanceof TestCompressor).isTrue();
+		assertThat(compressed.getAttributes().getCompressor().toString()).isEqualTo("XYZ");
 	}
 
 	public static class TestCompressor implements Compressor {

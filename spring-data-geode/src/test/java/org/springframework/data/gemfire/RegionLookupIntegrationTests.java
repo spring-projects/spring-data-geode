@@ -13,43 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Optional;
+
+import org.junit.Test;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionExistsException;
 import org.apache.geode.cache.Scope;
 
-import org.junit.Test;
-
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.gemfire.fork.SpringContainerProcess;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
- * The RegionLookupIntegrationTests class is a test suite of test cases testing the lookup functionality for various
- * peer Region types.
+ * Integration Tests testing SDG lookup functionality for various peer {@link Region} types.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see SpringContainerProcess
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.context.support.ClassPathXmlApplicationContext
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 1.4.0
  * @link https://jira.spring.io/browse/SGF-204
  */
 // TODO: slow test; can this test use mocks?
-public class RegionLookupIntegrationTests {
+public class RegionLookupIntegrationTests extends IntegrationTestsSupport {
 
 	private void assertNoRegionLookup(String configLocation) {
 
@@ -61,7 +57,7 @@ public class RegionLookupIntegrationTests {
 		}
 		catch (BeanCreationException expected) {
 
-			assertTrue(expected.getMessage(), expected.getCause() instanceof RegionExistsException);
+			assertThat(expected.getCause() instanceof RegionExistsException).as(expected.getMessage()).isTrue();
 
 			throw (RegionExistsException) expected.getCause();
 		}
@@ -87,24 +83,24 @@ public class RegionLookupIntegrationTests {
 			applicationContext = createApplicationContext(
 				"/org/springframework/data/gemfire/allowRegionBeanDefinitionOverridesTest.xml");
 
-			assertNotNull(applicationContext);
-			assertTrue(applicationContext.containsBean("regionOne"));
+			assertThat(applicationContext).isNotNull();
+			assertThat(applicationContext.containsBean("regionOne")).isTrue();
 
-			Region appDataRegion = applicationContext.getBean("regionOne", Region.class);
+			Region<?, ?> appDataRegion = applicationContext.getBean("regionOne", Region.class);
 
-			assertNotNull(appDataRegion);
-			assertEquals("AppDataRegion", appDataRegion.getName());
-			assertEquals("/AppDataRegion", appDataRegion.getFullPath());
-			assertNotNull(appDataRegion.getAttributes());
-			assertEquals(DataPolicy.PERSISTENT_REPLICATE, appDataRegion.getAttributes().getDataPolicy());
-			assertFalse(appDataRegion.getAttributes().getMulticastEnabled());
-			assertEquals(Scope.DISTRIBUTED_ACK, appDataRegion.getAttributes().getScope());
-			assertEquals(101, appDataRegion.getAttributes().getInitialCapacity());
-			assertEquals(new Float(0.85f), new Float(appDataRegion.getAttributes().getLoadFactor()));
-			assertTrue(appDataRegion.getAttributes().getCloningEnabled());
-			assertTrue(appDataRegion.getAttributes().getConcurrencyChecksEnabled());
-			assertEquals(Integer.class, appDataRegion.getAttributes().getKeyConstraint());
-			assertEquals(String.class, appDataRegion.getAttributes().getValueConstraint());
+			assertThat(appDataRegion).isNotNull();
+			assertThat(appDataRegion.getName()).isEqualTo("AppDataRegion");
+			assertThat(appDataRegion.getFullPath()).isEqualTo("/AppDataRegion");
+			assertThat(appDataRegion.getAttributes()).isNotNull();
+			assertThat(appDataRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_REPLICATE);
+			assertThat(appDataRegion.getAttributes().getMulticastEnabled()).isFalse();
+			assertThat(appDataRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);
+			assertThat(appDataRegion.getAttributes().getInitialCapacity()).isEqualTo(101);
+			assertThat(new Float(appDataRegion.getAttributes().getLoadFactor())).isEqualTo(new Float(0.85f));
+			assertThat(appDataRegion.getAttributes().getCloningEnabled()).isTrue();
+			assertThat(appDataRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+			assertThat(appDataRegion.getAttributes().getKeyConstraint()).isEqualTo(Integer.class);
+			assertThat(appDataRegion.getAttributes().getValueConstraint()).isEqualTo(String.class);
 		}
 		finally {
 			closeApplicationContext(applicationContext);
@@ -154,76 +150,79 @@ public class RegionLookupIntegrationTests {
 		try {
 			applicationContext = createApplicationContext("/org/springframework/data/gemfire/enableRegionLookupsTest.xml");
 
-			assertNotNull(applicationContext);
-			assertTrue(applicationContext.containsBean("NativeLocalRegion"));
-			assertTrue(applicationContext.containsBean("NativePartitionRegion"));
-			assertTrue(applicationContext.containsBean("NativeReplicateRegion"));
-			assertTrue(applicationContext.containsBean("NativeParentRegion"));
-			assertTrue(applicationContext.containsBean("/NativeParentRegion/NativeChildRegion"));
-			assertTrue(applicationContext.containsBean("SpringReplicateRegion"));
+			assertThat(applicationContext).isNotNull();
+			assertThat(applicationContext.containsBean("NativeLocalRegion")).isTrue();
+			assertThat(applicationContext.containsBean("NativePartitionRegion")).isTrue();
+			assertThat(applicationContext.containsBean("NativeReplicateRegion")).isTrue();
+			assertThat(applicationContext.containsBean("NativeParentRegion")).isTrue();
+			assertThat(applicationContext.containsBean("/NativeParentRegion/NativeChildRegion")).isTrue();
+			assertThat(applicationContext.containsBean("SpringReplicateRegion")).isTrue();
 
-			Region nativeLocalRegion = applicationContext.getBean("NativeLocalRegion", Region.class);
+			Region<?, ?> nativeLocalRegion = applicationContext.getBean("NativeLocalRegion", Region.class);
 
-			assertNotNull(nativeLocalRegion);
-			assertEquals("NativeLocalRegion", nativeLocalRegion.getName());
-			assertEquals("/NativeLocalRegion", nativeLocalRegion.getFullPath());
-			assertNotNull(nativeLocalRegion.getAttributes());
-			assertEquals(DataPolicy.NORMAL, nativeLocalRegion.getAttributes().getDataPolicy());
-			assertFalse(nativeLocalRegion.getAttributes().getCloningEnabled());
-			assertFalse(nativeLocalRegion.getAttributes().getConcurrencyChecksEnabled());
-			assertEquals(80, nativeLocalRegion.getAttributes().getConcurrencyLevel());
-			assertEquals(101, nativeLocalRegion.getAttributes().getInitialCapacity());
-			assertEquals(Integer.class, nativeLocalRegion.getAttributes().getKeyConstraint());
-			assertEquals(new Float(0.95f), new Float(nativeLocalRegion.getAttributes().getLoadFactor()));
-			assertEquals(String.class, nativeLocalRegion.getAttributes().getValueConstraint());
+			assertThat(nativeLocalRegion).isNotNull();
+			assertThat(nativeLocalRegion.getName()).isEqualTo("NativeLocalRegion");
+			assertThat(nativeLocalRegion.getFullPath()).isEqualTo("/NativeLocalRegion");
+			assertThat(nativeLocalRegion.getAttributes()).isNotNull();
+			assertThat(nativeLocalRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+			assertThat(nativeLocalRegion.getAttributes().getCloningEnabled()).isFalse();
+			assertThat(nativeLocalRegion.getAttributes().getConcurrencyChecksEnabled()).isFalse();
+			assertThat(nativeLocalRegion.getAttributes().getConcurrencyLevel()).isEqualTo(80);
+			assertThat(nativeLocalRegion.getAttributes().getInitialCapacity()).isEqualTo(101);
+			assertThat(nativeLocalRegion.getAttributes().getKeyConstraint()).isEqualTo(Integer.class);
+			assertThat(new Float(nativeLocalRegion.getAttributes().getLoadFactor())).isEqualTo(new Float(0.95f));
+			assertThat(nativeLocalRegion.getAttributes().getValueConstraint()).isEqualTo(String.class);
 
-			Region nativePartitionRegion = applicationContext.getBean("NativePartitionRegion", Region.class);
+			Region<?, ?> nativePartitionRegion = applicationContext.getBean("NativePartitionRegion", Region.class);
 
-			assertNotNull(nativePartitionRegion);
-			assertEquals("NativePartitionRegion", nativePartitionRegion.getName());
-			assertEquals("/NativePartitionRegion", nativePartitionRegion.getFullPath());
-			assertNotNull(nativePartitionRegion.getAttributes());
-			assertEquals(DataPolicy.PERSISTENT_PARTITION, nativePartitionRegion.getAttributes().getDataPolicy());
-			assertTrue(nativePartitionRegion.getAttributes().getCloningEnabled());
-			assertTrue(nativePartitionRegion.getAttributes().getConcurrencyChecksEnabled());
-			assertEquals(40, nativePartitionRegion.getAttributes().getConcurrencyLevel());
-			assertEquals(51, nativePartitionRegion.getAttributes().getInitialCapacity());
-			assertEquals(Integer.class, nativePartitionRegion.getAttributes().getKeyConstraint());
-			assertEquals(new Float(0.85f), new Float(nativePartitionRegion.getAttributes().getLoadFactor()));
-			assertFalse(nativePartitionRegion.getAttributes().getMulticastEnabled());
-			assertEquals(String.class, nativePartitionRegion.getAttributes().getValueConstraint());
+			assertThat(nativePartitionRegion).isNotNull();
+			assertThat(nativePartitionRegion.getName()).isEqualTo("NativePartitionRegion");
+			assertThat(nativePartitionRegion.getFullPath()).isEqualTo("/NativePartitionRegion");
+			assertThat(nativePartitionRegion.getAttributes()).isNotNull();
+			assertThat(nativePartitionRegion.getAttributes().getDataPolicy())
+				.isEqualTo(DataPolicy.PERSISTENT_PARTITION);
+			assertThat(nativePartitionRegion.getAttributes().getCloningEnabled()).isTrue();
+			assertThat(nativePartitionRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+			assertThat(nativePartitionRegion.getAttributes().getConcurrencyLevel()).isEqualTo(40);
+			assertThat(nativePartitionRegion.getAttributes().getInitialCapacity()).isEqualTo(51);
+			assertThat(nativePartitionRegion.getAttributes().getKeyConstraint()).isEqualTo(Integer.class);
+			assertThat(new Float(nativePartitionRegion.getAttributes().getLoadFactor())).isEqualTo(new Float(0.85f));
+			assertThat(nativePartitionRegion.getAttributes().getMulticastEnabled()).isFalse();
+			assertThat(nativePartitionRegion.getAttributes().getValueConstraint()).isEqualTo(String.class);
 
-			Region nativeReplicateRegion = applicationContext.getBean("NativeReplicateRegion", Region.class);
+			Region<?, ?> nativeReplicateRegion = applicationContext.getBean("NativeReplicateRegion", Region.class);
 
-			assertNotNull(nativeReplicateRegion);
-			assertEquals("NativeReplicateRegion", nativeReplicateRegion.getName());
-			assertEquals("/NativeReplicateRegion", nativeReplicateRegion.getFullPath());
-			assertNotNull(nativeReplicateRegion.getAttributes());
-			assertEquals(DataPolicy.PERSISTENT_REPLICATE, nativeReplicateRegion.getAttributes().getDataPolicy());
-			assertFalse(nativeReplicateRegion.getAttributes().getCloningEnabled());
-			assertTrue(nativeReplicateRegion.getAttributes().getConcurrencyChecksEnabled());
-			assertEquals(23, nativeReplicateRegion.getAttributes().getInitialCapacity());
-			assertEquals(new Float(0.75f), new Float(nativeReplicateRegion.getAttributes().getLoadFactor()));
-			assertEquals(Integer.class, nativeReplicateRegion.getAttributes().getKeyConstraint());
-			assertFalse(nativeReplicateRegion.getAttributes().getMulticastEnabled());
-			assertEquals(Scope.DISTRIBUTED_NO_ACK, nativeReplicateRegion.getAttributes().getScope());
-			assertEquals(String.class, nativeReplicateRegion.getAttributes().getValueConstraint());
+			assertThat(nativeReplicateRegion).isNotNull();
+			assertThat(nativeReplicateRegion.getName()).isEqualTo("NativeReplicateRegion");
+			assertThat(nativeReplicateRegion.getFullPath()).isEqualTo("/NativeReplicateRegion");
+			assertThat(nativeReplicateRegion.getAttributes()).isNotNull();
+			assertThat(nativeReplicateRegion.getAttributes().getDataPolicy())
+				.isEqualTo(DataPolicy.PERSISTENT_REPLICATE);
+			assertThat(nativeReplicateRegion.getAttributes().getCloningEnabled()).isFalse();
+			assertThat(nativeReplicateRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+			assertThat(nativeReplicateRegion.getAttributes().getInitialCapacity()).isEqualTo(23);
+			assertThat(new Float(nativeReplicateRegion.getAttributes().getLoadFactor())).isEqualTo(new Float(0.75f));
+			assertThat(nativeReplicateRegion.getAttributes().getKeyConstraint()).isEqualTo(Integer.class);
+			assertThat(nativeReplicateRegion.getAttributes().getMulticastEnabled()).isFalse();
+			assertThat(nativeReplicateRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
+			assertThat(nativeReplicateRegion.getAttributes().getValueConstraint()).isEqualTo(String.class);
 
-			Region nativeChildRegion = applicationContext.getBean("/NativeParentRegion/NativeChildRegion", Region.class);
+			Region<?, ?> nativeChildRegion =
+				applicationContext.getBean("/NativeParentRegion/NativeChildRegion", Region.class);
 
-			assertNotNull(nativeChildRegion);
-			assertEquals("NativeChildRegion", nativeChildRegion.getName());
-			assertEquals("/NativeParentRegion/NativeChildRegion", nativeChildRegion.getFullPath());
-			assertNotNull(nativeChildRegion.getAttributes());
-			assertEquals(DataPolicy.REPLICATE, nativeChildRegion.getAttributes().getDataPolicy());
+			assertThat(nativeChildRegion).isNotNull();
+			assertThat(nativeChildRegion.getName()).isEqualTo("NativeChildRegion");
+			assertThat(nativeChildRegion.getFullPath()).isEqualTo("/NativeParentRegion/NativeChildRegion");
+			assertThat(nativeChildRegion.getAttributes()).isNotNull();
+			assertThat(nativeChildRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
 
-			Region springReplicateRegion = applicationContext.getBean("SpringReplicateRegion", Region.class);
+			Region<?, ?> springReplicateRegion = applicationContext.getBean("SpringReplicateRegion", Region.class);
 
-			assertNotNull(springReplicateRegion);
-			assertEquals("SpringReplicateRegion", springReplicateRegion.getName());
-			assertEquals("/SpringReplicateRegion", springReplicateRegion.getFullPath());
-			assertNotNull(springReplicateRegion.getAttributes());
-			assertEquals(DataPolicy.REPLICATE, springReplicateRegion.getAttributes().getDataPolicy());
+			assertThat(springReplicateRegion).isNotNull();
+			assertThat(springReplicateRegion.getName()).isEqualTo("SpringReplicateRegion");
+			assertThat(springReplicateRegion.getFullPath()).isEqualTo("/SpringReplicateRegion");
+			assertThat(springReplicateRegion.getAttributes()).isNotNull();
+			assertThat(springReplicateRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
 		}
 		finally {
 			closeApplicationContext(applicationContext);
@@ -236,30 +235,32 @@ public class RegionLookupIntegrationTests {
 		ConfigurableApplicationContext applicationContext = null;
 
 		try {
+
 			applicationContext = createApplicationContext("/org/springframework/data/gemfire/enableClientRegionLookupsTest.xml");
 
-			assertNotNull(applicationContext);
-			assertTrue(applicationContext.containsBean("NativeClientRegion"));
-			assertTrue(applicationContext.containsBean("NativeClientParentRegion"));
-			assertTrue(applicationContext.containsBean("/NativeClientParentRegion/NativeClientChildRegion"));
+			assertThat(applicationContext).isNotNull();
+			assertThat(applicationContext.containsBean("NativeClientRegion")).isTrue();
+			assertThat(applicationContext.containsBean("NativeClientParentRegion")).isTrue();
+			assertThat(applicationContext.containsBean("/NativeClientParentRegion/NativeClientChildRegion")).isTrue();
 
-			Region nativeClientRegion = applicationContext.getBean("NativeClientRegion", Region.class);
+			Region<?, ?> nativeClientRegion = applicationContext.getBean("NativeClientRegion", Region.class);
 
-			assertNotNull(nativeClientRegion);
-			assertEquals("NativeClientRegion", nativeClientRegion.getName());
-			assertEquals("/NativeClientRegion", nativeClientRegion.getFullPath());
-			assertNotNull(nativeClientRegion.getAttributes());
-			assertFalse(nativeClientRegion.getAttributes().getCloningEnabled());
-			assertEquals(DataPolicy.NORMAL, nativeClientRegion.getAttributes().getDataPolicy());
+			assertThat(nativeClientRegion).isNotNull();
+			assertThat(nativeClientRegion.getName()).isEqualTo("NativeClientRegion");
+			assertThat(nativeClientRegion.getFullPath()).isEqualTo("/NativeClientRegion");
+			assertThat(nativeClientRegion.getAttributes()).isNotNull();
+			assertThat(nativeClientRegion.getAttributes().getCloningEnabled()).isFalse();
+			assertThat(nativeClientRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
 
-			Region nativeClientChildRegion = applicationContext.getBean("/NativeClientParentRegion/NativeClientChildRegion",
-				Region.class);
+			Region<?, ?> nativeClientChildRegion =
+				applicationContext.getBean("/NativeClientParentRegion/NativeClientChildRegion", Region.class);
 
-			assertNotNull(nativeClientChildRegion);
-			assertEquals("NativeClientChildRegion", nativeClientChildRegion.getName());
-			assertEquals("/NativeClientParentRegion/NativeClientChildRegion", nativeClientChildRegion.getFullPath());
-			assertNotNull(nativeClientChildRegion.getAttributes());
-			assertEquals(DataPolicy.NORMAL, nativeClientChildRegion.getAttributes().getDataPolicy());
+			assertThat(nativeClientChildRegion).isNotNull();
+			assertThat(nativeClientChildRegion.getName()).isEqualTo("NativeClientChildRegion");
+			assertThat(nativeClientChildRegion.getFullPath())
+				.isEqualTo("/NativeClientParentRegion/NativeClientChildRegion");
+			assertThat(nativeClientChildRegion.getAttributes()).isNotNull();
+			assertThat(nativeClientChildRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
 		}
 		finally {
 			closeApplicationContext(applicationContext);

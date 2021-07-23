@@ -15,8 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Integration Tests for {@link Region sub-Region}, sub-element SDG XML namespace configuration metadata.
@@ -53,7 +52,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.3.3
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "subregionsubelement-ns.xml",
 	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
@@ -71,9 +70,9 @@ public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTes
 	@Test
 	public void testCustomersAccountsSubRegionCacheListener() {
 
-		assertNotNull(customersAccountsRegion);
-		assertNotNull(customersAccountsRegion.getAttributes());
-		assertNotNull(customersAccountsRegion.getAttributes().getCacheListeners());
+		assertThat(customersAccountsRegion).isNotNull();
+		assertThat(customersAccountsRegion.getAttributes()).isNotNull();
+		assertThat(customersAccountsRegion.getAttributes().getCacheListeners()).isNotNull();
 
 		boolean found = false;
 
@@ -81,8 +80,9 @@ public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTes
 			found |= (listener instanceof TestNoOpCacheListener);
 		}
 
-		assertTrue(String.format("Expected a GemFire CacheListener of type (%1$s) to be registered on Region (%2$s)!",
-			TestNoOpCacheListener.class.getName(), customersAccountsRegion.getName()), found);
+		assertThat(found)
+			.as(String.format("Expected a GemFire CacheListener of type (%1$s) to be registered on Region (%2$s)!",
+				TestNoOpCacheListener.class.getName(), customersAccountsRegion.getName())).isTrue();
 	}
 
 	@Test
@@ -90,19 +90,19 @@ public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTes
 
 		Region<?, ?> orderItemsRegion = applicationContext.getBean("/Orders/Items", Region.class);
 
-		assertNotNull(orderItemsRegion);
-		assertNotNull(orderItemsRegion.getAttributes());
-		assertNotNull(orderItemsRegion.getAttributes().getGatewaySenderIds());
-		assertTrue(orderItemsRegion.getAttributes().getGatewaySenderIds().contains("testSender"));
+		assertThat(orderItemsRegion).isNotNull();
+		assertThat(orderItemsRegion.getAttributes()).isNotNull();
+		assertThat(orderItemsRegion.getAttributes().getGatewaySenderIds()).isNotNull();
+		assertThat(orderItemsRegion.getAttributes().getGatewaySenderIds().contains("testSender")).isTrue();
 	}
 
 	@Test
 	public void testParentChildSubRegionAsyncEventQueue() {
 
-		assertNotNull(parentChildRegion);
-		assertNotNull(parentChildRegion.getAttributes());
-		assertNotNull(parentChildRegion.getAttributes().getAsyncEventQueueIds());
-		assertTrue(parentChildRegion.getAttributes().getAsyncEventQueueIds().contains("testQueue"));
+		assertThat(parentChildRegion).isNotNull();
+		assertThat(parentChildRegion.getAttributes()).isNotNull();
+		assertThat(parentChildRegion.getAttributes().getAsyncEventQueueIds()).isNotNull();
+		assertThat(parentChildRegion.getAttributes().getAsyncEventQueueIds().contains("testQueue")).isTrue();
 	}
 
 	public static final class TestNoOpCacheListener extends CacheListenerAdapter<Object, Object> { }

@@ -17,9 +17,9 @@
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<bean class="org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
 
-	<bean id="Example" class="org.springframework.data.gemfire.config.xml.InvalidRegionDefinitionUsingBeansNamespaceTest$TestRegionFactoryBean"
+	<bean id="Example" class="org.springframework.data.gemfire.config.xml.InvalidRegionDefinitionUsingBeansNamespaceIntegrationTests$TestRegionFactoryBean"
 		  p:cache-ref="gemfireCache" p:persistent="true">
 		<property name="attributes">
 			<bean class="org.springframework.data.gemfire.RegionAttributesFactoryBean" p:dataPolicy="REPLICATE"/>

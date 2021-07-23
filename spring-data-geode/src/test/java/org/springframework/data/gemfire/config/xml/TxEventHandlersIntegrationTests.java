@@ -15,8 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,10 +73,10 @@ public class TxEventHandlersIntegrationTests extends IntegrationTestsSupport {
 
 		TransactionListener[] listeners = cache.getCacheTransactionManager().getListeners();
 
-		assertEquals(2, listeners.length);
-		assertSame(txListener1, listeners[0]);
-		assertSame(txListener2, listeners[1]);
-		assertSame(txWriter, cache.getCacheTransactionManager().getWriter());
+		assertThat(listeners.length).isEqualTo(2);
+		assertThat(listeners[0]).isSameAs(txListener1);
+		assertThat(listeners[1]).isSameAs(txListener2);
+		assertThat(cache.getCacheTransactionManager().getWriter()).isSameAs(txWriter);
 	}
 
 	public static class TestTransactionListener implements TransactionListener, BeanNameAware {

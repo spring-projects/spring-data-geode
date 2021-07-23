@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -41,8 +38,6 @@ import org.springframework.stereotype.Repository;
  * @see org.apache.geode.cache.Region
  * @since 1.5.0
  */
-/*
-*/
 @DependsOn("gemfireCache")
 //@Lazy
 @Repository("autoRegionLookupDao")
@@ -61,24 +56,31 @@ public class AutoRegionLookupDao extends DaoSupport {
 	@Resource(name = "/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild")
 	private Region<?, ?> nativeReplicateGrandchild;
 
-	protected static void assertRegionMetaData(final Region<?, ?> region,
-		final String expectedName, final DataPolicy expectedDataPolicy) {
+	protected static void assertRegionMetaData(Region<?, ?> region, String expectedName, DataPolicy expectedDataPolicy) {
 		assertRegionMetaData(region, expectedName, Region.SEPARATOR + expectedName, expectedDataPolicy);
 	}
 
-	protected static void assertRegionMetaData(final Region<?, ?> region, final String expectedName,
-		final String expectedFullPath, final DataPolicy expectedDataPolicy) {
-		assertNotNull(String.format("Region (%1$s) was not properly configured and initialized!", expectedName), region);
-		assertEquals(expectedName, region.getName());
-		assertEquals(expectedFullPath, region.getFullPath());
-		assertNotNull(String.format("Region (%1$s) must have RegionAttributes defined!", expectedName),
-			region.getAttributes());
-		assertEquals(expectedDataPolicy, region.getAttributes().getDataPolicy());
-		assertFalse(region.getAttributes().getDataPolicy().withPersistence());
+	protected static void assertRegionMetaData(Region<?, ?> region, String expectedName, String expectedFullPath,
+			DataPolicy expectedDataPolicy) {
+
+		assertThat(region)
+			.describedAs("Region (%1$s) was not properly configured and initialized!", expectedName)
+			.isNotNull();
+
+		assertThat(region.getName()).isEqualTo(expectedName);
+		assertThat(region.getFullPath()).isEqualTo(expectedFullPath);
+
+		assertThat(region.getAttributes())
+			.describedAs("Region (%1$s) must have RegionAttributes defined!", expectedName)
+			.isNotNull();
+
+		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);
+		assertThat(region.getAttributes().getDataPolicy().withPersistence()).isFalse();
 	}
 
 	@Override
 	protected void checkDaoConfig() throws IllegalArgumentException {
+
 		assertRegionMetaData(nativePartitionedRegion, "NativePartitionedRegion", DataPolicy.PARTITION);
 		assertRegionMetaData(nativeReplicateParent, "NativeReplicateParent", DataPolicy.REPLICATE);
 		assertRegionMetaData(nativeReplicateChild, "NativeReplicateChild",
@@ -86,5 +88,4 @@ public class AutoRegionLookupDao extends DaoSupport {
 		assertRegionMetaData(nativeReplicateGrandchild, "NativeReplicateGrandchild",
 			"/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild", DataPolicy.REPLICATE);
 	}
-
 }

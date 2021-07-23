@@ -15,9 +15,7 @@
  */
 package org.springframework.data.gemfire.repository.query;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,10 +26,12 @@ import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.repository.query.parser.PartTree;
 
 /**
- * Unit tests for {@link GemfireQueryCreator}.
+ * Unit Tests for {@link GemfireQueryCreator}.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.repository.query.GemfireQueryCreator
  */
 public class GemfireQueryCreatorUnitTests {
 
@@ -52,7 +52,7 @@ public class GemfireQueryCreatorUnitTests {
 
 		QueryString query = queryCreator.createQuery();
 
-		assertThat(query.toString(), is(equalTo("SELECT * FROM /simple x WHERE x.lastname = $1")));
+		assertThat(query.toString()).isEqualTo("SELECT * FROM /simple x WHERE x.lastname = $1");
 	}
 
 	@Test
@@ -64,6 +64,6 @@ public class GemfireQueryCreatorUnitTests {
 
 		QueryString query = queryCreator.createQuery();
 
-		assertThat(query.toString(), is(equalTo("SELECT * FROM /simple x WHERE x.address.city = $1")));
+		assertThat(query.toString()).isEqualTo("SELECT * FROM /simple x WHERE x.address.city = $1");
 	}
 }

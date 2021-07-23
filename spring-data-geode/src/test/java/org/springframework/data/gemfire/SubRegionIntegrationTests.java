@@ -15,11 +15,7 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -43,11 +39,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests for Apache Geode sub-Regions defined in Spring configuration metadata,
- * i.e. Spring Data Geode's XML namespace configuration metadata.
+ * Integration Tests for Apache Geode {@link Region sub-Regions} defined in SDG XML namespace configuration metadata.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -56,10 +51,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.4.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(value = "complex-subregion.xml",
 	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings({ "rawtypes", "unused" })
@@ -75,71 +70,74 @@ public class SubRegionIntegrationTests extends IntegrationTestsSupport {
 	private Region accounts;
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testGemFireAccountsSubRegionCreation() {
 
-		assertNotNull("The GemFire Cache was not properly initialized!", cache);
+		assertThat(cache).as("The GemFire Cache was not properly initialized!").isNotNull();
 
 		Region customers = cache.getRegion("Customers");
 
-		assertNotNull(customers);
-		assertEquals("Customers", customers.getName());
-		assertEquals("/Customers", customers.getFullPath());
+		assertThat(customers).isNotNull();
+		assertThat(customers.getName()).isEqualTo("Customers");
+		assertThat(customers.getFullPath()).isEqualTo("/Customers");
 
 		Region accounts = customers.getSubregion("Accounts");
 
-		assertNotNull(accounts);
-		assertEquals("Accounts", accounts.getName());
-		assertEquals("/Customers/Accounts", accounts.getFullPath());
+		assertThat(accounts).isNotNull();
+		assertThat(accounts.getName()).isEqualTo("Accounts");
+		assertThat(accounts.getFullPath()).isEqualTo("/Customers/Accounts");
 
 		Region cacheAccounts = cache.getRegion("/Customers/Accounts");
 
-		assertSame(accounts, cacheAccounts);
+		assertThat(cacheAccounts).isSameAs(accounts);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testSpringSubRegionConfiguration() {
 
-		assertNotNull("The /Customers/Accounts SubRegion was not properly initialized!", accounts);
-		assertEquals("Accounts", accounts.getName());
-		assertEquals("/Customers/Accounts", accounts.getFullPath());
+		assertThat(accounts).as("The /Customers/Accounts SubRegion was not properly initialized!").isNotNull();
+		assertThat(accounts.getName()).isEqualTo("Accounts");
+		assertThat(accounts.getFullPath()).isEqualTo("/Customers/Accounts");
 
 		RegionAttributes regionAttributes = accounts.getAttributes();
 
-		assertNotNull(regionAttributes);
-		assertEquals(DataPolicy.PERSISTENT_REPLICATE, regionAttributes.getDataPolicy());
-		assertEquals(20, regionAttributes.getConcurrencyLevel());
-		assertTrue(regionAttributes.isDiskSynchronous());
-		assertTrue(regionAttributes.getIgnoreJTA());
-		assertFalse(regionAttributes.getIndexMaintenanceSynchronous());
-		assertEquals(1000, regionAttributes.getInitialCapacity());
-		assertEquals(Long.class, regionAttributes.getKeyConstraint());
-		assertEquals(Scope.DISTRIBUTED_ACK, regionAttributes.getScope());
-		assertTrue(regionAttributes.getStatisticsEnabled());
-		assertEquals(String.class, regionAttributes.getValueConstraint());
-		assertNotNull(regionAttributes.getCacheListeners());
-		assertEquals(1, regionAttributes.getCacheListeners().length);
-		assertTrue(regionAttributes.getCacheListeners()[0] instanceof SimpleCacheListener);
-		assertTrue(regionAttributes.getCacheLoader() instanceof SimpleCacheLoader);
-		assertTrue(regionAttributes.getCacheWriter() instanceof SimpleCacheWriter);
+		assertThat(regionAttributes).isNotNull();
+		assertThat(regionAttributes.getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_REPLICATE);
+		assertThat(regionAttributes.getConcurrencyLevel()).isEqualTo(20);
+		assertThat(regionAttributes.isDiskSynchronous()).isTrue();
+		assertThat(regionAttributes.getIgnoreJTA()).isTrue();
+		assertThat(regionAttributes.getIndexMaintenanceSynchronous()).isFalse();
+		assertThat(regionAttributes.getInitialCapacity()).isEqualTo(1000);
+		assertThat(regionAttributes.getKeyConstraint()).isEqualTo(Long.class);
+		assertThat(regionAttributes.getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);
+		assertThat(regionAttributes.getStatisticsEnabled()).isTrue();
+		assertThat(regionAttributes.getValueConstraint()).isEqualTo(String.class);
+		assertThat(regionAttributes.getCacheListeners()).isNotNull();
+		assertThat(regionAttributes.getCacheListeners().length).isEqualTo(1);
+		assertThat(regionAttributes.getCacheListeners()[0] instanceof SimpleCacheListener).isTrue();
+		assertThat(regionAttributes.getCacheLoader() instanceof SimpleCacheLoader).isTrue();
+		assertThat(regionAttributes.getCacheWriter() instanceof SimpleCacheWriter).isTrue();
 
 		EvictionAttributes evictionAttributes = regionAttributes.getEvictionAttributes();
 
-		assertNotNull(evictionAttributes);
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, evictionAttributes.getAction());
-		assertEquals(10000, evictionAttributes.getMaximum());
+		assertThat(evictionAttributes).isNotNull();
+		assertThat(evictionAttributes.getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(evictionAttributes.getMaximum()).isEqualTo(10000);
 
 		MembershipAttributes membershipAttributes = regionAttributes.getMembershipAttributes();
 
-		assertNotNull(membershipAttributes);
-		assertNotNull(membershipAttributes.getRequiredRoles());
-		assertEquals(1, membershipAttributes.getRequiredRoles().size());
-		assertTrue(membershipAttributes.getRequiredRoles().iterator().next().getName().equalsIgnoreCase("TEST"));
-		assertEquals(LossAction.LIMITED_ACCESS, membershipAttributes.getLossAction());
-		assertEquals(ResumptionAction.REINITIALIZE, membershipAttributes.getResumptionAction());
+		assertThat(membershipAttributes).isNotNull();
+		assertThat(membershipAttributes.getRequiredRoles()).isNotNull();
+		assertThat(membershipAttributes.getRequiredRoles().size()).isEqualTo(1);
+		assertThat(membershipAttributes.getRequiredRoles().iterator().next().getName().equalsIgnoreCase("TEST"))
+			.isTrue();
+		assertThat(membershipAttributes.getLossAction()).isEqualTo(LossAction.LIMITED_ACCESS);
+		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(ResumptionAction.REINITIALIZE);
 
 		SubscriptionAttributes subscriptionAttributes = regionAttributes.getSubscriptionAttributes();
 
-		assertNotNull(subscriptionAttributes);
-		assertEquals(InterestPolicy.CACHE_CONTENT, subscriptionAttributes.getInterestPolicy());
+		assertThat(subscriptionAttributes).isNotNull();
+		assertThat(subscriptionAttributes.getInterestPolicy()).isEqualTo(InterestPolicy.CACHE_CONTENT);
 	}
 }

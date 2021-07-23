@@ -9,7 +9,7 @@
 		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<bean class="org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
 
 	<util:properties id="gemfireProperties">
 		<prop key="name">SubRegionWithInvalidDataPolicyTest</prop>

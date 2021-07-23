@@ -15,11 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,20 +85,21 @@ public class ContinuousQueryListenerContainerNamespaceIntegrationTests
 	@Test
 	public void testContainerConfiguration() throws Exception {
 
-		assertNotNull("The ContinuousQueryListenerContainer was not properly configured!", container);
-		assertTrue("The CQ Listener Container should be active (initialized)!", container.isActive());
-		assertFalse("The CQ Listener container should not be configured to auto-start!", container.isAutoStartup());
-		assertFalse("The CQ Listener Container should not be running!", container.isRunning());
-		assertEquals(4, container.getPhase());
-		assertNotNull(testErrorHandler);
-		assertSame(testErrorHandler, TestUtils.readField("errorHandler", container));
-		assertNotNull(testTaskExecutor);
-		assertSame(testTaskExecutor, TestUtils.readField("taskExecutor", container));
+		assertThat(container).as("The ContinuousQueryListenerContainer was not properly configured!").isNotNull();
+		assertThat(container.isActive()).as("The CQ Listener Container should be active (initialized)!").isTrue();
+		assertThat(container.isAutoStartup()).as("The CQ Listener container should not be configured to auto-start!")
+			.isFalse();
+		assertThat(container.isRunning()).as("The CQ Listener Container should not be running!").isFalse();
+		assertThat(container.getPhase()).isEqualTo(4);
+		assertThat(testErrorHandler).isNotNull();
+		assertThat(TestUtils.<Object>readField("errorHandler", container)).isSameAs(testErrorHandler);
+		assertThat(testTaskExecutor).isNotNull();
+		assertThat(TestUtils.<Object>readField("taskExecutor", container)).isSameAs(testTaskExecutor);
 
 		CqQuery[] queries = gemfireCache.getQueryService().getCqs();
 
-		assertNotNull(queries);
-		assertEquals(3, queries.length);
+		assertThat(queries).isNotNull();
+		assertThat(queries.length).isEqualTo(3);
 
 		List<String> actualNames = new ArrayList<>(3);
 
@@ -110,8 +107,8 @@ public class ContinuousQueryListenerContainerNamespaceIntegrationTests
 
 			actualNames.add(query.getName());
 
-			assertEquals("SELECT * FROM /test-cq", query.getQueryString());
-			assertEquals("Q3".equalsIgnoreCase(query.getName()), query.isDurable());
+			assertThat(query.getQueryString()).isEqualTo("SELECT * FROM /test-cq");
+			assertThat(query.isDurable()).isEqualTo("Q3".equalsIgnoreCase(query.getName()));
 
 			CqListener cqListener = query.getCqAttributes().getCqListener();
 
@@ -119,11 +116,11 @@ public class ContinuousQueryListenerContainerNamespaceIntegrationTests
 			// So, get the SDG "ContinuousQueryListener"
 			ContinuousQueryListener listener = TestUtils.readField("listener", cqListener);
 
-			assertTrue(listener instanceof ContinuousQueryListenerAdapter);
-			assertTrue(((ContinuousQueryListenerAdapter) listener).getDelegate() instanceof GemfireMDP);
+			assertThat(listener instanceof ContinuousQueryListenerAdapter).isTrue();
+			assertThat(((ContinuousQueryListenerAdapter) listener).getDelegate() instanceof GemfireMDP).isTrue();
 
 			if ("Q2".equalsIgnoreCase(query.getName())) {
-				assertEquals("handleQuery", TestUtils.readField("defaultListenerMethod", listener));
+				assertThat(TestUtils.<String>readField("defaultListenerMethod", listener)).isEqualTo("handleQuery");
 			}
 		}
 

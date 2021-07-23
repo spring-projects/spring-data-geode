@@ -15,9 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import javax.annotation.Resource;
@@ -43,6 +41,7 @@ import org.springframework.util.Assert;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.mockito.Mockito
  * @see org.apache.geode.cache.ExpirationAttributes
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
@@ -75,35 +74,37 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 	private void assertRegionMetaData(Region<?, ?> region, String regionName, String regionFullPath,
 			DataPolicy dataPolicy) {
 
-		assertNotNull(String.format("The '%1$s' Region was not properly configured and initialized!", regionName), region);
-		assertEquals(regionName, region.getName());
-		assertEquals(regionFullPath, region.getFullPath());
-		assertNotNull(region.getAttributes());
-		assertEquals(dataPolicy, region.getAttributes().getDataPolicy());
+		assertThat(region)
+			.as(String.format("The '%1$s' Region was not properly configured and initialized!", regionName))
+			.isNotNull();
+		assertThat(region.getName()).isEqualTo(regionName);
+		assertThat(region.getFullPath()).isEqualTo(regionFullPath);
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(dataPolicy);
 	}
 
 	private void assertNoExpiration(final ExpirationAttributes expirationAttributes) {
 
 		if (expirationAttributes != null) {
 			//assertEquals(ExpirationAction.INVALIDATE, expirationAttributes.getAction());
-			assertEquals(0, expirationAttributes.getTimeout());
+			assertThat(expirationAttributes.getTimeout()).isEqualTo(0);
 		}
 	}
 
 	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes,
 			int timeout, ExpirationAction action) {
 
-		assertNotNull(expirationAttributes);
-		assertEquals(timeout, expirationAttributes.getTimeout());
-		assertEquals(action, expirationAttributes.getAction());
+		assertThat(expirationAttributes).isNotNull();
+		assertThat(expirationAttributes.getTimeout()).isEqualTo(timeout);
+		assertThat(expirationAttributes.getAction()).isEqualTo(action);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void assertCustomExpiry(CustomExpiry<?, ?> customExpiry, String name, int timeout,
 			ExpirationAction action) {
 
-		assertNotNull(customExpiry);
-		assertEquals(name, customExpiry.toString());
+		assertThat(customExpiry).isNotNull();
+		assertThat(customExpiry.toString()).isEqualTo(name);
 		assertExpirationAttributes(customExpiry.getExpiry(mock(Region.Entry.class)), timeout, action);
 	}
 
@@ -115,8 +116,8 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 			600, ExpirationAction.DESTROY);
 		assertExpirationAttributes(replicateExample.getAttributes().getEntryIdleTimeout(),
 			300, ExpirationAction.INVALIDATE);
-		assertNull(replicateExample.getAttributes().getCustomEntryTimeToLive());
-		assertNull(replicateExample.getAttributes().getCustomEntryIdleTimeout());
+		assertThat(replicateExample.getAttributes().getCustomEntryTimeToLive()).isNull();
+		assertThat(replicateExample.getAttributes().getCustomEntryIdleTimeout()).isNull();
 	}
 
 	@Test
@@ -126,8 +127,8 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 		assertExpirationAttributes(preloadedExample.getAttributes().getEntryTimeToLive(),
 			120, ExpirationAction.LOCAL_DESTROY);
 		assertNoExpiration(preloadedExample.getAttributes().getEntryIdleTimeout());
-		assertNull(preloadedExample.getAttributes().getCustomEntryTimeToLive());
-		assertNull(preloadedExample.getAttributes().getCustomEntryIdleTimeout());
+		assertThat(preloadedExample.getAttributes().getCustomEntryTimeToLive()).isNull();
+		assertThat(preloadedExample.getAttributes().getCustomEntryIdleTimeout()).isNull();
 	}
 
 	@Test
@@ -137,7 +138,7 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 		assertExpirationAttributes(partitionExample.getAttributes().getEntryTimeToLive(),
 			300, ExpirationAction.DESTROY);
 		assertNoExpiration(partitionExample.getAttributes().getEntryIdleTimeout());
-		assertNull(partitionExample.getAttributes().getCustomEntryTimeToLive());
+		assertThat(partitionExample.getAttributes().getCustomEntryTimeToLive()).isNull();
 		assertCustomExpiry(partitionExample.getAttributes().getCustomEntryIdleTimeout(), "PartitionCustomExpiry",
 			120, ExpirationAction.INVALIDATE);
 	}

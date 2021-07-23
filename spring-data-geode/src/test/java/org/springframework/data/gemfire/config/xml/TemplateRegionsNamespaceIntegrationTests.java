@@ -15,12 +15,9 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.data.Offset.offset;
 import static org.junit.Assume.assumeNotNull;
 
 import java.util.Arrays;
@@ -112,43 +109,43 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 
 	private void assertAsyncEventQueues(Region<?, ?> region, String... expectedNames) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertNotNull(region.getAttributes().getAsyncEventQueueIds());
-		assertEquals(expectedNames.length, region.getAttributes().getAsyncEventQueueIds().size());
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getAsyncEventQueueIds()).isNotNull();
+		assertThat(region.getAttributes().getAsyncEventQueueIds().size()).isEqualTo(expectedNames.length);
 
 		for (String asyncEventQueueId : region.getAttributes().getAsyncEventQueueIds()) {
-			assertTrue(Arrays.asList(expectedNames).contains(asyncEventQueueId));
+			assertThat(Arrays.asList(expectedNames).contains(asyncEventQueueId)).isTrue();
 		}
 	}
 
 	private void assertCacheListeners(Region<?, ?> region, String... expectedNames) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertNotNull(region.getAttributes().getCacheListeners());
-		assertEquals(expectedNames.length, region.getAttributes().getCacheListeners().length);
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getCacheListeners()).isNotNull();
+		assertThat(region.getAttributes().getCacheListeners().length).isEqualTo(expectedNames.length);
 
 		for (CacheListener cacheListener : region.getAttributes().getCacheListeners()) {
-			assertTrue(cacheListener instanceof TestCacheListener);
-			assertTrue(Arrays.asList(expectedNames).contains(cacheListener.toString()));
+			assertThat(cacheListener instanceof TestCacheListener).isTrue();
+			assertThat(Arrays.asList(expectedNames).contains(cacheListener.toString())).isTrue();
 		}
 	}
 
 	private void assertCacheLoader(Region<?, ?> region, String expectedName) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertTrue(region.getAttributes().getCacheLoader() instanceof TestCacheLoader);
-		assertEquals(expectedName, region.getAttributes().getCacheLoader().toString());
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getCacheLoader() instanceof TestCacheLoader).isTrue();
+		assertThat(region.getAttributes().getCacheLoader().toString()).isEqualTo(expectedName);
 	}
 
 	private void assertCacheWriter(Region<?, ?> region, String expectedName) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertTrue(region.getAttributes().getCacheWriter() instanceof TestCacheWriter);
-		assertEquals(expectedName, region.getAttributes().getCacheWriter().toString());
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getCacheWriter() instanceof TestCacheWriter).isTrue();
+		assertThat(region.getAttributes().getCacheWriter().toString()).isEqualTo(expectedName);
 	}
 
 	private void assertDefaultEvictionAttributes(EvictionAttributes evictionAttributes) {
@@ -159,35 +156,35 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
 			EvictionAlgorithm expectedAlgorithm, int expectedMaximum, ObjectSizer expectedObjectSizer) {
 
-		assertNotNull("The 'EvictionAttributes' must not be null!", evictionAttributes);
-		assertEquals(expectedAction, evictionAttributes.getAction());
-		assertEquals(expectedAlgorithm, evictionAttributes.getAlgorithm());
-		assertEquals(expectedMaximum, evictionAttributes.getMaximum());
-		assertEquals(expectedObjectSizer, evictionAttributes.getObjectSizer());
+		assertThat(evictionAttributes).as("The 'EvictionAttributes' must not be null!").isNotNull();
+		assertThat(evictionAttributes.getAction()).isEqualTo(expectedAction);
+		assertThat(evictionAttributes.getAlgorithm()).isEqualTo(expectedAlgorithm);
+		assertThat(evictionAttributes.getMaximum()).isEqualTo(expectedMaximum);
+		assertThat(evictionAttributes.getObjectSizer()).isEqualTo(expectedObjectSizer);
 	}
 
 	private void assertDefaultExpirationAttributes(ExpirationAttributes expirationAttributes) {
 
 		assumeNotNull(expirationAttributes);
-		assertEquals(ExpirationAction.INVALIDATE, expirationAttributes.getAction());
-		assertEquals(0, expirationAttributes.getTimeout());
+		assertThat(expirationAttributes.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
+		assertThat(expirationAttributes.getTimeout()).isEqualTo(0);
 	}
 
 	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes, ExpirationAction expectedAction,
 			int expectedTimeout) {
 
-		assertNotNull("The 'ExpirationAttributes' must not be null!", expirationAttributes);
-		assertEquals(expectedAction, expirationAttributes.getAction());
-		assertEquals(expectedTimeout, expirationAttributes.getTimeout());
+		assertThat(expirationAttributes).as("The 'ExpirationAttributes' must not be null!").isNotNull();
+		assertThat(expirationAttributes.getAction()).isEqualTo(expectedAction);
+		assertThat(expirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
 	}
 
 	private void assertGatewaySenders(Region<?, ?> region, String... gatewaySenderIds) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertNotNull(region.getAttributes().getGatewaySenderIds());
-		assertEquals(gatewaySenderIds.length, region.getAttributes().getGatewaySenderIds().size());
-		assertTrue(Arrays.asList(gatewaySenderIds).containsAll(region.getAttributes().getGatewaySenderIds()));
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getGatewaySenderIds()).isNotNull();
+		assertThat(region.getAttributes().getGatewaySenderIds().size()).isEqualTo(gatewaySenderIds.length);
+		assertThat(Arrays.asList(gatewaySenderIds).containsAll(region.getAttributes().getGatewaySenderIds())).isTrue();
 	}
 
 	private void assertDefaultMembershipAttributes(MembershipAttributes membershipAttributes) {
@@ -199,51 +196,58 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	private void assertMembershipAttributes(MembershipAttributes membershipAttributes, LossAction expectedLossAction,
 			ResumptionAction expectedResumptionAction, String... expectedRequiredRoles) {
 
-		assertNotNull("The 'MembershipAttributes' must not be null!", membershipAttributes);
-		assertEquals(expectedLossAction, membershipAttributes.getLossAction());
-		assertEquals(expectedResumptionAction, membershipAttributes.getResumptionAction());
+		assertThat(membershipAttributes).as("The 'MembershipAttributes' must not be null!").isNotNull();
+		assertThat(membershipAttributes.getLossAction()).isEqualTo(expectedLossAction);
+		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(expectedResumptionAction);
 
 		if (!ObjectUtils.isEmpty(expectedRequiredRoles)) {
 			for (Role membershipRole : membershipAttributes.getRequiredRoles()) {
-				assertTrue(String.format("Role '%1$s' was not found!", membershipRole),
-					Arrays.asList(expectedRequiredRoles).contains(membershipRole.getName()));
+				assertThat(Arrays.asList(expectedRequiredRoles).contains(membershipRole.getName()))
+					.as(String.format("Role '%1$s' was not found!", membershipRole)).isTrue();
 			}
 		}
 	}
 
 	private void assertPartitionListener(Region<?, ?> region, String... expectedNames) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertNotNull(region.getAttributes().getPartitionAttributes());
-		assertNotNull(region.getAttributes().getPartitionAttributes().getPartitionListeners());
-		assertEquals(expectedNames.length, region.getAttributes().getPartitionAttributes().getPartitionListeners().length);
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getPartitionAttributes()).isNotNull();
+		assertThat(region.getAttributes().getPartitionAttributes().getPartitionListeners()).isNotNull();
+		assertThat(region.getAttributes().getPartitionAttributes().getPartitionListeners().length)
+			.isEqualTo(expectedNames.length);
 
 		for (PartitionListener partitionListener : region.getAttributes().getPartitionAttributes().getPartitionListeners()) {
-			assertTrue(partitionListener instanceof TestPartitionListener);
-			assertTrue(Arrays.asList(expectedNames).contains(partitionListener.toString()));
+			assertThat(partitionListener instanceof TestPartitionListener).isTrue();
+			assertThat(Arrays.asList(expectedNames).contains(partitionListener.toString())).isTrue();
 		}
 	}
 
 	private void assertPartitionResolver(Region<?, ?> region, String expectedName) {
 
-		assertNotNull(region);
-		assertNotNull(region.getAttributes());
-		assertNotNull(region.getAttributes().getPartitionAttributes());
-		assertTrue(region.getAttributes().getPartitionAttributes().getPartitionResolver() instanceof TestPartitionResolver);
-		assertEquals(expectedName, region.getAttributes().getPartitionAttributes().getPartitionResolver().toString());
+		assertThat(region).isNotNull();
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getPartitionAttributes()).isNotNull();
+		assertThat(
+			region.getAttributes().getPartitionAttributes().getPartitionResolver() instanceof TestPartitionResolver)
+			.isTrue();
+		assertThat(region.getAttributes().getPartitionAttributes().getPartitionResolver().toString())
+			.isEqualTo(expectedName);
 	}
 
 	private void assertDefaultRegionAttributes(Region region) {
 
-		assertNotNull("The Region must not be null!", region);
-		assertNotNull(String.format("Region (%1$s) must have 'RegionAttributes' defined!",
-			region.getFullPath()), region.getAttributes());
-		assertNull(region.getAttributes().getCompressor());
-		assertNull(region.getAttributes().getCustomEntryIdleTimeout());
-		assertNull(region.getAttributes().getCustomEntryTimeToLive());
-		assertNull(region.getAttributes().getDiskStoreName());
-		assertFalse(region.getAttributes().getMulticastEnabled());
+		assertThat(region).describedAs("The Region must not be null!").isNotNull();
+
+		assertThat(region.getAttributes())
+			.describedAs(String.format("Region (%1$s) must have 'RegionAttributes' defined!",region.getFullPath()))
+			.isNotNull();
+
+		assertThat(region.getAttributes().getCompressor()).isNull();
+		assertThat(region.getAttributes().getCustomEntryIdleTimeout()).isNull();
+		assertThat(region.getAttributes().getCustomEntryTimeToLive()).isNull();
+		assertThat(region.getAttributes().getDiskStoreName()).isNull();
+		assertThat(region.getAttributes().getMulticastEnabled()).isFalse();
 		assertNullEmpty(region.getAttributes().getPoolName());
 		assertDefaultExpirationAttributes(region.getAttributes().getRegionTimeToLive());
 		assertDefaultExpirationAttributes(region.getAttributes().getRegionIdleTimeout());
@@ -258,20 +262,20 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	private void assertSubscriptionAttributes(SubscriptionAttributes subscriptionAttributes,
 			InterestPolicy expectedInterestPolicy) {
 
-		assertNotNull("The 'SubscriptionAttributes' must not be null!", subscriptionAttributes);
-		assertEquals(expectedInterestPolicy, subscriptionAttributes.getInterestPolicy());
+		assertThat(subscriptionAttributes).as("The 'SubscriptionAttributes' must not be null!").isNotNull();
+		assertThat(subscriptionAttributes.getInterestPolicy()).isEqualTo(expectedInterestPolicy);
 	}
 
 	private static void assertEmpty(Object[] array) {
-		assertTrue((array == null || array.length == 0));
+		assertThat((array == null || array.length == 0)).isTrue();
 	}
 
 	private static void assertEmpty(Iterable<?> collection) {
-		assertTrue(collection == null || !collection.iterator().hasNext());
+		assertThat(collection == null || !collection.iterator().hasNext()).isTrue();
 	}
 
 	private static void assertNullEmpty(String value) {
-		assertFalse(StringUtils.hasText(value));
+		assertThat(StringUtils.hasText(value)).isFalse();
 	}
 
 	private static void assertRegionMetaData(Region<?, ?> region, String expectedRegionName) {
@@ -280,12 +284,12 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 
 	private static void assertRegionMetaData(Region<?, ?> region, String expectedRegionName, String expectedRegionPath) {
 
-		assertNotNull(String.format("The '%1$s' Region was not properly configured and initialized!",
-			expectedRegionName), region);
-		assertEquals(expectedRegionName, region.getName());
-		assertEquals(expectedRegionPath, region.getFullPath());
-		assertNotNull(String.format("The '%1$s' Region must have RegionAttributes defined!",
-			expectedRegionName), region.getAttributes());
+		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized!",
+			expectedRegionName)).isNotNull();
+		assertThat(region.getName()).isEqualTo(expectedRegionName);
+		assertThat(region.getFullPath()).isEqualTo(expectedRegionPath);
+		assertThat(region.getAttributes()).as(String.format("The '%1$s' Region must have RegionAttributes defined!",
+			expectedRegionName)).isNotNull();
 	}
 
 	@Test
@@ -300,17 +304,18 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		};
 
 		for (String beanName : beanNames) {
-			assertTrue(applicationContext.containsBean(beanName));
-			assertTrue(applicationContext.containsBeanDefinition(beanName));
+			assertThat(applicationContext.containsBean(beanName)).isTrue();
+			assertThat(applicationContext.containsBeanDefinition(beanName)).isTrue();
 
 			try {
 				applicationContext.getBean(beanName);
-				fail(String.format("The abstract bean definition '%1$s' should not exist as a bean in the Spring context!",
-					beanName));
+				fail(String
+					.format("The abstract bean definition '%1$s' should not exist as a bean in the Spring context!",
+						beanName));
 			}
 			catch (BeansException expected) {
-				assertTrue(expected instanceof BeanIsAbstractException);
-				assertTrue(expected.getMessage().contains(beanName));
+				assertThat(expected instanceof BeanIsAbstractException).isTrue();
+				assertThat(expected.getMessage().contains(beanName)).isTrue();
 			}
 		}
 	}
@@ -324,29 +329,29 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertEmpty(nonTemplateBasedReplicateRegion.getAttributes().getCacheListeners());
 		assertCacheLoader(nonTemplateBasedReplicateRegion, "ABC");
 		assertCacheWriter(nonTemplateBasedReplicateRegion, "DEF");
-		assertFalse(nonTemplateBasedReplicateRegion.getAttributes().getCloningEnabled());
-		assertTrue(nonTemplateBasedReplicateRegion.getAttributes().getConcurrencyChecksEnabled());
-		assertEquals(12, nonTemplateBasedReplicateRegion.getAttributes().getConcurrencyLevel());
-		assertEquals(DataPolicy.REPLICATE, nonTemplateBasedReplicateRegion.getAttributes().getDataPolicy());
-		assertTrue(nonTemplateBasedReplicateRegion.getAttributes().isDiskSynchronous());
-		assertFalse(nonTemplateBasedReplicateRegion.getAttributes().getEnableAsyncConflation());
-		assertFalse(nonTemplateBasedReplicateRegion.getAttributes().getEnableSubscriptionConflation());
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getCloningEnabled()).isFalse();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getConcurrencyLevel()).isEqualTo(12);
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().isDiskSynchronous()).isTrue();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getEnableAsyncConflation()).isFalse();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getEnableSubscriptionConflation()).isFalse();
 		assertDefaultEvictionAttributes(nonTemplateBasedReplicateRegion.getAttributes().getEvictionAttributes());
 		assertDefaultExpirationAttributes(nonTemplateBasedReplicateRegion.getAttributes().getEntryIdleTimeout());
 		assertDefaultExpirationAttributes(nonTemplateBasedReplicateRegion.getAttributes().getEntryTimeToLive());
 		assertEmpty(nonTemplateBasedReplicateRegion.getAttributes().getGatewaySenderIds());
-		assertFalse(nonTemplateBasedReplicateRegion.getAttributes().getIgnoreJTA());
-		assertTrue(nonTemplateBasedReplicateRegion.getAttributes().getIndexMaintenanceSynchronous());
-		assertEquals(97, nonTemplateBasedReplicateRegion.getAttributes().getInitialCapacity());
-		assertNull(nonTemplateBasedReplicateRegion.getAttributes().getKeyConstraint());
-		assertEquals("0.65", String.valueOf(nonTemplateBasedReplicateRegion.getAttributes().getLoadFactor()));
-		assertFalse(nonTemplateBasedReplicateRegion.getAttributes().isLockGrantor());
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getIgnoreJTA()).isFalse();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getIndexMaintenanceSynchronous()).isTrue();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getInitialCapacity()).isEqualTo(97);
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getKeyConstraint()).isNull();
+		assertThat(String.valueOf(nonTemplateBasedReplicateRegion.getAttributes().getLoadFactor())).isEqualTo("0.65");
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().isLockGrantor()).isFalse();
 		assertDefaultMembershipAttributes(nonTemplateBasedReplicateRegion.getAttributes().getMembershipAttributes());
-		assertNull(nonTemplateBasedReplicateRegion.getAttributes().getPartitionAttributes());
-		assertEquals(Scope.DISTRIBUTED_NO_ACK, nonTemplateBasedReplicateRegion.getAttributes().getScope());
-		assertFalse(nonTemplateBasedReplicateRegion.getAttributes().getStatisticsEnabled());
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getPartitionAttributes()).isNull();
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getStatisticsEnabled()).isFalse();
 		assertDefaultSubscriptionAttributes(nonTemplateBasedReplicateRegion.getAttributes().getSubscriptionAttributes());
-		assertNull(nonTemplateBasedReplicateRegion.getAttributes().getValueConstraint());
+		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getValueConstraint()).isNull();
 	}
 
 	@Test
@@ -358,13 +363,13 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertCacheListeners(templateBasedReplicateRegion, "XYZ");
 		assertCacheLoader(templateBasedReplicateRegion, "dbLoader");
 		assertCacheWriter(templateBasedReplicateRegion, "dbWriter");
-		assertTrue(templateBasedReplicateRegion.getAttributes().getCloningEnabled());
-		assertTrue(templateBasedReplicateRegion.getAttributes().getConcurrencyChecksEnabled());
-		assertEquals(24, templateBasedReplicateRegion.getAttributes().getConcurrencyLevel());
-		assertEquals(DataPolicy.REPLICATE, templateBasedReplicateRegion.getAttributes().getDataPolicy());
-		assertFalse(templateBasedReplicateRegion.getAttributes().isDiskSynchronous());
-		assertFalse(templateBasedReplicateRegion.getAttributes().getEnableAsyncConflation());
-		assertTrue(templateBasedReplicateRegion.getAttributes().getEnableSubscriptionConflation());
+		assertThat(templateBasedReplicateRegion.getAttributes().getCloningEnabled()).isTrue();
+		assertThat(templateBasedReplicateRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+		assertThat(templateBasedReplicateRegion.getAttributes().getConcurrencyLevel()).isEqualTo(24);
+		assertThat(templateBasedReplicateRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(templateBasedReplicateRegion.getAttributes().isDiskSynchronous()).isFalse();
+		assertThat(templateBasedReplicateRegion.getAttributes().getEnableAsyncConflation()).isFalse();
+		assertThat(templateBasedReplicateRegion.getAttributes().getEnableSubscriptionConflation()).isTrue();
 		assertEvictionAttributes(templateBasedReplicateRegion.getAttributes().getEvictionAttributes(),
 			EvictionAction.OVERFLOW_TO_DISK, EvictionAlgorithm.LRU_ENTRY, 2024, null);
 		assertExpirationAttributes(templateBasedReplicateRegion.getAttributes().getEntryIdleTimeout(),
@@ -372,19 +377,19 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertExpirationAttributes(templateBasedReplicateRegion.getAttributes().getEntryTimeToLive(),
 			ExpirationAction.INVALIDATE, 300);
 		assertEmpty(templateBasedReplicateRegion.getAttributes().getGatewaySenderIds());
-		assertTrue(templateBasedReplicateRegion.getAttributes().getIgnoreJTA());
-		assertTrue(templateBasedReplicateRegion.getAttributes().getIndexMaintenanceSynchronous());
-		assertEquals(51, templateBasedReplicateRegion.getAttributes().getInitialCapacity());
-		assertEquals(String.class, templateBasedReplicateRegion.getAttributes().getKeyConstraint());
-		assertEquals("0.85", String.valueOf(templateBasedReplicateRegion.getAttributes().getLoadFactor()));
-		assertTrue(templateBasedReplicateRegion.getAttributes().isLockGrantor());
+		assertThat(templateBasedReplicateRegion.getAttributes().getIgnoreJTA()).isTrue();
+		assertThat(templateBasedReplicateRegion.getAttributes().getIndexMaintenanceSynchronous()).isTrue();
+		assertThat(templateBasedReplicateRegion.getAttributes().getInitialCapacity()).isEqualTo(51);
+		assertThat(templateBasedReplicateRegion.getAttributes().getKeyConstraint()).isEqualTo(String.class);
+		assertThat(String.valueOf(templateBasedReplicateRegion.getAttributes().getLoadFactor())).isEqualTo("0.85");
+		assertThat(templateBasedReplicateRegion.getAttributes().isLockGrantor()).isTrue();
 		assertDefaultMembershipAttributes(templateBasedReplicateRegion.getAttributes().getMembershipAttributes());
-		assertNull(templateBasedReplicateRegion.getAttributes().getPartitionAttributes());
-		assertEquals(Scope.GLOBAL, templateBasedReplicateRegion.getAttributes().getScope());
-		assertTrue(templateBasedReplicateRegion.getAttributes().getStatisticsEnabled());
+		assertThat(templateBasedReplicateRegion.getAttributes().getPartitionAttributes()).isNull();
+		assertThat(templateBasedReplicateRegion.getAttributes().getScope()).isEqualTo(Scope.GLOBAL);
+		assertThat(templateBasedReplicateRegion.getAttributes().getStatisticsEnabled()).isTrue();
 		assertSubscriptionAttributes(templateBasedReplicateRegion.getAttributes().getSubscriptionAttributes(),
 			InterestPolicy.CACHE_CONTENT);
-		assertEquals(Object.class, templateBasedReplicateRegion.getAttributes().getValueConstraint());
+		assertThat(templateBasedReplicateRegion.getAttributes().getValueConstraint()).isEqualTo(Object.class);
 	}
 
 	@Test
@@ -397,32 +402,32 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertCacheListeners(templateBasedReplicateSubRegion, "testListener");
 		assertCacheLoader(templateBasedReplicateSubRegion, "A");
 		assertCacheWriter(templateBasedReplicateSubRegion, "B");
-		assertFalse(templateBasedReplicateSubRegion.getAttributes().getCloningEnabled());
-		assertTrue(templateBasedReplicateSubRegion.getAttributes().getConcurrencyChecksEnabled());
-		assertEquals(16, templateBasedReplicateSubRegion.getAttributes().getConcurrencyLevel());
-		assertEquals(DataPolicy.REPLICATE, templateBasedReplicateSubRegion.getAttributes().getDataPolicy());
-		assertFalse(templateBasedReplicateSubRegion.getAttributes().isDiskSynchronous());
-		assertTrue(templateBasedReplicateSubRegion.getAttributes().getEnableAsyncConflation());
-		assertFalse(templateBasedReplicateSubRegion.getAttributes().getEnableSubscriptionConflation());
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getCloningEnabled()).isFalse();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getConcurrencyLevel()).isEqualTo(16);
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(templateBasedReplicateSubRegion.getAttributes().isDiskSynchronous()).isFalse();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getEnableAsyncConflation()).isTrue();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getEnableSubscriptionConflation()).isFalse();
 		assertDefaultEvictionAttributes(templateBasedReplicateSubRegion.getAttributes().getEvictionAttributes());
 		assertExpirationAttributes(templateBasedReplicateSubRegion.getAttributes().getEntryIdleTimeout(),
 			ExpirationAction.DESTROY, 600);
 		assertExpirationAttributes(templateBasedReplicateSubRegion.getAttributes().getEntryTimeToLive(),
 			ExpirationAction.DESTROY, 600);
 		assertEmpty(templateBasedReplicateSubRegion.getAttributes().getGatewaySenderIds());
-		assertTrue(templateBasedReplicateSubRegion.getAttributes().getIgnoreJTA());
-		assertFalse(templateBasedReplicateSubRegion.getAttributes().getIndexMaintenanceSynchronous());
-		assertEquals(51, templateBasedReplicateSubRegion.getAttributes().getInitialCapacity());
-		assertEquals(Integer.class, templateBasedReplicateSubRegion.getAttributes().getKeyConstraint());
-		assertEquals("0.95", String.valueOf(templateBasedReplicateSubRegion.getAttributes().getLoadFactor()));
-		assertFalse(templateBasedReplicateSubRegion.getAttributes().isLockGrantor());
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getIgnoreJTA()).isTrue();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getIndexMaintenanceSynchronous()).isFalse();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getInitialCapacity()).isEqualTo(51);
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getKeyConstraint()).isEqualTo(Integer.class);
+		assertThat(String.valueOf(templateBasedReplicateSubRegion.getAttributes().getLoadFactor())).isEqualTo("0.95");
+		assertThat(templateBasedReplicateSubRegion.getAttributes().isLockGrantor()).isFalse();
 		assertMembershipAttributes(templateBasedReplicateSubRegion.getAttributes().getMembershipAttributes(),
 			LossAction.LIMITED_ACCESS, ResumptionAction.NONE, "readWriteNode");
-		assertNull(templateBasedReplicateSubRegion.getAttributes().getPartitionAttributes());
-		assertEquals(Scope.DISTRIBUTED_NO_ACK, templateBasedReplicateSubRegion.getAttributes().getScope());
-		assertTrue(templateBasedReplicateSubRegion.getAttributes().getStatisticsEnabled());
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getPartitionAttributes()).isNull();
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getStatisticsEnabled()).isTrue();
 		assertDefaultSubscriptionAttributes(templateBasedReplicateSubRegion.getAttributes().getSubscriptionAttributes());
-		assertEquals(String.class, templateBasedReplicateSubRegion.getAttributes().getValueConstraint());
+		assertThat(templateBasedReplicateSubRegion.getAttributes().getValueConstraint()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -432,15 +437,16 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertDefaultRegionAttributes(templateBasedReplicateRegionNoOverrides);
 		assertEmpty(templateBasedReplicateRegionNoOverrides.getAttributes().getAsyncEventQueueIds());
 		assertCacheListeners(templateBasedReplicateRegionNoOverrides, "XYZ");
-		assertNull(templateBasedReplicateRegionNoOverrides.getAttributes().getCacheLoader());
-		assertNull(templateBasedReplicateRegionNoOverrides.getAttributes().getCacheWriter());
-		assertTrue(templateBasedReplicateRegionNoOverrides.getAttributes().getCloningEnabled());
-		assertTrue(templateBasedReplicateRegionNoOverrides.getAttributes().getConcurrencyChecksEnabled());
-		assertEquals(24, templateBasedReplicateRegionNoOverrides.getAttributes().getConcurrencyLevel());
-		assertEquals(DataPolicy.PERSISTENT_REPLICATE, templateBasedReplicateRegionNoOverrides.getAttributes().getDataPolicy());
-		assertFalse(templateBasedReplicateRegionNoOverrides.getAttributes().isDiskSynchronous());
-		assertFalse(templateBasedReplicateRegionNoOverrides.getAttributes().getEnableAsyncConflation());
-		assertTrue(templateBasedReplicateRegionNoOverrides.getAttributes().getEnableSubscriptionConflation());
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getCacheLoader()).isNull();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getCacheWriter()).isNull();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getCloningEnabled()).isTrue();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getConcurrencyLevel()).isEqualTo(24);
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getDataPolicy())
+			.isEqualTo(DataPolicy.PERSISTENT_REPLICATE);
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().isDiskSynchronous()).isFalse();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getEnableAsyncConflation()).isFalse();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getEnableSubscriptionConflation()).isTrue();
 		assertEvictionAttributes(templateBasedReplicateRegionNoOverrides.getAttributes().getEvictionAttributes(),
 			EvictionAction.OVERFLOW_TO_DISK, EvictionAlgorithm.LRU_ENTRY, 2024, null);
 		assertExpirationAttributes(templateBasedReplicateRegionNoOverrides.getAttributes().getEntryIdleTimeout(),
@@ -448,21 +454,23 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertExpirationAttributes(templateBasedReplicateRegionNoOverrides.getAttributes().getEntryTimeToLive(),
 			ExpirationAction.INVALIDATE, 300);
 		assertEmpty(templateBasedReplicateRegionNoOverrides.getAttributes().getGatewaySenderIds());
-		assertTrue(templateBasedReplicateRegionNoOverrides.getAttributes().getIgnoreJTA());
-		assertTrue(templateBasedReplicateRegionNoOverrides.getAttributes().getIndexMaintenanceSynchronous());
-		assertEquals(51, templateBasedReplicateRegionNoOverrides.getAttributes().getInitialCapacity());
-		assertEquals(String.class, templateBasedReplicateRegionNoOverrides.getAttributes().getKeyConstraint());
-		assertEquals(0.85f, templateBasedReplicateRegionNoOverrides.getAttributes().getLoadFactor(), 0.0f);
-		assertFalse(templateBasedReplicateRegionNoOverrides.getAttributes().isLockGrantor());
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getIgnoreJTA()).isTrue();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getIndexMaintenanceSynchronous()).isTrue();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getInitialCapacity()).isEqualTo(51);
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getKeyConstraint()).isEqualTo(String.class);
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getLoadFactor())
+			.isCloseTo(0.85f, offset(0.0f));
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().isLockGrantor()).isFalse();
 		assertDefaultMembershipAttributes(
 			templateBasedReplicateRegionNoOverrides.getAttributes().getMembershipAttributes());
-		assertNull(templateBasedReplicateRegionNoOverrides.getAttributes().getPartitionAttributes());
-		assertEquals(Scope.DISTRIBUTED_ACK, templateBasedReplicateRegionNoOverrides.getAttributes().getScope());
-		assertTrue(templateBasedReplicateRegionNoOverrides.getAttributes().getStatisticsEnabled());
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getPartitionAttributes()).isNull();
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getStatisticsEnabled()).isTrue();
 		assertSubscriptionAttributes(
 			templateBasedReplicateRegionNoOverrides.getAttributes().getSubscriptionAttributes(),
 			InterestPolicy.CACHE_CONTENT);
-		assertEquals(Object.class, templateBasedReplicateRegionNoOverrides.getAttributes().getValueConstraint());
+		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getValueConstraint())
+			.isEqualTo(Object.class);
 	}
 
 	@Test
@@ -474,12 +482,13 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertCacheListeners(templateBasedPartitionRegion, "X", "Y", "Z");
 		assertCacheLoader(templateBasedPartitionRegion, "A");
 		assertCacheWriter(templateBasedPartitionRegion, "dbWriter");
-		assertFalse(templateBasedPartitionRegion.getAttributes().getCloningEnabled());
-		assertTrue(templateBasedPartitionRegion.getAttributes().getConcurrencyChecksEnabled());
-		assertEquals(DataPolicy.PERSISTENT_PARTITION, templateBasedPartitionRegion.getAttributes().getDataPolicy());
-		assertTrue(templateBasedPartitionRegion.getAttributes().isDiskSynchronous());
-		assertTrue(templateBasedPartitionRegion.getAttributes().getEnableAsyncConflation());
-		assertTrue(templateBasedPartitionRegion.getAttributes().getEnableSubscriptionConflation());
+		assertThat(templateBasedPartitionRegion.getAttributes().getCloningEnabled()).isFalse();
+		assertThat(templateBasedPartitionRegion.getAttributes().getConcurrencyChecksEnabled()).isTrue();
+		assertThat(templateBasedPartitionRegion.getAttributes().getDataPolicy())
+			.isEqualTo(DataPolicy.PERSISTENT_PARTITION);
+		assertThat(templateBasedPartitionRegion.getAttributes().isDiskSynchronous()).isTrue();
+		assertThat(templateBasedPartitionRegion.getAttributes().getEnableAsyncConflation()).isTrue();
+		assertThat(templateBasedPartitionRegion.getAttributes().getEnableSubscriptionConflation()).isTrue();
 		assertEvictionAttributes(templateBasedPartitionRegion.getAttributes().getEvictionAttributes(),
 			EvictionAction.OVERFLOW_TO_DISK, EvictionAlgorithm.LRU_ENTRY, 8192000, null);
 		assertExpirationAttributes(templateBasedPartitionRegion.getAttributes().getEntryIdleTimeout(),
@@ -487,30 +496,36 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertExpirationAttributes(templateBasedPartitionRegion.getAttributes().getEntryTimeToLive(),
 			ExpirationAction.INVALIDATE, 300);
 		assertGatewaySenders(templateBasedPartitionRegion, "TestGatewaySender");
-		assertFalse(templateBasedPartitionRegion.getAttributes().getIgnoreJTA());
-		assertFalse(templateBasedPartitionRegion.getAttributes().getIndexMaintenanceSynchronous());
-		assertEquals(51, templateBasedPartitionRegion.getAttributes().getInitialCapacity());
-		assertEquals(Date.class, templateBasedPartitionRegion.getAttributes().getKeyConstraint());
-		assertEquals("0.7", String.valueOf(templateBasedPartitionRegion.getAttributes().getLoadFactor()));
-		assertFalse(templateBasedPartitionRegion.getAttributes().isLockGrantor());
+		assertThat(templateBasedPartitionRegion.getAttributes().getIgnoreJTA()).isFalse();
+		assertThat(templateBasedPartitionRegion.getAttributes().getIndexMaintenanceSynchronous()).isFalse();
+		assertThat(templateBasedPartitionRegion.getAttributes().getInitialCapacity()).isEqualTo(51);
+		assertThat(templateBasedPartitionRegion.getAttributes().getKeyConstraint()).isEqualTo(Date.class);
+		assertThat(String.valueOf(templateBasedPartitionRegion.getAttributes().getLoadFactor())).isEqualTo("0.7");
+		assertThat(templateBasedPartitionRegion.getAttributes().isLockGrantor()).isFalse();
 		assertMembershipAttributes(templateBasedPartitionRegion.getAttributes().getMembershipAttributes(),
 			LossAction.NO_ACCESS, ResumptionAction.REINITIALIZE, "admin", "root", "supertool");
-		assertNotNull(templateBasedPartitionRegion.getAttributes().getPartitionAttributes());
-		assertEquals("Neighbor",
-			templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getColocatedWith());
-		assertEquals(8192, templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getLocalMaxMemory());
-		assertEquals(2, templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getRedundantCopies());
-		assertEquals(60000L, templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getRecoveryDelay());
-		assertEquals(15000L, templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getStartupRecoveryDelay());
-		assertEquals(16384, templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getTotalMaxMemory());
-		assertEquals(91, templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getTotalNumBuckets());
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes()).isNotNull();
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getColocatedWith())
+			.isEqualTo("Neighbor");
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getLocalMaxMemory())
+			.isEqualTo(8192);
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getRedundantCopies())
+			.isEqualTo(2);
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getRecoveryDelay())
+			.isEqualTo(60000L);
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getStartupRecoveryDelay())
+			.isEqualTo(15000L);
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getTotalMaxMemory())
+			.isEqualTo(16384);
+		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getTotalNumBuckets())
+			.isEqualTo(91);
 		assertPartitionListener(templateBasedPartitionRegion, "testListener");
 		assertPartitionResolver(templateBasedPartitionRegion, "testResolver");
-		assertEquals(Scope.DISTRIBUTED_NO_ACK, templateBasedPartitionRegion.getAttributes().getScope());
-		assertTrue(templateBasedPartitionRegion.getAttributes().getStatisticsEnabled());
+		assertThat(templateBasedPartitionRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
+		assertThat(templateBasedPartitionRegion.getAttributes().getStatisticsEnabled()).isTrue();
 		assertSubscriptionAttributes(templateBasedPartitionRegion.getAttributes().getSubscriptionAttributes(),
 			InterestPolicy.ALL);
-		assertEquals(Object.class, templateBasedPartitionRegion.getAttributes().getValueConstraint());
+		assertThat(templateBasedPartitionRegion.getAttributes().getValueConstraint()).isEqualTo(Object.class);
 	}
 
 	@Test
@@ -520,15 +535,15 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertDefaultRegionAttributes(templateBasedLocalRegion);
 		assertEmpty(templateBasedLocalRegion.getAttributes().getAsyncEventQueueIds());
 		assertCacheListeners(templateBasedLocalRegion, "X", "Y", "Z");
-		assertNull(templateBasedLocalRegion.getAttributes().getCacheLoader());
-		assertNull(templateBasedLocalRegion.getAttributes().getCacheWriter());
-		assertTrue(templateBasedLocalRegion.getAttributes().getCloningEnabled());
-		assertFalse(templateBasedLocalRegion.getAttributes().getConcurrencyChecksEnabled());
-		assertEquals(8, templateBasedLocalRegion.getAttributes().getConcurrencyLevel());
-		assertEquals(DataPolicy.NORMAL, templateBasedLocalRegion.getAttributes().getDataPolicy());
-		assertFalse(templateBasedLocalRegion.getAttributes().isDiskSynchronous());
-		assertFalse(templateBasedLocalRegion.getAttributes().getEnableAsyncConflation());
-		assertFalse(templateBasedLocalRegion.getAttributes().getEnableSubscriptionConflation());
+		assertThat(templateBasedLocalRegion.getAttributes().getCacheLoader()).isNull();
+		assertThat(templateBasedLocalRegion.getAttributes().getCacheWriter()).isNull();
+		assertThat(templateBasedLocalRegion.getAttributes().getCloningEnabled()).isTrue();
+		assertThat(templateBasedLocalRegion.getAttributes().getConcurrencyChecksEnabled()).isFalse();
+		assertThat(templateBasedLocalRegion.getAttributes().getConcurrencyLevel()).isEqualTo(8);
+		assertThat(templateBasedLocalRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+		assertThat(templateBasedLocalRegion.getAttributes().isDiskSynchronous()).isFalse();
+		assertThat(templateBasedLocalRegion.getAttributes().getEnableAsyncConflation()).isFalse();
+		assertThat(templateBasedLocalRegion.getAttributes().getEnableSubscriptionConflation()).isFalse();
 		assertEvictionAttributes(templateBasedLocalRegion.getAttributes().getEvictionAttributes(),
 			EvictionAction.LOCAL_DESTROY, EvictionAlgorithm.LRU_ENTRY, 4096, null);
 		assertExpirationAttributes(templateBasedLocalRegion.getAttributes().getEntryIdleTimeout(),
@@ -536,18 +551,18 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertExpirationAttributes(templateBasedLocalRegion.getAttributes().getEntryTimeToLive(),
 			ExpirationAction.INVALIDATE, 300);
 		assertEmpty(templateBasedLocalRegion.getAttributes().getGatewaySenderIds());
-		assertTrue(templateBasedLocalRegion.getAttributes().getIgnoreJTA());
-		assertTrue(templateBasedLocalRegion.getAttributes().getIndexMaintenanceSynchronous());
-		assertEquals(51, templateBasedLocalRegion.getAttributes().getInitialCapacity());
-		assertEquals(Long.class, templateBasedLocalRegion.getAttributes().getKeyConstraint());
-		assertEquals("0.85", String.valueOf(templateBasedLocalRegion.getAttributes().getLoadFactor()));
-		assertFalse(templateBasedLocalRegion.getAttributes().isLockGrantor());
+		assertThat(templateBasedLocalRegion.getAttributes().getIgnoreJTA()).isTrue();
+		assertThat(templateBasedLocalRegion.getAttributes().getIndexMaintenanceSynchronous()).isTrue();
+		assertThat(templateBasedLocalRegion.getAttributes().getInitialCapacity()).isEqualTo(51);
+		assertThat(templateBasedLocalRegion.getAttributes().getKeyConstraint()).isEqualTo(Long.class);
+		assertThat(String.valueOf(templateBasedLocalRegion.getAttributes().getLoadFactor())).isEqualTo("0.85");
+		assertThat(templateBasedLocalRegion.getAttributes().isLockGrantor()).isFalse();
 		assertDefaultMembershipAttributes(templateBasedLocalRegion.getAttributes().getMembershipAttributes());
-		assertNull(templateBasedLocalRegion.getAttributes().getPartitionAttributes());
-		assertEquals(Scope.LOCAL, templateBasedLocalRegion.getAttributes().getScope());
-		assertTrue(templateBasedLocalRegion.getAttributes().getStatisticsEnabled());
+		assertThat(templateBasedLocalRegion.getAttributes().getPartitionAttributes()).isNull();
+		assertThat(templateBasedLocalRegion.getAttributes().getScope()).isEqualTo(Scope.LOCAL);
+		assertThat(templateBasedLocalRegion.getAttributes().getStatisticsEnabled()).isTrue();
 		assertDefaultSubscriptionAttributes(templateBasedLocalRegion.getAttributes().getSubscriptionAttributes());
-		assertEquals(String.class, templateBasedLocalRegion.getAttributes().getValueConstraint());
+		assertThat(templateBasedLocalRegion.getAttributes().getValueConstraint()).isEqualTo(String.class);
 	}
 
 	public static final class TestAsyncEventListener implements AsyncEventListener {

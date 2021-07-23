@@ -15,37 +15,39 @@
  */
 package org.springframework.data.gemfire.support;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 
-import java.util.Map;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.query.FunctionDomainException;
 import org.apache.geode.cache.query.QueryException;
 import org.apache.geode.cache.query.QueryInvocationTargetException;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.GemfireQueryException;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
-public class GemfirePersistenceExceptionTranslationTest {
+@SuppressWarnings("unused")
+public class GemfirePersistenceExceptionTranslationTest extends IntegrationTestsSupport {
+
 	@Autowired
-	GemFireRepo1 gemfireRepo1;
+	private ApplicationContext applicationContext;
+
 	@Autowired
-	ApplicationContext ctx;
+	private GemFireRepo1 gemfireRepo1;
 
 	@Test
 	public void test() {
 
-		Map<String, BeanPostProcessor> bpps = ctx.getBeansOfType(BeanPostProcessor.class);
+		applicationContext.getBeansOfType(BeanPostProcessor.class);
 
 		try {
 			gemfireRepo1.doit(new QueryException());
@@ -62,9 +64,8 @@ public class GemfirePersistenceExceptionTranslationTest {
 		try {
 			gemfireRepo1.doit(new QueryInvocationTargetException("test"));
 			fail("should throw a query exception");
-		} catch (GemfireQueryException e) {
-
 		}
+		catch (GemfireQueryException ignore) { }
 	}
 
 	/**

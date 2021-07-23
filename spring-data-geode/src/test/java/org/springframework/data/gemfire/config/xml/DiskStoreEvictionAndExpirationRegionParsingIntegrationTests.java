@@ -15,12 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 
 import java.io.File;
@@ -97,7 +92,7 @@ public class DiskStoreEvictionAndExpirationRegionParsingIntegrationTests extends
 	@BeforeClass
 	public static void setUp() {
 		diskStoreDirectory = new File("./tmp");
-		assertTrue(diskStoreDirectory.isDirectory() || diskStoreDirectory.mkdirs());
+		assertThat(diskStoreDirectory.isDirectory() || diskStoreDirectory.mkdirs()).isTrue();
 	}
 
 	@AfterClass
@@ -115,91 +110,96 @@ public class DiskStoreEvictionAndExpirationRegionParsingIntegrationTests extends
 	@Test
 	public void testDiskStore() {
 
-		assertNotNull(applicationContext.getBean("ds2"));
+		assertThat(applicationContext.getBean("ds2")).isNotNull();
 		applicationContext.getBean("diskStore1");
- 		assertNotNull(diskStore);
-		assertEquals("diskStore1", diskStore.getName());
-		assertEquals(50, diskStore.getQueueSize());
-		assertTrue(diskStore.getAutoCompact());
-		assertEquals(DiskStoreFactory.DEFAULT_COMPACTION_THRESHOLD, diskStore.getCompactionThreshold());
-		assertEquals(9999, diskStore.getTimeInterval());
-		assertEquals(1, diskStore.getMaxOplogSize());
-		assertEquals(diskStoreDirectory, diskStore.getDiskDirs()[0]);
+ 		assertThat(diskStore).isNotNull();
+		assertThat(diskStore.getName()).isEqualTo("diskStore1");
+		assertThat(diskStore.getQueueSize()).isEqualTo(50);
+		assertThat(diskStore.getAutoCompact()).isTrue();
+		assertThat(diskStore.getCompactionThreshold()).isEqualTo(DiskStoreFactory.DEFAULT_COMPACTION_THRESHOLD);
+		assertThat(diskStore.getTimeInterval()).isEqualTo(9999);
+		assertThat(diskStore.getMaxOplogSize()).isEqualTo(1);
+		assertThat(diskStore.getDiskDirs()[0]).isEqualTo(diskStoreDirectory);
 		Cache cache = applicationContext.getBean("gemfireCache", Cache.class);
-		assertSame(diskStore, cache.findDiskStore("diskStore1"));
+		assertThat(cache.findDiskStore("diskStore1")).isSameAs(diskStore);
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testReplicatedDataRegionAttributes() throws Exception {
 
-		assertTrue(applicationContext.containsBean("replicated-data"));
+		assertThat(applicationContext.containsBean("replicated-data")).isTrue();
 
 		PeerRegionFactoryBean replicatedDataRegionFactoryBean = applicationContext.getBean("&replicated-data", PeerRegionFactoryBean.class);
 
-		assertTrue(replicatedDataRegionFactoryBean instanceof ReplicatedRegionFactoryBean);
-		assertEquals(DataPolicy.REPLICATE, replicatedDataRegionFactoryBean.getDataPolicy());
-		assertFalse(replicatedDataRegionFactoryBean.getDataPolicy().withPersistence());
-		assertEquals("diskStore1", TestUtils.readField("diskStoreName", replicatedDataRegionFactoryBean));
-		assertNull(TestUtils.readField("scope", replicatedDataRegionFactoryBean));
+		assertThat(replicatedDataRegionFactoryBean instanceof ReplicatedRegionFactoryBean).isTrue();
+		assertThat(replicatedDataRegionFactoryBean.getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(replicatedDataRegionFactoryBean.getDataPolicy().withPersistence()).isFalse();
+		assertThat(TestUtils.<String>readField("diskStoreName", replicatedDataRegionFactoryBean)).isEqualTo("diskStore1");
+		assertThat(TestUtils.<Object>readField("scope", replicatedDataRegionFactoryBean)).isNull();
 
 		Region replicatedDataRegion = applicationContext.getBean("replicated-data", Region.class);
 
 		RegionAttributes replicatedDataRegionAttributes = TestUtils.readField("attributes", replicatedDataRegionFactoryBean);
 
-		assertNotNull(replicatedDataRegionAttributes);
-		assertEquals(Scope.DISTRIBUTED_NO_ACK, replicatedDataRegionAttributes.getScope());
+		assertThat(replicatedDataRegionAttributes).isNotNull();
+		assertThat(replicatedDataRegionAttributes.getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
 
 		EvictionAttributes replicatedDataEvictionAttributes = replicatedDataRegionAttributes.getEvictionAttributes();
 
-		assertNotNull(replicatedDataEvictionAttributes);
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, replicatedDataEvictionAttributes.getAction());
-		assertEquals(EvictionAlgorithm.LRU_ENTRY, replicatedDataEvictionAttributes.getAlgorithm());
-		assertEquals(50, replicatedDataEvictionAttributes.getMaximum());
-		assertNull(replicatedDataEvictionAttributes.getObjectSizer());
+		assertThat(replicatedDataEvictionAttributes).isNotNull();
+		assertThat(replicatedDataEvictionAttributes.getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(replicatedDataEvictionAttributes.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_ENTRY);
+		assertThat(replicatedDataEvictionAttributes.getMaximum()).isEqualTo(50);
+		assertThat(replicatedDataEvictionAttributes.getObjectSizer()).isNull();
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testPartitionDataOptions() throws Exception {
 
-		assertTrue(applicationContext.containsBean("partition-data"));
-		PeerRegionFactoryBean fb = applicationContext.getBean("&partition-data", PeerRegionFactoryBean.class);
-		assertTrue(fb instanceof PartitionedRegionFactoryBean);
-		assertTrue(TestUtils.readField("persistent", fb));
-		RegionAttributes attrs = TestUtils.readField("attributes", fb);
+		assertThat(applicationContext.containsBean("partition-data")).isTrue();
+
+		PeerRegionFactoryBean regionFactoryBean = applicationContext.getBean("&partition-data", PeerRegionFactoryBean.class);
+
+		assertThat(regionFactoryBean instanceof PartitionedRegionFactoryBean).isTrue();
+		assertThat(TestUtils.<Boolean>readField("persistent", regionFactoryBean)).isTrue();
+		RegionAttributes attrs = TestUtils.readField("attributes", regionFactoryBean);
 
 		EvictionAttributes evicAttr = attrs.getEvictionAttributes();
-		assertEquals(EvictionAction.LOCAL_DESTROY, evicAttr.getAction());
-		assertEquals(EvictionAlgorithm.LRU_MEMORY, evicAttr.getAlgorithm());
+
+		assertThat(evicAttr.getAction()).isEqualTo(EvictionAction.LOCAL_DESTROY);
+		assertThat(evicAttr.getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_MEMORY);
+
 		ObjectSizer sizer = evicAttr.getObjectSizer();
-		assertEquals(SimpleObjectSizer.class, sizer.getClass());
+
+		assertThat(sizer.getClass()).isEqualTo(SimpleObjectSizer.class);
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testEntryTtl() throws Exception {
 
-		assertTrue(applicationContext.containsBean("replicated-data"));
+		assertThat(applicationContext.containsBean("replicated-data")).isTrue();
 
 		PeerRegionFactoryBean fb = applicationContext.getBean("&replicated-data", PeerRegionFactoryBean.class);
 		RegionAttributes attrs = TestUtils.readField("attributes", fb);
 
 		ExpirationAttributes entryTTL = attrs.getEntryTimeToLive();
-		assertEquals(100, entryTTL.getTimeout());
-		assertEquals(ExpirationAction.DESTROY, entryTTL.getAction());
+		assertThat(entryTTL.getTimeout()).isEqualTo(100);
+		assertThat(entryTTL.getAction()).isEqualTo(ExpirationAction.DESTROY);
 
 		ExpirationAttributes entryTTI = attrs.getEntryIdleTimeout();
-		assertEquals(200, entryTTI.getTimeout());
-		assertEquals(ExpirationAction.INVALIDATE, entryTTI.getAction());
+		assertThat(entryTTI.getTimeout()).isEqualTo(200);
+		assertThat(entryTTI.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
 
 		ExpirationAttributes regionTTL = attrs.getRegionTimeToLive();
-		assertEquals(300, regionTTL.getTimeout());
-		assertEquals(ExpirationAction.DESTROY, regionTTL.getAction());
+		assertThat(regionTTL.getTimeout()).isEqualTo(300);
+		assertThat(regionTTL.getAction()).isEqualTo(ExpirationAction.DESTROY);
 
 		ExpirationAttributes regionTTI = attrs.getRegionIdleTimeout();
-		assertEquals(400, regionTTI.getTimeout());
-		assertEquals(ExpirationAction.INVALIDATE, regionTTI.getAction());
+		assertThat(regionTTI.getTimeout()).isEqualTo(400);
+		assertThat(regionTTI.getAction()).isEqualTo(ExpirationAction.INVALIDATE);
 	}
 
 
@@ -207,16 +207,16 @@ public class DiskStoreEvictionAndExpirationRegionParsingIntegrationTests extends
 	@SuppressWarnings("rawtypes")
 	public void testCustomExpiry() throws Exception {
 
-		assertTrue(applicationContext.containsBean("replicated-data-custom-expiry"));
+		assertThat(applicationContext.containsBean("replicated-data-custom-expiry")).isTrue();
 
 		PeerRegionFactoryBean fb = applicationContext.getBean("&replicated-data-custom-expiry", PeerRegionFactoryBean.class);
 		RegionAttributes attrs = TestUtils.readField("attributes", fb);
 
-		assertNotNull(attrs.getCustomEntryIdleTimeout());
-		assertNotNull(attrs.getCustomEntryTimeToLive());
+		assertThat(attrs.getCustomEntryIdleTimeout()).isNotNull();
+		assertThat(attrs.getCustomEntryTimeToLive()).isNotNull();
 
-		assertTrue(attrs.getCustomEntryIdleTimeout() instanceof TestCustomExpiry);
-		assertTrue(attrs.getCustomEntryTimeToLive() instanceof TestCustomExpiry);
+		assertThat(attrs.getCustomEntryIdleTimeout() instanceof TestCustomExpiry).isTrue();
+		assertThat(attrs.getCustomEntryTimeToLive() instanceof TestCustomExpiry).isTrue();
 	}
 
 	public static class TestCustomExpiry<K,V> implements CustomExpiry<K,V> {

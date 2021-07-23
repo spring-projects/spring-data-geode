@@ -19,19 +19,19 @@
 	<bean id="instantiator" class="org.springframework.data.gemfire.serialization.WiringInstantiator">
 		<constructor-arg>
 			<bean factory-bean="generator" factory-method="getInstantiator">
-				<constructor-arg value="org.springframework.data.gemfire.serialization.WiringInstantiatorTest$AnnotatedBean"/>
+				<constructor-arg value="org.springframework.data.gemfire.serialization.WiringInstantiatorIntegrationTests$AnnotatedBean"/>
 				<constructor-arg value="95"/>
 			</bean>
 		</constructor-arg>
 	</bean>
 
-	<bean class="org.springframework.data.gemfire.serialization.WiringInstantiatorTest$TemplateWiringBean" abstract="true" p:beans-ref="beans"/>
+	<bean class="org.springframework.data.gemfire.serialization.WiringInstantiatorIntegrationTests$TemplateWiringBean" abstract="true" p:beans-ref="beans"/>
 
 	<bean id="instantiator-factory" class="org.springframework.data.gemfire.serialization.InstantiatorFactoryBean">
 		<property name="customTypes">
 			<map>
-				<entry key="org.springframework.data.gemfire.serialization.WiringInstantiatorTest$TypeA" value="1025"/>
-				<entry key="org.springframework.data.gemfire.serialization.WiringInstantiatorTest$TypeB" value="1026"/>
+				<entry key="org.springframework.data.gemfire.serialization.WiringInstantiatorIntegrationTests$TypeA" value="1025"/>
+				<entry key="org.springframework.data.gemfire.serialization.WiringInstantiatorIntegrationTests$TypeB" value="1026"/>
 			</map>
 		</property>
 	</bean>

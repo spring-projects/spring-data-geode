@@ -15,10 +15,7 @@
  */
 package org.springframework.data.gemfire.repository.sample;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -33,9 +30,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The AlgorithmRepositoryIntegrationTests class is a test suite of test cases testing the contract and functionality of
- * GemFire's Repository extension when using a plain old Java interface for defining the application domain object
- * /entity type, rather than a Java class, that is the subject of the persistence operations.
+ * Integration Tests testing the contract and functionality of GemFire's Repository extension when using a plain old
+ * Java interface for defining the application domain object/entity type, rather than a Java class, that is the subject
+ * of the persistence operations.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -60,31 +57,36 @@ public class AlgorithmRepositoryIntegrationTests extends IntegrationTestsSupport
 	@Test
 	public void algorithmsRepositoryFunctionsCorrectly() {
 
-		assertNotNull("A reference to the AlgorithmRepository was not properly configured!", algorithmRepo);
-		assertNotNull("A reference to the 'Algorithms' GemFire Cache Region was not properly configured!",
-			algorithmsRegion);
-		assertEquals("Algorithms", algorithmsRegion.getName());
-		assertEquals("/Algorithms", algorithmsRegion.getFullPath());
-		assertTrue(algorithmsRegion.isEmpty());
+		assertThat(algorithmRepo)
+			.describedAs("A reference to the AlgorithmRepository was not properly configured!")
+			.isNotNull();
+
+		assertThat(algorithmsRegion)
+			.describedAs("A reference to the 'Algorithms' GemFire Cache Region was not properly configured!")
+			.isNotNull();
+
+		assertThat(algorithmsRegion.getName()).isEqualTo("Algorithms");
+		assertThat(algorithmsRegion.getFullPath()).isEqualTo("/Algorithms");
+		assertThat(algorithmsRegion.isEmpty()).isTrue();
 
 		algorithmRepo.save(new BinarySearch());
 		algorithmRepo.save(new HeapSort());
 
-		assertFalse(algorithmsRegion.isEmpty());
-		assertEquals(2, algorithmsRegion.size());
+		assertThat(algorithmsRegion.isEmpty()).isFalse();
+		assertThat(algorithmsRegion.size()).isEqualTo(2);
 
-		assertTrue(algorithmsRegion.get(BinarySearch.class.getSimpleName()) instanceof BinarySearch);
-		assertTrue(algorithmsRegion.get(HeapSort.class.getSimpleName()) instanceof HeapSort);
+		assertThat(algorithmsRegion.get(BinarySearch.class.getSimpleName()) instanceof BinarySearch).isTrue();
+		assertThat(algorithmsRegion.get(HeapSort.class.getSimpleName()) instanceof HeapSort).isTrue();
 
 		HeapSort heapSort = algorithmRepo.findByName(HeapSort.class.getSimpleName());
 
-		assertNotNull(heapSort);
-		assertEquals(HeapSort.class.getSimpleName(), heapSort.getName());
+		assertThat(heapSort).isNotNull();
+		assertThat(heapSort.getName()).isEqualTo(HeapSort.class.getSimpleName());
 
 		BinarySearch binarySearch = algorithmRepo.findByName(BinarySearch.class.getSimpleName());
 
-		assertNotNull(binarySearch);
-		assertEquals(BinarySearch.class.getSimpleName(), binarySearch.getName());
+		assertThat(binarySearch).isNotNull();
+		assertThat(binarySearch.getName()).isEqualTo(BinarySearch.class.getSimpleName());
 	}
 
 	protected static abstract class AbstractAlgorithm implements Algorithm {

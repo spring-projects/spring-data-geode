@@ -16,7 +16,7 @@
  */
 package org.springframework.data.gemfire.serialization.json;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
 import java.util.Arrays;
@@ -43,8 +43,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests testings SDG support for storing and reading JSON data to/from a {@link Region}
- * by (un)marshalling JSON data using Jackson.
+ * Integration Tests for storing and reading JSON data to and from a {@link Region} by (un)marshalling JSON data
+ * using Jackson.
  *
  * @author David Turanski
  * @author John Blum
@@ -91,11 +91,11 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 
 		this.jsonRegion.put("keyOne", json);
 
-		assertEquals(json, this.jsonRegion.put("keyOne", json));
+		assertThat(this.jsonRegion.put("keyOne", json)).isEqualTo(json);
 
 		this.jsonRegion.create("keyTwo", json);
 
-		assertEquals(json, this.jsonRegion.get("keyTwo"));
+		assertThat(this.jsonRegion.get("keyTwo")).isEqualTo(json);
 	}
 
 	@Test
@@ -110,8 +110,8 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 
 		Map<Object, Object> results = this.jsonRegion.getAll(Arrays.asList("key1", "key2"));
 
-		assertEquals("{\"hello1\":\"world1\"}", results.get("key1"));
-		assertEquals("{\"hello2\":\"world2\"}", results.get("key2"));
+		assertThat(results.get("key1")).isEqualTo("{\"hello1\":\"world1\"}");
+		assertThat(results.get("key2")).isEqualTo("{\"hello2\":\"world2\"}");
 	}
 
 	@Test
@@ -123,11 +123,11 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 
 		String json = String.valueOf(this.jsonRegion.get("dave"));
 
-		assertEquals(json, toJson(davidTuranski));
+		assertThat(toJson(davidTuranski)).isEqualTo(json);
 
 		Object result = jsonRegion.put("dave", davidTuranski);
 
-		assertEquals(toJson(davidTuranski), result);
+		assertThat(result).isEqualTo(toJson(davidTuranski));
 	}
 
 	@Test
@@ -140,7 +140,7 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 		SelectResults<String> results = this.template.find(String.format("SELECT * FROM %s WHERE firstname=$1",
 			this.jsonRegion.getFullPath()), davidTuranski.getFirstname());
 
-		assertEquals(toJson(davidTuranski), results.iterator().next());
+		assertThat(results.iterator().next()).isEqualTo(toJson(davidTuranski));
 	}
 
 	@Test
@@ -153,7 +153,7 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 		String json = this.template.findUnique(String.format("SELECT * FROM %s WHERE firstname=$1",
 			this.jsonRegion.getFullPath()), davidTuranski.getFirstname());
 
-		assertEquals(toJson(davidTuranski), json);
+		assertThat(json).isEqualTo(toJson(davidTuranski));
 	}
 
 	@Test
@@ -166,6 +166,6 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 		SelectResults<String> results =
 			this.template.query(String.format("firstname='%s'", davidTuranski.getFirstname()));
 
-		assertEquals(toJson(davidTuranski), results.iterator().next());
+		assertThat(results.iterator().next()).isEqualTo(toJson(davidTuranski));
 	}
 }

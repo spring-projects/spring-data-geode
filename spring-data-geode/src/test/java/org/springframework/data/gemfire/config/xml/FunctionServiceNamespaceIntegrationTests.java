@@ -15,8 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,9 +54,9 @@ public class FunctionServiceNamespaceIntegrationTests extends IntegrationTestsSu
 	@Test
 	public void testFunctionsRegistered() {
 
-		assertEquals(2, FunctionService.getRegisteredFunctions().size());
-		assertNotNull(FunctionService.getFunction("function1"));
-		assertNotNull(FunctionService.getFunction("function2"));
+		assertThat(FunctionService.getRegisteredFunctions().size()).isEqualTo(2);
+		assertThat(FunctionService.getFunction("function1")).isNotNull();
+		assertThat(FunctionService.getFunction("function2")).isNotNull();
 	}
 
 	public static class Function1 implements Function<Object> {

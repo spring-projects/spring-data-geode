@@ -15,9 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -73,15 +71,15 @@ public class RegionDefinitionUsingBeansNamespaceIntegrationTests extends Integra
 	@Test
 	public void testExampleRegionBeanDefinitionConfiguration() {
 
-		assertNotNull("The '/Example' Region was not properly configured and initialized!", example);
-		assertEquals("Example", example.getName());
-		assertEquals("/Example", example.getFullPath());
-		assertNotNull(example.getAttributes());
-		assertEquals(DataPolicy.PERSISTENT_PARTITION, example.getAttributes().getDataPolicy());
-		assertTrue(example.getAttributes().getStatisticsEnabled());
-		assertNotNull(example.getAttributes().getPartitionAttributes());
-		assertEquals(1, example.getAttributes().getPartitionAttributes().getRedundantCopies());
-		assertEquals(0, example.getAttributes().getPartitionAttributes().getRecoveryDelay());
+		assertThat(example).as("The '/Example' Region was not properly configured and initialized!").isNotNull();
+		assertThat(example.getName()).isEqualTo("Example");
+		assertThat(example.getFullPath()).isEqualTo("/Example");
+		assertThat(example.getAttributes()).isNotNull();
+		assertThat(example.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_PARTITION);
+		assertThat(example.getAttributes().getStatisticsEnabled()).isTrue();
+		assertThat(example.getAttributes().getPartitionAttributes()).isNotNull();
+		assertThat(example.getAttributes().getPartitionAttributes().getRedundantCopies()).isEqualTo(1);
+		assertThat(example.getAttributes().getPartitionAttributes().getRecoveryDelay()).isEqualTo(0);
 	}
 
 	@Test
@@ -90,32 +88,33 @@ public class RegionDefinitionUsingBeansNamespaceIntegrationTests extends Integra
 		PeerRegionFactoryBean<?, ?> anotherExampleRegionFactoryBean =
 			applicationContext.getBean("&AnotherExample", PeerRegionFactoryBean.class);
 
-		assertNotNull(anotherExampleRegionFactoryBean);
-		assertEquals(DataPolicy.PERSISTENT_PARTITION, anotherExampleRegionFactoryBean.getDataPolicy());
-		assertTrue(Boolean.TRUE.equals(TestUtils.readField("persistent", anotherExampleRegionFactoryBean)));
+		assertThat(anotherExampleRegionFactoryBean).isNotNull();
+		assertThat(anotherExampleRegionFactoryBean.getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_PARTITION);
+		assertThat(Boolean.TRUE.equals(TestUtils.readField("persistent", anotherExampleRegionFactoryBean))).isTrue();
 
 		RegionAttributes<?, ?> anotherExampleRegionAttributes =
 			TestUtils.readField("attributes", anotherExampleRegionFactoryBean);
 
-		assertNotNull(anotherExampleRegionAttributes);
-		assertEquals(DataPolicy.PARTITION, anotherExampleRegionAttributes.getDataPolicy());
+		assertThat(anotherExampleRegionAttributes).isNotNull();
+		assertThat(anotherExampleRegionAttributes.getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
 
 		PartitionAttributes<?, ?> anotherExamplePartitionAttributes = anotherExampleRegionAttributes.getPartitionAttributes();
 
-		assertNotNull(anotherExamplePartitionAttributes);
-		assertEquals(2, anotherExamplePartitionAttributes.getRedundantCopies());
+		assertThat(anotherExamplePartitionAttributes).isNotNull();
+		assertThat(anotherExamplePartitionAttributes.getRedundantCopies()).isEqualTo(2);
 	}
 
 	@Test
 	public void testAnotherExampleRegionDefinitionConfiguration() {
 
-		assertNotNull("The '/AnotherExample' Region was not properly configured and initialized!", anotherExample);
-		assertEquals("AnotherExample", anotherExample.getName());
-		assertEquals("/AnotherExample", anotherExample.getFullPath());
-		assertNotNull(anotherExample.getAttributes());
-		assertEquals(DataPolicy.PERSISTENT_PARTITION, anotherExample.getAttributes().getDataPolicy());
-		assertNotNull(anotherExample.getAttributes().getPartitionAttributes());
-		assertEquals(2, anotherExample.getAttributes().getPartitionAttributes().getRedundantCopies());
+		assertThat(anotherExample).as("The '/AnotherExample' Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(anotherExample.getName()).isEqualTo("AnotherExample");
+		assertThat(anotherExample.getFullPath()).isEqualTo("/AnotherExample");
+		assertThat(anotherExample.getAttributes()).isNotNull();
+		assertThat(anotherExample.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_PARTITION);
+		assertThat(anotherExample.getAttributes().getPartitionAttributes()).isNotNull();
+		assertThat(anotherExample.getAttributes().getPartitionAttributes().getRedundantCopies()).isEqualTo(2);
 	}
 
 	public static final class TestRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> { }

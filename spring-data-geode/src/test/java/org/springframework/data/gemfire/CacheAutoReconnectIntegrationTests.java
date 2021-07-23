@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.File;
 
-import org.apache.geode.cache.Cache;
-
 import org.junit.After;
 import org.junit.Test;
+
+import org.apache.geode.cache.Cache;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
- * The CacheAutoReconnectIntegrationTests class is a tests suite of test cases testing Spring Data GemFire's support
- * of GemFire's Auto-Reconnect functionality release in 8.0.
+ * Integration Tests testing SDG support of Apache Geode Auto-Reconnect functionality.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Cache
+ * @see org.springframework.data.gemfire.CacheFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 1.5.0
  */
-public class CacheAutoReconnectIntegrationTests {
+public class CacheAutoReconnectIntegrationTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -51,28 +51,36 @@ public class CacheAutoReconnectIntegrationTests {
 	}
 
 	protected Cache getCache(String configLocation) {
-		String baseConfigLocation = File.separator.concat(
-			getClass().getPackage().getName().replace('.', File.separatorChar));
+
+		String baseConfigLocation =
+			File.separator.concat(getClass().getPackage().getName().replace('.', File.separatorChar));
+
 		applicationContext = new ClassPathXmlApplicationContext(baseConfigLocation.concat(File.separator).concat(configLocation));
+
 		return applicationContext.getBean(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME, Cache.class);
 	}
 
 	@Test
 	public void testAutoReconnectDisabled() {
+
 		Cache cache = getCache("cacheAutoReconnectDisabledIntegrationTests.xml");
-		assertNotNull(cache);
-		assertNotNull(cache.getDistributedSystem());
-		assertNotNull(cache.getDistributedSystem().getProperties());
-		assertTrue(Boolean.valueOf(cache.getDistributedSystem().getProperties().getProperty("disable-auto-reconnect")));
+
+		assertThat(cache).isNotNull();
+		assertThat(cache.getDistributedSystem()).isNotNull();
+		assertThat(cache.getDistributedSystem().getProperties()).isNotNull();
+		assertThat(Boolean.valueOf(cache.getDistributedSystem().getProperties().getProperty("disable-auto-reconnect")))
+			.isTrue();
 	}
 
 	@Test
 	public void testAutoReconnectEnabled() {
-		Cache cache = getCache("cacheAutoReconnectEnabledIntegrationTests.xml");
-		assertNotNull(cache);
-		assertNotNull(cache.getDistributedSystem());
-		assertNotNull(cache.getDistributedSystem().getProperties());
-		assertFalse(Boolean.valueOf(cache.getDistributedSystem().getProperties().getProperty("disable-auto-reconnect")));
-	}
 
+		Cache cache = getCache("cacheAutoReconnectEnabledIntegrationTests.xml");
+
+		assertThat(cache).isNotNull();
+		assertThat(cache.getDistributedSystem()).isNotNull();
+		assertThat(cache.getDistributedSystem().getProperties()).isNotNull();
+		assertThat(Boolean.valueOf(cache.getDistributedSystem().getProperties().getProperty("disable-auto-reconnect")))
+			.isFalse();
+	}
 }

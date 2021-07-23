@@ -16,7 +16,6 @@
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import javax.annotation.Resource;
 
@@ -34,22 +33,6 @@ import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApp
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-/**
- * Integration Tests with test cases testing the functionality of GemFire Index creation using
- * the Spring Data for Apache Geode XML namespace (XSD) configuration metadata and the {@link IndexParser}.
- *
- * @author Costin Leau
- * @author David Turanski
- * @author John Blum
- * @see org.apache.geode.cache.Region
- * @see org.springframework.data.gemfire.IndexFactoryBean
- * @see org.springframework.data.gemfire.config.xml.IndexParser
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
- * @since 1.1.0
- */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "index-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings({ "deprecation", "unused" })
@@ -69,11 +52,11 @@ public class IndexNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void basicIndexIsCorrect() {
 
-		assertEquals("basic", basic.getName());
-		assertEquals("status", basic.getIndexedExpression());
-		assertEquals(Region.SEPARATOR + TEST_REGION_NAME, basic.getFromClause());
-		assertEquals(TEST_REGION_NAME, basic.getRegion().getName());
-		assertEquals(org.apache.geode.cache.query.IndexType.FUNCTIONAL, basic.getType());
+		assertThat(basic.getName()).isEqualTo("basic");
+		assertThat(basic.getIndexedExpression()).isEqualTo("status");
+		assertThat(basic.getFromClause()).isEqualTo(Region.SEPARATOR + TEST_REGION_NAME);
+		assertThat(basic.getRegion().getName()).isEqualTo(TEST_REGION_NAME);
+		assertThat(basic.getType()).isEqualTo(org.apache.geode.cache.query.IndexType.FUNCTIONAL);
 	}
 
 	@Test
@@ -88,11 +71,11 @@ public class IndexNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void complexIndexIsCorrect() {
 
-		assertEquals("complex-index", complex.getName());
-		assertEquals("tsi.name", complex.getIndexedExpression());
-		assertEquals(Region.SEPARATOR + TEST_REGION_NAME + " tsi", complex.getFromClause());
-		assertEquals(TEST_REGION_NAME, complex.getRegion().getName());
-		assertEquals(org.apache.geode.cache.query.IndexType.HASH, complex.getType());
+		assertThat(complex.getName()).isEqualTo("complex-index");
+		assertThat(complex.getIndexedExpression()).isEqualTo("tsi.name");
+		assertThat(complex.getFromClause()).isEqualTo(Region.SEPARATOR + TEST_REGION_NAME + " tsi");
+		assertThat(complex.getRegion().getName()).isEqualTo(TEST_REGION_NAME);
+		assertThat(complex.getType()).isEqualTo(org.apache.geode.cache.query.IndexType.HASH);
 	}
 
 	@Test

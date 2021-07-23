@@ -15,13 +15,8 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
@@ -93,7 +88,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			@Override
 			public void verify() {
 				Region region = regionFactoryBean.getRegion();
-				assertEquals(DataPolicy.DEFAULT, region.getAttributes().getDataPolicy());
+				assertThat(region.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.DEFAULT);
 			}
 		};
 	}
@@ -110,7 +105,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			@Override
 			public void verify() {
 				Region region = regionFactoryBean.getRegion();
-				assertEquals(DataPolicy.PERSISTENT_REPLICATE, region.getAttributes().getDataPolicy());
+				assertThat(region.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_REPLICATE);
 			}
 		};
 	}
@@ -127,9 +122,9 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 			@Override
 			public void verify() {
-				assertNotNull(this.exception);
-				assertEquals("Data Policy [PERSISTENT_REPLICATE] is not valid when persistent is false",
-					exception.getMessage());
+				assertThat(this.exception).isNotNull();
+				assertThat(exception.getMessage())
+					.isEqualTo("Data Policy [PERSISTENT_REPLICATE] is not valid when persistent is false");
 			}
 		};
 	}
@@ -178,15 +173,15 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 		PeerRegionFactoryBean<?, ?> factoryBean = new TestRegionFactoryBean<>();
 
-		assertFalse(factoryBean.isPersistent());
+		assertThat(factoryBean.isPersistent()).isFalse();
 
 		factoryBean.setPersistent(false);
 
-		assertFalse(factoryBean.isPersistent());
+		assertThat(factoryBean.isPersistent()).isFalse();
 
 		factoryBean.setPersistent(true);
 
-		assertTrue(factoryBean.isPersistent());
+		assertThat(factoryBean.isPersistent()).isTrue();
 	}
 
 	@Test
@@ -194,15 +189,15 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 		PeerRegionFactoryBean<?, ?> factoryBean = new TestRegionFactoryBean<>();
 
-		assertFalse(factoryBean.isNotPersistent());
+		assertThat(factoryBean.isNotPersistent()).isFalse();
 
 		factoryBean.setPersistent(true);
 
-		assertFalse(factoryBean.isNotPersistent());
+		assertThat(factoryBean.isNotPersistent()).isFalse();
 
 		factoryBean.setPersistent(false);
 
-		assertTrue(factoryBean.isNotPersistent());
+		assertThat(factoryBean.isNotPersistent()).isTrue();
 	}
 
 	@Test
@@ -228,7 +223,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 			@Override
 			public void setDataPolicy(final DataPolicy dataPolicy) {
-				assertEquals(DataPolicy.PERSISTENT_PARTITION, dataPolicy);
+				assertThat(dataPolicy).isEqualTo(DataPolicy.PERSISTENT_PARTITION);
 				super.setDataPolicy(dataPolicy);
 				setDataPolicyCalled.set(true);
 			}
@@ -242,8 +237,8 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		factoryBean.setAttributes(mockRegionAttributes);
 		factoryBean.setShortcut(RegionShortcut.PARTITION_REDUNDANT_PERSISTENT_OVERFLOW);
 
-		assertSame(mockRegionFactory, factoryBean.createRegionFactory(mockCache));
-		assertTrue(setDataPolicyCalled.get());
+		assertThat(factoryBean.createRegionFactory(mockCache)).isSameAs(mockRegionFactory);
+		assertThat(setDataPolicyCalled.get()).isTrue();
 
 		verify(mockCache, times(1)).createRegionFactory(eq(RegionShortcut.PARTITION_REDUNDANT_PERSISTENT_OVERFLOW));
 	}
@@ -263,7 +258,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		factoryBean.setAttributes(mockRegionAttributes);
 		factoryBean.setShortcut(null);
 
-		assertSame(mockRegionFactory, factoryBean.createRegionFactory(mockCache));
+		assertThat(factoryBean.createRegionFactory(mockCache)).isSameAs(mockRegionFactory);
 
 		verify(mockCache, times(1)).createRegionFactory(eq(mockRegionAttributes));
 	}
@@ -282,7 +277,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		factoryBean.setAttributes(null);
 		factoryBean.setShortcut(null);
 
-		assertSame(mockRegionFactory, factoryBean.createRegionFactory(mockCache));
+		assertThat(factoryBean.createRegionFactory(mockCache)).isSameAs(mockRegionFactory);
 
 		verify(mockCache).createRegionFactory();
 	}
@@ -329,11 +324,14 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		when(mockRegionAttributes.getSubscriptionAttributes()).thenReturn(testSubscriptionAttributes);
 
 		PeerRegionFactoryBean factoryBean = new PeerRegionFactoryBean() {
-			@Override boolean isUserSpecifiedEvictionAttributes(final RegionAttributes regionAttributes) {
+
+			@Override
+			boolean isUserSpecifiedEvictionAttributes(RegionAttributes regionAttributes) {
 				return true;
 			}
 
-			@Override void validateRegionAttributes(final RegionAttributes regionAttributes) {
+			@Override
+			void validateRegionAttributes(RegionAttributes regionAttributes) {
 				// no-op!
 			}
 		};
@@ -440,11 +438,14 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		when(mockRegionAttributes.getSubscriptionAttributes()).thenReturn(null);
 
 		PeerRegionFactoryBean factoryBean = new PeerRegionFactoryBean() {
-			@Override boolean isUserSpecifiedEvictionAttributes(final RegionAttributes regionAttributes) {
+
+			@Override
+			boolean isUserSpecifiedEvictionAttributes(RegionAttributes regionAttributes) {
 				return false;
 			}
 
-			@Override void validateRegionAttributes(final RegionAttributes regionAttributes) {
+			@Override
+			void validateRegionAttributes(RegionAttributes regionAttributes) {
 				// no-op!
 			}
 		};
@@ -496,17 +497,18 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 		RegionAttributes regionAttributes = TestUtils.readField("regionAttributes",
 			TestUtils.readField("attrsFactory", mockRegionFactory));
+
 		PartitionAttributes actualPartitionAttributes = regionAttributes.getPartitionAttributes();
 
-		assertNotNull(actualPartitionAttributes);
-		assertNotSame(testPartitionAttributes, actualPartitionAttributes);
-		assertEquals("TestRegion", actualPartitionAttributes.getColocatedWith());
-		assertEquals(0, actualPartitionAttributes.getLocalMaxMemory());
-		assertEquals(15000L, actualPartitionAttributes.getRecoveryDelay());
-		assertEquals(1, actualPartitionAttributes.getRedundantCopies());
-		assertEquals(30000L, actualPartitionAttributes.getStartupRecoveryDelay());
-		assertEquals(1024000L, actualPartitionAttributes.getTotalMaxMemory());
-		assertEquals(51, actualPartitionAttributes.getTotalNumBuckets());
+		assertThat(actualPartitionAttributes).isNotNull();
+		assertThat(actualPartitionAttributes).isNotSameAs(testPartitionAttributes);
+		assertThat(actualPartitionAttributes.getColocatedWith()).isEqualTo("TestRegion");
+		assertThat(actualPartitionAttributes.getLocalMaxMemory()).isEqualTo(0);
+		assertThat(actualPartitionAttributes.getRecoveryDelay()).isEqualTo(15000L);
+		assertThat(actualPartitionAttributes.getRedundantCopies()).isEqualTo(1);
+		assertThat(actualPartitionAttributes.getStartupRecoveryDelay()).isEqualTo(30000L);
+		assertThat(actualPartitionAttributes.getTotalMaxMemory()).isEqualTo(1024000L);
+		assertThat(actualPartitionAttributes.getTotalNumBuckets()).isEqualTo(51);
 
 		verify(mockRegionAttributes, times(2)).getPartitionAttributes();
 	}
@@ -530,15 +532,15 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			TestUtils.readField("attrsFactory", mockRegionFactory));
 		PartitionAttributes actualPartitionAttributes = regionAttributes.getPartitionAttributes();
 
-		assertNotNull(actualPartitionAttributes);
-		assertNotSame(testPartitionAttributes, actualPartitionAttributes);
-		assertEquals("TestRegion", actualPartitionAttributes.getColocatedWith());
-		assertEquals(512000, actualPartitionAttributes.getLocalMaxMemory());
-		assertEquals(15000L, actualPartitionAttributes.getRecoveryDelay());
-		assertEquals(1, actualPartitionAttributes.getRedundantCopies());
-		assertEquals(30000L, actualPartitionAttributes.getStartupRecoveryDelay());
-		assertEquals(1024000L, actualPartitionAttributes.getTotalMaxMemory());
-		assertEquals(51, actualPartitionAttributes.getTotalNumBuckets());
+		assertThat(actualPartitionAttributes).isNotNull();
+		assertThat(actualPartitionAttributes).isNotSameAs(testPartitionAttributes);
+		assertThat(actualPartitionAttributes.getColocatedWith()).isEqualTo("TestRegion");
+		assertThat(actualPartitionAttributes.getLocalMaxMemory()).isEqualTo(512000);
+		assertThat(actualPartitionAttributes.getRecoveryDelay()).isEqualTo(15000L);
+		assertThat(actualPartitionAttributes.getRedundantCopies()).isEqualTo(1);
+		assertThat(actualPartitionAttributes.getStartupRecoveryDelay()).isEqualTo(30000L);
+		assertThat(actualPartitionAttributes.getTotalMaxMemory()).isEqualTo(1024000L);
+		assertThat(actualPartitionAttributes.getTotalNumBuckets()).isEqualTo(51);
 
 		verify(mockRegionAttributes, times(2)).getPartitionAttributes();
 	}
@@ -560,17 +562,18 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 		RegionAttributes regionAttributes = TestUtils.readField("regionAttributes",
 			TestUtils.readField("attrsFactory", mockRegionFactory));
+
 		PartitionAttributes actualPartitionAttributes = regionAttributes.getPartitionAttributes();
 
-		assertNotNull(actualPartitionAttributes);
-		assertNotSame(testPartitionAttributes, actualPartitionAttributes);
-		assertEquals("TestRegion", actualPartitionAttributes.getColocatedWith());
-		assertEquals(512000, actualPartitionAttributes.getLocalMaxMemory());
-		assertEquals(15000L, actualPartitionAttributes.getRecoveryDelay());
-		assertEquals(3, actualPartitionAttributes.getRedundantCopies());
-		assertEquals(30000L, actualPartitionAttributes.getStartupRecoveryDelay());
-		assertEquals(1024000L, actualPartitionAttributes.getTotalMaxMemory());
-		assertEquals(51, actualPartitionAttributes.getTotalNumBuckets());
+		assertThat(actualPartitionAttributes).isNotNull();
+		assertThat(actualPartitionAttributes).isNotSameAs(testPartitionAttributes);
+		assertThat(actualPartitionAttributes.getColocatedWith()).isEqualTo("TestRegion");
+		assertThat(actualPartitionAttributes.getLocalMaxMemory()).isEqualTo(512000);
+		assertThat(actualPartitionAttributes.getRecoveryDelay()).isEqualTo(15000L);
+		assertThat(actualPartitionAttributes.getRedundantCopies()).isEqualTo(3);
+		assertThat(actualPartitionAttributes.getStartupRecoveryDelay()).isEqualTo(30000L);
+		assertThat(actualPartitionAttributes.getTotalMaxMemory()).isEqualTo(1024000L);
+		assertThat(actualPartitionAttributes.getTotalNumBuckets()).isEqualTo(51);
 
 		verify(mockRegionAttributes, times(2)).getPartitionAttributes();
 	}
@@ -592,17 +595,18 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 		RegionAttributes regionAttributes = TestUtils.readField("regionAttributes",
 			TestUtils.readField("attrsFactory", mockRegionFactory));
+
 		PartitionAttributes actualPartitionAttributes = regionAttributes.getPartitionAttributes();
 
-		assertNotNull(actualPartitionAttributes);
-		assertNotSame(testPartitionAttributes, actualPartitionAttributes);
-		assertEquals("TestRegion", actualPartitionAttributes.getColocatedWith());
-		assertEquals(0, actualPartitionAttributes.getLocalMaxMemory());
-		assertEquals(15000L, actualPartitionAttributes.getRecoveryDelay());
-		assertEquals(0, actualPartitionAttributes.getRedundantCopies());
-		assertEquals(30000L, actualPartitionAttributes.getStartupRecoveryDelay());
-		assertEquals(1024000L, actualPartitionAttributes.getTotalMaxMemory());
-		assertEquals(51, actualPartitionAttributes.getTotalNumBuckets());
+		assertThat(actualPartitionAttributes).isNotNull();
+		assertThat(actualPartitionAttributes).isNotSameAs(testPartitionAttributes);
+		assertThat(actualPartitionAttributes.getColocatedWith()).isEqualTo("TestRegion");
+		assertThat(actualPartitionAttributes.getLocalMaxMemory()).isEqualTo(0);
+		assertThat(actualPartitionAttributes.getRecoveryDelay()).isEqualTo(15000L);
+		assertThat(actualPartitionAttributes.getRedundantCopies()).isEqualTo(0);
+		assertThat(actualPartitionAttributes.getStartupRecoveryDelay()).isEqualTo(30000L);
+		assertThat(actualPartitionAttributes.getTotalMaxMemory()).isEqualTo(1024000L);
+		assertThat(actualPartitionAttributes.getTotalNumBuckets()).isEqualTo(51);
 
 		verify(mockRegionAttributes, times(2)).getPartitionAttributes();
 	}
@@ -624,17 +628,18 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 
 		RegionAttributes regionAttributes = TestUtils.readField("regionAttributes",
 			TestUtils.readField("attrsFactory", mockRegionFactory));
+
 		PartitionAttributes actualPartitionAttributes = regionAttributes.getPartitionAttributes();
 
-		assertNotNull(actualPartitionAttributes);
-		assertNotSame(testPartitionAttributes, actualPartitionAttributes);
-		assertEquals("TestRegion", actualPartitionAttributes.getColocatedWith());
-		assertEquals(512000, actualPartitionAttributes.getLocalMaxMemory());
-		assertEquals(15000L, actualPartitionAttributes.getRecoveryDelay());
-		assertEquals(0, actualPartitionAttributes.getRedundantCopies());
-		assertEquals(30000L, actualPartitionAttributes.getStartupRecoveryDelay());
-		assertEquals(1024000L, actualPartitionAttributes.getTotalMaxMemory());
-		assertEquals(51, actualPartitionAttributes.getTotalNumBuckets());
+		assertThat(actualPartitionAttributes).isNotNull();
+		assertThat(actualPartitionAttributes).isNotSameAs(testPartitionAttributes);
+		assertThat(actualPartitionAttributes.getColocatedWith()).isEqualTo("TestRegion");
+		assertThat(actualPartitionAttributes.getLocalMaxMemory()).isEqualTo(512000);
+		assertThat(actualPartitionAttributes.getRecoveryDelay()).isEqualTo(15000L);
+		assertThat(actualPartitionAttributes.getRedundantCopies()).isEqualTo(0);
+		assertThat(actualPartitionAttributes.getStartupRecoveryDelay()).isEqualTo(30000L);
+		assertThat(actualPartitionAttributes.getTotalMaxMemory()).isEqualTo(1024000L);
+		assertThat(actualPartitionAttributes.getTotalNumBuckets()).isEqualTo(51);
 
 		verify(mockRegionAttributes, times(2)).getPartitionAttributes();
 	}
@@ -697,7 +702,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "  ");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [  ] is invalid", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [  ] is invalid");
 			throw expected;
 		}
 		finally {
@@ -717,7 +722,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [] is invalid", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [] is invalid");
 			throw expected;
 		}
 		finally {
@@ -737,7 +742,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "CSV");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [CSV] is invalid", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [CSV] is invalid");
 			throw expected;
 		}
 		finally {
@@ -778,7 +783,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "EMPTY");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [EMPTY] is not valid when persistent is true", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [EMPTY] is not valid when persistent is true");
 			throw expected;
 		}
 		finally {
@@ -819,7 +824,8 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, false, "PERSISTENT_PARTITION");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [PERSISTENT_PARTITION] is not valid when persistent is false", expected.getMessage());
+			assertThat(expected.getMessage())
+				.isEqualTo("Data Policy [PERSISTENT_PARTITION] is not valid when persistent is false");
 			throw expected;
 		}
 		finally {
@@ -842,7 +848,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 				"Setting the 'persistent' attribute to TRUE and 'Data Policy' to PARTITION should have thrown an IllegalArgumentException!");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [PARTITION] is not valid when persistent is true", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [PARTITION] is not valid when persistent is true");
 			throw expected;
 		}
 		finally {
@@ -886,7 +892,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		factoryBean.resolveDataPolicy(mockRegionFactory, null, (String) null);
 
 		verify(mockRegionFactory, times(1)).setDataPolicy(eq(DataPolicy.PRELOADED));
-		assertEquals(DataPolicy.PRELOADED, factoryBean.getDataPolicy());
+		assertThat(factoryBean.getDataPolicy()).isEqualTo(DataPolicy.PRELOADED);
 	}
 
 	@Test
@@ -900,7 +906,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		factoryBean.resolveDataPolicy(mockRegionFactory, false, (String) null);
 
 		verify(mockRegionFactory, times(1)).setDataPolicy(eq(DataPolicy.PARTITION));
-		assertEquals(DataPolicy.PARTITION, factoryBean.getDataPolicy());
+		assertThat(factoryBean.getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
 	}
 
 	@Test
@@ -914,7 +920,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		factoryBean.resolveDataPolicy(mockRegionFactory, true, (String) null);
 
 		verify(mockRegionFactory, times(1)).setDataPolicy(eq(DataPolicy.PERSISTENT_PARTITION));
-		assertEquals(DataPolicy.PERSISTENT_PARTITION, factoryBean.getDataPolicy());
+		assertThat(factoryBean.getDataPolicy()).isEqualTo(DataPolicy.PERSISTENT_PARTITION);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -928,7 +934,8 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, false, (String) null);
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [PERSISTENT_PARTITION] is not valid when persistent is false", expected.getMessage());
+			assertThat(expected.getMessage())
+				.isEqualTo("Data Policy [PERSISTENT_PARTITION] is not valid when persistent is false");
 			throw expected;
 		}
 		finally {
@@ -950,7 +957,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, (String) null);
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [PARTITION] is not valid when persistent is true", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [PARTITION] is not valid when persistent is true");
 			throw expected;
 		}
 		finally {
@@ -1025,10 +1032,12 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		try {
 			factoryBean.setPersistent(false);
 			factoryBean.resolveDataPolicy(mockRegionFactory, false, DataPolicy.PERSISTENT_REPLICATE);
-			fail("Setting the 'persistent' attribute to FALSE and 'Data Policy' to PERSISTENT_REPLICATE should have thrown an IllegalArgumentException!");
+			fail(
+				"Setting the 'persistent' attribute to FALSE and 'Data Policy' to PERSISTENT_REPLICATE should have thrown an IllegalArgumentException!");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [PERSISTENT_REPLICATE] is not valid when persistent is false", expected.getMessage());
+			assertThat(expected.getMessage())
+				.isEqualTo("Data Policy [PERSISTENT_REPLICATE] is not valid when persistent is false");
 			throw expected;
 		}
 		finally {
@@ -1047,10 +1056,11 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 		try {
 			factoryBean.setPersistent(true);
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "REPLICATE");
-			fail("Setting the 'persistent' attribute to TRUE and 'Data Policy' to REPLICATE should have thrown an IllegalArgumentException!");
+			fail(
+				"Setting the 'persistent' attribute to TRUE and 'Data Policy' to REPLICATE should have thrown an IllegalArgumentException!");
 		}
 		catch (IllegalArgumentException expected) {
-			assertEquals("Data Policy [REPLICATE] is not valid when persistent is true", expected.getMessage());
+			assertThat(expected.getMessage()).isEqualTo("Data Policy [REPLICATE] is not valid when persistent is true");
 			throw expected;
 		}
 		finally {

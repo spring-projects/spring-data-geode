@@ -16,10 +16,7 @@
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
 
 import java.io.File;
@@ -141,7 +138,7 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 		locatorWorkingDirectory = new File(System.getProperty("java.io.tmpdir"), locatorName.toLowerCase());
 
-		assertTrue(locatorWorkingDirectory.isDirectory() || locatorWorkingDirectory.mkdirs());
+		assertThat(locatorWorkingDirectory.isDirectory() || locatorWorkingDirectory.mkdirs()).isTrue();
 
 		ZipUtils.unzip(new ClassPathResource("/cluster_config.zip"), locatorWorkingDirectory);
 
@@ -206,20 +203,20 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 	private Region<?, ?> assertRegion(Region<?, ?> actualRegion, String expectedRegionName, String expectedRegionFullPath) {
 
-		assertNotNull(String.format("The [%s] was not properly configured and initialized!",
-			expectedRegionName), actualRegion);
-		assertEquals(expectedRegionName, actualRegion.getName());
-		assertEquals(expectedRegionFullPath, actualRegion.getFullPath());
+		assertThat(actualRegion).as(String.format("The [%s] was not properly configured and initialized!",
+			expectedRegionName)).isNotNull();
+		assertThat(actualRegion.getName()).isEqualTo(expectedRegionName);
+		assertThat(actualRegion.getFullPath()).isEqualTo(expectedRegionFullPath);
 
 		return actualRegion;
 	}
 
 	private Region<?, ?> assertRegionAttributes(Region<?, ?> actualRegion, DataPolicy expectedDataPolicy, Scope expectedScope) {
 
-		assertNotNull(actualRegion);
-		assertNotNull(actualRegion.getAttributes());
-		assertEquals(expectedDataPolicy, actualRegion.getAttributes().getDataPolicy());
-		assertEquals(expectedScope, actualRegion.getAttributes().getScope());
+		assertThat(actualRegion).isNotNull();
+		assertThat(actualRegion.getAttributes()).isNotNull();
+		assertThat(actualRegion.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);
+		assertThat(actualRegion.getAttributes().getScope()).isEqualTo(expectedScope);
 
 		return actualRegion;
 	}
@@ -282,8 +279,9 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 			assertThat(expected).hasCauseInstanceOf(BeanInitializationException.class);
 
-			assertTrue(String.format("Message was [%s]", expected.getMessage()), expected.getCause().getMessage()
-				.matches("Region \\[ClusterConfigRegion\\] in Cache \\[.*\\] not found"));
+			assertThat(expected.getCause().getMessage()
+				.matches("Region \\[ClusterConfigRegion\\] in Cache \\[.*\\] not found"))
+				.as(String.format("Message was [%s]", expected.getMessage())).isTrue();
 		}
 	}
 }

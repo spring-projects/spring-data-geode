@@ -13,31 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
+
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 import org.xml.sax.SAXParseException;
 
 /**
- * The SubRegionWithInvalidDataPolicyTest class is a test suite of test cases testing the data-policy and persistent
- * attributes settings are consistent for GemFire SubRegion bean definitions.
+ * Unit Tests testing the {@link DataPolicy} and {@literal persistent} attributes settings are consistent for
+ * {@link Region sub-Region} bean definitions.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
- * @since GemFire 7.0.1
- * @since Spring Data GemFire 1.4.0
+ * @see org.apache.geode.cache.DataPolicy
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.context.support.ClassPathXmlApplicationContext
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @since 1.4.0
  */
-public class SubRegionWithInvalidDataPolicyTest {
+public class SubRegionWithInvalidDataPolicyTest extends IntegrationTestsSupport {
 
 	@Test(expected = XmlBeanDefinitionStoreException.class)
 	public void testSubRegionBeanDefinitionWithInconsistentDataPolicy() {
@@ -48,8 +52,8 @@ public class SubRegionWithInvalidDataPolicyTest {
 		}
 		catch (XmlBeanDefinitionStoreException expected) {
 
-			assertTrue(expected.getCause() instanceof SAXParseException);
-			assertTrue(expected.getCause().getMessage().contains("PERSISTENT_PARTITION"));
+			assertThat(expected.getCause() instanceof SAXParseException).isTrue();
+			assertThat(expected.getCause().getMessage().contains("PERSISTENT_PARTITION")).isTrue();
 
 			throw expected;
 		}
@@ -64,10 +68,10 @@ public class SubRegionWithInvalidDataPolicyTest {
 		}
 		catch (BeanCreationException expected) {
 
-			assertTrue(expected.getMessage().contains("Error creating bean with name '/Parent/Child'"));
-			assertTrue(expected.getCause() instanceof IllegalArgumentException);
-			assertEquals("Data Policy [REPLICATE] is not valid when persistent is true",
-				expected.getCause().getMessage());
+			assertThat(expected.getMessage().contains("Error creating bean with name '/Parent/Child'")).isTrue();
+			assertThat(expected.getCause() instanceof IllegalArgumentException).isTrue();
+			assertThat(expected.getCause().getMessage())
+				.isEqualTo("Data Policy [REPLICATE] is not valid when persistent is true");
 
 			throw expected;
 		}

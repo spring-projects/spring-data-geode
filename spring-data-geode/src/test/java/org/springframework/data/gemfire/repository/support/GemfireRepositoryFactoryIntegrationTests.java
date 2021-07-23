@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.support;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
@@ -35,12 +32,16 @@ import org.springframework.data.repository.support.Repositories;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Integration test for {@link GemfireRepositoryFactory}.
+ * Integration Tests for {@link GemfireRepositoryFactory}.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.repository.support.AbstractGemfireRepositoryFactoryIntegrationTests
+ * @see org.springframework.data.gemfire.repository.support.GemfireRepositoryFactory
  */
 @ContextConfiguration("../config/repo-context.xml")
+@SuppressWarnings("unused")
 public class GemfireRepositoryFactoryIntegrationTests extends AbstractGemfireRepositoryFactoryIntegrationTests {
 
 	@Autowired
@@ -59,14 +60,13 @@ public class GemfireRepositoryFactoryIntegrationTests extends AbstractGemfireRep
 		new GemfireRepositoryFactory(Collections.emptySet(), mappingContext).getRepository(PersonRepository.class);
 	}
 
-	/**
-	 * @see SGF-140
-	 */
 	@Test
 	public void exposesPersistentProperty() {
+
 		Repositories repositories = new Repositories(applicationContext);
+
 		PersistentEntity<?, ?> entity = repositories.getPersistentEntity(Person.class);
 
-		assertThat(entity, is(notNullValue()));
+		assertThat(entity).isNotNull();
 	}
 }

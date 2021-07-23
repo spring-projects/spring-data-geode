@@ -15,8 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -64,39 +63,41 @@ public class LocalRegionWithEvictionPolicyActionNamespaceIntegrationTests extend
 	@Test
 	public void testLocalRegionConfigurationWithEvictionPolicyActionSetToLocalDestroy() {
 
-		assertNotNull("The 'LocalDestroy' Region was not properly configured and initialized!", localDestroyRegion);
-		assertEquals("LocalDestroy", localDestroyRegion.getName());
-		assertEquals("/LocalDestroy", localDestroyRegion.getFullPath());
-		assertNotNull(localDestroyRegion.getAttributes());
-		assertEquals(DataPolicy.NORMAL, localDestroyRegion.getAttributes().getDataPolicy());
-		assertEquals(Scope.LOCAL, localDestroyRegion.getAttributes().getScope());
-		assertNotNull(localDestroyRegion.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.LOCAL_DESTROY, localDestroyRegion.getAttributes().getEvictionAttributes().getAction());
+		assertThat(localDestroyRegion).as("The 'LocalDestroy' Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(localDestroyRegion.getName()).isEqualTo("LocalDestroy");
+		assertThat(localDestroyRegion.getFullPath()).isEqualTo("/LocalDestroy");
+		assertThat(localDestroyRegion.getAttributes()).isNotNull();
+		assertThat(localDestroyRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+		assertThat(localDestroyRegion.getAttributes().getScope()).isEqualTo(Scope.LOCAL);
+		assertThat(localDestroyRegion.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(localDestroyRegion.getAttributes().getEvictionAttributes().getAction())
+			.isEqualTo(EvictionAction.LOCAL_DESTROY);
 	}
 
 	@Test
 	public void testLocalRegionConfigurationWithEvictionPolicyActionSetToNone() {
 
-		assertNotNull("The 'None' Region was not properly configured and initialized!", noneRegion);
-		assertEquals("None", noneRegion.getName());
-		assertEquals("/None", noneRegion.getFullPath());
-		assertNotNull(noneRegion.getAttributes());
-		assertEquals(DataPolicy.NORMAL, noneRegion.getAttributes().getDataPolicy());
-		assertEquals(Scope.LOCAL, noneRegion.getAttributes().getScope());
-		assertNotNull(noneRegion.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.NONE, noneRegion.getAttributes().getEvictionAttributes().getAction());
+		assertThat(noneRegion).as("The 'None' Region was not properly configured and initialized!").isNotNull();
+		assertThat(noneRegion.getName()).isEqualTo("None");
+		assertThat(noneRegion.getFullPath()).isEqualTo("/None");
+		assertThat(noneRegion.getAttributes()).isNotNull();
+		assertThat(noneRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+		assertThat(noneRegion.getAttributes().getScope()).isEqualTo(Scope.LOCAL);
+		assertThat(noneRegion.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(noneRegion.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.NONE);
 	}
 
 	@Test
 	public void testLocalRegionConfigurationWithEvictionPolicyActionSetToOverflowToDisk() {
 
-		assertNotNull("The 'Overflow' Region was not properly configured and initialized!", overflowRegion);
-		assertEquals("Overflow", overflowRegion.getName());
-		assertEquals("/Overflow", overflowRegion.getFullPath());
-		assertNotNull(overflowRegion.getAttributes());
-		assertEquals(DataPolicy.NORMAL, overflowRegion.getAttributes().getDataPolicy());
-		assertEquals(Scope.LOCAL, overflowRegion.getAttributes().getScope());
-		assertNotNull(overflowRegion.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, overflowRegion.getAttributes().getEvictionAttributes().getAction());
+		assertThat(overflowRegion).as("The 'Overflow' Region was not properly configured and initialized!").isNotNull();
+		assertThat(overflowRegion.getName()).isEqualTo("Overflow");
+		assertThat(overflowRegion.getFullPath()).isEqualTo("/Overflow");
+		assertThat(overflowRegion.getAttributes()).isNotNull();
+		assertThat(overflowRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+		assertThat(overflowRegion.getAttributes().getScope()).isEqualTo(Scope.LOCAL);
+		assertThat(overflowRegion.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(overflowRegion.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
 	}
 }

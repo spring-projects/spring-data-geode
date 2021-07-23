@@ -16,12 +16,6 @@
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,23 +73,23 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@Test
 	public void testSimplePartitionRegion() {
 
-		assertTrue(applicationContext.containsBean("simple"));
+		assertThat(applicationContext.containsBean("simple")).isTrue();
 
 		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
 
-		assertNotNull(simple);
-		assertEquals("simple", simple.getName());
-		assertEquals(Region.SEPARATOR + "simple", simple.getFullPath());
-		assertNotNull(simple.getAttributes());
-		assertEquals(DataPolicy.PARTITION, simple.getAttributes().getDataPolicy());
+		assertThat(simple).isNotNull();
+		assertThat(simple.getName()).isEqualTo("simple");
+		assertThat(simple.getFullPath()).isEqualTo(Region.SEPARATOR + "simple");
+		assertThat(simple.getAttributes()).isNotNull();
+		assertThat(simple.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testOptionsPartitionRegion() throws Exception {
 
-		assertTrue(applicationContext.containsBean("options"));
-		assertTrue(applicationContext.containsBean("redundant"));
+		assertThat(applicationContext.containsBean("options")).isTrue();
+		assertThat(applicationContext.containsBean("redundant")).isTrue();
 
 		Region<?, ?> options = applicationContext.getBean("options", Region.class);
 
@@ -106,70 +100,74 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 
 		PeerRegionFactoryBean optionsRegionFactoryBean = applicationContext.getBean("&options", PeerRegionFactoryBean.class);
 
-		assertTrue(optionsRegionFactoryBean instanceof PartitionedRegionFactoryBean);
-		assertNull(TestUtils.readField("scope", optionsRegionFactoryBean));
-		assertEquals("redundant", TestUtils.readField("name", optionsRegionFactoryBean));
-		assertNull(TestUtils.readField("scope", optionsRegionFactoryBean));
+		assertThat(optionsRegionFactoryBean instanceof PartitionedRegionFactoryBean).isTrue();
+		assertThat(TestUtils.<Object>readField("scope", optionsRegionFactoryBean)).isNull();
+		assertThat(TestUtils.<Object>readField("name", optionsRegionFactoryBean)).isEqualTo("redundant");
+		assertThat(TestUtils.<Object>readField("scope", optionsRegionFactoryBean)).isNull();
 
 		RegionAttributes optionsRegionAttributes = optionsRegionFactoryBean.getAttributes();
 
-		assertNotNull(optionsRegionAttributes);
-		assertTrue(optionsRegionAttributes.getOffHeap());
-		assertTrue(optionsRegionAttributes.getStatisticsEnabled());
+		assertThat(optionsRegionAttributes).isNotNull();
+		assertThat(optionsRegionAttributes.getOffHeap()).isTrue();
+		assertThat(optionsRegionAttributes.getStatisticsEnabled()).isTrue();
 
 		PartitionAttributes optionsRegionPartitionAttributes = optionsRegionAttributes.getPartitionAttributes();
 
-		assertNotNull(optionsRegionPartitionAttributes);
-		assertEquals(1, optionsRegionPartitionAttributes.getRedundantCopies());
-		assertEquals(4, optionsRegionPartitionAttributes.getTotalNumBuckets());
-		assertTrue(optionsRegionPartitionAttributes.getPartitionResolver() instanceof SimplePartitionResolver);
+		assertThat(optionsRegionPartitionAttributes).isNotNull();
+		assertThat(optionsRegionPartitionAttributes.getRedundantCopies()).isEqualTo(1);
+		assertThat(optionsRegionPartitionAttributes.getTotalNumBuckets()).isEqualTo(4);
+		assertThat(optionsRegionPartitionAttributes.getPartitionResolver() instanceof SimplePartitionResolver).isTrue();
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testComplexPartitionRegion() throws Exception {
 
-		assertTrue(applicationContext.containsBean("complex"));
+		assertThat(applicationContext.containsBean("complex")).isTrue();
 
 		PeerRegionFactoryBean complexRegionFactoryBean = applicationContext.getBean("&complex", PeerRegionFactoryBean.class);
 
 		CacheListener[] cacheListeners = TestUtils.readField("cacheListeners", complexRegionFactoryBean);
 
-		assertFalse(ObjectUtils.isEmpty(cacheListeners));
-		assertEquals(2, cacheListeners.length);
-		assertSame(cacheListeners[0], applicationContext.getBean("c-listener"));
-		assertTrue(cacheListeners[1] instanceof SimpleCacheListener);
+		assertThat(ObjectUtils.isEmpty(cacheListeners)).isFalse();
+		assertThat(cacheListeners.length).isEqualTo(2);
+		assertThat(applicationContext.getBean("c-listener")).isSameAs(cacheListeners[0]);
+		assertThat(cacheListeners[1] instanceof SimpleCacheListener).isTrue();
 
-		assertSame(applicationContext.getBean("c-loader"), TestUtils.readField("cacheLoader", complexRegionFactoryBean));
-		assertSame(applicationContext.getBean("c-writer"), TestUtils.readField("cacheWriter", complexRegionFactoryBean));
+		assertThat(TestUtils.<Object>readField("cacheLoader", complexRegionFactoryBean))
+			.isSameAs(applicationContext.getBean("c-loader"));
+		assertThat(TestUtils.<Object>readField("cacheWriter", complexRegionFactoryBean))
+			.isSameAs(applicationContext.getBean("c-writer"));
 
 		RegionAttributes complexRegionAttributes = TestUtils.readField("attributes", complexRegionFactoryBean);
 
-		assertNotNull(complexRegionAttributes);
+		assertThat(complexRegionAttributes).isNotNull();
 
 		PartitionAttributes complexRegionPartitionAttributes = complexRegionAttributes.getPartitionAttributes();
 
-		assertNotNull(complexRegionPartitionAttributes);
-		assertEquals(20, complexRegionPartitionAttributes.getLocalMaxMemory());
-		assertNotNull(complexRegionPartitionAttributes.getPartitionListeners());
-		assertEquals(1, complexRegionPartitionAttributes.getPartitionListeners().length);
-		assertTrue(complexRegionPartitionAttributes.getPartitionListeners()[0] instanceof TestPartitionListener);
+		assertThat(complexRegionPartitionAttributes).isNotNull();
+		assertThat(complexRegionPartitionAttributes.getLocalMaxMemory()).isEqualTo(20);
+		assertThat(complexRegionPartitionAttributes.getPartitionListeners()).isNotNull();
+		assertThat(complexRegionPartitionAttributes.getPartitionListeners().length).isEqualTo(1);
+		assertThat(complexRegionPartitionAttributes.getPartitionListeners()[0] instanceof TestPartitionListener)
+			.isTrue();
 	}
 
 	@Test
 	public void testCompressedPartitionRegion() {
 
-		assertTrue(applicationContext.containsBean("compressed"));
+		assertThat(applicationContext.containsBean("compressed")).isTrue();
 
 		Region<?, ?> compressed = applicationContext.getBean("compressed", Region.class);
 
-		assertNotNull("The 'compressed' PARTITION Region was not properly configured and initialized!", compressed);
-		assertEquals("compressed", compressed.getName());
-		assertEquals(Region.SEPARATOR + "compressed", compressed.getFullPath());
-		assertNotNull(compressed.getAttributes());
-		assertEquals(DataPolicy.PARTITION, compressed.getAttributes().getDataPolicy());
-		assertTrue(compressed.getAttributes().getCompressor() instanceof TestCompressor);
-		assertEquals("testCompressor", compressed.getAttributes().getCompressor().toString());
+		assertThat(compressed).as("The 'compressed' PARTITION Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(compressed.getName()).isEqualTo("compressed");
+		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "compressed");
+		assertThat(compressed.getAttributes()).isNotNull();
+		assertThat(compressed.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
+		assertThat(compressed.getAttributes().getCompressor() instanceof TestCompressor).isTrue();
+		assertThat(compressed.getAttributes().getCompressor().toString()).isEqualTo("testCompressor");
 	}
 
 	@Test
@@ -178,73 +176,75 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 
 		PeerRegionFactoryBean fixedRegionFactoryBean = applicationContext.getBean("&fixed", PeerRegionFactoryBean.class);
 
-		assertNotNull(fixedRegionFactoryBean);
+		assertThat(fixedRegionFactoryBean).isNotNull();
 
 		RegionAttributes fixedRegionAttributes = TestUtils.readField("attributes", fixedRegionFactoryBean);
 
-		assertNotNull(fixedRegionAttributes);
+		assertThat(fixedRegionAttributes).isNotNull();
 
 		PartitionAttributes fixedRegionPartitionAttributes = fixedRegionAttributes.getPartitionAttributes();
 
-		assertNotNull(fixedRegionPartitionAttributes);
+		assertThat(fixedRegionPartitionAttributes).isNotNull();
 
-		assertNotNull(fixedRegionPartitionAttributes.getFixedPartitionAttributes());
-		assertEquals(3, fixedRegionPartitionAttributes.getFixedPartitionAttributes().size());
+		assertThat(fixedRegionPartitionAttributes.getFixedPartitionAttributes()).isNotNull();
+		assertThat(fixedRegionPartitionAttributes.getFixedPartitionAttributes().size()).isEqualTo(3);
 
 		FixedPartitionAttributes fixedPartitionAttributes =
 			(FixedPartitionAttributes) fixedRegionPartitionAttributes.getFixedPartitionAttributes().get(0);
 
-		assertEquals(3, fixedPartitionAttributes.getNumBuckets());
-		assertTrue(fixedPartitionAttributes.isPrimary());
+		assertThat(fixedPartitionAttributes.getNumBuckets()).isEqualTo(3);
+		assertThat(fixedPartitionAttributes.isPrimary()).isTrue();
 	}
 
 	@Test
 	public void testMultiplePartitionListeners() {
 
-		assertTrue(applicationContext.containsBean("listeners"));
+		assertThat(applicationContext.containsBean("listeners")).isTrue();
 
 		Region<?, ?> listeners = applicationContext.getBean("listeners", Region.class);
 
-		assertNotNull("The 'listeners' PARTITION Region was not properly configured and initialized!", listeners);
-		assertEquals("listeners", listeners.getName());
-		assertEquals(Region.SEPARATOR + "listeners", listeners.getFullPath());
-		assertNotNull(listeners.getAttributes());
-		assertEquals(DataPolicy.PARTITION, listeners.getAttributes().getDataPolicy());
+		assertThat(listeners).as("The 'listeners' PARTITION Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(listeners.getName()).isEqualTo("listeners");
+		assertThat(listeners.getFullPath()).isEqualTo(Region.SEPARATOR + "listeners");
+		assertThat(listeners.getAttributes()).isNotNull();
+		assertThat(listeners.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
 
 		PartitionAttributes<?, ?> listenersPartitionAttributes = listeners.getAttributes().getPartitionAttributes();
 
-		assertNotNull(listenersPartitionAttributes);
-		assertNotNull(listenersPartitionAttributes.getPartitionListeners());
-		assertEquals(4, listenersPartitionAttributes.getPartitionListeners().length);
+		assertThat(listenersPartitionAttributes).isNotNull();
+		assertThat(listenersPartitionAttributes.getPartitionListeners()).isNotNull();
+		assertThat(listenersPartitionAttributes.getPartitionListeners().length).isEqualTo(4);
 
 		List<String> expectedNames = Arrays.asList("X", "Y", "Z", "ABC");
 
 		for (PartitionListener listener : listenersPartitionAttributes.getPartitionListeners()) {
-			assertTrue(listener instanceof TestPartitionListener);
-			assertTrue(expectedNames.contains(listener.toString()));
+			assertThat(listener instanceof TestPartitionListener).isTrue();
+			assertThat(expectedNames.contains(listener.toString())).isTrue();
 		}
 	}
 
 	@Test
 	public void testSinglePartitionListeners() {
 
-		assertTrue(applicationContext.containsBean("listenerRef"));
+		assertThat(applicationContext.containsBean("listenerRef")).isTrue();
 
 		Region<?, ?> listeners = applicationContext.getBean("listenerRef", Region.class);
 
-		assertNotNull("The 'listenerRef' PARTITION Region was not properly configured and initialized!", listeners);
-		assertEquals("listenerRef", listeners.getName());
-		assertEquals(Region.SEPARATOR + "listenerRef", listeners.getFullPath());
-		assertNotNull(listeners.getAttributes());
-		assertEquals(DataPolicy.PARTITION, listeners.getAttributes().getDataPolicy());
+		assertThat(listeners).as("The 'listenerRef' PARTITION Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(listeners.getName()).isEqualTo("listenerRef");
+		assertThat(listeners.getFullPath()).isEqualTo(Region.SEPARATOR + "listenerRef");
+		assertThat(listeners.getAttributes()).isNotNull();
+		assertThat(listeners.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
 
 		PartitionAttributes<?, ?> listenersPartitionAttributes = listeners.getAttributes().getPartitionAttributes();
 
-		assertNotNull(listenersPartitionAttributes);
-		assertNotNull(listenersPartitionAttributes.getPartitionListeners());
-		assertEquals(1, listenersPartitionAttributes.getPartitionListeners().length);
-		assertTrue(listenersPartitionAttributes.getPartitionListeners()[0] instanceof TestPartitionListener);
-		assertEquals("ABC", listenersPartitionAttributes.getPartitionListeners()[0].toString());
+		assertThat(listenersPartitionAttributes).isNotNull();
+		assertThat(listenersPartitionAttributes.getPartitionListeners()).isNotNull();
+		assertThat(listenersPartitionAttributes.getPartitionListeners().length).isEqualTo(1);
+		assertThat(listenersPartitionAttributes.getPartitionListeners()[0] instanceof TestPartitionListener).isTrue();
+		assertThat(listenersPartitionAttributes.getPartitionListeners()[0].toString()).isEqualTo("ABC");
 	}
 
 	public static class TestCompressor implements Compressor {

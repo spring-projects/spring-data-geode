@@ -12,9 +12,7 @@
  */
 package org.springframework.data.gemfire.function.execution;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -92,27 +90,27 @@ public class FunctionIntegrationTests extends ForkingClientServerIntegrationTest
 
 		Object result = template.executeAndExtract("getMapWithNoArgs");
 
-		assertTrue(result.getClass().getName(), result instanceof Map);
+		assertThat(result instanceof Map).as(result.getClass().getName()).isTrue();
 
 		Map<String, Integer> map = (Map<String, Integer>) result;
 
-		assertEquals(1, map.get("one").intValue());
-		assertEquals(2, map.get("two").intValue());
-		assertEquals(3, map.get("three").intValue());
+		assertThat(map.get("one").intValue()).isEqualTo(1);
+		assertThat(map.get("two").intValue()).isEqualTo(2);
+		assertThat(map.get("three").intValue()).isEqualTo(3);
 
 		result = template.executeAndExtract("collections", Arrays.asList(1, 2, 3, 4, 5));
 
-		assertTrue(result.getClass().getName(), result instanceof List);
+		assertThat(result instanceof List).as(result.getClass().getName()).isTrue();
 
 		List<?> list = (List<?>) result;
 
-		assertFalse(list.isEmpty());
-		assertEquals(5, list.size());
+		assertThat(list.isEmpty()).isFalse();
+		assertThat(list.size()).isEqualTo(5);
 
 		int expectedNumber = 1;
 
 		for (Object actualNumber : list) {
-			assertEquals(expectedNumber++, actualNumber);
+			assertThat(actualNumber).isEqualTo(expectedNumber++);
 		}
 	}
 
@@ -123,8 +121,8 @@ public class FunctionIntegrationTests extends ForkingClientServerIntegrationTest
 		Object result = new GemfireOnRegionFunctionTemplate(this.region)
 			.executeAndExtract("arrays", new int[] { 1, 2, 3, 4, 5 });
 
-		assertTrue(result.getClass().getName(), result instanceof int[]);
-		assertEquals(5, ((int[]) result).length);
+		assertThat(result instanceof int[]).as(result.getClass().getName()).isTrue();
+		assertThat(((int[]) result).length).isEqualTo(5);
 	}
 
 	@Test
@@ -133,10 +131,11 @@ public class FunctionIntegrationTests extends ForkingClientServerIntegrationTest
 
 		GemfireOnRegionOperations template = new GemfireOnRegionFunctionTemplate(this.region);
 
-		assertEquals(2, template.<Integer>execute("oneArg", "two").iterator().next().intValue());
-		assertFalse(template.<Integer>execute("oneArg", Collections.singleton("one"), "two").iterator().hasNext());
-		assertEquals(5, template.<Integer>execute("twoArg", "two", "three").iterator().next().intValue());
-		assertEquals(5, template.<Integer>executeAndExtract("twoArg", "two", "three").intValue());
+		assertThat(template.<Integer>execute("oneArg", "two").iterator().next().intValue()).isEqualTo(2);
+		assertThat(template.<Integer>execute("oneArg", Collections.singleton("one"), "two").iterator().hasNext())
+			.isFalse();
+		assertThat(template.<Integer>execute("twoArg", "two", "three").iterator().next().intValue()).isEqualTo(5);
+		assertThat(template.<Integer>executeAndExtract("twoArg", "two", "three").intValue()).isEqualTo(5);
 	}
 
 	/**

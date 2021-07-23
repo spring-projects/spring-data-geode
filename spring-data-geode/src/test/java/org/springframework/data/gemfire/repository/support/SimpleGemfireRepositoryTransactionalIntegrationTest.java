@@ -15,10 +15,7 @@
  */
 package org.springframework.data.gemfire.repository.support;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -89,10 +86,11 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 	@Before
 	public void setup() {
 
-		assertNotNull("The 'Customers' Cache Region was not properly configured and initialized!", this.customers);
-		assertEquals("Customers", this.customers.getName());
-		assertEquals("/Customers", this.customers.getFullPath());
-		assertTrue(this.customers.isEmpty());
+		assertThat(this.customers).as("The 'Customers' Cache Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(this.customers.getName()).isEqualTo("Customers");
+		assertThat(this.customers.getFullPath()).isEqualTo("/Customers");
+		assertThat(this.customers.isEmpty()).isTrue();
 	}
 
 	@After
@@ -111,8 +109,8 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 
 		this.customerService.saveAll(expectedCustomers);
 
-		assertFalse(this.customers.isEmpty());
-		assertEquals(expectedCustomers.size(), this.customers.size());
+		assertThat(this.customers.isEmpty()).isFalse();
+		assertThat(this.customers.size()).isEqualTo(expectedCustomers.size());
 
 		try {
 			this.customerService.removeAllCausingTransactionRollback();
@@ -121,12 +119,12 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 			// the RuntimeException should cause the Cache Transaction to rollback and avoid the Region modification!
 		}
 
-		assertFalse(this.customers.isEmpty());
-		assertEquals(expectedCustomers.size(), this.customers.size());
+		assertThat(this.customers.isEmpty()).isFalse();
+		assertThat(this.customers.size()).isEqualTo(expectedCustomers.size());
 
 		this.customerService.removeAll();
 
-		assertTrue(this.customers.isEmpty());
+		assertThat(this.customers.isEmpty()).isTrue();
 	}
 
 	public static class SerializableCustomer extends Customer implements Serializable {
@@ -145,9 +143,9 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 
 	public static class CustomerService {
 
-		private GemfireRepository<Customer, Long> customerRepository;
+		private final GemfireRepository<Customer, Long> customerRepository;
 
-		private TransactionTemplate transactionTemplate;
+		private final TransactionTemplate transactionTemplate;
 
 		@Autowired
 		@SuppressWarnings("all")

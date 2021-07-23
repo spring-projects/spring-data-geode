@@ -15,12 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,82 +64,90 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 	private ApplicationContext applicationContext;
 
 	@Test
-	public void testSimpleLocalRegion() throws Exception {
+	public void testSimpleLocalRegion() {
 
-		assertTrue(applicationContext.containsBean("simple"));
+		assertThat(applicationContext.containsBean("simple")).isTrue();
 
 		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
 
-		assertNotNull("The 'simple' Region was not properly configured or initialized!", simple);
-		assertEquals("simple", simple.getName());
-		assertEquals(Region.SEPARATOR + "simple", simple.getFullPath());
-		assertNotNull(simple.getAttributes());
-		assertEquals(DataPolicy.NORMAL, simple.getAttributes().getDataPolicy());
+		assertThat(simple)
+			.describedAs("The 'simple' Region was not properly configured or initialized!")
+			.isNotNull();
+
+		assertThat(simple.getName()).isEqualTo("simple");
+		assertThat(simple.getFullPath()).isEqualTo(Region.SEPARATOR + "simple");
+		assertThat(simple.getAttributes()).isNotNull();
+		assertThat(simple.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
 	}
 
 	@Test
 	@SuppressWarnings({ "deprecation", "rawtypes" })
 	public void testPublisherLocalRegion() throws Exception {
 
-		assertTrue(applicationContext.containsBean("pub"));
+		assertThat(applicationContext.containsBean("pub")).isTrue();
 
 		PeerRegionFactoryBean publisherRegionFactoryBean = applicationContext.getBean("&pub", PeerRegionFactoryBean.class);
 
-		assertNotNull(publisherRegionFactoryBean);
-		assertEquals(DataPolicy.NORMAL, TestUtils.readField("dataPolicy", publisherRegionFactoryBean));
-		assertEquals("publisher", TestUtils.readField("name", publisherRegionFactoryBean));
-		assertEquals(Scope.LOCAL, TestUtils.readField("scope", publisherRegionFactoryBean));
+		assertThat(publisherRegionFactoryBean).isNotNull();
+		assertThat(TestUtils.<DataPolicy>readField("dataPolicy", publisherRegionFactoryBean)).isEqualTo(DataPolicy.NORMAL);
+		assertThat(TestUtils.<String>readField("name", publisherRegionFactoryBean)).isEqualTo("publisher");
+		assertThat(TestUtils.<Scope>readField("scope", publisherRegionFactoryBean)).isEqualTo(Scope.LOCAL);
 
 		RegionAttributes publisherRegionAttributes = TestUtils.readField("attributes", publisherRegionFactoryBean);
 
-		assertNotNull(publisherRegionAttributes);
-		assertFalse(publisherRegionAttributes.getPublisher());
+		assertThat(publisherRegionAttributes).isNotNull();
+		assertThat(publisherRegionAttributes.getPublisher()).isFalse();
 	}
 
 	@Test
 	@SuppressWarnings("rawtypes")
 	public void testComplexLocal() throws Exception {
 
-		assertTrue(applicationContext.containsBean("complex"));
+		assertThat(applicationContext.containsBean("complex")).isTrue();
 
 		PeerRegionFactoryBean complexRegionFactoryBean = applicationContext.getBean("&complex", PeerRegionFactoryBean.class);
 
-		assertNotNull(complexRegionFactoryBean);
+		assertThat(complexRegionFactoryBean).isNotNull();
 
 		CacheListener[] cacheListeners = TestUtils.readField("cacheListeners", complexRegionFactoryBean);
 
-		assertFalse(ObjectUtils.isEmpty(cacheListeners));
-		assertEquals(2, cacheListeners.length);
-		assertSame(applicationContext.getBean("c-listener"), cacheListeners[0]);
-		assertTrue(cacheListeners[1] instanceof SimpleCacheListener);
-		assertNotSame(cacheListeners[0], cacheListeners[1]);
-		assertSame(applicationContext.getBean("c-loader"), TestUtils.readField("cacheLoader", complexRegionFactoryBean));
-		assertSame(applicationContext.getBean("c-writer"), TestUtils.readField("cacheWriter", complexRegionFactoryBean));
+		assertThat(ObjectUtils.isEmpty(cacheListeners)).isFalse();
+		assertThat(cacheListeners.length).isEqualTo(2);
+		assertThat(cacheListeners[0]).isSameAs(applicationContext.getBean("c-listener"));
+		assertThat(cacheListeners[1] instanceof SimpleCacheListener).isTrue();
+		assertThat(cacheListeners[1]).isNotSameAs(cacheListeners[0]);
+		assertThat(TestUtils.<String>readField("cacheLoader", complexRegionFactoryBean))
+			.isSameAs(applicationContext.getBean("c-loader"));
+		assertThat(TestUtils.<String>readField("cacheWriter", complexRegionFactoryBean))
+			.isSameAs(applicationContext.getBean("c-writer"));
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
-	public void testLocalWithAttributes() throws Exception {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testLocalWithAttributes() {
 
-		assertTrue(applicationContext.containsBean("local-with-attributes"));
+		assertThat(applicationContext.containsBean("local-with-attributes")).isTrue();
 
 		Region region = applicationContext.getBean("local-with-attributes", Region.class);
 
-		assertNotNull("The 'local-with-attributes' Region was not properly configured and initialized!", region);
-		assertEquals("local-with-attributes", region.getName());
-		assertEquals(Region.SEPARATOR + "local-with-attributes", region.getFullPath());
+		assertThat(region)
+			.describedAs("The 'local-with-attributes' Region was not properly configured and initialized!")
+			.isNotNull();
+
+		assertThat(region.getName()).isEqualTo("local-with-attributes");
+		assertThat(region.getFullPath()).isEqualTo(Region.SEPARATOR + "local-with-attributes");
 
 		RegionAttributes localRegionAttributes = region.getAttributes();
 
-		assertEquals(DataPolicy.PRELOADED, localRegionAttributes.getDataPolicy());
-		assertTrue(localRegionAttributes.isDiskSynchronous());
-		assertTrue(localRegionAttributes.getIgnoreJTA());
-		assertFalse(localRegionAttributes.getIndexMaintenanceSynchronous());
-		assertEquals(10, localRegionAttributes.getInitialCapacity());
-		assertEquals(String.class, localRegionAttributes.getKeyConstraint());
-		assertEquals("0.9", String.valueOf(localRegionAttributes.getLoadFactor()));
-		assertTrue(localRegionAttributes.getOffHeap());
-		assertEquals(String.class, localRegionAttributes.getValueConstraint());
+		assertThat(localRegionAttributes.getDataPolicy()).isEqualTo(DataPolicy.PRELOADED);
+		assertThat(localRegionAttributes.isDiskSynchronous()).isTrue();
+		assertThat(localRegionAttributes.getIgnoreJTA()).isTrue();
+		assertThat(localRegionAttributes.getIndexMaintenanceSynchronous()).isFalse();
+		assertThat(localRegionAttributes.getInitialCapacity()).isEqualTo(10);
+		assertThat(localRegionAttributes.getKeyConstraint()).isEqualTo(String.class);
+		assertThat(String.valueOf(localRegionAttributes.getLoadFactor())).isEqualTo("0.9");
+		assertThat(localRegionAttributes.getOffHeap()).isTrue();
+		assertThat(localRegionAttributes.getValueConstraint()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -155,45 +158,49 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 
 		Region existing = cache.createRegionFactory().create("existing");
 
-		assertTrue(applicationContext.containsBean("lookup"));
+		assertThat(applicationContext.containsBean("lookup")).isTrue();
 
 		ResolvableRegionFactoryBean localRegionFactoryBean = applicationContext.getBean("&lookup", ResolvableRegionFactoryBean.class);
 
-		assertEquals("existing", TestUtils.readField("name", localRegionFactoryBean));
-		assertSame(existing, applicationContext.getBean("lookup"));
+		assertThat(TestUtils.<String>readField("name", localRegionFactoryBean)).isEqualTo("existing");
+		assertThat(applicationContext.getBean("lookup")).isSameAs(existing);
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testLocalPersistent() {
 
 		Region persistentLocalRegion = applicationContext.getBean("persistent", Region.class);
 
-		assertNotNull("The 'persistent' Local Region was not properly configured and initialized!", persistentLocalRegion);
-		assertEquals("persistent", persistentLocalRegion.getName());
-		assertEquals(Region.SEPARATOR + "persistent", persistentLocalRegion.getFullPath());
+		assertThat(persistentLocalRegion)
+			.describedAs("The 'persistent' Local Region was not properly configured and initialized!")
+			.isNotNull();
+
+		assertThat(persistentLocalRegion.getName()).isEqualTo("persistent");
+		assertThat(persistentLocalRegion.getFullPath()).isEqualTo(Region.SEPARATOR + "persistent");
 
 		RegionAttributes persistentRegionAttributes = persistentLocalRegion.getAttributes();
 
-		assertNotNull(persistentRegionAttributes);
-		assertTrue(persistentRegionAttributes.getDataPolicy().withPersistence());
+		assertThat(persistentRegionAttributes).isNotNull();
+		assertThat(persistentRegionAttributes.getDataPolicy().withPersistence()).isTrue();
 	}
 
 	@Test
 	public void testCompressedLocalRegion() {
 
-		assertTrue(applicationContext.containsBean("Compressed"));
+		assertThat(applicationContext.containsBean("Compressed")).isTrue();
 
 		Region<?, ?> compressed = applicationContext.getBean("Compressed", Region.class);
 
-		assertNotNull("The 'Compressed' Local Region was not properly configured and initialized!", compressed);
-		assertEquals("Compressed", compressed.getName());
-		assertEquals(Region.SEPARATOR + "Compressed", compressed.getFullPath());
-		assertNotNull(compressed.getAttributes());
-		assertEquals(DataPolicy.NORMAL, compressed.getAttributes().getDataPolicy());
-		assertEquals(Scope.LOCAL, compressed.getAttributes().getScope());
-		assertTrue(compressed.getAttributes().getCompressor() instanceof TestCompressor);
-		assertEquals("ABC", compressed.getAttributes().getCompressor().toString());
+		assertThat(compressed).as("The 'Compressed' Local Region was not properly configured and initialized!")
+			.isNotNull();
+		assertThat(compressed.getName()).isEqualTo("Compressed");
+		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "Compressed");
+		assertThat(compressed.getAttributes()).isNotNull();
+		assertThat(compressed.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+		assertThat(compressed.getAttributes().getScope()).isEqualTo(Scope.LOCAL);
+		assertThat(compressed.getAttributes().getCompressor() instanceof TestCompressor).isTrue();
+		assertThat(compressed.getAttributes().getCompressor().toString()).isEqualTo("ABC");
 	}
 
 	public static class TestCompressor implements Compressor {

@@ -15,12 +15,8 @@
  */
 package org.springframework.data.gemfire.support;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.time.Instant;
 import java.util.Map;
@@ -148,7 +144,8 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 		}
 	}
 
-	protected void doSpringContextBootstrappingInitializationTest(String cacheXmlFile) {
+	@SuppressWarnings("all")
+	private void doSpringContextBootstrappingInitializationTest(String cacheXmlFile) {
 
 		Cache gemfireCache = new CacheFactory()
 			.set("name", GEMFIRE_NAME)
@@ -160,51 +157,51 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 			//.set("jmx-manager-start", GEMFIRE_JMX_MANAGER_START)
 			.create();
 
-		assertNotNull("The GemFire Cache was not properly created and initialized!", gemfireCache);
-		assertFalse("The GemFire Cache is closed!", gemfireCache.isClosed());
+		assertThat(gemfireCache).as("The GemFire Cache was not properly created and initialized!").isNotNull();
+		assertThat(gemfireCache.isClosed()).as("The GemFire Cache is closed!").isFalse();
 
 		Set<Region<?, ?>> rootRegions = gemfireCache.rootRegions();
 
-		assertNotNull(rootRegions);
-		assertFalse(rootRegions.isEmpty());
-		assertEquals(2, rootRegions.size());
-		assertNotNull(gemfireCache.getRegion("/TestRegion"));
-		assertNotNull(gemfireCache.getRegion("/Users"));
+		assertThat(rootRegions).isNotNull();
+		assertThat(rootRegions.isEmpty()).isFalse();
+		assertThat(rootRegions.size()).isEqualTo(2);
+		assertThat(gemfireCache.getRegion("/TestRegion")).isNotNull();
+		assertThat(gemfireCache.getRegion("/Users")).isNotNull();
 
 		ConfigurableApplicationContext applicationContext =
 			SpringContextBootstrappingInitializer.getApplicationContext();
 
-		assertNotNull(applicationContext);
-		assertTrue(applicationContext.containsBean(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
-		assertTrue(applicationContext.containsBean("TestRegion"));
-		assertFalse(applicationContext.containsBean("Users")); // Region 'Users' is defined in Pivotal GemFire cache.xml
-		assertTrue(applicationContext.containsBean("userDataSource"));
-		assertTrue(applicationContext.containsBean("userDao"));
-		assertTrue(applicationContext.containsBean("userService"));
+		assertThat(applicationContext).isNotNull();
+		assertThat(applicationContext.containsBean(GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME)).isTrue();
+		assertThat(applicationContext.containsBean("TestRegion")).isTrue();
+		assertThat(applicationContext.containsBean("Users")).isFalse(); // Region 'Users' is defined in Pivotal GemFire cache.xml
+		assertThat(applicationContext.containsBean("userDataSource")).isTrue();
+		assertThat(applicationContext.containsBean("userDao")).isTrue();
+		assertThat(applicationContext.containsBean("userService")).isTrue();
 
 		DataSource userDataSource = applicationContext.getBean("userDataSource", DataSource.class);
 		TestUserDao userDao = applicationContext.getBean("userDao", TestUserDao.class);
 		TestUserService userService = applicationContext.getBean("userService", TestUserService.class);
 
-		assertSame(userDataSource, userDao.getDataSource());
-		assertSame(userDao, userService.getUserDao());
+		assertThat(userDao.getDataSource()).isSameAs(userDataSource);
+		assertThat(userService.getUserDao()).isSameAs(userDao);
 
 		// NOTE Pivotal GemFire declared component initialized by Spring!
 		UserDataStoreCacheLoader usersCacheLoader = UserDataStoreCacheLoader.getInstance();
 
-		assertSame(userDataSource, usersCacheLoader.getDataSource());
+		assertThat(usersCacheLoader.getDataSource()).isSameAs(userDataSource);
 
 		Region<String, User> users = gemfireCache.getRegion("/Users");
 
-		assertNotNull(users);
-		assertEquals("Users", users.getName());
-		assertEquals("/Users", users.getFullPath());
-		assertTrue(users.isEmpty());
-		assertEquals(UserDataStoreCacheLoader.USER_DATA.get("jblum"), users.get("jblum"));
-		assertEquals(UserDataStoreCacheLoader.USER_DATA.get("jdoe"), users.get("jdoe"));
-		assertEquals(UserDataStoreCacheLoader.USER_DATA.get("jhandy"), users.get("jhandy"));
-		assertFalse(users.isEmpty());
-		assertEquals(3, users.size());
+		assertThat(users).isNotNull();
+		assertThat(users.getName()).isEqualTo("Users");
+		assertThat(users.getFullPath()).isEqualTo("/Users");
+		assertThat(users.isEmpty()).isTrue();
+		assertThat(users.get("jblum")).isEqualTo(UserDataStoreCacheLoader.USER_DATA.get("jblum"));
+		assertThat(users.get("jdoe")).isEqualTo(UserDataStoreCacheLoader.USER_DATA.get("jdoe"));
+		assertThat(users.get("jhandy")).isEqualTo(UserDataStoreCacheLoader.USER_DATA.get("jhandy"));
+		assertThat(users.isEmpty()).isFalse();
+		assertThat(users.size()).isEqualTo(3);
 	}
 
 	@Test
@@ -219,8 +216,8 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 		UserDataStoreCacheLoader userDataStoreCacheLoader = applicationContext.getBean(UserDataStoreCacheLoader.class);
 		DataSource userDataSource = applicationContext.getBean(DataSource.class);
 
-		assertSame(UserDataStoreCacheLoader.getInstance(), userDataStoreCacheLoader);
-		assertSame(userDataStoreCacheLoader.getDataSource(), userDataSource);
+		assertThat(userDataStoreCacheLoader).isSameAs(UserDataStoreCacheLoader.getInstance());
+		assertThat(userDataSource).isSameAs(userDataStoreCacheLoader.getDataSource());
 	}
 
 	@Test

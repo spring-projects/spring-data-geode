@@ -4,7 +4,7 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd"
 	   default-lazy-init="true">
 
-	<bean class="org.springframework.data.gemfire.test.GemfireTestBeanPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
 
 	<bean id="default-cache" class="org.springframework.data.gemfire.CacheFactoryBean">
 		<property name="properties">
