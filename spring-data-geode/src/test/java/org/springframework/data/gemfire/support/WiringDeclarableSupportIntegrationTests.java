@@ -35,8 +35,9 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Integration Tests for {@link WiringDeclarableSupport} and {@link GemfireBeanFactoryLocator}.
@@ -75,7 +76,7 @@ public class WiringDeclarableSupportIntegrationTests extends IntegrationTestsSup
 	}
 
 	@Test
-	public void declarableObjectAutoWiredSuccessfully() throws Exception {
+	public void declarableObjectAutoWiredSuccessfully() {
 
 		assertThat(beanFactory.containsBean("testBean")).isTrue();
 		assertRegion(example, "Example", DataPolicy.NORMAL);
@@ -88,15 +89,16 @@ public class WiringDeclarableSupportIntegrationTests extends IntegrationTestsSup
 		assertThat(((TestCacheLoader) testCacheLoader).getPropertyTwo()).isEqualTo("GoodBye");
 	}
 
-	@Data
+	@Getter
+	@Setter
 	@NoArgsConstructor
 	public static class TestBean {
 		private String name;
 	}
 
-	@Data
+	@Getter
 	@NoArgsConstructor
-	@SuppressWarnings("all")
+	@SuppressWarnings("unused")
 	public static class TestCacheLoader extends WiringDeclarableSupport implements CacheLoader<String, String> {
 
 		private Object propertyOne;
