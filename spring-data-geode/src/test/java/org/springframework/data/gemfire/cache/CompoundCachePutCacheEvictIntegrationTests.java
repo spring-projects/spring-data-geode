@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,18 +46,19 @@ import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.support.IdentifierSequence;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Integration tests testing the contractual behavior and combination of using Spring'a {@link CachePut} annotation
+ * Integration Tests testing the contractual behavior and combination of using Spring'a {@link CachePut} annotation
  * followed by a {@link CacheEvict} annotation on an application {@link @Service} component.
  *
  * @author John Blum
@@ -67,18 +67,19 @@ import lombok.RequiredArgsConstructor;
  * @see org.springframework.cache.annotation.CachePut
  * @see org.springframework.cache.annotation.Caching
  * @see org.springframework.cache.annotation.EnableCaching
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @see GemfireCache#evict(Object)
  * @see GemfireCache#put(Object, Object)
  * @see <a href="https://stackoverflow.com/questions/39830488/gemfire-entrynotfoundexception-for-cacheevict">Gemfire EntryNotFoundException on @CacheEvict</a>
  * @see <a href="https://jira.spring.io/browse/SGF-539">Change GemfireCache.evict(key) to call Region.remove(key)</a>
  * @since 1.9.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = CompoundCachePutCacheEvictIntegrationTests.ApplicationTestConfiguration.class)
 @SuppressWarnings("unused")
-public class CompoundCachePutCacheEvictIntegrationTests {
+public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTestsSupport {
 
 	private Person janeDoe;
 	private Person jonDoe;
@@ -153,10 +154,16 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 
 		@Bean
 		GemfireCacheManager cacheManager(GemFireCache gemfireCache) {
+
 			GemfireCacheManager cacheManager = new GemfireCacheManager() {
-				@Override protected org.springframework.cache.Cache decorateCache(org.springframework.cache.Cache cache) {
+
+				@Override
+				protected org.springframework.cache.Cache decorateCache(org.springframework.cache.Cache cache) {
+
 					return new GemfireCache((org.apache.geode.cache.Region<?, ?>) cache.getNativeCache()) {
-						@Override public void evict(Object key) {
+
+						@Override
+						public void evict(Object key) {
 							getNativeCache().remove(key);
 						}
 					};
@@ -176,13 +183,17 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 
 		@Bean
 		GemfireCacheManager cacheManager(GemFireCache gemfireCache) {
+
 			GemfireCacheManager cacheManager = new GemfireCacheManager();
+
 			cacheManager.setCache(gemfireCache);
+
 			return cacheManager;
 		}
 
 		@Bean
 		GemfireRepositoryFactoryBean<PersonRepository, Person, Long> personRepository() {
+
 			GemfireRepositoryFactoryBean<PersonRepository, Person, Long> personRepository =
 				new GemfireRepositoryFactoryBean<>(PersonRepository.class);
 
@@ -223,6 +234,7 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 
 		@Bean
 		CacheFactoryBean gemfireCache() {
+
 			CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
 			gemfireCache.setClose(true);
@@ -233,10 +245,10 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 
 		@Bean(name = "People")
 		LocalRegionFactoryBean<Long, Person> peopleRegion(GemFireCache gemfireCache) {
-			LocalRegionFactoryBean<Long, Person> peopleRegion = new LocalRegionFactoryBean<Long, Person>();
+
+			LocalRegionFactoryBean<Long, Person> peopleRegion = new LocalRegionFactoryBean<>();
 
 			peopleRegion.setCache(gemfireCache);
-			peopleRegion.setClose(false);
 			peopleRegion.setPersistent(false);
 
 			return peopleRegion;
@@ -244,10 +256,10 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 
 		@Bean(name = "DepartmentPeople")
 		LocalRegionFactoryBean<Long, Person> departmentPeopleRegion(GemFireCache gemfireCache) {
-			LocalRegionFactoryBean<Long, Person> departmentPeopleRegion = new LocalRegionFactoryBean<Long, Person>();
+
+			LocalRegionFactoryBean<Long, Person> departmentPeopleRegion = new LocalRegionFactoryBean<>();
 
 			departmentPeopleRegion.setCache(gemfireCache);
-			departmentPeopleRegion.setClose(false);
 			departmentPeopleRegion.setPersistent(false);
 
 			return departmentPeopleRegion;
@@ -255,10 +267,10 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 
 		@Bean(name = "MobilePeople")
 		LocalRegionFactoryBean<Long, Person> mobilePeopleRegion(GemFireCache gemfireCache) {
-			LocalRegionFactoryBean<Long, Person> mobilePeopleRegion = new LocalRegionFactoryBean<Long, Person>();
+
+			LocalRegionFactoryBean<Long, Person> mobilePeopleRegion = new LocalRegionFactoryBean<>();
 
 			mobilePeopleRegion.setCache(gemfireCache);
-			mobilePeopleRegion.setClose(false);
 			mobilePeopleRegion.setPersistent(false);
 
 			return mobilePeopleRegion;
@@ -266,6 +278,7 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 	}
 
 	public enum Department {
+
 		ACCOUNTING,
 		DESIGN,
 		ENGINEERING,
@@ -274,6 +287,7 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 		MARKETING,
 		RESEARCH_DEVELOPMENT,
 		SALES
+
 	}
 
 	@Data
@@ -336,6 +350,7 @@ public class CompoundCachePutCacheEvictIntegrationTests {
 			this.cacheMiss.set(true);
 		}
 	}
+
 	public interface PersonRepository extends CrudRepository<Person, Long> {
 
 		List<Person> findByDepartment(Department department);

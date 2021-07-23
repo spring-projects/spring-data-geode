@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.sample;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,25 +24,31 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Region;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The RepositoryQueriesWithJoinsTest class is a test suite of test cases testing the use of JOINS between 2 Regions
- * in GemFire OQL queries (SELECT statements).
+ * Integration Tests for {@literal JOINS} between 2 {@link Region Regions} in OQL queries
+ * (i.e. {@literal SELECT} statements).
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.query.Query
+ * @see org.springframework.data.gemfire.repository.GemfireRepository
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.0.0
  */
+@RunWith(SpringRunner.class)
 @ContextConfiguration("repositoryQueriesWithJoins.xml")
-@RunWith(SpringJUnit4ClassRunner.class)
 @SuppressWarnings("unused")
-public class RepositoryQueriesWithJoinsIntegrationTest {
+public class RepositoryQueriesWithJoinsIntegrationTest extends IntegrationTestsSupport {
 
 	private static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
 
@@ -53,20 +58,27 @@ public class RepositoryQueriesWithJoinsIntegrationTest {
 	@Autowired
 	private CustomerRepository customerRepo;
 
-	protected Account newAccount(Customer customer, String number) {
+	private  Account newAccount(Customer customer, String number) {
+
 		Account account = new Account(ID_SEQUENCE.incrementAndGet(), customer);
+
 		account.setNumber(number);
+
 		return account;
 	}
 
-	protected Customer newCustomer(String firstName, String lastName) {
+	private Customer newCustomer(String firstName, String lastName) {
+
 		Customer customer = new Customer(firstName, lastName);
+
 		customer.setId(ID_SEQUENCE.incrementAndGet());
+
 		return customer;
 	}
 
 	@Test
 	public void joinQueriesWork() {
+
 		Customer jonDoe = customerRepo.save(newCustomer("Jon", "Doe"));
 		Customer janeDoe = customerRepo.save(newCustomer("Jane", "Doe"));
 		Customer jackHandy = customerRepo.save(newCustomer("Jack", "Handy"));

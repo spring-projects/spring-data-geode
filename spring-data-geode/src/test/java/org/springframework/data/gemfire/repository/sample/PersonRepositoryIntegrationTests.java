@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.sample;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,12 +25,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.RegionAttributes;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.RegionAttributes;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -43,25 +42,27 @@ import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.RegionAttributesFactoryBean;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The PersonRepositoryIntegrationTests class...
+ * Integration Tests for {@link PersonRepository}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.GemFireCache
  * @see org.springframework.data.gemfire.repository.sample.Person
  * @see org.springframework.data.gemfire.repository.sample.PersonRepository
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.4.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = PersonRepositoryIntegrationTests.GemFireConfiguration.class)
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = PersonRepositoryIntegrationTests.TestConfiguration.class)
 @SuppressWarnings("unused")
-public class PersonRepositoryIntegrationTests {
+public class PersonRepositoryIntegrationTests extends IntegrationTestsSupport {
 
 	private static final String DEFAULT_GEMFIRE_LOG_LEVEL = "error";
 	private static final String GEMFIRE_LOG_LEVEL = System.getProperty("gemfire.log-level", DEFAULT_GEMFIRE_LOG_LEVEL);
@@ -99,7 +100,7 @@ public class PersonRepositoryIntegrationTests {
 
 	protected <T> List<T> asList(Iterable<T> iterable) {
 
-		List<T> list = new ArrayList<T>();
+		List<T> list = new ArrayList<>();
 
 		for (T element : iterable) {
 			list.add(element);
@@ -202,7 +203,7 @@ public class PersonRepositoryIntegrationTests {
 	@EnableGemfireRepositories(basePackages = "org.springframework.data.gemfire.repository.sample",
 		includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
 			value = org.springframework.data.gemfire.repository.sample.PersonRepository.class))
-	public static class GemFireConfiguration {
+	public static class TestConfiguration {
 
 		Properties gemfireProperties() {
 
@@ -234,23 +235,21 @@ public class PersonRepositoryIntegrationTests {
 		}
 
 		@Bean(name = "simple")
-		LocalRegionFactoryBean simpleRegion(Cache gemfireCache, RegionAttributes<Long, Person> simpleRegionAttributes) {
+		LocalRegionFactoryBean<Long, Person> simpleRegion(Cache gemfireCache, RegionAttributes<Long, Person> simpleRegionAttributes) {
 
-			LocalRegionFactoryBean<Long, Person> simpleRegion = new LocalRegionFactoryBean<Long, Person>();
+			LocalRegionFactoryBean<Long, Person> simpleRegion = new LocalRegionFactoryBean<>();
 
 			simpleRegion.setAttributes(simpleRegionAttributes);
 			simpleRegion.setCache(gemfireCache);
-			simpleRegion.setClose(false);
 			simpleRegion.setPersistent(false);
 
 			return simpleRegion;
 		}
 
 		@Bean
-		@SuppressWarnings("unchecked")
-		RegionAttributesFactoryBean simpleRegionAttributes() {
+		RegionAttributesFactoryBean<Long, Person> simpleRegionAttributes() {
 
-			RegionAttributesFactoryBean simpleRegionAttributes = new RegionAttributesFactoryBean();
+			RegionAttributesFactoryBean<Long, Person> simpleRegionAttributes = new RegionAttributesFactoryBean<>();
 
 			simpleRegionAttributes.setKeyConstraint(Long.class);
 			simpleRegionAttributes.setValueConstraint(Person.class);

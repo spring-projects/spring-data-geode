@@ -31,16 +31,25 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
+ * Integration Tests for {@link MembershipAttributes}.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.MembershipAttributes
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "/org/springframework/data/gemfire/config/xml/membership-attributes-ns.xml",
 	initializers = GemFireMockObjectsApplicationContextInitializer.class)
-@SuppressWarnings("unused")
+@SuppressWarnings({ "deprecation", "unused" })
 public class MembershipAttributesIntegrationTests extends IntegrationTestsSupport {
 
     @Autowired
