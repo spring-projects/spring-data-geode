@@ -15,25 +15,21 @@
  */
 package org.springframework.data.gemfire.support;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.After;
+import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.distributed.AbstractLauncher.Status;
 import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.distributed.ServerLauncher.ServerState;
 
-import org.junit.After;
-import org.junit.Test;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
 
 /**
- * The SpringServerLauncherCacheProviderTest class is a test suite of test cases testing the contract and functionality
- * of the {@link SpringServerLauncherCacheProvider} class.
+ * Integration Tests {@link SpringServerLauncherCacheProvider} class.
  *
  * This test class focuses on testing isolated units of functionality in the
  * {@link org.apache.geode.distributed.ServerLauncherCacheProvider} class directly, mocking any dependencies
@@ -42,13 +38,13 @@ import org.springframework.data.gemfire.GemfireUtils;
  * @author Dan Smith
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.distributed.ServerLauncher
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.data.gemfire.support.SpringServerLauncherCacheProvider
- * @see org.apache.geode.cache.Cache
- * @see org.apache.geode.distributed.ServerLauncher
  */
-public class SpringServerLauncherCacheProviderIntegrationTest {
+public class SpringServerLauncherCacheProviderIntegrationTests {
 
 	@After
 	public void tearDown() {
@@ -58,7 +54,7 @@ public class SpringServerLauncherCacheProviderIntegrationTest {
 		GemfireUtils.closeClientCache();
 	}
 
-	String gemfireName() {
+	private String gemfireName() {
 		return GemfireUtils.GEMFIRE_PREFIX + GemfireUtils.NAME_PROPERTY_NAME;
 	}
 
@@ -77,19 +73,18 @@ public class SpringServerLauncherCacheProviderIntegrationTest {
 
 		ServerState state = launcher.start();
 
-		assertThat(state.getStatus(), is(equalTo(Status.ONLINE)));
+		assertThat(state.getStatus()).isEqualTo(Status.ONLINE);
 
 		ConfigurableApplicationContext applicationContext =
 			SpringContextBootstrappingInitializer.getApplicationContext();
 
 		Cache cache = applicationContext.getBean(Cache.class);
 
-		assertThat(cache, is(notNullValue()));
-		assertThat(cache.getResourceManager().getCriticalHeapPercentage(), is(equalTo(55.0f)));
+		assertThat(cache).isNotNull();
+		assertThat(cache.getResourceManager().getCriticalHeapPercentage()).isEqualTo(55.0f);
 
 		state = launcher.stop();
 
-		assertThat(state.getStatus(), is(equalTo(Status.STOPPED)));
+		assertThat(state.getStatus()).isEqualTo(Status.STOPPED);
 	}
-
 }

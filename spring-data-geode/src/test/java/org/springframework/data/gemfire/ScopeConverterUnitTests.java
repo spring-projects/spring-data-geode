@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+
+import org.junit.After;
+import org.junit.Test;
 
 import org.apache.geode.cache.Scope;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 /**
- * Unit tests for {@link ScopeConverter}.
+ * Unit Tests for {@link ScopeConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -37,9 +32,6 @@ import org.junit.rules.ExpectedException;
  * @since 1.6.0
  */
 public class ScopeConverterUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private final ScopeConverter converter = new ScopeConverter();
 
@@ -50,38 +42,54 @@ public class ScopeConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("distributed-ACK")).isEqualTo(Scope.DISTRIBUTED_ACK);
 		assertThat(converter.convert(" Distributed_NO-aCK")).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
 		assertThat(converter.convert("loCAL  ")).isEqualTo(Scope.LOCAL);
 		assertThat(converter.convert(" GLOBal  ")).isEqualTo(Scope.GLOBAL);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[illegal-value] is not a valid Scope");
 
-		converter.convert("illegal-value");
+		try {
+			converter.convert("illegal-value");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[illegal-value] is not a valid Scope");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("DisTributeD-nO_Ack");
+
 		assertThat(converter.getValue()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
+
 		converter.setAsText("distributed-ack");
+
 		assertThat(converter.getValue()).isEqualTo(Scope.DISTRIBUTED_ACK);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		try {
-			exception.expect(IllegalArgumentException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage("[d!5tr!but3d-n0_@ck] is not a valid Scope");
 
+		try {
 			converter.setAsText("d!5tr!but3d-n0_@ck");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[d!5tr!but3d-n0_@ck] is not a valid Scope");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			assertThat(converter.getValue()).isNull();

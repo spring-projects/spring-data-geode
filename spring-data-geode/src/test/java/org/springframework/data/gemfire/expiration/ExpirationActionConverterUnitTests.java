@@ -14,32 +14,25 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.expiration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+
+import org.junit.After;
+import org.junit.Test;
 
 import org.apache.geode.cache.ExpirationAction;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 /**
- * Unit tests for {@link ExpirationActionConverter}.
+ * Unit Tests for {@link ExpirationActionConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see ExpirationActionConverter
+ * @see org.apache.geode.cache.EvictionAction
+ * @see org.springframework.data.gemfire.expiration.ExpirationActionConverter
  * @since 1.6.0
  */
 public class ExpirationActionConverterUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private final ExpirationActionConverter converter = new ExpirationActionConverter();
 
@@ -56,32 +49,47 @@ public class ExpirationActionConverterUnitTests {
 		assertThat(converter.convert("Local_Invalidate")).isEqualTo(ExpirationAction.LOCAL_INVALIDATE);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[illegal_value] is not a valid ExpirationAction");
 
-		converter.convert("illegal_value");
+		try {
+			converter.convert("illegal_value");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[illegal_value] is not a valid ExpirationAction");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("InValidAte");
+
 		assertThat(converter.getValue()).isEqualTo(ExpirationAction.INVALIDATE);
+
 		converter.setAsText("Local_Destroy");
+
 		assertThat(converter.getValue()).isEqualTo(ExpirationAction.LOCAL_DESTROY);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		try {
-			exception.expect(IllegalArgumentException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage("[destruction] is not a valid ExpirationAction");
 
+		try {
 			converter.setAsText("destruction");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[destruction] is not a valid ExpirationAction");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			assertThat(converter.getValue()).isNull();

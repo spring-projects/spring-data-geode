@@ -13,35 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+
+import org.junit.After;
+import org.junit.Test;
 
 import org.apache.geode.cache.InterestPolicy;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 /**
- * Unit tests for {@link InterestPolicyConverter}.
+ * Unit Tests for {@link InterestPolicyConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.data.gemfire.InterestPolicyConverter
  * @see org.apache.geode.cache.InterestPolicy
+ * @see org.springframework.data.gemfire.InterestPolicyConverter
  * @since 1.6.0
  */
 public class InterestPolicyConverterUnitTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
-	private InterestPolicyConverter converter = new InterestPolicyConverter();
+	private final InterestPolicyConverter converter = new InterestPolicyConverter();
 
 	@After
 	public void tearDown() {
@@ -50,38 +42,54 @@ public class InterestPolicyConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("all")).isEqualTo(InterestPolicy.ALL);
 		assertThat(converter.convert("Cache_Content")).isEqualTo(InterestPolicy.CACHE_CONTENT);
 		assertThat(converter.convert("CACHE_ConTent")).isEqualTo(InterestPolicy.CACHE_CONTENT);
 		assertThat(converter.convert("ALL")).isEqualTo(InterestPolicy.ALL);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[invalid_value] is not a valid InterestPolicy");
 
-		converter.convert("invalid_value");
+		try {
+			converter.convert("invalid_value");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[invalid_value] is not a valid InterestPolicy");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("aLl");
+
 		assertThat(converter.getValue()).isEqualTo(InterestPolicy.ALL);
+
 		converter.setAsText("Cache_CoNTeNT");
+
 		assertThat(converter.getValue()).isEqualTo(InterestPolicy.CACHE_CONTENT);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithInvalidValue() {
-		try {
-			exception.expect(IllegalArgumentException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage("[none] is not a valid InterestPolicy");
 
+		try {
 			converter.setAsText("none");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[none] is not a valid InterestPolicy");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			assertThat(converter.getValue()).isNull();

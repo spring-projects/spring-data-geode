@@ -14,19 +14,14 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -35,10 +30,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
- * Unit tests for {@link DeclarableSupport}.
+ * Unit Tests for {@link DeclarableSupport}.
  *
  * @author John Blum
- * @see org.junit.Rule
  * @see org.junit.Test
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
@@ -48,9 +42,6 @@ import org.springframework.beans.factory.BeanFactory;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DeclarableSupportUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	private BeanFactory mockBeanFactoryOne;
@@ -111,6 +102,7 @@ public class DeclarableSupportUnitTests {
 
 	@Test
 	public void locateBeanFactoryWithUnknownKeyHavingMultipleBeanFactoriesRegisteredThrowsIllegalArgumentException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyOne", mockBeanFactoryOne);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyTwo", mockBeanFactoryTwo);
 
@@ -118,54 +110,81 @@ public class DeclarableSupportUnitTests {
 
 		assertThat(testDeclarableSupport.getBeanFactoryKey()).isEqualTo("keyOne");
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory for key [UnknownKey] was not found");
+		try {
+			testDeclarableSupport.locateBeanFactory("UnknownKey");
+		}
+		catch (IllegalArgumentException expected) {
 
-		testDeclarableSupport.locateBeanFactory("UnknownKey");
+			assertThat(expected).hasMessage("BeanFactory for key [UnknownKey] was not found");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void locateBeanFactoryWithoutKeyHavingMultipleBeanFactoriesRegisteredThrowsIllegalStateException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyOne", mockBeanFactoryOne);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyTwo", mockBeanFactoryTwo);
 
 		assertThat(testDeclarableSupport.getBeanFactoryKey()).isNull();
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory key must be specified when more than one BeanFactory [keyOne, keyTwo]"
-			+ " is registered");
+		try {
+			testDeclarableSupport.locateBeanFactory();
+		}
+		catch (IllegalStateException expected) {
 
-		testDeclarableSupport.locateBeanFactory();
+			assertThat(expected)
+				.hasMessage("BeanFactory key must be specified when more than one BeanFactory [keyOne, keyTwo] is registered");
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void locateBeanFactoryWithKeyWhenNoBeanFactoriesAreRegisteredThrowsIllegalStateException() {
+
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).isEmpty();
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("A BeanFactory was not initialized;"
-			+ " Please verify the useBeanFactoryLocator property was properly set");
+		try {
+			testDeclarableSupport.locateBeanFactory("testKey");
+		}
+		catch (IllegalStateException expected) {
 
-		testDeclarableSupport.locateBeanFactory("testKey");
+			assertThat(expected).hasMessage("A BeanFactory was not initialized;"
+				+ " Please verify the useBeanFactoryLocator property was properly set");
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void locateBeanFactoryWithoutKeyWhenNoBeanFactoriesAreRegisteredThrowsIllegalStateException() {
+
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).isEmpty();
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("A BeanFactory was not initialized;"
-			+ " Please verify the useBeanFactoryLocator property was properly set");
+		try {
+			testDeclarableSupport.locateBeanFactory();
+		}
+		catch (IllegalStateException expected) {
 
-		testDeclarableSupport.locateBeanFactory();
+			assertThat(expected).hasMessage("A BeanFactory was not initialized;"
+				+ " Please verify the useBeanFactoryLocator property was properly set");
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void getBeanFactoryReturnsBeanFactory() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyOne", mockBeanFactoryOne);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyTwo", mockBeanFactoryTwo);
 
@@ -177,7 +196,9 @@ public class DeclarableSupportUnitTests {
 
 	@Test
 	public void closeIsSuccessful() {
+
 		testDeclarableSupport.close();
+
 		verify(testDeclarableSupport, times(1)).close();
 	}
 }

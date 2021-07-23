@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.support;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.geode.cache.Region;
-
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -40,17 +34,25 @@ import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.Regions;
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.test.context.junit4.SpringRunner;
+
 /**
- * Integration test for {@link GemfireRepositoryFactory}.
+ * Integration Tests for {@link GemfireRepositoryFactory}.
  *
  * @author Oliver Gierke
+ * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.repository.support.GemfireRepositoryFactory
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
-
-@RunWith(SpringJUnit4ClassRunner.class)
-public abstract class AbstractGemfireRepositoryFactoryIntegrationTests {
+@RunWith(SpringRunner.class)
+public abstract class AbstractGemfireRepositoryFactoryIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
+	@SuppressWarnings("unused")
 	private List<Region<?, ?>> regions;
 
 	private Person boyd;
@@ -65,6 +67,7 @@ public abstract class AbstractGemfireRepositoryFactoryIntegrationTests {
 
 	@Before
 	public void setUp() {
+
 		dave = new Person(1L, "Dave", "Matthews");
 		carter = new Person(2L, "Carter", "Beauford");
 		boyd = new Person(3L, "Boyd", "Tinsley");
@@ -118,9 +121,6 @@ public abstract class AbstractGemfireRepositoryFactoryIntegrationTests {
 		assertResultsFound(repository.findByFirstnameOrLastname("Carter", "Matthews"), carter, dave, oliverAugust);
 	}
 
-	/**
-	 * @see SGF-101
-	 */
 	@Test
 	public void deletesAllEntitiesFromRegions() {
 
@@ -129,25 +129,16 @@ public abstract class AbstractGemfireRepositoryFactoryIntegrationTests {
 		assertResultsFound(repository.findAll());
 	}
 
-	/**
-	 * @see SGF-113
-	 */
 	@Test
 	public void findsPersonByLastname() {
-		assertThat(repository.findByLastname("Beauford"), is(carter));
+		assertThat(repository.findByLastname("Beauford")).isEqualTo(carter);
 	}
 
-	/**
-	 * @see SGF-113
-	 */
 	@Test
 	public void returnsNullForEmptyResultForSingleEntityQuery() {
-		assertThat(repository.findByLastname("Foo"), is(nullValue()));
+		assertThat(repository.findByLastname("Foo")).isNull();
 	}
 
-	/**
-	 * @see SGF-113
-	 */
 	@Test
 	public void throwsExceptionForMoreThanOneResultForSingleEntityQuery() {
 
@@ -155,38 +146,26 @@ public abstract class AbstractGemfireRepositoryFactoryIntegrationTests {
 			repository.findByLastname("Matthews");
 			fail("Exception expected!");
 		} catch (IncorrectResultSizeDataAccessException e) {
-			assertThat(e.getExpectedSize(), is(1));
-			assertThat(e.getActualSize(), is(2));
+			assertThat(e.getExpectedSize()).isEqualTo(1);
+			assertThat(e.getActualSize()).isEqualTo(2);
 		}
 	}
 
-	/**
-	 * @see SGF-115
-	 */
 	@Test
 	public void executesStartsWithCorrectly() {
 		assertResultsFound(repository.findByFirstnameStartingWith("Da"), dave);
 	}
 
-	/**
-	 * @see SGF-115
-	 */
 	@Test
 	public void executesEndsWithCorrectly() {
 		assertResultsFound(repository.findByLastnameEndingWith("ews"), dave, oliverAugust);
 	}
 
-	/**
-	 * @see SGF-115
-	 */
 	@Test
 	public void executesContainsCorrectly() {
 		assertResultsFound(repository.findByFirstnameContaining("o"), boyd, leroi);
 	}
 
-	/**
-	 * @see SGF-115
-	 */
 	@Test
 	public void executesLikeCorrectly() {
 		assertResultsFound(repository.findByFirstnameLike("Da%"), dave);
@@ -194,11 +173,12 @@ public abstract class AbstractGemfireRepositoryFactoryIntegrationTests {
 
 	@SafeVarargs
 	private static <T> void assertResultsFound(Iterable<T> result, T... expected) {
-		assertThat(result, is(notNullValue()));
-		assertThat(result, is(Matchers.iterableWithSize(expected.length)));
+
+		assertThat(result).isNotNull();
+		assertThat(result).hasSize(expected.length);
 
 		for (T element : expected) {
-			assertThat(result, hasItem(element));
+			assertThat(result).contains(element);
 		}
 	}
 }

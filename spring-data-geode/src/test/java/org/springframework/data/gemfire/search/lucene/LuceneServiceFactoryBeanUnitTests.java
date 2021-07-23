@@ -14,36 +14,29 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.lucene.LuceneService;
-
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.lucene.LuceneService;
+
 /**
- * Unit tests for {@link LuceneServiceFactoryBean}.
+ * Unit Tests for {@link LuceneServiceFactoryBean}.
  *
  * @author John Blum
- * @see org.junit.Rule
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.Spy
@@ -53,9 +46,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LuceneServiceFactoryBeanUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	private GemFireCache mockCache;
@@ -73,6 +63,7 @@ public class LuceneServiceFactoryBeanUnitTests {
 
 	@Test
 	public void setAndGetCache() {
+
 		assertThat(factoryBean.getCache()).isNull();
 
 		factoryBean.setCache(mockCache);
@@ -86,6 +77,7 @@ public class LuceneServiceFactoryBeanUnitTests {
 
 	@Test
 	public void afterPropertiesSetInitializesLuceneService() throws Exception {
+
 		assertThat(factoryBean.getObject()).isNull();
 
 		factoryBean.setCache(mockCache);
@@ -96,25 +88,33 @@ public class LuceneServiceFactoryBeanUnitTests {
 		verify(factoryBean, times(1)).resolveLuceneService(eq(mockCache));
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void afterPropertiesSetThrowsIllegalStateExceptionWhenGemFireCacheIsNull() throws Exception {
+
 		assertThat(factoryBean.getCache()).isNull();
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("A reference to the GemFireCache was not properly configured");
+		try {
+			factoryBean.afterPropertiesSet();
+		}
+		catch (IllegalStateException expected) {
 
-		factoryBean.afterPropertiesSet();
+			assertThat(expected).hasMessage("A reference to the GemFireCache was not properly configured");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void getObjectTypeBeforeInitialization() throws Exception {
+
 		assertThat(factoryBean.getObject()).isNull();
 		assertThat(factoryBean.getObjectType()).isEqualTo(LuceneService.class);
 	}
 
 	@Test
 	public void getObjectTypeAfterInitialization() throws Exception {
+
 		factoryBean.setCache(mockCache);
 		factoryBean.afterPropertiesSet();
 

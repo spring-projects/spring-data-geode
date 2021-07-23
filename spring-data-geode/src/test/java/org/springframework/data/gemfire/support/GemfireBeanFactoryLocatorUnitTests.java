@@ -14,18 +14,16 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.BeanFactoryReference.UNINITIALIZED_BEAN_FACTORY_REFERENCE_MESSAGE;
 import static org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.newBeanFactoryLocator;
@@ -37,9 +35,7 @@ import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -47,10 +43,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
- * Unit tests for {@link GemfireBeanFactoryLocator}.
+ * Unit Tests for {@link GemfireBeanFactoryLocator}.
  *
  * @author John Blum
- * @see org.junit.Rule
  * @see org.junit.Test
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
@@ -60,9 +55,6 @@ import org.springframework.beans.factory.BeanFactory;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class GemfireBeanFactoryLocatorUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	private BeanFactory mockBeanFactory;
@@ -79,6 +71,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void newUninitializedBeanFactorLocator() {
+
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator();
 
 		assertThat(beanFactoryLocator).isNotNull();
@@ -90,6 +83,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void newInitializedBeanFactoryLocator() {
+
 		when(mockBeanFactory.getAliases(anyString())).thenReturn(new String[0]);
 
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator(mockBeanFactory, "AssociatedBeanName");
@@ -106,6 +100,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void newInitializedBeanFactoryLocatorWithNullBeanFactoryAndSpecifiedBeanName() {
+
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator(null, "MyBeanName");
 
 		assertThat(beanFactoryLocator).isNotNull();
@@ -115,17 +110,24 @@ public class GemfireBeanFactoryLocatorUnitTests {
 		assertThat(beanFactoryLocator.getAssociatedBeanNameWithAliases()).isEmpty();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void newInitializedBeanFactoryLocatorWithNonNullBeanFactoryAndUnspecifiedBeanNameThrowsIllegalArgumentException() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("associatedBeanName must be specified when BeanFactory is not null");
 
-		newBeanFactoryLocator(mockBeanFactory, "  ");
+		try {
+			newBeanFactoryLocator(mockBeanFactory, "  ");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("associatedBeanName must be specified when BeanFactory is not null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void resolveBeanFactoryReturnsResolvedBeanFactory() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("MyBeanKey", mockBeanFactory);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).hasSize(1);
@@ -134,33 +136,42 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void resolveBeanFactoryWithNoRegisteredBeanFactoriesAndAnyKeyReturnsNull() {
+
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).isEmpty();
 		assertThat(GemfireBeanFactoryLocator.resolveBeanFactory("MyBeanKey")).isNull();
 		assertThat(GemfireBeanFactoryLocator.resolveBeanFactory("AnotherBeanKey")).isNull();
 		assertThat(GemfireBeanFactoryLocator.resolveBeanFactory("YetAnotherBeanKey")).isNull();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void resolveBeanFactoryWithRegisteredBeanFactoriesAndUnknownKeyThrowsIllegalArgumentException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("MyBeanKey", mockBeanFactory);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).hasSize(1);
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory for key [UnknownKey] was not found");
+		try {
+			GemfireBeanFactoryLocator.resolveBeanFactory("UnknownKey");
+		}
+		catch (IllegalArgumentException expected) {
 
-		GemfireBeanFactoryLocator.resolveBeanFactory("UnknownKey");
+			assertThat(expected).hasMessage("BeanFactory for key [UnknownKey] was not found");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void resolveSingleBeanFactoryWithNoRegisteredBeanFactoriesReturnsNull() {
+
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.isEmpty()).isTrue();
 		assertThat(GemfireBeanFactoryLocator.resolveSingleBeanFactory()).isNull();
 	}
 
 	@Test
 	public void resolveSingleBeanFactoryWhenSingleBeanFactoryIsRegisteredReturnsSingleBeanFactory() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("MyBeanKey", mockBeanFactory);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.size()).isEqualTo(1);
@@ -169,6 +180,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void resolveSingleBeanFactoryWhenMultipleIdenticalBeanFactoriesAreRegisteredReturnsSingleBeanFactory() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refTwo", mockBeanFactory);
 
@@ -176,23 +188,31 @@ public class GemfireBeanFactoryLocatorUnitTests {
 		assertThat(GemfireBeanFactoryLocator.resolveSingleBeanFactory()).isSameAs(mockBeanFactory);
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void resolveSingeBeanFactoryWhenMultipleDifferentBeanFactoriesAreRegisteredThrowsIllegalStateException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refTwo", mock(BeanFactory.class));
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.size()).isEqualTo(2);
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory key must be specified when more than one BeanFactory [refOne, refTwo]"
-			+ " is registered");
+		try {
+			GemfireBeanFactoryLocator.resolveSingleBeanFactory();
+		}
+		catch (IllegalStateException expected) {
 
-		GemfireBeanFactoryLocator.resolveSingleBeanFactory();
+			assertThat(expected)
+				.hasMessage("BeanFactory key must be specified when more than one BeanFactory [refOne, refTwo] is registered");
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void registerAliasesIsSuccessful() {
+
 		Set<String> aliases = asSet("aliasOne", "aliasTwo", "aliasThree");
 
 		GemfireBeanFactoryLocator.registerAliases(aliases, mockBeanFactory);
@@ -208,6 +228,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void registerAliasesWithEmptyAliasesAndNonNullBeanFactoryDoesNothing() {
+
 		GemfireBeanFactoryLocator.registerAliases(Collections.emptySet(), mockBeanFactory);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.isEmpty()).isTrue();
@@ -215,22 +236,30 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void registerAliasesWithEmptyAliasesAndNullBeanFactoryDoesNothing() {
+
 		GemfireBeanFactoryLocator.registerAliases(Collections.emptySet(), null);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.isEmpty()).isTrue();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void registerAliasesWithNonEmptyAliasesAndNullBeanFactoryThrowsIllegalArgumentException() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory must not be null when aliases are specified");
 
-		GemfireBeanFactoryLocator.registerAliases(asSet("aliasOne", "aliasTwo"), null);
+		try {
+			GemfireBeanFactoryLocator.registerAliases(asSet("aliasOne", "aliasTwo"), null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("BeanFactory must not be null when aliases are specified");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void registerAliasesWithNullAliasesHandlesNullAndDoesNothing() {
+
 		GemfireBeanFactoryLocator.registerAliases(null, null);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.isEmpty()).isTrue();
@@ -238,6 +267,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void registerAliasesWhenIdenticalBeanFactoryReferencesAlreadyExistIsSuccessful() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasTwo", mockBeanFactory);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.size()).isEqualTo(1);
@@ -250,22 +280,29 @@ public class GemfireBeanFactoryLocatorUnitTests {
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.get("aliasTwo")).isSameAs(mockBeanFactory);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void registerAliasesWhenNonIdenticalBeanFactoryReferencesAlreadyExistThrowsIllegalArgumentException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasTwo", mockBeanFactory);
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.size()).isEqualTo(1);
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.get("aliasTwo")).isSameAs(mockBeanFactory);
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory reference already exists for key [aliasTwo]");
+		try {
+			GemfireBeanFactoryLocator.registerAliases(asSet("aliasOne", "aliasTwo"), mock(BeanFactory.class));
+		}
+		catch (IllegalArgumentException expected) {
 
-		GemfireBeanFactoryLocator.registerAliases(asSet("aliasOne", "aliasTwo"), mock(BeanFactory.class));
+			assertThat(expected).hasMessage("BeanFactory reference already exists for key [aliasTwo]");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void unregisterAliasesRemovesAll() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasTwo", mockBeanFactory);
 
@@ -278,6 +315,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void unregisterAliasesRemovesPartial() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasTwo", mockBeanFactory);
 
@@ -292,6 +330,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void unregisterAliasesRemovesNone() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("aliasTwo", mockBeanFactory);
 
@@ -306,6 +345,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void afterPropertiesSetResolvesAndInitializesBeanNamesWithAliasesThenRegisterAliases() {
+
 		when(mockBeanFactory.getAliases(eq("AssociatedBeanName"))).thenReturn(new String[] { "aliasOne", "aliasTwo" });
 
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator(mockBeanFactory, "AssociatedBeanName");
@@ -330,6 +370,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void afterPropertiesSetUnableToResolveInitializeAndRegisterAliasesWithNullBeanFactory() {
+
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator(null, "AssociatedBeanName");
 
 		assertThat(beanFactoryLocator).isNotNull();
@@ -342,6 +383,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void destroyUnregistersOwningAliases() {
+
 		BeanFactory mockBeanFactoryTwo = mock(BeanFactory.class, "MockBeanFactoryTwo");
 
 		when(mockBeanFactory.getAliases(eq("AssociatedBeanName"))).thenReturn(new String[] { "aliasOne", "aliasTwo" });
@@ -372,20 +414,27 @@ public class GemfireBeanFactoryLocatorUnitTests {
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.keySet()).containsAll(asSet("refOne", "refTwo"));
 
 		verify(mockBeanFactory, times(1)).getAliases(eq("AssociatedBeanName"));
-		verifyZeroInteractions(mockBeanFactoryTwo);
+		verifyNoMoreInteractions(mockBeanFactoryTwo);
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void useBeanFactoryWhenNoBeanFactoriesAreRegisteredThrowsIllegalStateException() {
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(UNINITIALIZED_BEAN_FACTORY_REFERENCE_MESSAGE);
 
-		newBeanFactoryLocator().useBeanFactory();
+		try {
+			newBeanFactoryLocator().useBeanFactory();
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage(UNINITIALIZED_BEAN_FACTORY_REFERENCE_MESSAGE);
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void useBeanFactoryWhenSingleBeanFactoryIsRegisteredReturnsSingleBeanFactory() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refTwo", mockBeanFactory);
 
@@ -394,23 +443,31 @@ public class GemfireBeanFactoryLocatorUnitTests {
 		assertThat(newBeanFactoryLocator().useBeanFactory()).isSameAs(mockBeanFactory);
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void useBeanFactoryWhenMultipleBeanFactoriesAreRegisteredThrowsIllegalStateException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refTwo", mock(BeanFactory.class, "MockBeanFactoryTwo"));
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).hasSize(2);
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory key must be specified when more than one BeanFactory [refOne, refTwo]"
-			+ " is registered");
+		try {
+			newBeanFactoryLocator().useBeanFactory();
+		}
+		catch (IllegalStateException expected) {
 
-		newBeanFactoryLocator().useBeanFactory();
+			assertThat(expected)
+				.hasMessage("BeanFactory key must be specified when more than one BeanFactory [refOne, refTwo] is registered");
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void useBeanFactoryWhenMultipleBeanFactoriesAreRegisteredWithConfiguredKeyReturnsBeanFactory() {
+
 		BeanFactory mockBeanFactoryTwo = mock(BeanFactory.class, "MockBeanFactoryTwo");
 
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("refOne", mockBeanFactory);
@@ -423,6 +480,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void useBeanFactoryWithKeyReturnsSpecificBeanFactory() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyTwo", mock(BeanFactory.class, "MockBeanFactoryTwo"));
 
@@ -430,22 +488,29 @@ public class GemfireBeanFactoryLocatorUnitTests {
 		assertThat(newBeanFactoryLocator().useBeanFactory("keyOne")).isSameAs(mockBeanFactory);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void useBeanFactoryWithUnknownKeyThrowsIllegalArgumentException() {
+
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyOne", mockBeanFactory);
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyTwo", mock(BeanFactory.class, "MockBeanFactoryTwo"));
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES.size()).isEqualTo(2);
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory for key [UnknownKey] was not found");
+		try {
+			newBeanFactoryLocator().useBeanFactory("UnknownKey");
+		}
+		catch (IllegalArgumentException expected) {
 
-		newBeanFactoryLocator().useBeanFactory("UnknownKey");
+			assertThat(expected).hasMessage("BeanFactory for key [UnknownKey] was not found");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAndGetBeanFactory() {
+
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator();
 
 		assertThat(beanFactoryLocator).isNotNull();
@@ -459,11 +524,12 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 		assertThat(beanFactoryLocator.getBeanFactory()).isNull();
 
-		verifyZeroInteractions(mockBeanFactory);
+		verifyNoInteractions(mockBeanFactory);
 	}
 
 	@Test
 	public void setAndGetAssociatedBeanName() {
+
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator(null, "AssociatedBeanName");
 
 		assertThat(beanFactoryLocator).isNotNull();
@@ -486,6 +552,7 @@ public class GemfireBeanFactoryLocatorUnitTests {
 
 	@Test
 	public void withBeanNameIsSuccessful() {
+
 		GemfireBeanFactoryLocator beanFactoryLocator = newBeanFactoryLocator();
 
 		assertThat(beanFactoryLocator).isNotNull();

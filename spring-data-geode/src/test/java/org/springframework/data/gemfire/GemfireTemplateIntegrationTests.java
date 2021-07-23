@@ -16,8 +16,7 @@
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assume.assumeThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -190,7 +189,7 @@ public class GemfireTemplateIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void containsKeyOnServer() {
 
-		assumeThat(CacheUtils.isClient(this.gemfireCache), is(true));
+		assumeThat(CacheUtils.isClient(this.gemfireCache)).isTrue();
 
 		assertThat(this.usersTemplate.containsKeyOnServer(getKey(getUser("jackHandy")))).isTrue();
 		assertThat(this.usersTemplate.containsKeyOnServer("maxPayne")).isFalse();

@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.gemfire.mapping.annotation.Region;
@@ -34,21 +29,17 @@ import org.springframework.data.mapping.MappingException;
 import org.springframework.data.util.ClassTypeInformation;
 
 /**
- * Unit tests for {@link GemfirePersistentEntity}.
+ * Unit Tests for {@link GemfirePersistentEntity}.
  *
  * @author Oliver Gierke
  * @author John Blum
  * @author Gregory Green
- * @see org.junit.Rule
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.mapping.GemfirePersistentEntity
  */
 public class GemfirePersistentEntityUnitTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
-	private GemfireMappingContext mappingContext = new GemfireMappingContext();
+	private final GemfireMappingContext mappingContext = new GemfireMappingContext();
 
 	protected IdentifierAccessor getIdentifierAccessor(Object domainObject) {
 		return getMappingContextPersistentEntity(domainObject).getIdentifierAccessor(domainObject);
@@ -56,7 +47,7 @@ public class GemfirePersistentEntityUnitTests {
 
 	@SuppressWarnings("unchecked")
 	protected <T> GemfirePersistentEntity<T> getMappingContextPersistentEntity(Object domainObject) {
-		return this.<T>getMappingContextPersistentEntity((Class<T>) domainObject.getClass());
+		return this.getMappingContextPersistentEntity((Class<T>) domainObject.getClass());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -86,8 +77,8 @@ public class GemfirePersistentEntityUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void bigDecimalPersistentPropertyIsNotAnEntity() {
+
 		GemfirePersistentEntity<ExampleDomainObject> entity =
 			getMappingContextPersistentEntity(ExampleDomainObject.class);
 
@@ -101,7 +92,6 @@ public class GemfirePersistentEntityUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void bigIntegerPersistentPropertyIsNotAnEntity() {
 
 		GemfirePersistentEntity<ExampleDomainObject> entity =
@@ -163,21 +153,25 @@ public class GemfirePersistentEntityUnitTests {
 		AmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntity entity =
 			new AmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntity();
 
-		String expectedMessage = String.format("Attempt to add explicit id property [ssn] but already have id property [id] registered as explicit;"
-			+ " Please check your object [%s] mapping configuration", entity.getClass().getName());
+		try {
+			getIdentifierAccessor(new AmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntity());
+		}
+		catch (MappingException expected) {
 
-		exception.expect(MappingException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(expectedMessage);
+			assertThat(expected).hasMessage("Attempt to add explicit id property [ssn] but already have id property [id] registered as explicit;"
+				+ " Please check your object [%s] mapping configuration", entity.getClass().getName());
 
-		getIdentifierAccessor(new AmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntity());
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@SuppressWarnings("unused")
 	static class AmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntity {
 
 		@Id
-		private Long id = 1L;
+		private final Long id = 1L;
 
 		@Id
 		public String getSsn() {
@@ -188,7 +182,7 @@ public class GemfirePersistentEntityUnitTests {
 	static class IdAnnotatedFieldAndPropertyEntity {
 
 		@Id
-		private Long id = 1L;
+		private final Long id = 1L;
 
 		@Id
 		public Long getId() {
@@ -196,8 +190,9 @@ public class GemfirePersistentEntityUnitTests {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	static class NonIdAnnotatedIdFieldEntity {
-		private Long id = 123L;
+		private final Long id = 123L;
 	}
 
 	static class NonIdAnnotatedIdGetterEntity {
@@ -206,16 +201,13 @@ public class GemfirePersistentEntityUnitTests {
 		}
 	}
 
-	static class NonRegionAnnotatedEntity {
-	}
+	static class NonRegionAnnotatedEntity { }
 
 	@Region("Foo")
-	static class NamedRegionAnnotatedEntity {
-	}
+	static class NamedRegionAnnotatedEntity { }
 
 	@Region
-	static class UnnamedRegionAnnotatedEntity {
-	}
+	static class UnnamedRegionAnnotatedEntity { }
 
 	@Region("Example")
 	@SuppressWarnings("unused")

@@ -15,10 +15,7 @@
  */
 package org.springframework.data.gemfire.repository.query;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,27 +27,31 @@ import org.springframework.data.gemfire.repository.query.Predicates.AtomicPredic
 import org.springframework.data.repository.query.parser.Part;
 
 /**
- * Unit tests for {@link Predicates}.
+ * Unit Tests for {@link Predicates}.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.repository.query.Predicates
  */
 @SuppressWarnings("unused")
 public class PredicatesUnitTests {
 
 	@Test
 	public void atomicPredicateDefaultsAlias() {
+
 		Part part = new Part("firstname", Person.class);
 
 		Iterator<Integer> indexes = Collections.singletonList(1).iterator();
 
 		Predicate predicate = new AtomicPredicate(part, indexes);
 
-		assertThat(predicate.toString(null), is("x.firstname = $1"));
+		assertThat(predicate.toString(null)).isEqualTo("x.firstname = $1");
 	}
 
 	@Test
 	public void concatenatesAndPredicateCorrectly() {
+
 		Part left = new Part("firstname", Person.class);
 		Part right = new Part("lastname", Person.class);
 
@@ -58,12 +59,13 @@ public class PredicatesUnitTests {
 
 		Predicate predicate = Predicates.create(left, indexes).and(Predicates.create(right, indexes));
 
-		assertThat(predicate, is(notNullValue(Predicate.class)));
-		assertThat(predicate.toString(null), is("x.firstname = $1 AND x.lastname = $2"));
+		assertThat(predicate).isNotNull();
+		assertThat(predicate.toString(null)).isEqualTo("x.firstname = $1 AND x.lastname = $2");
 	}
 
 	@Test
 	public void concatenatesOrPredicateCorrectly() {
+
 		Part left = new Part("firstname", Person.class);
 		Part right = new Part("lastname", Person.class);
 
@@ -71,20 +73,21 @@ public class PredicatesUnitTests {
 
 		Predicate predicate = Predicates.create(left, indexes).or(Predicates.create(right, indexes));
 
-		assertThat(predicate, is(notNullValue(Predicate.class)));
-		assertThat(predicate.toString(null), is(equalTo("x.firstname = $1 OR x.lastname = $2")));
+		assertThat(predicate).isNotNull();
+		assertThat(predicate.toString(null)).isEqualTo("x.firstname = $1 OR x.lastname = $2");
 	}
 
 	@Test
 	public void handlesBooleanBasedPredicateCorrectly() {
+
 		Part part = new Part("activeTrue", User.class);
 
 		Iterator<Integer> indexes = Collections.singletonList(1).iterator();
 
 		Predicates predicate = Predicates.create(part, indexes);
 
-		assertThat(predicate, is(notNullValue(Predicate.class)));
-		assertThat(predicate.toString("user"), is(equalTo("user.active = true")));
+		assertThat(predicate).isNotNull();
+		assertThat(predicate.toString("user")).isEqualTo("user.active = true");
 	}
 
 	/**
@@ -92,6 +95,7 @@ public class PredicatesUnitTests {
 	 */
 	@Test
 	public void handlesIgnoreCasePredicateCorrectly() {
+
 		Part left = new Part("firstnameIgnoreCase", Person.class);
 		Part right = new Part("lastnameIgnoreCase", Person.class);
 
@@ -99,8 +103,9 @@ public class PredicatesUnitTests {
 
 		Predicate predicate = Predicates.create(left, indexes).and(Predicates.create(right, indexes));
 
-		assertThat(predicate, is(notNullValue(Predicate.class)));
-		assertThat(predicate.toString("person"), is(equalTo("person.firstname.equalsIgnoreCase($1) AND person.lastname.equalsIgnoreCase($2)")));
+		assertThat(predicate).isNotNull();
+		assertThat(predicate.toString("person"))
+			.isEqualTo("person.firstname.equalsIgnoreCase($1) AND person.lastname.equalsIgnoreCase($2)");
 	}
 
 	static class Person {

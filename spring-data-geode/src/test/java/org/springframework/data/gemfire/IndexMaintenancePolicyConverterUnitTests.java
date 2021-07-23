@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
- * Unit tests for {@link IndexMaintenancePolicyConverter}.
+ * Unit Tests for {@link IndexMaintenancePolicyConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -35,9 +30,6 @@ import org.junit.rules.ExpectedException;
  * @since 1.6.0
  */
 public class IndexMaintenancePolicyConverterUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private final IndexMaintenancePolicyConverter converter = new IndexMaintenancePolicyConverter();
 
@@ -48,36 +40,52 @@ public class IndexMaintenancePolicyConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("asynchronous")).isEqualTo(IndexMaintenancePolicyType.ASYNCHRONOUS);
 		assertThat(converter.convert("Synchronous")).isEqualTo(IndexMaintenancePolicyType.SYNCHRONOUS);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[sync] is not a valid IndexMaintenancePolicyType");
 
-		converter.convert("sync");
+		try {
+			converter.convert("sync");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[sync] is not a valid IndexMaintenancePolicyType");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("aSynchronous");
+
 		assertThat(converter.getValue()).isEqualTo(IndexMaintenancePolicyType.ASYNCHRONOUS);
+
 		converter.setAsText("synchrONoUS");
+
 		assertThat(converter.getValue()).isEqualTo(IndexMaintenancePolicyType.SYNCHRONOUS);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		try {
-			exception.expect(IllegalArgumentException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage("[async] is not a valid IndexMaintenancePolicyType");
 
+		try {
 			converter.setAsText("async");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[async] is not a valid IndexMaintenancePolicyType");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			assertThat(converter.getValue()).isNull();

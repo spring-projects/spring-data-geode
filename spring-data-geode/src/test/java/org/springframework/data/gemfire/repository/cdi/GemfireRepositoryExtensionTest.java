@@ -14,14 +14,10 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.isA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -29,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,12 +37,11 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.ProcessBean;
 import javax.inject.Qualifier;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.repository.GemfireRepository;
@@ -76,28 +70,32 @@ public class GemfireRepositoryExtensionTest {
 	}
 
 	protected <T> Set<T> asSet(T... array) {
-		return new HashSet<T>(Arrays.asList(array));
+		return new HashSet<>(Arrays.asList(array));
 	}
 
-	protected Annotation mockAnnotation(Class annotationType) {
+	@SuppressWarnings("rawtypes")
+	private Annotation mockAnnotation(Class annotationType) {
 		Annotation mockAnnotation = mock(Annotation.class);
 		when(mockAnnotation.annotationType()).thenReturn(annotationType);
 		return mockAnnotation;
 	}
 
 	@Test
+	@SuppressWarnings("rawtypes")
 	public void processBeanIdentifiesAndProcessesRegionBeanCorrectly() {
+
 		ProcessBean<Region> mockProcessBean = mock(ProcessBean.class);
+
 		Bean<Region> mockBean = mock(Bean.class);
 
 		when(mockProcessBean.getBean()).thenReturn(mockBean);
-		when(mockBean.getTypes()).thenReturn(Collections.singleton((Type) Region.class));
+		when(mockBean.getTypes()).thenReturn(Collections.singleton(Region.class));
 
-		assertThat(repositoryExtension.regionBeans.isEmpty(), is(true));
+		assertThat(repositoryExtension.regionBeans.isEmpty()).isTrue();
 
 		repositoryExtension.processBean(mockProcessBean);
 
-		assertThat(repositoryExtension.regionBeans.contains(mockBean), is(true));
+		assertThat(repositoryExtension.regionBeans.contains(mockBean)).isTrue();
 
 		verify(mockProcessBean, times(1)).getBean();
 		verify(mockBean, times(1)).getTypes();
@@ -112,15 +110,15 @@ public class GemfireRepositoryExtensionTest {
 			mockAnnotation(GemfireRepo.class));
 
 		when(mockProcessBean.getBean()).thenReturn(mockBean);
-		when(mockBean.getTypes()).thenReturn(Collections.singleton((Type) GemfireMappingContext.class));
+		when(mockBean.getTypes()).thenReturn(Collections.singleton(GemfireMappingContext.class));
 		when(mockBean.getQualifiers()).thenReturn(expectedQualifiers);
 
-		assertThat(repositoryExtension.mappingContexts.isEmpty(), is(true));
+		assertThat(repositoryExtension.mappingContexts.isEmpty()).isTrue();
 
 		repositoryExtension.processBean(mockProcessBean);
 
-		assertThat(repositoryExtension.mappingContexts.containsKey(expectedQualifiers), is(true));
-		assertThat(repositoryExtension.mappingContexts.get(expectedQualifiers), is(equalTo(mockBean)));
+		assertThat(repositoryExtension.mappingContexts.containsKey(expectedQualifiers)).isTrue();
+		assertThat(repositoryExtension.mappingContexts.get(expectedQualifiers)).isEqualTo(mockBean);
 
 		verify(mockProcessBean, times(1)).getBean();
 		verify(mockBean, times(2)).getTypes();
@@ -133,15 +131,15 @@ public class GemfireRepositoryExtensionTest {
 		Bean<Object> mockBean = mock(Bean.class);
 
 		when(mockProcessBean.getBean()).thenReturn(mockBean);
-		when(mockBean.getTypes()).thenReturn(Collections.singleton((Type) Object.class));
+		when(mockBean.getTypes()).thenReturn(Collections.singleton(Object.class));
 
-		assertThat(repositoryExtension.mappingContexts.isEmpty(), is(true));
-		assertThat(repositoryExtension.regionBeans.isEmpty(), is(true));
+		assertThat(repositoryExtension.mappingContexts.isEmpty()).isTrue();
+		assertThat(repositoryExtension.regionBeans.isEmpty()).isTrue();
 
 		repositoryExtension.processBean(mockProcessBean);
 
-		assertThat(repositoryExtension.mappingContexts.isEmpty(), is(true));
-		assertThat(repositoryExtension.regionBeans.isEmpty(), is(true));
+		assertThat(repositoryExtension.mappingContexts.isEmpty()).isTrue();
+		assertThat(repositoryExtension.regionBeans.isEmpty()).isTrue();
 
 		verify(mockProcessBean, times(1)).getBean();
 		verify(mockBean, times(1)).getTypes();
@@ -154,20 +152,21 @@ public class GemfireRepositoryExtensionTest {
 		final Set<Annotation> expectedQualifiers = asSet(mockAnnotation(SpringDataRepo.class),
 			mockAnnotation(GemfireRepo.class));
 
-		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
-				GemfireRepositoryBean<?> repositoryBean = invocation.getArgument(0);
+		doAnswer((Answer<Void>) invocation -> {
 
-				assertThat(repositoryBean, is(notNullValue()));
-				assertThat((Class<TestRepository>) repositoryBean.getBeanClass(), is(equalTo(TestRepository.class)));
-				assertThat(repositoryBean.getQualifiers(), is(equalTo(expectedQualifiers)));
+			GemfireRepositoryBean<?> repositoryBean = invocation.getArgument(0);
 
-				return null;
-			}
+			assertThat(repositoryBean).isNotNull();
+			assertThat(repositoryBean.getBeanClass()).isEqualTo(TestRepository.class);
+			assertThat(repositoryBean.getQualifiers()).isEqualTo(expectedQualifiers);
+
+			return null;
 		}).when(mockAfterBeanDiscovery).addBean(isA(GemfireRepositoryBean.class));
 
 		GemfireRepositoryExtension repositoryExtension = new GemfireRepositoryExtension() {
-			@Override protected Iterable<Map.Entry<Class<?>, Set<Annotation>>> getRepositoryTypes() {
+
+			@Override
+			protected Iterable<Map.Entry<Class<?>, Set<Annotation>>> getRepositoryTypes() {
 				return Collections.<Class<?>, Set<Annotation>>singletonMap(TestRepository.class, expectedQualifiers).entrySet();
 			}
 		};
@@ -178,16 +177,13 @@ public class GemfireRepositoryExtensionTest {
 	}
 
 	@Qualifier
-	@interface GemfireRepo {
-	}
+	@interface GemfireRepo { }
 
 	@Qualifier
-	@interface SpringDataRepo {
-	}
+	@interface SpringDataRepo { }
 
 	@GemfireRepo
 	@SpringDataRepo
-	interface TestRepository extends GemfireRepository<Object, Long> {
-	}
+	interface TestRepository extends GemfireRepository<Object, Long> { }
 
 }

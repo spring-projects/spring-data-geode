@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import org.apache.geode.cache.AttributesFactory;
 import org.apache.geode.cache.RegionFactory;
 
 /**
- * The IndexMaintenanceType enum is a enumerated type of GemFire Index maintenance update options.
+ * The {@link IndexMaintenancePolicyType} enum is a enumerated type of GemFire Index maintenance update options.
  *
  * @author John Blum
  * @see org.apache.geode.cache.AttributesFactory#setIndexMaintenanceSynchronous(boolean)
@@ -30,6 +29,7 @@ import org.apache.geode.cache.RegionFactory;
  */
 @SuppressWarnings("unused")
 public enum IndexMaintenancePolicyType {
+
 	SYNCHRONOUS,
 	ASYNCHRONOUS;
 
@@ -45,7 +45,8 @@ public enum IndexMaintenancePolicyType {
 	 * @see java.lang.String#equalsIgnoreCase(String)
 	 * @see #name()
 	 */
-	public static IndexMaintenancePolicyType valueOfIgnoreCase(final String name) {
+	public static IndexMaintenancePolicyType valueOfIgnoreCase(String name) {
+
 		for (IndexMaintenancePolicyType indexMaintenancePolicyType : values()) {
 			if (indexMaintenancePolicyType.name().equalsIgnoreCase(name)) {
 				return indexMaintenancePolicyType;
@@ -64,7 +65,7 @@ public enum IndexMaintenancePolicyType {
 	 * @see #setIndexMaintenance(org.apache.geode.cache.RegionFactory)
 	 */
 	@SuppressWarnings("deprecation")
-	public void setIndexMaintenance(final AttributesFactory attributesFactory) {
+	public void setIndexMaintenance(AttributesFactory<?, ?> attributesFactory) {
 		attributesFactory.setIndexMaintenanceSynchronous(equals(SYNCHRONOUS));
 	}
 
@@ -76,8 +77,7 @@ public enum IndexMaintenancePolicyType {
 	 * @throws java.lang.NullPointerException if the RegionFactory reference is null.
 	 * @see #setIndexMaintenance(org.apache.geode.cache.AttributesFactory)
 	 */
-	public void setIndexMaintenance(final RegionFactory regionFactory) {
+	public void setIndexMaintenance(RegionFactory<?, ?> regionFactory) {
 		regionFactory.setIndexMaintenanceSynchronous(equals(SYNCHRONOUS));
 	}
-
 }

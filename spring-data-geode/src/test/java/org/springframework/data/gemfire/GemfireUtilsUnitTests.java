@@ -13,45 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Properties;
+
+import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.distributed.DistributedSystem;
 
-import org.junit.Test;
-
 /**
- * The GemfireUtilsTest class is a test suite of test cases testing the contract and functionality of the GemfireUtils
- * abstract utility class.
+ * Unit Tests for {@link GemfireUtils}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.GemfireUtils
  * @since 1.3.3
  */
-public class GemfireUtilsTest {
+public class GemfireUtilsUnitTests {
 
 	@Test
 	public void isClientWithClientIsTrue() {
 
 		ClientCache mockClient = mock(ClientCache.class);
 
-		assertThat(GemfireUtils.isClient(mockClient), is(true));
+		assertThat(GemfireUtils.isClient(mockClient)).isTrue();
 
-		verifyZeroInteractions(mockClient);
+		verifyNoInteractions(mockClient);
 	}
 
 	@Test
@@ -59,9 +56,9 @@ public class GemfireUtilsTest {
 
 		Cache mockCache = mock(Cache.class);
 
-		assertThat(GemfireUtils.isClient(mockCache), is(false));
+		assertThat(GemfireUtils.isClient(mockCache)).isFalse();
 
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockCache);
 	}
 
 	@Test
@@ -79,7 +76,7 @@ public class GemfireUtilsTest {
 		when(mockDistributedSystem.isConnected()).thenReturn(true);
 		when(mockDistributedSystem.getProperties()).thenReturn(gemfireProperties);
 
-		assertThat(GemfireUtils.isDurable(mockClientCache), is(true));
+		assertThat(GemfireUtils.isDurable(mockClientCache)).isTrue();
 
 		verify(mockClientCache, times(1)).getDistributedSystem();
 		verify(mockDistributedSystem, times(1)).isConnected();
@@ -101,7 +98,7 @@ public class GemfireUtilsTest {
 		when(mockDistributedSystem.isConnected()).thenReturn(true);
 		when(mockDistributedSystem.getProperties()).thenReturn(gemfireProperties);
 
-		assertThat(GemfireUtils.isDurable(mockClientCache), is(false));
+		assertThat(GemfireUtils.isDurable(mockClientCache)).isFalse();
 
 		verify(mockClientCache, times(1)).getDistributedSystem();
 		verify(mockDistributedSystem, times(1)).isConnected();
@@ -118,7 +115,7 @@ public class GemfireUtilsTest {
 		when(mockClientCache.getDistributedSystem()).thenReturn(mockDistributedSystem);
 		when(mockDistributedSystem.isConnected()).thenReturn(false);
 
-		assertThat(GemfireUtils.isDurable(mockClientCache), is(false));
+		assertThat(GemfireUtils.isDurable(mockClientCache)).isFalse();
 
 		verify(mockClientCache, times(1)).getDistributedSystem();
 		verify(mockDistributedSystem, times(1)).isConnected();
@@ -130,9 +127,9 @@ public class GemfireUtilsTest {
 
 		Cache mockCache = mock(Cache.class);
 
-		assertThat(GemfireUtils.isPeer(mockCache), is(true));
+		assertThat(GemfireUtils.isPeer(mockCache)).isTrue();
 
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockCache);
 	}
 
 	@Test
@@ -140,8 +137,8 @@ public class GemfireUtilsTest {
 
 		ClientCache mockClientCache = mock(ClientCache.class);
 
-		assertThat(GemfireUtils.isPeer(mockClientCache), is(false));
+		assertThat(GemfireUtils.isPeer(mockClientCache)).isFalse();
 
-		verifyZeroInteractions(mockClientCache);
+		verifyNoInteractions(mockClientCache);
 	}
 }

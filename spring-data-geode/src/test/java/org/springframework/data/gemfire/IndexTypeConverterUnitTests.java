@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
- * Unit tests for {@link IndexTypeConverter}.
+ * Unit Tests for {@link IndexTypeConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -35,9 +30,6 @@ import org.junit.rules.ExpectedException;
  * @since 1.5.2
  */
 public class IndexTypeConverterUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private final IndexTypeConverter converter = new IndexTypeConverter();
 
@@ -48,6 +40,7 @@ public class IndexTypeConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("FUNCTIONAL")).isEqualTo(IndexType.FUNCTIONAL);
 		assertThat(converter.convert("hASh")).isEqualTo(IndexType.HASH);
 		assertThat(converter.convert("hASH")).isEqualTo(IndexType.HASH);
@@ -55,32 +48,47 @@ public class IndexTypeConverterUnitTests {
 		assertThat(converter.convert("primary_KEY")).isEqualTo(IndexType.PRIMARY_KEY);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertWithIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[function] is not a valid IndexType");
 
-		converter.convert("function");
+		try {
+			converter.convert("function");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[function] is not a valid IndexType");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("HasH");
+
 		assertThat(converter.getValue()).isEqualTo(IndexType.HASH);
+
 		converter.setAsText("key");
+
 		assertThat(converter.getValue()).isEqualTo(IndexType.KEY);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		try {
-			exception.expect(IllegalArgumentException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage("[invalid] is not a valid IndexType");
 
+		try {
 			converter.setAsText("invalid");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[invalid] is not a valid IndexType");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			assertThat(converter.getValue()).isNull();

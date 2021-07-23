@@ -14,22 +14,19 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -37,9 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -52,7 +47,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.data.gemfire.util.CollectionUtils;
 
 /**
- * Unit tests for {@link AutoRegionLookupBeanPostProcessor}.
+ * Unit Tests for {@link AutoRegionLookupBeanPostProcessor}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -64,9 +59,6 @@ import org.springframework.data.gemfire.util.CollectionUtils;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AutoRegionLookupBeanPostProcessorUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private AutoRegionLookupBeanPostProcessor autoRegionLookupBeanPostProcessor;
 
@@ -101,39 +93,55 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 		assertThat(autoRegionLookupBeanPostProcessor.getBeanFactory()).isSameAs(mockBeanFactory);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setBeanFactoryToIncompatibleBeanFactoryType() {
 
 		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(String.format("BeanFactory [%1$s] must be an instance of %2$s",
-			mockBeanFactory.getClass().getName(), ConfigurableListableBeanFactory.class.getSimpleName()));
+		try {
+			autoRegionLookupBeanPostProcessor.setBeanFactory(mockBeanFactory);
+		}
+		catch (IllegalArgumentException expected) {
 
-		autoRegionLookupBeanPostProcessor.setBeanFactory(mockBeanFactory);
+			assertThat(expected).hasMessage("BeanFactory [%1$s] must be an instance of %2$s",
+				mockBeanFactory.getClass().getName(), ConfigurableListableBeanFactory.class.getSimpleName());
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
-	@SuppressWarnings("all")
+	@Test(expected = IllegalArgumentException.class)
 	public void setBeanFactoryToNull() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(String.format("BeanFactory [null] must be an instance of %s",
-			ConfigurableListableBeanFactory.class.getSimpleName()));
+		try {
+			autoRegionLookupBeanPostProcessor.setBeanFactory(null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		autoRegionLookupBeanPostProcessor.setBeanFactory(null);
+			assertThat(expected).hasMessage("BeanFactory [null] must be an instance of %s",
+				ConfigurableListableBeanFactory.class.getSimpleName());
+
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void getBeanFactoryUninitialized() {
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("BeanFactory was not properly configured");
+		try {
+			autoRegionLookupBeanPostProcessor.getBeanFactory();
+		}
+		catch (IllegalStateException expected) {
 
-		autoRegionLookupBeanPostProcessor.getBeanFactory();
+			assertThat(expected).hasMessage("BeanFactory was not properly configured");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
@@ -182,7 +190,7 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 		verify(mockGemFireCache, times(1)).rootRegions();
 
 		for (Region<?, ?> region : expected) {
-			verifyZeroInteractions(region);
+			verifyNoInteractions(region);
 		}
 	}
 
@@ -236,13 +244,13 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 		autoRegionLookupBeanPostProcessor.setBeanFactory(mockBeanFactory);
 		autoRegionLookupBeanPostProcessor.registerCacheRegionAsBean(null);
 
-		verifyZeroInteractions(mockBeanFactory);
+		verifyNoInteractions(mockBeanFactory);
 	}
 
 	@Test
 	public void getBeanNameReturnsRegionFullPath() {
 
-		Region mockRegion = mockRegion("/Parent/Child");
+		Region<?, ?> mockRegion = mockRegion("/Parent/Child");
 
 		assertThat(autoRegionLookupBeanPostProcessor.getBeanName(mockRegion)).isEqualTo("/Parent/Child");
 
@@ -253,7 +261,7 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 	@Test
 	public void getBeanNameReturnsRegionName() {
 
-		Region mockRegion = mockRegion("/Example");
+		Region<?, ?> mockRegion = mockRegion("/Example");
 
 		assertThat(autoRegionLookupBeanPostProcessor.getBeanName(mockRegion)).isEqualTo("Example");
 
@@ -267,7 +275,7 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 		Set<Region<?, ?>> mockSubRegions =
 			CollectionUtils.asSet(mockRegion("one"), mockRegion("two"));
 
-		Region mockRegion = mockRegion("parent");
+		Region<?, ?> mockRegion = mockRegion("parent");
 
 		when(mockRegion.subregions(anyBoolean())).thenReturn(mockSubRegions);
 
@@ -279,7 +287,7 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 	@Test
 	public void nullSafeSubRegionsWhenSubRegionsIsNull() {
 
-		Region mockRegion = mockRegion("parent");
+		Region<?, ?> mockRegion = mockRegion("parent");
 
 		when(mockRegion.subregions(anyBoolean())).thenReturn(null);
 

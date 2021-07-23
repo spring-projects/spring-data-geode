@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.wan;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.apache.geode.cache.wan.GatewaySender;
 
 /**
- * Unit tests for {@link OrderPolicyConverter}.
+ * Unit Tests for {@link OrderPolicyConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.data.gemfire.wan.OrderPolicyConverter
  * @see org.apache.geode.cache.util.Gateway.OrderPolicy
+ * @see org.springframework.data.gemfire.wan.OrderPolicyConverter
  * @since 1.7.0
  */
 public class OrderPolicyConverterUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	private final OrderPolicyConverter converter = new OrderPolicyConverter();
 
@@ -50,18 +42,25 @@ public class OrderPolicyConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("key")).isEqualTo(GatewaySender.OrderPolicy.KEY);
 		assertThat(converter.convert("Partition")).isEqualTo(GatewaySender.OrderPolicy.PARTITION);
 		assertThat(converter.convert("THREAD")).isEqualTo(GatewaySender.OrderPolicy.THREAD);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[process] is not a valid OrderPolicy");
 
-		converter.convert("process");
+		try {
+			converter.convert("process");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[process] is not a valid OrderPolicy");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
@@ -73,12 +72,18 @@ public class OrderPolicyConverterUnitTests {
 		assertThat(converter.getValue()).isEqualTo(GatewaySender.OrderPolicy.THREAD);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[value] is not a valid OrderPolicy");
 
-		converter.setAsText("value");
+		try {
+			converter.setAsText("value");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[value] is not a valid OrderPolicy");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 }

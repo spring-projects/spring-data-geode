@@ -14,30 +14,24 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
-
-import org.apache.geode.cache.CacheClosedException;
-import org.apache.geode.cache.CacheFactory;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.geode.cache.CacheClosedException;
+import org.apache.geode.cache.CacheFactory;
+
 import org.springframework.data.gemfire.repository.sample.Person;
 
 /**
- * The CdiExtensionIntegrationTest class...
+ * Integration Tests for CDI.
  *
  * @author John Blum
  * @author Mark Paluch
@@ -68,13 +62,15 @@ public class CdiExtensionIntegrationTest {
 	private static void closeGemfireCache() {
 		try {
 			CacheFactory.getAnyInstance().close();
-		} catch (CacheClosedException ignore) {}
+		}
+		catch (CacheClosedException ignore) {}
 	}
 
 	protected void assertIsExpectedPerson(Person actual, Person expected) {
-		assertThat(actual.getId(), is(equalTo(expected.getId())));
-		assertThat(actual.getFirstname(), is(equalTo(expected.getFirstname())));
-		assertThat(actual.getLastname(), is(equalTo(expected.getLastname())));
+
+		assertThat(actual.getId()).isEqualTo(expected.getId());
+		assertThat(actual.getFirstname()).isEqualTo(expected.getFirstname());
+		assertThat(actual.getLastname()).isEqualTo(expected.getLastname());
 	}
 
 	@Test // DATAGEODE-42
@@ -82,13 +78,13 @@ public class CdiExtensionIntegrationTest {
 
 		RepositoryClient repositoryClient = container.select(RepositoryClient.class).get();
 
-		assertThat(repositoryClient.getPersonRepository(), is(notNullValue()));
+		assertThat(repositoryClient.getPersonRepository()).isNotNull();
 
 		Person expectedJonDoe = repositoryClient.newPerson("Jon", "Doe");
 
-		assertThat(expectedJonDoe, is(notNullValue()));
-		assertThat(expectedJonDoe.getId(), is(greaterThan(0L)));
-		assertThat(expectedJonDoe.getName(), is(equalTo("Jon Doe")));
+		assertThat(expectedJonDoe).isNotNull();
+		assertThat(expectedJonDoe.getId()).isGreaterThan(0L);
+		assertThat(expectedJonDoe.getName()).isEqualTo("Jon Doe");
 
 		Person savedJonDoe = repositoryClient.save(expectedJonDoe);
 
@@ -98,8 +94,8 @@ public class CdiExtensionIntegrationTest {
 
 		assertIsExpectedPerson(foundJonDoe, expectedJonDoe);
 
-		assertThat(repositoryClient.delete(foundJonDoe), is(true));
-		assertThat(repositoryClient.find(foundJonDoe.getId()), is(nullValue()));
+		assertThat(repositoryClient.delete(foundJonDoe)).isTrue();
+		assertThat(repositoryClient.find(foundJonDoe.getId())).isNull();
 	}
 
 	@Test // DATAGEODE-42
@@ -107,7 +103,6 @@ public class CdiExtensionIntegrationTest {
 
 		RepositoryClient repositoryClient = container.select(RepositoryClient.class).get();
 
-		assertThat(repositoryClient.getPersonRepository().returnOne(), is(equalTo(1)));
+		assertThat(repositoryClient.getPersonRepository().returnOne()).isEqualTo(1);
 	}
-
 }

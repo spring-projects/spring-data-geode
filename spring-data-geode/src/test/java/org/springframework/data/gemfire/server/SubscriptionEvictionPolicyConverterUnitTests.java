@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
  * Unit tests for {@link SubscriptionEvictionPolicyConverter}.
@@ -36,9 +31,6 @@ import org.junit.rules.ExpectedException;
  */
 public class SubscriptionEvictionPolicyConverterUnitTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	private final SubscriptionEvictionPolicyConverter converter = new SubscriptionEvictionPolicyConverter();
 
 	@After
@@ -48,36 +40,54 @@ public class SubscriptionEvictionPolicyConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("EnTry")).isEqualTo(SubscriptionEvictionPolicy.ENTRY);
 		assertThat(converter.convert("MEM")).isEqualTo(SubscriptionEvictionPolicy.MEM);
 		assertThat(converter.convert("nONE")).isEqualTo(SubscriptionEvictionPolicy.NONE);
 		assertThat(converter.convert("NOne")).isEqualTo(SubscriptionEvictionPolicy.NONE);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[memory] is not a valid SubscriptionEvictionPolicy");
 
-		converter.setAsText("memory");
+		try {
+			converter.setAsText("memory");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[memory] is not a valid SubscriptionEvictionPolicy");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("enTRY");
+
 		assertThat(converter.getValue()).isEqualTo(SubscriptionEvictionPolicy.ENTRY);
+
 		converter.setAsText("MEm");
+
 		assertThat(converter.getValue()).isEqualTo(SubscriptionEvictionPolicy.MEM);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[KEYS] is not a valid SubscriptionEvictionPolicy");
 
-		converter.setAsText("KEYS");
+		try {
+			converter.setAsText("KEYS");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[KEYS] is not a valid SubscriptionEvictionPolicy");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 }

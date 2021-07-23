@@ -14,13 +14,9 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -35,9 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -59,36 +53,40 @@ import org.springframework.cache.Cache;
 @RunWith(MockitoJUnitRunner.class)
 public class GemfireCacheManagerUnitTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Mock
 	private GemFireCache mockGemFireCache;
 
 	private GemfireCacheManager cacheManager;
 
 	@Mock
-	private Region mockRegion;
+	private Region<Object, Object> mockRegion;
 
 	@Before
 	public void setup() {
 		cacheManager = new GemfireCacheManager();
 	}
 
-	protected <T> Set<T> asSet(T... elements) {
-		Set<T> set = new HashSet<T>(elements.length);
+	@SafeVarargs
+	private static <T> Set<T> asSet(T... elements) {
+
+		Set<T> set = new HashSet<>(elements.length);
+
 		Collections.addAll(set, elements);
+
 		return set;
 	}
 
-	@SuppressWarnings("unchecked")
-	protected Region<?, ?> mockRegion(String name) {
+	private Region<?, ?> mockRegion(String name) {
+
 		Region<?, ?> mockRegion = mock(Region.class, name);
+
 		when(mockRegion.getName()).thenReturn(name);
+
 		return mockRegion;
 	}
 
-	protected Region<?, ?> regionFor(Iterable<Region<?, ?>> regions, String name) {
+	private Region<?, ?> regionFor(Iterable<Region<?, ?>> regions, String name) {
+
 		for (Region<?, ?> region : regions) {
 			if (region.getName().equals(name)) {
 				return region;
@@ -100,32 +98,45 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void assertGemFireCacheAvailableWithAvailableGemFireCacheIsSuccessful() {
+
 		when(mockGemFireCache.isClosed()).thenReturn(false);
+
 		assertThat(cacheManager.assertGemFireCacheAvailable(mockGemFireCache)).isSameAs(mockGemFireCache);
+
 		verify(mockGemFireCache, times(1)).isClosed();
 		verify(mockGemFireCache, times(1)).getName();
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void assertGemFireCacheAvailableWithNullThrowsIllegalStateException() {
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(is(equalTo("A GemFire cache instance is required")));
 
-		cacheManager.assertGemFireCacheAvailable(null);
+		try {
+			cacheManager.assertGemFireCacheAvailable(null);
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("A GemFire cache instance is required");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void assertGemFireCacheAvailableWithNamedClosedGemFireCacheThrowsIllegalStateException() {
+
 		when(mockGemFireCache.isClosed()).thenReturn(true);
 		when(mockGemFireCache.getName()).thenReturn("Example");
 
 		try {
-			exception.expect(IllegalStateException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage(is(equalTo("GemFire cache [Example] has been closed")));
-
 			cacheManager.assertGemFireCacheAvailable(mockGemFireCache);
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("GemFire cache [Example] has been closed");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			verify(mockGemFireCache,times(1)).isClosed();
@@ -135,30 +146,43 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void assertGemFireRegionAvailableWithAvailableGemFireRegionIsSuccessful() {
+
 		when(mockRegion.isDestroyed()).thenReturn(false);
+
 		assertThat(cacheManager.assertGemFireRegionAvailable(mockRegion, "Example")).isSameAs(mockRegion);
+
 		verify(mockRegion, times(1)).isDestroyed();
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void assertGemFireRegionAvailableWithNullThrowIllegalStateException() {
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage(is(equalTo("No Region for cache name [Example] was found")));
 
-		cacheManager.assertGemFireRegionAvailable(null, "Example");
+		try {
+			cacheManager.assertGemFireRegionAvailable(null, "Example");
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("No Region for cache name [Example] was found");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void assertGemFireRegionAvailableWithDestroyedGemFireRegionThrowIllegalStateException() {
+
 		when(mockRegion.isDestroyed()).thenReturn(true);
 
 		try {
-			exception.expect(IllegalStateException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage(is(equalTo("Region [Example] has been destroyed")));
-
 			cacheManager.assertGemFireRegionAvailable(mockRegion, "Example");
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("Region [Example] has been destroyed");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			verify(mockRegion, times(1)).isDestroyed();
@@ -166,8 +190,8 @@ public class GemfireCacheManagerUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void loadCachesIsSuccessful() {
+
 		Set<Region<?, ?>> regions = asSet(mockRegion("one"), mockRegion("two"), mockRegion("three"));
 
 		cacheManager.setRegions(regions);
@@ -185,6 +209,7 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void resolveRegionsReturnsGivenRegions() {
+
 		Set<Region<?, ?>> regions = asSet(mockRegion("one"), mockRegion("two"));
 
 		assertThat(cacheManager.resolveRegions(mockGemFireCache, regions, asSet("three", "four"))).isSameAs(regions);
@@ -195,8 +220,9 @@ public class GemfireCacheManagerUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void resolveRegionsReturnsRegionsForCacheNamesOnly() {
+
 		Region mockRegionOne = mockRegion("one");
 		Region mockRegionTwo = mockRegion("two");
 
@@ -207,7 +233,7 @@ public class GemfireCacheManagerUnitTests {
 
 		assertThat(regions).isNotNull();
 		assertThat(regions.size()).isEqualTo(2);
-		assertThat(regions).containsAll(this.<Region<?, ?>>asSet(mockRegionOne, mockRegionTwo));
+		assertThat(regions).containsAll(GemfireCacheManagerUnitTests.<Region<?, ?>>asSet(mockRegionOne, mockRegionTwo));
 		assertThat(cacheManager.isDynamic()).isFalse();
 
 		verify(mockGemFireCache, times(1)).getRegion(eq("one"));
@@ -217,6 +243,7 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void resolveRegionsReturnsGemFireCacheRootRegions() {
+
 		Set<Region<?, ?>> rootRegions = asSet(mockRegion("one"), mockRegion("two"));
 
 		when(mockGemFireCache.rootRegions()).thenReturn(rootRegions);
@@ -244,8 +271,8 @@ public class GemfireCacheManagerUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void regionForCacheNameReturnsRegion() {
+
 		when(mockGemFireCache.isClosed()).thenReturn(false);
 		when(mockGemFireCache.getName()).thenReturn("regionForCacheNameReturnsRegion");
 		when(mockGemFireCache.getRegion(eq("Example"))).thenReturn(mockRegion);
@@ -260,8 +287,9 @@ public class GemfireCacheManagerUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void getMissingCacheReturnsMissingCache() {
+
 		Region mockRegion = mockRegion("missing");
 
 		when(mockGemFireCache.getRegion(eq("missing"))).thenReturn(mockRegion);
@@ -278,7 +306,8 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void getMissingCacheReturnsNull() {
-		cacheManager.setRegions(Collections.<Region<?, ?>>singleton(mockRegion("one")));
+
+		cacheManager.setRegions(Collections.singleton(mockRegion("one")));
 		cacheManager.afterPropertiesSet();
 
 		assertThat(cacheManager.isDynamic()).isFalse();
@@ -287,6 +316,7 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void setAndGetCache() {
+
 		assertThat(cacheManager.getCache()).isNull();
 
 		cacheManager.setCache(mockGemFireCache);
@@ -300,6 +330,7 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void setAndGetCacheNames() {
+
 		Set<Region<?, ?>> regions = asSet(mockRegion("one"), mockRegion("two"));
 
 		cacheManager.setRegions(regions);
@@ -310,6 +341,7 @@ public class GemfireCacheManagerUnitTests {
 
 	@Test
 	public void setAndGetRegions() {
+
 		Set<Region<?, ?>> regions = asSet(mockRegion("one"), mockRegion("two"));
 
 		assertThat(cacheManager.getRegions()).isNull();

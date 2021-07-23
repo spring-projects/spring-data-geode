@@ -17,12 +17,8 @@
 package org.springframework.data.gemfire.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -45,9 +41,6 @@ import org.springframework.data.gemfire.GemfireTemplate;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class GemfireDaoSupportUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	public Region<?, ?> mockRegion;
@@ -82,9 +75,10 @@ public class GemfireDaoSupportUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
-	public void createProperlyInitializedGemfireDaoSupportWithTemplate() throws Exception {
+	public void createProperlyInitializedGemfireDaoSupportWithTemplate() {
+
 		GemfireTemplate expectedGemfireTemplate = new GemfireTemplate();
+
 		GemfireDaoSupport dao = new TestGemfireDaoSupport();
 
 		dao.setGemfireTemplate(expectedGemfireTemplate);
@@ -94,15 +88,21 @@ public class GemfireDaoSupportUnitTests {
 		assertThat(dao.getGemfireTemplate()).isEqualTo(expectedGemfireTemplate);
 	}
 
-	@Test
-	public void invalidGemfireDaoSupportInstanceThrowsIllegalStateException() throws Exception {
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("A GemFire Cache Region or instance of GemfireTemplate is required");
+	@Test(expected = IllegalStateException.class)
+	public void invalidGemfireDaoSupportInstanceThrowsIllegalStateException() {
 
-		new TestGemfireDaoSupport().afterPropertiesSet();
+		try {
+			new TestGemfireDaoSupport().afterPropertiesSet();
+		}
+		catch (IllegalStateException expected) {
+
+			assertThat(expected).hasMessage("A GemFire Cache Region or instance of GemfireTemplate is required");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
-	private static final class TestGemfireDaoSupport extends GemfireDaoSupport {
-	}
+	private static final class TestGemfireDaoSupport extends GemfireDaoSupport { }
+
 }

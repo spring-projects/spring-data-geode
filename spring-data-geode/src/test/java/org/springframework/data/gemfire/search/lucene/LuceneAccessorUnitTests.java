@@ -14,16 +14,11 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,20 +28,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.search.lucene.LuceneAccessor.LuceneQueryExecutor;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneQueryException;
 import org.apache.geode.cache.lucene.LuceneQueryFactory;
 import org.apache.geode.cache.lucene.LuceneService;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.data.gemfire.search.lucene.support.LuceneAccessorSupport;
@@ -67,9 +60,6 @@ import org.springframework.data.gemfire.search.lucene.support.LuceneAccessorSupp
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LuceneAccessorUnitTests {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
 
 	@Mock
 	private GemFireCache mockCache;
@@ -133,8 +123,8 @@ public class LuceneAccessorUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void createLuceneQueryFactoryWithResultLimit() {
+
 		doReturn(mockLuceneService).when(luceneAccessor).resolveLuceneService();
 		when(mockLuceneService.createLuceneQueryFactory()).thenReturn(mockLuceneQueryFactory);
 		when(mockLuceneQueryFactory.setPageSize(anyInt())).thenReturn(mockLuceneQueryFactory);
@@ -150,8 +140,8 @@ public class LuceneAccessorUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void createLuceneQueryFactoryWithResultLimitAndPageSize() {
+
 		doReturn(mockLuceneService).when(luceneAccessor).resolveLuceneService();
 		when(mockLuceneService.createLuceneQueryFactory()).thenReturn(mockLuceneQueryFactory);
 		when(mockLuceneQueryFactory.setPageSize(anyInt())).thenReturn(mockLuceneQueryFactory);
@@ -168,6 +158,7 @@ public class LuceneAccessorUnitTests {
 
 	@Test
 	public void resolveCacheReturnsConfiguredCache() {
+
 		luceneAccessor.setCache(mockCache);
 
 		assertThat(luceneAccessor.getCache()).isSameAs(mockCache);
@@ -176,6 +167,7 @@ public class LuceneAccessorUnitTests {
 
 	@Test
 	public void resolveLuceneServiceReturnsConfiguredLuceneService() {
+
 		luceneAccessor.setLuceneService(mockLuceneService);
 
 		assertThat(luceneAccessor.getLuceneService()).isSameAs(mockLuceneService);
@@ -184,7 +176,7 @@ public class LuceneAccessorUnitTests {
 
 	@Test
 	public void resolveLuceneServiceLooksUpLuceneService() {
-		doReturn(mockCache).when(luceneAccessor).resolveCache();
+
 		doReturn(mockLuceneService).when(luceneAccessor).resolveLuceneService(eq(mockCache));
 
 		assertThat(luceneAccessor.getLuceneService()).isNull();
@@ -196,16 +188,22 @@ public class LuceneAccessorUnitTests {
 
 	@Test
 	public void resolveLuceneServiceThrowsIllegalArgumentExceptionWhenCacheIsNull() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Cache reference was not properly configured");
 
-		luceneAccessor.resolveLuceneService(null);
+		try {
+			luceneAccessor.resolveLuceneService(null);
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("Cache reference was not properly configured");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
-	@SuppressWarnings("all")
 	public void resolveIndexNameReturnsConfiguredIndexName() {
+
 		luceneAccessor.setIndexName("TestIndex");
 
 		assertThat(luceneAccessor.getIndexName()).isEqualTo("TestIndex");
@@ -215,8 +213,8 @@ public class LuceneAccessorUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("all")
 	public void resolveIndexNameReturnsLuceneIndexName() {
+
 		luceneAccessor.setLuceneIndex(mockLuceneIndex);
 
 		when(mockLuceneIndex.getName()).thenReturn("MockIndex");
@@ -229,20 +227,26 @@ public class LuceneAccessorUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("all")
 	public void resolveIndexNameThrowsIllegalStateExceptionWhenIndexNameIsUnresolvable() {
+
 		assertThat(luceneAccessor.getIndexName()).isNullOrEmpty();
 		assertThat(luceneAccessor.getLuceneIndex()).isNull();
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("The name of the Lucene Index could not be resolved");
+		try {
+			luceneAccessor.resolveIndexName();
+		}
+		catch (IllegalStateException expected) {
 
-		luceneAccessor.resolveIndexName();
+			assertThat(expected).hasMessage("The name of the Lucene Index could not be resolved");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void resolveRegionPathReturnsConfiguredRegionPath() {
+
 		luceneAccessor.setRegionPath("/Example");
 
 		assertThat(luceneAccessor.getRegionPath()).isEqualTo("/Example");
@@ -250,8 +254,8 @@ public class LuceneAccessorUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("all")
 	public void resolveRegionPathReturnsRegionFullPath() {
+
 		when(mockRegion.getFullPath()).thenReturn("/Example");
 
 		luceneAccessor.setRegion(mockRegion);
@@ -263,21 +267,28 @@ public class LuceneAccessorUnitTests {
 		verify(mockRegion, times(1)).getFullPath();
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void resolveRegionPathThrowsIllegalStatueExceptionWhenRegionPathIsUnresolvable() {
+
 		assertThat(luceneAccessor.getRegion()).isNull();
 		assertThat(luceneAccessor.getRegionPath()).isNullOrEmpty();
 
-		exception.expect(IllegalStateException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Region path could not be resolved");
+		try {
+			luceneAccessor.resolveRegionPath();
+		}
+		catch (IllegalStateException expected) {
 
-		luceneAccessor.resolveRegionPath();
+			assertThat(expected).hasMessage("Region path could not be resolved");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void doFind() throws LuceneQueryException {
+
 		LuceneQueryExecutor<String> mockQueryExecutor = mock(LuceneQueryExecutor.class);
 
 		when(mockQueryExecutor.execute()).thenReturn("test");
@@ -288,21 +299,26 @@ public class LuceneAccessorUnitTests {
 		verify(mockQueryExecutor, times(1)).execute();
 	}
 
-	@Test
+	@Test(expected = DataRetrievalFailureException.class)
 	@SuppressWarnings("unchecked")
 	public void doFindHandlesLuceneQueryException() throws LuceneQueryException {
+
 		LuceneQueryExecutor<String> mockQueryExecutor = mock(LuceneQueryExecutor.class);
 
 		when(mockQueryExecutor.execute()).thenThrow(new LuceneQueryException("test"));
 
 		try {
-			exception.expect(DataRetrievalFailureException.class);
-			exception.expectCause(isA(LuceneQueryException.class));
-			exception.expectMessage(containsString(
-				"Failed to execute Lucene Query [title : Up Shit Creek Without a Paddle] on Region [/Example] with Lucene Index [ExampleIndex]"));
-
 			luceneAccessor.doFind(mockQueryExecutor, "title : Up Shit Creek Without a Paddle",
 				"/Example", "ExampleIndex");
+		}
+		catch (DataRetrievalFailureException expected) {
+
+			assertThat(expected)
+				.hasMessageContaining("Failed to execute Lucene Query [title : Up Shit Creek Without a Paddle] on Region [/Example] with Lucene Index [ExampleIndex]");
+
+			assertThat(expected).hasCauseInstanceOf(LuceneQueryException.class);
+
+			throw expected;
 		}
 		finally {
 			verify(mockQueryExecutor, times(1)).execute();
@@ -311,6 +327,7 @@ public class LuceneAccessorUnitTests {
 
 	@Test
 	public void luceneAccessorInitializedCorrectly() {
+
 		luceneAccessor.setCache(mockCache);
 		luceneAccessor.setIndexName("ExampleIndex");
 		luceneAccessor.setLuceneIndex(mockLuceneIndex);

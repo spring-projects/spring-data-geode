@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,27 +25,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.Region;
 
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.mapping.context.MappingContext;
 
 /**
- * The RegionsTest class is a test suite of test cases testing the contract and functionality of the Regions class.
+ * Unit Tests for {@link Regions}.
  *
  * @author John J. Blum
- * @see org.junit.Rule
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.mapping.Regions
@@ -56,26 +49,25 @@ import org.springframework.data.mapping.context.MappingContext;
  */
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
-public class RegionsTest {
-
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
+public class RegionsUnitTests {
 
 	@Mock
+	@SuppressWarnings("rawtypes")
 	private MappingContext mockMappingContext;
 
-	private Region mockUsers;
-	private Region mockAdminUsers;
-	private Region mockGuestUsers;
+	private Region<?, ?> mockUsers;
+	private Region<?, ?> mockAdminUsers;
+	private Region<?, ?> mockGuestUsers;
 
 	private Regions regions;
 
-	protected Region mockRegion(String fullPath) {
+	private Region<?, ?> mockRegion(String fullPath) {
 		return mockRegion(fullPath.substring(fullPath.lastIndexOf(Region.SEPARATOR) + 1), fullPath);
 	}
 
-	protected Region mockRegion(String name, String fullPath) {
-		Region mockRegion = mock(Region.class, name);
+	private Region<?, ?> mockRegion(String name, String fullPath) {
+
+		Region<?, ?> mockRegion = mock(Region.class, name);
 
 		when(mockRegion.getName()).thenReturn(name);
 		when(mockRegion.getFullPath()).thenReturn(fullPath);
@@ -85,6 +77,7 @@ public class RegionsTest {
 
 	@Before
 	public void setup() {
+
 		mockUsers = mockRegion("/Users");
 		mockAdminUsers = mockRegion("/Users/Admin");
 		mockGuestUsers = mockRegion("/Users/Guest");
@@ -96,6 +89,7 @@ public class RegionsTest {
 
 	@After
 	public void tearDown() {
+
 		mockUsers = mockAdminUsers = mockGuestUsers = null;
 		regions = null;
 	}
@@ -127,18 +121,24 @@ public class RegionsTest {
 		assertThat(regions.getRegion(Object.class)).isNull();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void getRegionWithNullEntityTypeThrowsIllegalArgumentException() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Entity type must not be null");
+		try {
+			regions.getRegion((Class<?>) null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		regions.getRegion((Class) null);
+			assertThat(expected).hasMessage("Entity type must not be null");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void getRegionWithNameReturnsRegion() {
+
 		assertThat(regions.getRegion("Users")).isSameAs(mockUsers);
 		assertThat(regions.getRegion("Admin")).isSameAs(mockAdminUsers);
 		assertThat(regions.getRegion("Guest")).isSameAs(mockGuestUsers);
@@ -146,6 +146,7 @@ public class RegionsTest {
 
 	@Test
 	public void getRegionWithPathReturnsRegion() {
+
 		assertThat(regions.getRegion("/Users")).isSameAs(mockUsers);
 		assertThat(regions.getRegion("/Users/Admin")).isSameAs(mockAdminUsers);
 		assertThat(regions.getRegion("/Users/Guest")).isSameAs(mockGuestUsers);
@@ -161,31 +162,36 @@ public class RegionsTest {
 		assertThat(regions.getRegion("/Non/Existing/Region/Path")).isNull();
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void getRegionWithNullNameNullPathThrowsIllegalArgumentException() {
 
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("Region name/path is required");
+		try {
+			regions.getRegion((String) null);
+		}
+		catch (IllegalArgumentException expected) {
 
-		regions.getRegion((String) null);
+			assertThat(expected).hasMessage("Region name/path is required");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void iterateRegions() {
 
-		List<Region> actualRegions = new ArrayList<>(3);
+		List<Region<?, ?>> actualRegions = new ArrayList<>(3);
 
-		for (Region region : regions) {
+		for (Region<?, ?> region : regions) {
 			actualRegions.add(region);
 		}
 
-		List<Region> expectedRegions = Arrays.asList(mockUsers, mockAdminUsers, mockGuestUsers);
+		List<Region<?, ?>> expectedRegions = Arrays.asList(mockUsers, mockAdminUsers, mockGuestUsers);
 
 		assertThat(actualRegions).hasSize(expectedRegions.size() * 2);
 		assertThat(actualRegions).containsAll(expectedRegions);
 	}
 
-	interface Users {
-	}
+	interface Users { }
+
 }

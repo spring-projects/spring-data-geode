@@ -14,35 +14,27 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.eviction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+
+import org.junit.After;
+import org.junit.Test;
 
 import org.apache.geode.cache.EvictionAction;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 /**
- * Unit tests for {@link EvictionActionConverter}.
+ * Unit Tests for {@link EvictionActionConverter}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see EvictionActionConverter
  * @see org.apache.geode.cache.EvictionAction
+ * @see org.springframework.data.gemfire.eviction.EvictionActionConverter
  * @since 1.6.0
  */
 public class EvictionActionConverterUnitTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
-	private EvictionActionConverter converter = new EvictionActionConverter();
+	private final EvictionActionConverter converter = new EvictionActionConverter();
 
 	@After
 	public void tearDown() {
@@ -51,37 +43,53 @@ public class EvictionActionConverterUnitTests {
 
 	@Test
 	public void convert() {
+
 		assertThat(converter.convert("local_destroy")).isEqualTo(EvictionAction.LOCAL_DESTROY);
 		assertThat(converter.convert("None")).isEqualTo(EvictionAction.NONE);
 		assertThat(converter.convert("OverFlow_TO_dIsk")).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void convertIllegalValue() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectCause(is(nullValue(Throwable.class)));
-		exception.expectMessage("[invalid_value] is not a valid EvictionAction");
 
-		converter.convert("invalid_value");
+		try {
+			converter.convert("invalid_value");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[invalid_value] is not a valid EvictionAction");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void setAsText() {
+
 		assertThat(converter.getValue()).isNull();
+
 		converter.setAsText("Local_Destroy");
+
 		assertThat(converter.getValue()).isEqualTo(EvictionAction.LOCAL_DESTROY);
+
 		converter.setAsText("overflow_to_disk");
+
 		assertThat(converter.getValue()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void setAsTextWithIllegalValue() {
-		try {
-			exception.expect(IllegalArgumentException.class);
-			exception.expectCause(is(nullValue(Throwable.class)));
-			exception.expectMessage("[destroy] is not a valid EvictionAction");
 
+		try {
 			converter.setAsText("destroy");
+		}
+		catch (IllegalArgumentException expected) {
+
+			assertThat(expected).hasMessage("[destroy] is not a valid EvictionAction");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
 		}
 		finally {
 			assertThat(converter.getValue()).isNull();

@@ -15,11 +15,8 @@
  */
 package org.springframework.data.gemfire.support;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,39 +24,40 @@ import static org.mockito.Mockito.when;
 
 import java.util.Properties;
 
-import org.apache.geode.cache.Cache;
-import org.apache.geode.distributed.ServerLauncher;
-
 import org.junit.After;
 import org.junit.Test;
+
+import org.apache.geode.cache.Cache;
+import org.apache.geode.distributed.ServerLauncher;
+import org.apache.geode.distributed.ServerLauncherCacheProvider;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
 
 /**
- * The SpringServerLauncherCacheProviderTest class is a test suite of test cases testing the contract and functionality
- * of the {@link SpringServerLauncherCacheProvider} class. This test class focuses on testing isolated units
- * of functionality in the {@link org.apache.geode.distributed.ServerLauncherCacheProvider} class directly, mocking
- * any dependencies as appropriate, in order for the class to uphold it's contract.
+ * Unit Tests testing the contract and functionality of the {@link SpringServerLauncherCacheProvider} class.
+ *
+ * This test class focuses on testing isolated units of functionality in the {@link ServerLauncherCacheProvider} class
+ * directly, mocking any dependencies as appropriate, in order for the class to uphold it's contract.
  *
  * @author Dan Smith
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
- * @see org.springframework.context.ApplicationContext
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.data.gemfire.support.SpringServerLauncherCacheProvider
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.distributed.ServerLauncher
  * @see org.apache.geode.distributed.ServerLauncherCacheProvider
+ * @see org.springframework.context.ApplicationContext
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.data.gemfire.support.SpringServerLauncherCacheProvider
  */
-public class SpringServerLauncherCacheProviderTest {
+public class SpringServerLauncherCacheProviderUnitTests {
 
-	String gemfireName() {
+	private String gemfireName() {
 		return (GemfireUtils.GEMFIRE_PREFIX + GemfireUtils.NAME_PROPERTY_NAME);
 	}
 
-	Properties singletonProperties(String propertyName, String propertyValue) {
+	private Properties singletonProperties(String propertyName, String propertyValue) {
 		Properties properties = new Properties();
 		properties.setProperty(propertyName, propertyValue);
 		return properties;
@@ -73,6 +71,7 @@ public class SpringServerLauncherCacheProviderTest {
 
 	@Test
 	public void createsCacheWhenSpringXmlLocationIsSpecified() {
+
 		Cache mockCache = mock(Cache.class);
 		ConfigurableApplicationContext mockApplicationContext = mock(ConfigurableApplicationContext.class);
 		ServerLauncher mockServerLauncher = mock(ServerLauncher.class);
@@ -87,6 +86,7 @@ public class SpringServerLauncherCacheProviderTest {
 		final SpringContextBootstrappingInitializer initializer = mock(SpringContextBootstrappingInitializer.class);
 
 		SpringServerLauncherCacheProvider provider = new SpringServerLauncherCacheProvider() {
+
 			@Override
 			public SpringContextBootstrappingInitializer newSpringContextBootstrappingInitializer() {
 				return initializer;
@@ -96,7 +96,7 @@ public class SpringServerLauncherCacheProviderTest {
 		Properties expectedParameters = singletonProperties(
 			SpringContextBootstrappingInitializer.CONTEXT_CONFIG_LOCATIONS_PARAMETER, "test-context.xml");
 
-		assertThat(provider.createCache(null, mockServerLauncher), is(equalTo(mockCache)));
+		assertThat(provider.createCache(null, mockServerLauncher)).isEqualTo(mockCache);
 
 		verify(mockServerLauncher, times(1)).isSpringXmlLocationSpecified();
 		verify(mockServerLauncher, times(1)).getSpringXmlLocation();
@@ -107,13 +107,13 @@ public class SpringServerLauncherCacheProviderTest {
 
 	@Test
 	public void doesNothingWhenSpringXmlLocationNotSpecified() {
+
 		ServerLauncher launcher = mock(ServerLauncher.class);
 
 		when(launcher.isSpringXmlLocationSpecified()).thenReturn(false);
 
-		assertThat(new SpringServerLauncherCacheProvider().createCache(null, launcher), is(nullValue()));
+		assertThat(new SpringServerLauncherCacheProvider().createCache(null, launcher)).isNull();
 
 		verify(launcher, times(1)).isSpringXmlLocationSpecified();
 	}
-
 }
