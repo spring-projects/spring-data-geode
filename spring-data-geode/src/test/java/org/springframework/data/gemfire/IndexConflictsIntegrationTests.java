@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,9 +38,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
- * Integration tests with test cases testing the numerous conflicting {@link Index} configurations.
+ * Integration Tests for numerous conflicting {@link Index} configurations.
  *
  * An {@link IndexExistsException} is thrown when 2 or more {@link Index Indexes} share the same definition
  * but have different names.
@@ -61,7 +61,7 @@ import org.springframework.context.annotation.Import;
  * @see <a href="https://jira.spring.io/browse/SGF-637">Improve IndexFactoryBean's resilience and options for handling GemFire IndexExistsExceptions and IndexNameConflictExceptions</a>
  * @since 1.6.3
  */
-public class IndexConflictsIntegrationTest {
+public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 	private static final AtomicBoolean IGNORE = new AtomicBoolean(false);
 	private static final AtomicBoolean OVERRIDE = new AtomicBoolean(false);
@@ -174,6 +174,7 @@ public class IndexConflictsIntegrationTest {
 
 	@Test(expected = IndexExistsException.class)
 	public void indexDefinitionConflictThrowsIndexExistsException() throws Throwable {
+
 		try {
 			this.applicationContext = newApplicationContext(IndexDefinitionConflictConfiguration.class);
 		}
@@ -239,6 +240,7 @@ public class IndexConflictsIntegrationTest {
 
 	@Test(expected = IndexNameConflictException.class)
 	public void indexNameConflictThrowsIndexNameConflictException() throws Throwable {
+
 		try {
 			this.applicationContext = newApplicationContext(IndexNameConflictConfiguration.class);
 		}
@@ -271,7 +273,7 @@ public class IndexConflictsIntegrationTest {
 
 			Properties gemfireProperties = new Properties();
 
-			gemfireProperties.setProperty("name", IndexConflictsIntegrationTest.class.getSimpleName());
+			gemfireProperties.setProperty("name", IndexConflictsIntegrationTests.class.getSimpleName());
 			gemfireProperties.setProperty("log-level", "error");
 
 			return gemfireProperties;
@@ -289,12 +291,11 @@ public class IndexConflictsIntegrationTest {
 		}
 
 		@Bean(name = "Customers")
-		public ReplicatedRegionFactoryBean customersRegion(GemFireCache gemfireCache) {
+		public ReplicatedRegionFactoryBean<?, ?> customersRegion(GemFireCache gemfireCache) {
 
-			ReplicatedRegionFactoryBean customersRegionFactory = new ReplicatedRegionFactoryBean();
+			ReplicatedRegionFactoryBean<?, ?> customersRegionFactory = new ReplicatedRegionFactoryBean<>();
 
 			customersRegionFactory.setCache(gemfireCache);
-			customersRegionFactory.setClose(false);
 			customersRegionFactory.setPersistent(false);
 
 			return customersRegionFactory;

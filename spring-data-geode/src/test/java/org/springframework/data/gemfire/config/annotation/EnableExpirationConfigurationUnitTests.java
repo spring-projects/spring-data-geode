@@ -38,6 +38,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpirationActionType;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
@@ -55,10 +56,11 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
  * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
-public class EnableExpirationConfigurationUnitTests {
+public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 

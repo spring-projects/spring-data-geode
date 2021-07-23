@@ -36,6 +36,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -47,14 +48,15 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.server.CacheServer
  * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.data.gemfire.config.annotation.GatewayReceiverConfigurer
+ * @see org.springframework.data.gemfire.config.annotation.GatewayReceiverConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
- * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
- * @see GatewayReceiverConfigurer
- * @see GatewayReceiverConfiguration
  * @since 2.2.0
  */
-public class GatewayReceiverPropertiesTests {
+public class GatewayReceiverPropertiesTests extends IntegrationTestsSupport {
 
     private ConfigurableApplicationContext applicationContext;
 

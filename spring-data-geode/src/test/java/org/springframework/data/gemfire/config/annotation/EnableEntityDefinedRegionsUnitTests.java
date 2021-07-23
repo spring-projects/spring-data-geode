@@ -64,6 +64,7 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.MockObjectsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
@@ -85,11 +86,12 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.springframework.data.gemfire.mapping.annotation.ReplicateRegion
  * @see org.springframework.data.gemfire.mapping.annotation.ReplicateRegion
  * @see org.springframework.data.gemfire.tests.mock.MockObjectsSupport
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 @SuppressWarnings({ "unchecked", "unused" })
-public class EnableEntityDefinedRegionsUnitTests {
+public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -98,21 +100,21 @@ public class EnableEntityDefinedRegionsUnitTests {
 		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
 	}
 
-	protected <K, V> void assertRegion(Region<K, V> region, String name) {
+	private <K, V> void assertRegion(Region<K, V> region, String name) {
 		assertRegion(region, name, toRegionPath(name), null, null);
 	}
 
-	protected <K, V> void assertRegion(Region<K, V> region, String name,
+	private <K, V> void assertRegion(Region<K, V> region, String name,
 			Class<K> keyConstraint, Class<V> valueConstraint) {
 
 		assertRegion(region, name, toRegionPath(name), keyConstraint, valueConstraint);
 	}
 
-	protected <K, V> void assertRegion(Region<K, V> region, String name, String fullPath) {
+	private <K, V> void assertRegion(Region<K, V> region, String name, String fullPath) {
 		assertRegion(region, name, fullPath, null, null);
 	}
 
-	protected <K, V> void assertRegion(Region<K, V> region, String name, String fullPath,
+	private <K, V> void assertRegion(Region<K, V> region, String name, String fullPath,
 			Class<K> keyConstraint, Class<V> valueConstraint) {
 
 		assertThat(region).isNotNull();
@@ -123,7 +125,7 @@ public class EnableEntityDefinedRegionsUnitTests {
 		assertThat(region.getAttributes().getValueConstraint()).isEqualTo(valueConstraint);
 	}
 
-	protected <K, V> void assertRegionWithAttributes(Region<K, V> region, String name, DataPolicy dataPolicy,
+	private <K, V> void assertRegionWithAttributes(Region<K, V> region, String name, DataPolicy dataPolicy,
 			String diskStoreName, Boolean diskSynchronous, Boolean ignoreJta, String poolName, Scope scope) {
 
 		assertRegion(region, name);
@@ -132,7 +134,7 @@ public class EnableEntityDefinedRegionsUnitTests {
 			poolName, scope);
 	}
 
-	protected <K, V> void assertRegionAttributes(RegionAttributes<K, V> regionAttributes, DataPolicy dataPolicy,
+	private <K, V> void assertRegionAttributes(RegionAttributes<K, V> regionAttributes, DataPolicy dataPolicy,
 			String diskStoreName, Boolean diskSynchronous, Boolean ignoreJta, String poolName, Scope scope) {
 
 		assertThat(regionAttributes).isNotNull();
@@ -144,7 +146,7 @@ public class EnableEntityDefinedRegionsUnitTests {
 		assertThat(regionAttributes.getScope()).isEqualTo(scope);
 	}
 
-	protected <K, V> void assertPartitionAttributes(PartitionAttributes<K, V> partitionAttributes,
+	private <K, V> void assertPartitionAttributes(PartitionAttributes<K, V> partitionAttributes,
 			String collocatedWith, PartitionResolver<?, ?> partitionResolver, Integer redundantCopies) {
 
 		assertThat(partitionAttributes).isNotNull();
@@ -153,7 +155,7 @@ public class EnableEntityDefinedRegionsUnitTests {
 		assertThat(partitionAttributes.getRedundantCopies()).isEqualTo(redundantCopies);
 	}
 
-	protected void assertFixedPartitionAttributes(FixedPartitionAttributes fixedPartitionAttributes,
+	private void assertFixedPartitionAttributes(FixedPartitionAttributes fixedPartitionAttributes,
 			String partitionName, boolean primary, int numBuckets) {
 
 		assertThat(fixedPartitionAttributes).isNotNull();
@@ -162,7 +164,7 @@ public class EnableEntityDefinedRegionsUnitTests {
 		assertThat(fixedPartitionAttributes.getNumBuckets()).isEqualTo(numBuckets);
 	}
 
-	protected void assertUndefinedRegions(String... regionBeanNames) {
+	private void assertUndefinedRegions(String... regionBeanNames) {
 
 		stream(nullSafeArray(regionBeanNames, String.class)).forEach(regionBeanName ->
 			assertThat(this.applicationContext.containsBean(regionBeanName)).isFalse());
@@ -170,7 +172,7 @@ public class EnableEntityDefinedRegionsUnitTests {
 		assertThat(this.applicationContext.getBeansOfType(Region.class)).hasSize(11 - length(regionBeanNames));
 	}
 
-	protected FixedPartitionAttributes findFixedPartitionAttributes(PartitionAttributes<?, ?> partitionAttributes,
+	private FixedPartitionAttributes findFixedPartitionAttributes(PartitionAttributes<?, ?> partitionAttributes,
 			String partitionName) {
 
 		assertThat(partitionAttributes).isNotNull();
@@ -187,9 +189,12 @@ public class EnableEntityDefinedRegionsUnitTests {
 		return null;
 	}
 
-	protected ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
+	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
+
 		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
+
 		applicationContext.registerShutdownHook();
+
 		return applicationContext;
 	}
 

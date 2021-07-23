@@ -20,17 +20,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
-
-import org.junit.After;
-import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
 import org.springframework.util.StringUtils;
@@ -52,9 +53,10 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
  * @see org.springframework.data.gemfire.config.annotation.SslConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 2.2.0
  */
-public class EnableSslConfigurationDefaultContextIntegrationTests {
+public class EnableSslConfigurationDefaultContextIntegrationTests extends IntegrationTestsSupport {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
 

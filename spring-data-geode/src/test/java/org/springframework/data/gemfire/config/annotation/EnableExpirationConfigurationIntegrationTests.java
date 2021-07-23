@@ -32,6 +32,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.expiration.AnnotationBasedExpiration;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.stereotype.Service;
@@ -47,11 +48,12 @@ import org.springframework.stereotype.Service;
  * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
  * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration
  * @see org.springframework.data.gemfire.expiration.AnnotationBasedExpiration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 @SuppressWarnings("unused")
-public class EnableExpirationConfigurationIntegrationTests {
+public class EnableExpirationConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
 

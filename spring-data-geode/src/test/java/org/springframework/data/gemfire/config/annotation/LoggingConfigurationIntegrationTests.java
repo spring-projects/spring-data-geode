@@ -34,6 +34,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.data.gemfire.GemFireProperties;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.util.StringUtils;
@@ -50,12 +51,13 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.core.env.PropertiesPropertySource
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableLogging
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.util.PropertiesBuilder
  * @since 1.9.0
  */
-public class LoggingConfigurationIntegrationTests {
+public class LoggingConfigurationIntegrationTests extends IntegrationTestsSupport {
 
-	private AtomicReference<Properties> propertiesReference = new AtomicReference<>(null);
+	private final AtomicReference<Properties> propertiesReference = new AtomicReference<>(null);
 
 	private ConfigurableApplicationContext applicationContext;
 

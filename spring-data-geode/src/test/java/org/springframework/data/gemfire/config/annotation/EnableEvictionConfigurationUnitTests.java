@@ -14,12 +14,12 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.config.annotation.EnableEviction.EvictionPolicy;
@@ -46,22 +46,24 @@ import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.eviction.EvictionActionType;
 import org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean;
 import org.springframework.data.gemfire.eviction.EvictionPolicyType;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
 /**
- * Unit tests for the {@link EnableEviction} annotation and {@link EvictionConfiguration} class.
+ * Unit Tests for the {@link EnableEviction} annotation and {@link EvictionConfiguration} class.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
+ * @see org.apache.geode.cache.EvictionAttributes
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.EnableEviction
  * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration
- * @see EvictionAttributesFactoryBean
- * @see org.apache.geode.cache.Region
- * @see org.apache.geode.cache.EvictionAttributes
+ * @see org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 1.9.0
  */
-public class EnableEvictionConfigurationUnitTests {
+public class EnableEvictionConfigurationUnitTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext applicationContext;
 
@@ -72,14 +74,15 @@ public class EnableEvictionConfigurationUnitTests {
 		}
 	}
 
-	protected void assertEvictionAttributes(Region region, EvictionAttributes expectedEvictionAttributes) {
+	private void assertEvictionAttributes(Region<?, ?> region, EvictionAttributes expectedEvictionAttributes) {
+
 		assertThat(region).isNotNull();
 		assertThat(region.getAttributes()).isNotNull();
 		assertEvictionAttributes(region.getAttributes().getEvictionAttributes(), expectedEvictionAttributes);
 	}
 
-	protected void assertEvictionAttributes(EvictionAttributes actualEvictionAttributes,
-		EvictionAttributes expectedEvictionAttributes) {
+	private void assertEvictionAttributes(EvictionAttributes actualEvictionAttributes,
+			EvictionAttributes expectedEvictionAttributes) {
 
 		assertThat(actualEvictionAttributes).isNotNull();
 		assertThat(actualEvictionAttributes.getAction()).isEqualTo(expectedEvictionAttributes.getAction());
@@ -97,11 +100,11 @@ public class EnableEvictionConfigurationUnitTests {
 		return applicationContext.getBean(beanName, Region.class);
 	}
 
-	protected AnnotationConfigApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
+	private AnnotationConfigApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
 		return new AnnotationConfigApplicationContext(annotatedClasses);
 	}
 
-	protected EvictionAttributes newEvictionAttributes(Integer maximum, EvictionPolicyType type, EvictionActionType action,
+	private EvictionAttributes newEvictionAttributes(Integer maximum, EvictionPolicyType type, EvictionActionType action,
 			ObjectSizer... objectSizer) {
 
 		EvictionAttributesFactoryBean evictionAttributesFactory = new EvictionAttributesFactoryBean();
@@ -117,6 +120,7 @@ public class EnableEvictionConfigurationUnitTests {
 
 	@Test
 	public void usesDefaultEvictionPolicyConfiguration() {
+
 		applicationContext = newApplicationContext(DefaultEvictionPolicyConfiguration.class);
 
 		EvictionAttributes defaultEvictionAttributes = EvictionAttributes.createLRUEntryAttributes();
@@ -127,12 +131,14 @@ public class EnableEvictionConfigurationUnitTests {
 
 	@Test
 	public void usesCustomEvictionPolicyConfiguration() {
+
 		applicationContext = newApplicationContext(CustomEvictionPolicyConfiguration.class);
 
 		ObjectSizer mockObjectSizer = applicationContext.getBean("mockObjectSizer", ObjectSizer.class);
 
-		EvictionAttributes customEvictionAttributes = newEvictionAttributes(65536, EvictionPolicyType.MEMORY_SIZE,
-			EvictionActionType.OVERFLOW_TO_DISK, mockObjectSizer);
+		EvictionAttributes customEvictionAttributes =
+			newEvictionAttributes(65536, EvictionPolicyType.MEMORY_SIZE, EvictionActionType.OVERFLOW_TO_DISK,
+				mockObjectSizer);
 
 		assertEvictionAttributes(applicationContext.getBean("PartitionRegion", Region.class), customEvictionAttributes);
 		assertEvictionAttributes(applicationContext.getBean("ReplicateRegion", Region.class), customEvictionAttributes);
@@ -140,12 +146,14 @@ public class EnableEvictionConfigurationUnitTests {
 
 	@Test
 	public void usesRegionSpecificEvictionPolicyConfiguration() {
+
 		applicationContext = newApplicationContext(RegionSpecificEvictionPolicyConfiguration.class);
 
 		ObjectSizer mockObjectSizer = applicationContext.getBean("mockObjectSizer", ObjectSizer.class);
 
-		EvictionAttributes partitionRegionEvictionAttributes = newEvictionAttributes(null,
-			EvictionPolicyType.HEAP_PERCENTAGE, EvictionActionType.OVERFLOW_TO_DISK, mockObjectSizer);
+		EvictionAttributes partitionRegionEvictionAttributes =
+			newEvictionAttributes(null, EvictionPolicyType.HEAP_PERCENTAGE, EvictionActionType.OVERFLOW_TO_DISK,
+				mockObjectSizer);
 
 		EvictionAttributes replicateRegionEvictionAttributes = newEvictionAttributes(10000,
 			EvictionPolicyType.ENTRY_COUNT, EvictionActionType.LOCAL_DESTROY);
@@ -159,10 +167,11 @@ public class EnableEvictionConfigurationUnitTests {
 
 	@Test
 	public void usesLastMatchingEvictionPolicyConfiguration() {
+
 		applicationContext = newApplicationContext(LastMatchingWinsEvictionPolicyConfiguration.class);
 
-		EvictionAttributes lastMatchingEvictionAttributes = newEvictionAttributes(99, EvictionPolicyType.ENTRY_COUNT,
-			EvictionActionType.OVERFLOW_TO_DISK);
+		EvictionAttributes lastMatchingEvictionAttributes =
+			newEvictionAttributes(99, EvictionPolicyType.ENTRY_COUNT, EvictionActionType.OVERFLOW_TO_DISK);
 
 		assertEvictionAttributes(applicationContext.getBean("PartitionRegion", Region.class),
 			lastMatchingEvictionAttributes);
@@ -181,33 +190,33 @@ public class EnableEvictionConfigurationUnitTests {
 
 			Cache mockCache = mock(Cache.class);
 
-			RegionFactory mockRegionFactory = mock(RegionFactory.class);
+			RegionFactory<Object, Object> mockRegionFactory = mock(RegionFactory.class);
 
 			AtomicReference<EvictionAttributes> evictionAttributes = new AtomicReference<>(null);
 
 			when(mockCache.createRegionFactory()).thenReturn(mockRegionFactory);
 
 			when(mockRegionFactory.setEvictionAttributes(any(EvictionAttributes.class)))
-				.thenAnswer((Answer<RegionFactory>) invocation -> {
+				.thenAnswer((Answer<RegionFactory<?, ?>>) invocation -> {
 					evictionAttributes.set(invocation.getArgument(0));
-					return (RegionFactory) invocation.getMock();
+					return (RegionFactory<?, ?>) invocation.getMock();
 				}
 			);
 
 			when(mockRegionFactory.create(anyString()))
-				.thenAnswer((Answer<Region>) invocation -> {
+				.thenAnswer(invocation -> {
 
 					String regionName = invocation.getArgument(0);
 
-					Region mockRegion = mock(Region.class, regionName);
+					Region<?, ?> mockRegion = mock(Region.class, regionName);
 
-					RegionAttributes mockRegionAttributes =
+					RegionAttributes<?, ?> mockRegionAttributes =
 						mock(RegionAttributes.class, regionName.concat("Attributes"));
 
-					when(mockRegion.getName()).thenReturn(regionName);
-					when(mockRegion.getFullPath()).thenReturn(String.format("%1$s%2$s", Region.SEPARATOR, regionName));
-					when(mockRegion.getAttributes()).thenReturn(mockRegionAttributes);
-					when(mockRegionAttributes.getEvictionAttributes()).thenReturn(evictionAttributes.get());
+					doReturn(regionName).when(mockRegion).getName();
+					doReturn(String.format("%1$s%2$s", Region.SEPARATOR, regionName)).when(mockRegion).getFullPath();
+					doReturn(mockRegion).when(mockRegion).getAttributes();
+					doReturn(evictionAttributes.get()).when(mockRegionAttributes).getEvictionAttributes();
 
 					return mockRegion;
 				});
@@ -222,7 +231,6 @@ public class EnableEvictionConfigurationUnitTests {
 				new PartitionedRegionFactoryBean<>();
 
 			partitionRegion.setCache(gemfireCache);
-			partitionRegion.setClose(false);
 			partitionRegion.setPersistent(false);
 
 			return partitionRegion;
@@ -235,7 +243,6 @@ public class EnableEvictionConfigurationUnitTests {
 				new ReplicatedRegionFactoryBean<>();
 
 			replicateRegion.setCache(gemfireCache);
-			replicateRegion.setClose(false);
 			replicateRegion.setPersistent(false);
 
 			return replicateRegion;

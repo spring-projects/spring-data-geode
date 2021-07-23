@@ -60,6 +60,7 @@ import org.springframework.data.gemfire.repository.config.EnableGemfireRepositor
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
 import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.data.gemfire.test.repo.PersonRepository;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.tests.util.IOUtils;
@@ -87,9 +88,10 @@ import lombok.Data;
  * @see org.springframework.data.gemfire.config.annotation.ContinuousQueryConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableContinuousQueries
  * @see org.springframework.data.gemfire.listener.annotation.ContinuousQuery
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 2.0.1
  */
-public class EnableContinuousQueriesConfigurationUnitTests {
+public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
 		return new AnnotationConfigApplicationContext(annotatedClasses);
