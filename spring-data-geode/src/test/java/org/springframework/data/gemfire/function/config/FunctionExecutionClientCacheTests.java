@@ -35,16 +35,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.gemfire.function.execution.GemfireOnServerFunctionTemplate;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author David Turanski
- *
+ * @author John Blum
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = { TestClientCacheConfig.class })
-public class FunctionExecutionClientCacheTests {
+@ContextConfiguration(classes = ClientCacheTestConfiguration.class)
+public class FunctionExecutionClientCacheTests extends IntegrationTestsSupport {
 
 	@Autowired
 	ApplicationContext applicationContext;
@@ -79,7 +80,7 @@ public class FunctionExecutionClientCacheTests {
 @ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionCacheClientTests-context.xml")
 @EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.three")
 @SuppressWarnings("unused")
-class TestClientCacheConfig {
+class ClientCacheTestConfiguration {
 
 	@Bean
 	MyResultCollector myResultCollector() {

@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +26,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,13 +37,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class GemfireBeanFactoryLocatorIntegrationTests {
+public class GemfireBeanFactoryLocatorIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	@SuppressWarnings("unused")
@@ -51,6 +52,7 @@ public class GemfireBeanFactoryLocatorIntegrationTests {
 
 	@Test
 	public void beanFactoryContainsGemfireBeanFactoryLocatorBean() {
+
 		assertThat(beanFactory.containsBean(GemfireBeanFactoryLocator.class.getName())).isTrue();
 
 		GemfireBeanFactoryLocator gemfireBeanFactoryLocator =
@@ -69,6 +71,7 @@ public class GemfireBeanFactoryLocatorIntegrationTests {
 
 	@Test
 	public void beanFactoryContainsTestBeanFactoryLocatorBean() {
+
 		assertThat(beanFactory.containsBean("testBeanFactoryLocator")).isTrue();
 
 		GemfireBeanFactoryLocator testBeanFactoryLocator = beanFactory.getBean("testBeanFactoryLocator",
@@ -85,6 +88,7 @@ public class GemfireBeanFactoryLocatorIntegrationTests {
 
 	@Test
 	public void registeredBeanFactoriesIsCorrect() {
+
 		Set<String> beanNames = asSet("gemfire-cache", "gemfireCache", "testBeanFactoryLocator", "aliasOne", "aliasTwo",
 			GemfireBeanFactoryLocator.class.getName());
 

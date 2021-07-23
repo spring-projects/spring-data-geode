@@ -34,6 +34,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.gemfire.search.lucene.ProjectingLuceneOperations;
 import org.springframework.data.gemfire.search.lucene.ProjectingLuceneTemplate;
 import org.springframework.data.gemfire.test.model.Book;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -42,12 +43,18 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author John Blum
  * @see org.junit.Test
- * @since 1.0.0
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneOperations
+ * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneTemplate
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
+ * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class EnableLuceneIndexingConfigurationIntegrationTests {
+public class EnableLuceneIndexingConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ProjectingLuceneOperations luceneTemplate;
@@ -86,7 +93,7 @@ public class EnableLuceneIndexingConfigurationIntegrationTests {
 				"Star Wars VIII - The Last Jedi");
 	}
 
-	@PeerCacheApplication(name = "EnableLuceneIndexingConfigurationIntegrationTests", logLevel = "error")
+	@PeerCacheApplication
 	@EnableEntityDefinedRegions(basePackageClasses = Book.class)
 	@EnableIndexing
 	static class TestConfiguration {

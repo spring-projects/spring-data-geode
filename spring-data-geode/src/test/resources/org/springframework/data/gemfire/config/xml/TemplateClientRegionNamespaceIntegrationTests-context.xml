@@ -11,7 +11,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">TemplateClientRegionNamespaceTest</prop>
+		<prop key="name">TemplateClientRegionNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -27,9 +27,9 @@
 						 disk-synchronous="false" initial-capacity="51" key-constraint="java.lang.Long"
 						 load-factor="0.85" persistent="false" statistics="true" value-constraint="java.lang.String">
 		<gfe:cache-listener>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceTest$TestCacheListener" p:name="X"/>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceTest$TestCacheListener" p:name="Y"/>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceTest$TestCacheListener" p:name="Z"/>
+			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceIntegrationTests$TestCacheListener" p:name="X"/>
+			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceIntegrationTests$TestCacheListener" p:name="Y"/>
+			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceIntegrationTests$TestCacheListener" p:name="Z"/>
 		</gfe:cache-listener>
 		<gfe:entry-ttl timeout="300" action="INVALIDATE"/>
 		<gfe:entry-tti timeout="600" action="DESTROY"/>
@@ -37,10 +37,10 @@
 
 	<gfe:client-region-template id="ClientRegionTemplate" concurrency-level="4" pool-name="ServerPool" template="BaseRegionTemplate">
 		<gfe:cache-loader>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceTest$TestCacheLoader" p:name="A"/>
+			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceIntegrationTests$TestCacheLoader" p:name="A"/>
 		</gfe:cache-loader>
 		<gfe:cache-writer>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceTest$TestCacheWriter" p:name="B"/>
+			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceIntegrationTests$TestCacheWriter" p:name="B"/>
 		</gfe:cache-writer>
 		<!--
 		<gfe:key-interest durable="false" result-policy="KEYS_VALUES" receive-values="true">
@@ -57,7 +57,7 @@
 					   key-constraint="java.lang.Integer" value-constraint="java.lang.Object"
 					   template="ClientRegionTemplate">
 		<gfe:cache-listener>
-			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceTest$TestCacheListener" p:name="XYZ"/>
+			<bean class="org.springframework.data.gemfire.config.xml.TemplateClientRegionNamespaceIntegrationTests$TestCacheListener" p:name="XYZ"/>
 		</gfe:cache-listener>
 		<gfe:eviction type="ENTRY_COUNT" threshold="1024" action="OVERFLOW_TO_DISK"/>
 	</gfe:client-region>

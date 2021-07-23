@@ -15,10 +15,7 @@
  */
 package org.springframework.data.gemfire.repository.sample;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,16 +31,17 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The RepositoryQueriesTest class is a test suite of test cases testing the GemFire Query capability of Spring Data
- * GemFire Repositories.
+ * Integration Tests for Apache Geode OQL query capabilities provided by Spring Data for Apache Geode Repositories.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.3.3
@@ -51,7 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration("userRepositoryQueriesIntegrationTest.xml")
 @SuppressWarnings("unused")
-public class UserRepositoryQueriesIntegrationTest {
+public class UserRepositoryQueriesIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Users")
 	@SuppressWarnings("rawtypes")
@@ -62,7 +60,7 @@ public class UserRepositoryQueriesIntegrationTest {
 
 	private static void assertQueryResults(Iterable<User> actualUsers, String... expectedUsernames) {
 
-		assertNotNull("The query did not return any results!", actualUsers);
+		assertThat(actualUsers).as("The query did not return any results!").isNotNull();
 
 		List<String> actualUsernames = new ArrayList<>(expectedUsernames.length);
 
@@ -70,8 +68,8 @@ public class UserRepositoryQueriesIntegrationTest {
 			actualUsernames.add(actualUser.getUsername());
 		}
 
-		assertEquals(expectedUsernames.length, actualUsernames.size());
-		assertTrue(actualUsernames.containsAll(Arrays.asList(expectedUsernames)));
+		assertThat(actualUsernames.size()).isEqualTo(expectedUsernames.length);
+		assertThat(actualUsernames.containsAll(Arrays.asList(expectedUsernames))).isTrue();
 	}
 
 	private static User createUser(String username) {
@@ -98,9 +96,10 @@ public class UserRepositoryQueriesIntegrationTest {
 	}
 
 	@Before
+	@SuppressWarnings("unchecked")
 	public void setup() {
 
-		assertNotNull("The 'Users' GemFire Cache Region cannot be null!", users);
+		assertThat(users).describedAs("The 'Users' GemFire Cache Region cannot be null!").isNotNull();
 
 		if (users.isEmpty()) {
 			userRepository.save(createUser("blumj", true));
@@ -113,8 +112,8 @@ public class UserRepositoryQueriesIntegrationTest {
 			userRepository.save(createUser("doep", false));
 			userRepository.save(createUser("doec", false));
 
-			assertFalse(users.isEmpty());
-			assertEquals(9, users.size());
+			assertThat(users.isEmpty()).isFalse();
+			assertThat(users.size()).isEqualTo(9);
 		}
 	}
 
@@ -139,15 +138,15 @@ public class UserRepositoryQueriesIntegrationTest {
 
 		Integer count = userRepository.countUsersByUsernameLike("doe%");
 
-		assertEquals(3, toIntValue(count));
+		assertThat(toIntValue(count)).isEqualTo(3);
 
 		count = userRepository.countUsersByUsernameLike("handy%");
 
-		assertEquals(2, toIntValue(count));
+		assertThat(toIntValue(count)).isEqualTo(2);
 
 		count = userRepository.countUsersByUsernameLike("smith%");
 
-		assertNotNull(count);
-		assertEquals(0, toIntValue(count));
+		assertThat(count).isNotNull();
+		assertThat(toIntValue(count)).isEqualTo(0);
 	}
 }

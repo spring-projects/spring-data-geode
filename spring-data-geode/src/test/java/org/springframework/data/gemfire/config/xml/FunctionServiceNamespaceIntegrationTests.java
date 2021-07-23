@@ -31,7 +31,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests for SDG Function XML namespace configuration metadata
+ * Integration Tests for {@link Function} configuration, declaration and registration
+ * using SDG XML namespace configuration metadata.
  *
  * @author Costin Leau
  * @author David Turanski

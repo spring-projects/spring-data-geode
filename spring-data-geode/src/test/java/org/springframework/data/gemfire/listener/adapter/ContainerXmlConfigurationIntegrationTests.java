@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -44,14 +45,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.fork.CqCacheServerProcess
  * @see org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-// TODO change this test to use mocks!!
-public class ContainerXmlSetupIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
+public class ContainerXmlConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
@@ -75,7 +76,7 @@ public class ContainerXmlSetupIntegrationTests extends ForkingClientServerIntegr
 		ClientCache cache = applicationContext.getBean(ClientCache.class);
 		Pool pool = applicationContext.getBean(Pool.class);
 
-		assertThat(cache.getName()).isEqualTo("ContainerXmlSetupIntegrationTests");
+		assertThat(cache.getName()).isEqualTo("ContainerXmlConfigurationIntegrationTests");
 		assertThat(pool.getName()).isEqualTo("client");
 
 		CqQuery[] cacheCqs = cache.getQueryService().getCqs();

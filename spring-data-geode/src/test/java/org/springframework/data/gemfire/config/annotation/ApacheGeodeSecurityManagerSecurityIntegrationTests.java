@@ -42,8 +42,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * {@link org.apache.geode.security.SecurityManager}.
  *
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.geode.security.SecurityManager
  * @see org.springframework.data.gemfire.config.annotation.AbstractGeodeSecurityIntegrationTests
- * @since 1.0.0
+ * @see org.springframework.data.gemfire.config.annotation.EnableSecurity
+ * @see org.springframework.test.context.ActiveProfiles
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
+ * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
@@ -54,7 +60,7 @@ public class ApacheGeodeSecurityManagerSecurityIntegrationTests extends Abstract
 		"geode-security-manager-property-configuration";
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void startGeodeServer() throws IOException {
 		runGeodeServer(GEODE_SECURITY_MANAGER_PROPERTY_CONFIGURATION_PROFILE);
 	}
 
@@ -62,8 +68,7 @@ public class ApacheGeodeSecurityManagerSecurityIntegrationTests extends Abstract
 	@EnableSecurity(securityManagerClassName =
 		"org.springframework.data.gemfire.config.annotation.ApacheGeodeSecurityManagerSecurityIntegrationTests$TestGeodeSecurityManager")
 	@Profile(GEODE_SECURITY_MANAGER_PROPERTY_CONFIGURATION_PROFILE)
-	public static class ApacheGeodeSecurityManagerConfiguration {
-	}
+	public static class ApacheGeodeSecurityManagerConfiguration { }
 
 	protected interface GeodeSecurityRepository {
 

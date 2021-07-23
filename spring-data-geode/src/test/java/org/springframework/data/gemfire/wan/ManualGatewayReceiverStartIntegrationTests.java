@@ -26,12 +26,13 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
 
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the manual start capability of {@link GatewayReceiver GatewayReceivers}
+ * Integration Tests testing the manual start capability of {@link GatewayReceiver GatewayReceivers}
  * when configured with SDG XML namespace configuration metadata.
  *
  * @author John Blum
@@ -47,7 +48,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-public class ManualGatewayReceiverStartIntegrationTest {
+public class ManualGatewayReceiverStartIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Auto")
 	private GatewayReceiver autoGatewayReceiver;

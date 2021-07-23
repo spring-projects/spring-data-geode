@@ -40,7 +40,6 @@ import org.springframework.util.Assert;
  * Integration Tests for {@link LazyWiringDeclarableSupport}.
  *
  * @author John Blum
- * @see java.util.Properties
  * @see org.junit.Test
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport

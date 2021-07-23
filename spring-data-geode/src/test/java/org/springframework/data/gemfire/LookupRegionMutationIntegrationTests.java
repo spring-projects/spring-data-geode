@@ -15,9 +15,8 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,18 +50,20 @@ import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 /**
- * Integration Tests for {@link LookupRegionFactoryBean} testing the contract and integrated functionality between
- * natively-defined GemFire/Geode cache {@link Region Regions} and SDG's {@link Region} lookup functionality
- * combined with {@link org.apache.geode.cache.RegionAttributes} {@link Region#getAttributesMutator() mutation}.
+ * Integration Tests testing the contract and integratino between natively-defined cache {@link Region Regions}
+ * and SDG's {@link Region} lookup functionality combined with {@link Region} attribute(s) mutation.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.LookupRegionFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.7.0
@@ -70,50 +71,52 @@ import org.springframework.util.StringUtils;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LookupRegionMutationIntegrationTest {
+public class LookupRegionMutationIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<?, ?> example;
 
-	private void assertCacheListeners(CacheListener<?, ?>[] cacheListeners, Collection<String> expectedCacheListenerNames) {
+	private void assertCacheListeners(CacheListener<?, ?>[] cacheListeners,
+			Collection<String> expectedCacheListenerNames) {
 
 		if (!expectedCacheListenerNames.isEmpty()) {
-			assertNotNull("CacheListeners must not be null!", cacheListeners);
-			assertEquals(expectedCacheListenerNames.size(), cacheListeners.length);
-			assertTrue(toStrings(cacheListeners).containsAll(expectedCacheListenerNames));
+			assertThat(cacheListeners).as("CacheListeners must not be null!").isNotNull();
+			assertThat(cacheListeners.length).isEqualTo(expectedCacheListenerNames.size());
+			assertThat(toStrings(cacheListeners).containsAll(expectedCacheListenerNames)).isTrue();
 		}
 	}
 
 	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
 			EvictionAlgorithm expectedAlgorithm, int expectedMaximum) {
 
-		assertNotNull("EvictionAttributes must not be null!", evictionAttributes);
-		assertEquals(expectedAction, evictionAttributes.getAction());
-		assertEquals(expectedAlgorithm, evictionAttributes.getAlgorithm());
-		assertEquals(expectedMaximum, evictionAttributes.getMaximum());
+		assertThat(evictionAttributes).as("EvictionAttributes must not be null!").isNotNull();
+		assertThat(evictionAttributes.getAction()).isEqualTo(expectedAction);
+		assertThat(evictionAttributes.getAlgorithm()).isEqualTo(expectedAlgorithm);
+		assertThat(evictionAttributes.getMaximum()).isEqualTo(expectedMaximum);
 	}
 
 	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes,
 
 		String description, int expectedTimeout, ExpirationAction expectedAction) {
 
-		assertNotNull(String.format("ExpirationAttributes for '%1$s' must not be null!", description), expirationAttributes);
-		assertEquals(expectedAction, expirationAttributes.getAction());
-		assertEquals(expectedTimeout, expirationAttributes.getTimeout());
+		assertThat(expirationAttributes)
+			.as(String.format("ExpirationAttributes for '%1$s' must not be null!", description)).isNotNull();
+		assertThat(expirationAttributes.getAction()).isEqualTo(expectedAction);
+		assertThat(expirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
 	}
 
 	private void assertGatewaySenders(Region<?, ?> region, List<String> expectedGatewaySenderIds) {
 
-		assertNotNull(region.getAttributes());
-		assertNotNull(region.getAttributes().getGatewaySenderIds());
-		assertEquals(expectedGatewaySenderIds.size(), region.getAttributes().getGatewaySenderIds().size());
-		assertTrue(expectedGatewaySenderIds.containsAll(region.getAttributes().getGatewaySenderIds()));
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getGatewaySenderIds()).isNotNull();
+		assertThat(region.getAttributes().getGatewaySenderIds().size()).isEqualTo(expectedGatewaySenderIds.size());
+		assertThat(expectedGatewaySenderIds.containsAll(region.getAttributes().getGatewaySenderIds())).isTrue();
 	}
 
 	private void assertGemFireComponent(Object gemfireComponent, String expectedName) {
 
-		assertNotNull("The GemFire component must not be null!", gemfireComponent);
-		assertEquals(expectedName, gemfireComponent.toString());
+		assertThat(gemfireComponent).as("The GemFire component must not be null!").isNotNull();
+		assertThat(gemfireComponent.toString()).isEqualTo(expectedName);
 	}
 
 	private void assertRegionAttributes(Region<?, ?> region, String expectedName, DataPolicy expectedDataPolicy) {
@@ -125,11 +128,11 @@ public class LookupRegionMutationIntegrationTest {
 	private void assertRegionAttributes(Region<?, ?> region, String expectedName, String expectedFullPath,
 			DataPolicy expectedDataPolicy) {
 
-		assertNotNull(String.format("'%1$s' Region was not properly initialized!", region));
-		assertEquals(expectedName, region.getName());
-		assertEquals(expectedFullPath, region.getFullPath());
-		assertNotNull(region.getAttributes());
-		assertEquals(expectedDataPolicy, region.getAttributes().getDataPolicy());
+		assertThat(String.format("'%1$s' Region was not properly initialized!", region)).isNotNull();
+		assertThat(region.getName()).isEqualTo(expectedName);
+		assertThat(region.getFullPath()).isEqualTo(expectedFullPath);
+		assertThat(region.getAttributes()).isNotNull();
+		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);
 	}
 
 	private Collection<String> toStrings(Object[] objects) {
@@ -150,8 +153,8 @@ public class LookupRegionMutationIntegrationTest {
 	public void regionConfigurationIsCorrect() {
 
 		assertRegionAttributes(example, "Example", DataPolicy.NORMAL);
-		assertEquals(13, example.getAttributes().getInitialCapacity());
-		assertEquals(0.85f, example.getAttributes().getLoadFactor(), 0.0f);
+		assertThat(example.getAttributes().getInitialCapacity()).isEqualTo(13);
+		assertThat(example.getAttributes().getLoadFactor()).isCloseTo(0.85f, offset(0.0f));
 		assertCacheListeners(example.getAttributes().getCacheListeners(), Arrays.asList("A", "B"));
 		assertGemFireComponent(example.getAttributes().getCacheLoader(), "C");
 		assertGemFireComponent(example.getAttributes().getCacheWriter(), "D");
@@ -164,9 +167,9 @@ public class LookupRegionMutationIntegrationTest {
 		assertExpirationAttributes(example.getAttributes().getEntryTimeToLive(), "Entry TTL",
 			30, ExpirationAction.DESTROY);
 		assertGemFireComponent(example.getAttributes().getCustomEntryIdleTimeout(), "E");
-		assertNotNull(example.getAttributes().getAsyncEventQueueIds());
-		assertEquals(1, example.getAttributes().getAsyncEventQueueIds().size());
-		assertEquals("AEQ", example.getAttributes().getAsyncEventQueueIds().iterator().next());
+		assertThat(example.getAttributes().getAsyncEventQueueIds()).isNotNull();
+		assertThat(example.getAttributes().getAsyncEventQueueIds().size()).isEqualTo(1);
+		assertThat(example.getAttributes().getAsyncEventQueueIds().iterator().next()).isEqualTo("AEQ");
 		assertGatewaySenders(example, Collections.singletonList("GWS"));
 	}
 

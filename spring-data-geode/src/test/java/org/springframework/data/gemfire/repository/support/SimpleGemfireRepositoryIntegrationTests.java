@@ -44,6 +44,7 @@ import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.repository.sample.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.support.PersistentEntityInformation;
 import org.springframework.test.context.ContextConfiguration;
@@ -62,15 +63,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.LocalRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
  * @see org.springframework.data.gemfire.repository.support.SimpleGemfireRepository
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class SimpleGemfireRepositoryIntegrationTests {
-
-	static final String GEMFIRE_LOG_LEVEL = "warning";
+public class SimpleGemfireRepositoryIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private GemfireTemplate template;
@@ -130,8 +130,9 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		this.repository.deleteAllById(Arrays.asList(1L, 2L));
 
 		assertThat(this.repository.count()).isEqualTo(3L);
-		assertThat(this.repository.findAll()) //
-			.extracting(Person::getFirstname) //
+
+		assertThat(this.repository.findAll())
+			.extracting(Person::getFirstname)
 			.containsExactlyInAnyOrder("Cookie", "Pie", "Sour");
 	}
 
@@ -226,8 +227,8 @@ public class SimpleGemfireRepositoryIntegrationTests {
 
 		assertThat(this.template.put(oliverGierke.getId(), oliverGierke)).isNull();
 
-		SelectResults<Person> people = this.template.find("SELECT * FROM /People p WHERE p.firstname = $1",
-				oliverGierke.getFirstname());
+		SelectResults<Person> people =
+			this.template.find("SELECT * FROM /People p WHERE p.firstname = $1", oliverGierke.getFirstname());
 
 		assertThat(people.size()).isEqualTo(1);
 		assertThat(people.iterator().next()).isEqualTo(oliverGierke);
@@ -278,7 +279,7 @@ public class SimpleGemfireRepositoryIntegrationTests {
 		}
 	}
 
-	@PeerCacheApplication(name = "SimpleGemfireRepositoryIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
+	@PeerCacheApplication
 	static class SimpleGemfireRepositoryConfiguration {
 
 		@Bean(name = "People")
@@ -287,7 +288,6 @@ public class SimpleGemfireRepositoryIntegrationTests {
 			LocalRegionFactoryBean<Object, Object> peopleRegion = new LocalRegionFactoryBean<>();
 
 			peopleRegion.setCache(gemfireCache);
-			peopleRegion.setClose(false);
 			peopleRegion.setPersistent(false);
 
 			return peopleRegion;

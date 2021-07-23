@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -47,6 +48,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.PoolConfigurer
  * @see org.springframework.data.gemfire.config.annotation.EnablePool
  * @see org.springframework.data.gemfire.config.annotation.EnablePools
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.1.0
@@ -54,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class PoolConfigurerIntegrationTests {
+public class PoolConfigurerIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	@Qualifier("configurerOne")
@@ -65,6 +67,7 @@ public class PoolConfigurerIntegrationTests {
 	private TestPoolConfigurer configurerTwo;
 
 	protected void assertPoolConfigurerCalled(TestPoolConfigurer configurer, String... beanNames) {
+
 		assertThat(configurer).isNotNull();
 		assertThat(configurer).hasSize(beanNames.length);
 		assertThat(configurer).contains(beanNames);

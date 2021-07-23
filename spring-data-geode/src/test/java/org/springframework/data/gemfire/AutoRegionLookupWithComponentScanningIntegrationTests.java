@@ -13,35 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Region;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests to test the behavior of Spring Data GemFire's Auto Region Lookup behavior
- * with Spring component scanning functionality.
+ * Integration Tests for SDG's Auto {@link Region} Lookup behavior with Spring component scanning functionality.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.5.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class AutoRegionLookupWithComponentScanningIntegrationTests {
+public class AutoRegionLookupWithComponentScanningIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -49,8 +50,10 @@ public class AutoRegionLookupWithComponentScanningIntegrationTests {
 	@Test
 	public void testAutowiredNativeRegions() {
 
-		assertTrue("The 'autoRegionLookupDao' Spring bean DAO was not properly configured an initialized!",
-			this.applicationContext.containsBean("autoRegionLookupDao"));
-		assertNotNull(this.applicationContext.getBean("autoRegionLookupDao", AutoRegionLookupDao.class));
+		assertThat(this.applicationContext.containsBean("autoRegionLookupDao"))
+			.describedAs("The 'autoRegionLookupDao' Spring bean DAO was not properly configured an initialized!")
+			.isTrue();
+
+		assertThat(this.applicationContext.getBean("autoRegionLookupDao", AutoRegionLookupDao.class)).isNotNull();
 	}
 }

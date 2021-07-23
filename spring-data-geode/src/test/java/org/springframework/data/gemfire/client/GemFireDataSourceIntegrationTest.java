@@ -51,6 +51,7 @@ import org.springframework.util.FileSystemUtils;
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.data.gemfire.client.GemfireDataSourcePostProcessor
+ * @see org.springframework.data.gemfire.fork.ServerProcess
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -62,16 +63,16 @@ import org.springframework.util.FileSystemUtils;
 public class GemFireDataSourceIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
-	public static void startGemFireServer() throws IOException {
+	public static void startGeodeServer() throws IOException {
 
 		List<String> arguments = new ArrayList<>();
 
-		arguments.add(String.format("-Dgemfire.name=%s", GemFireDataSourceIntegrationTest.class.getSimpleName().concat("Server")));
-		arguments.add(GemFireDataSourceIntegrationTest.class.getName()
-			.replace(".", "/").concat("-server-context.xml"));
+		arguments.add(String.format("-Dgemfire.name=%s",
+			GemFireDataSourceIntegrationTest.class.getSimpleName().concat("Server")));
+
+		arguments.add(getServerContextXmlFileLocation(GemFireDataSourceIntegrationTest.class));
 
 		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
-
 	}
 
 	@AfterClass

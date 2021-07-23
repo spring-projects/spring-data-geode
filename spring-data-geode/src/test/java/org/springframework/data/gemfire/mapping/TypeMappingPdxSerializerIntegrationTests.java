@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -49,11 +50,15 @@ import example.app.model.ComplexType;
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.apache.geode.pdx.PdxWriter
  * @see org.springframework.data.gemfire.mapping.MappingPdxSerializer
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.5.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class TypeMappingPdxSerializerIntegrationTests {
+@SuppressWarnings("unused")
+public class TypeMappingPdxSerializerIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private MappingPdxSerializer pdxSerializer;
@@ -78,13 +83,11 @@ public class TypeMappingPdxSerializerIntegrationTests {
 		this.pdxSerializer.toData(complexType, mockPdxWriter);
 
 		verify(mockPdxWriter, times(1)).writeField(eq("id"), eq(2L), eq(Long.class));
-		verify(mockPdxWriter, times(1))
-			.writeField(eq("decimalValue"), eq(new BigDecimal(123)), eq(BigDecimal.class));
-		verify(mockPdxWriter, times(1))
-			.writeField(eq("integerValue"), eq(new BigInteger("987")), eq(BigInteger.class));
-		verify(mockPdxWriter, times(1))
-			.writeField(eq("name"), eq("TEST"), eq(String.class));
+		verify(mockPdxWriter, times(1)).writeField(eq("decimalValue"), eq(new BigDecimal(123)), eq(BigDecimal.class));
+		verify(mockPdxWriter, times(1)).writeField(eq("integerValue"), eq(new BigInteger("987")), eq(BigInteger.class));
+		verify(mockPdxWriter, times(1)).writeField(eq("name"), eq("TEST"), eq(String.class));
 		verify(mockPdxWriter, times(1)).markIdentityField(eq("id"));
+
 		verifyNoMoreInteractions(mockPdxWriter);
 	}
 

@@ -27,22 +27,32 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
+import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
+import org.apache.geode.cache.wan.GatewaySender;
 
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The LookupRegionWithAsyncEventQueuesAndGatewaySendersIntegrationTests class...
+ * Integration Tests for SDG lookup {@link Region} resolution configured with an {@link AsyncEventQueue}
+ * and {@link GatewaySender} using SDG XML namespace configuration metadata.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
+ * @see org.apache.geode.cache.wan.GatewaySender
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LookupRegionWithAsyncEventQueuesAndGatewaySendersIntegrationTests {
+public class LookupRegionWithAsyncEventQueuesAndGatewaySendersIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<?, ?> example;

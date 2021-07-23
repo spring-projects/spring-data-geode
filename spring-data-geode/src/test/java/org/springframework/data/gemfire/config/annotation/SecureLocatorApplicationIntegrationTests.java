@@ -31,6 +31,7 @@ import org.apache.geode.security.ResourcePermission;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemFireProperties;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -40,11 +41,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author John Blum
  * @see java.util.Properties
  * @see org.junit.Test
- * @see org.apache.geode.distributed.Locator
  * @see org.apache.geode.distributed.DistributedSystem
+ * @see org.apache.geode.distributed.Locator
  * @see org.springframework.data.gemfire.GemFireProperties
  * @see org.springframework.data.gemfire.config.annotation.LocatorApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableSecurity
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.3.0
@@ -52,7 +54,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class SecureLocatorApplicationIntegrationTests {
+public class SecureLocatorApplicationIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private Locator locator;

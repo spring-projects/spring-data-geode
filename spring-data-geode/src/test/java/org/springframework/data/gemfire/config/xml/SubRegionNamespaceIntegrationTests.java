@@ -34,11 +34,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the contract and functionality of Region/SubRegion creation in a cache.
+ * Integration Tests for {@link Region} and {@link Region sub-Region} creation in a cache.
  *
  * @author David Turanski
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer

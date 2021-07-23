@@ -43,6 +43,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.server.CacheServer
  * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.data.gemfire.config.annotation.AddCacheServerConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.AddCacheServersConfiguration
  * @see org.springframework.data.gemfire.config.annotation.CacheServerConfigurer
  * @see org.springframework.data.gemfire.config.annotation.EnableCacheServer
  * @see org.springframework.data.gemfire.config.annotation.EnableCacheServers

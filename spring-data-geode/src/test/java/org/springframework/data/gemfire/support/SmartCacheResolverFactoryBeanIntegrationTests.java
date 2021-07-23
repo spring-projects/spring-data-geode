@@ -43,6 +43,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.gemfire.CacheResolver;
 import org.springframework.data.gemfire.support.SmartCacheResolverFactoryBean.CacheResolverProxy;
 import org.springframework.data.gemfire.support.SmartCacheResolverFactoryBean.CompositionStrategy;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -59,6 +60,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.core.annotation.Order
  * @see org.springframework.data.gemfire.CacheResolver
  * @see org.springframework.data.gemfire.support.SmartCacheResolverFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.3.0
@@ -66,7 +68,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings({ "rawtypes", "unused" })
-public class SmartCacheResolverFactoryBeanIntegrationTests {
+public class SmartCacheResolverFactoryBeanIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;

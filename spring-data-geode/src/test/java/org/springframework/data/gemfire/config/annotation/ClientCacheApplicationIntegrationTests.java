@@ -31,6 +31,7 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -44,6 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.1.0
@@ -51,19 +53,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ClientCacheApplicationIntegrationTests {
+public class ClientCacheApplicationIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Echo")
 	private Region<String, String> echo;
 
 	@Test
 	public void echoClientRegionEchoesKeysAsValues() {
+
 		assertThat(this.echo.get("hello")).isEqualTo("hello");
 		assertThat(this.echo.get("test")).isEqualTo("test");
 		assertThat(this.echo.get("good-bye")).isEqualTo("good-bye");
 	}
 
-	@ClientCacheApplication(name = "ClientCacheApplicationIntegrationTests", logLevel = "error")
+	@ClientCacheApplication
 	static class TestConfiguration {
 
 		@Bean("Echo")

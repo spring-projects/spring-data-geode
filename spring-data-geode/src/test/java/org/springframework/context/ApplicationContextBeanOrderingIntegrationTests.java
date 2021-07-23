@@ -43,6 +43,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.annotation.OrderUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.data.gemfire.util.StreamUtils;
@@ -52,7 +53,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests testing the bean ordering applied by the Spring {@link ApplicationContext}
+ * Integration Tests asserting the bean ordering applied by the Spring {@link ApplicationContext}
  * or Spring {@link BeanFactory} when using the {@link Order} annotation or implementing the {@link Ordered} interface.
  *
  * @author John Blum
@@ -60,6 +61,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.beans.factory.ListableBeanFactory
  * @see org.springframework.core.Ordered
  * @see org.springframework.core.annotation.Order
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.3.0
@@ -67,7 +69,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ApplicationContextBeanOrderingIntegrationTests {
+public class ApplicationContextBeanOrderingIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ConfigurableApplicationContext applicationContext;

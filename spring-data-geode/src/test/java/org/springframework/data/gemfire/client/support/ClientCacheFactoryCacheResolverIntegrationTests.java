@@ -29,6 +29,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -42,6 +43,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.data.gemfire.client.support.ClientCacheFactoryCacheResolver
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.3.0
@@ -49,7 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class ClientCacheFactoryCacheResolverIntegrationTests {
+public class ClientCacheFactoryCacheResolverIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private GemFireCache clientCache;

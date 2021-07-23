@@ -51,6 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.cache.annotation.Cacheable
  * @see org.springframework.data.gemfire.config.annotation.CachingDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner

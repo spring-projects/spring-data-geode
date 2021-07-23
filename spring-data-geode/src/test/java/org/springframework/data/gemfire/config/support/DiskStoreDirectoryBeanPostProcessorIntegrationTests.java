@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +31,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.DiskStoreFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,16 +41,17 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.DiskStore
  * @see org.springframework.data.gemfire.DiskStoreFactoryBean
  * @see org.springframework.data.gemfire.config.support.DiskStoreDirectoryBeanPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.5.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class DiskStoreDirectoryBeanPostProcessorIntegrationTests {
+public class DiskStoreDirectoryBeanPostProcessorIntegrationTests extends IntegrationTestsSupport {
 
 	@BeforeClass
 	public static void testSuiteSetup() {

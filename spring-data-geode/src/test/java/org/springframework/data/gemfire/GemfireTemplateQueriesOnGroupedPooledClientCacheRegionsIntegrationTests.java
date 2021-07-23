@@ -61,22 +61,24 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Integrations Tests for {@link GemfireTemplate} testing the proper function and behavior of executing (OQL) queries
- * from a cache client application using the {@link GemfireTemplate} to a cluster of GemFire servers that have
+ * Integrations Tests for {@link GemfireTemplate} testing the proper function and behavior of executing OQL queries
+ * from a cache client application using the {@link GemfireTemplate} to a cluster of Apache Geode servers that have
  * been grouped according to business function and data access in order to distribute the load.
  *
- * Each GemFire {@link Pool} is configured to target a specific server group.  Each group of servers in the cluster
- * defines specific {@link Region Regions} to manage data independently and separately from other data that might
- * garner high frequency access.
+ * Each Apache Geode {@link Pool} is configured to target a specific server group.  Each group of servers in the cluster
+ * defines specific {@link Region Regions} to manage data independently and separately from other data that might garner
+ * high frequency access.
  *
- * Spring Data GemFire's {@link GemfireTemplate} should intelligently employ the right
+ * Spring Data for Apache Geode's {@link GemfireTemplate} should intelligently employ the right
  * {@link org.apache.geode.cache.query.QueryService} configured with the {@link Region Region's} {@link Pool}
  * metadata when executing the query in order to ensure the right servers containing the {@link Region Region's}
  * with the data of interest are targeted.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration

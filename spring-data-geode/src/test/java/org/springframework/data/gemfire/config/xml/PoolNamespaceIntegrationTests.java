@@ -59,7 +59,7 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	protected void assertConnectionEndpoint(ConnectionEndpointList connectionEndpoints,
+	private void assertConnectionEndpoint(ConnectionEndpointList connectionEndpoints,
 			String expectedHost, int expectedPort) {
 
 		assertThat(connectionEndpoints).isNotNull();
@@ -67,7 +67,7 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 		assertConnectionEndpoint(connectionEndpoints.get(0), expectedHost, expectedPort);
 	}
 
-	protected void assertConnectionEndpoint(ConnectionEndpoint connectionEndpoint,
+	private void assertConnectionEndpoint(ConnectionEndpoint connectionEndpoint,
 			String expectedHost, int expectedPort) {
 
 		assertThat(connectionEndpoint).isNotNull();
@@ -75,7 +75,7 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 		assertThat(connectionEndpoint.getPort()).isEqualTo(expectedPort);
 	}
 
-	protected void assertNoConnectionEndpoints(ConnectionEndpointList connectionEndpoints) {
+	private void assertNoConnectionEndpoints(ConnectionEndpointList connectionEndpoints) {
 		assertThat(connectionEndpoints).isNotNull();
 		assertThat(connectionEndpoints.isEmpty()).isTrue();
 	}

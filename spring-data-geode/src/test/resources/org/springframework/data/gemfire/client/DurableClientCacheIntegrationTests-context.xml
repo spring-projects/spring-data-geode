@@ -14,20 +14,20 @@
 	<util:properties id="clientProperties">
 		<prop key="gemfire.cache.client.durable-client-id">DurableClientCacheIntegrationTest</prop>
 		<prop key="gemfire.cache.client.durable-client-timeout">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest.durable-client-timeout:300}
+			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.durable-client-timeout:300}
 		</prop>
 		<prop key="gemfire.cache.client.interests.result-policy">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest.interests-result-policy:KEYS_VALUES}
+			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.interests-result-policy:KEYS_VALUES}
 		</prop>
 		<prop key="gemfire.cache.server.host">localhost</prop>
 		<prop key="gemfire.cache.server.port">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest.cache-server-port}
+			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.cache-server-port}
 		</prop>
 	</util:properties>
 
 	<context:property-placeholder properties-ref="clientProperties"/>
 
-	<bean class="org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest$ClientCacheBeanPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests$ClientCacheBeanPostProcessor"/>
 
 	<util:properties id="gemfireProperties">
 		<prop key="name">DurableClientCacheIntegrationTestClient</prop>
@@ -46,7 +46,7 @@
 
 	<gfe:client-region id="Example" pool-name="gemfireServerPool" shortcut="CACHING_PROXY">
 		<gfe:cache-listener>
-			<bean class="org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest.RegionEntryEventRecordingCacheListener"/>
+			<bean class="org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.RegionEntryEventRecordingCacheListener"/>
 		</gfe:cache-listener>
 		<gfe:regex-interest durable="true" pattern= ".*" result-policy="${gemfire.cache.client.interests.result-policy}"/>
 	</gfe:client-region>

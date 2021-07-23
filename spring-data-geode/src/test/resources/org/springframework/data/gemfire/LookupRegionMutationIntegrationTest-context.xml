@@ -17,33 +17,34 @@
 
 	<gfe:cache cache-xml-location="/lookup-region-mutation-cache.xml" properties-ref="gemfireProperties"/>
 
-	<bean id="B" class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest.TestCacheListener"/>
+	<bean id="B" class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTests.TestCacheListener"/>
 
 	<gfe:lookup-region id="Example" cloning-enabled="true" eviction-maximum="1000">
 		<gfe:cache-listener>
-			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest.TestCacheListener"
+			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTests.TestCacheListener"
 				  p:name="A"/>
 			<ref bean="B"/>
 		</gfe:cache-listener>
 		<gfe:cache-loader>
-			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestCacheLoader"
+			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTests$TestCacheLoader"
 				  p:name="C"/>
 		</gfe:cache-loader>
 		<gfe:cache-writer>
-			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestCacheWriter"
+			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTests$TestCacheWriter"
 				  p:name="D"/>
 		</gfe:cache-writer>
 		<gfe:region-ttl timeout="120" action="LOCAL_DESTROY"/>
 		<gfe:region-tti timeout="60" action="INVALIDATE"/>
 		<gfe:entry-ttl timeout="30" action="DESTROY"/>
 		<gfe:custom-entry-tti>
-			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestCustomExpiry"
+			<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTests$TestCustomExpiry"
 				  p:name="E"/>
 		</gfe:custom-entry-tti>
 		<gfe:gateway-sender name="GWS" remote-distributed-system-id="123" manual-start="true"/>
 		<gfe:async-event-queue name="AEQ" persistent="false" parallel="false">
 			<gfe:async-event-listener>
-				<bean class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTest$TestAsyncEventListener"
+				<bean
+					class="org.springframework.data.gemfire.LookupRegionMutationIntegrationTests$TestAsyncEventListener"
 					p:name="F"/>
 			</gfe:async-event-listener>
 		</gfe:async-event-queue>

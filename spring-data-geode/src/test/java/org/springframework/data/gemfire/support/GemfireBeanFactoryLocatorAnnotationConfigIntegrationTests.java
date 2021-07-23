@@ -57,6 +57,7 @@ public class GemfireBeanFactoryLocatorAnnotationConfigIntegrationTests extends I
 
 	@Test
 	public void beanFactoryContainsTestBeanFactoryLocatorBean() {
+
 		assertThat(beanFactory.containsBean("testBeanFactoryLocator")).isTrue();
 
 		GemfireBeanFactoryLocator testBeanFactoryLocator = beanFactory.getBean("testBeanFactoryLocator",
@@ -73,6 +74,7 @@ public class GemfireBeanFactoryLocatorAnnotationConfigIntegrationTests extends I
 
 	@Test
 	public void registeredBeanFactoriesIsCorrect() {
+
 		Set<String> beanNames = asSet("gemfireCache", "testBeanFactoryLocator", "aliasOne", "aliasTwo");
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).hasSameSizeAs(beanNames);
@@ -83,8 +85,8 @@ public class GemfireBeanFactoryLocatorAnnotationConfigIntegrationTests extends I
 		}
 	}
 
-	@SuppressWarnings("unused")
 	@PeerCacheApplication(useBeanFactoryLocator = true)
+	@SuppressWarnings("unused")
 	static class TestConfiguration {
 
 		@Bean

@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +31,7 @@ import org.apache.geode.cache.Region;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -40,28 +40,30 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Cache
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
- * @see org.apache.geode.cache.Cache
  * @since 1.9.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("all")
-public class PeerCacheApplicationIntegrationTests {
+public class PeerCacheApplicationIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Echo")
 	private Region<String, String> echo;
 
 	@Test
 	public void echoPartitionRegionEchoesKeysAsValues() {
+
 		assertThat(this.echo.get("hello")).isEqualTo("hello");
 		assertThat(this.echo.get("test")).isEqualTo("test");
 		assertThat(this.echo.get("good-bye")).isEqualTo("good-bye");
 	}
 
-	@PeerCacheApplication(name = "PeerCacheApplicationIntegrationTests", logLevel="error")
+	@PeerCacheApplication
 	static class PeerCacheApplicationConfiguration {
 
 		@Bean("Echo")
@@ -88,8 +90,8 @@ public class PeerCacheApplicationIntegrationTests {
 				}
 
 				@Override
-				public void close() {
-				}
+				public void close() { }
+
 			};
 		}
 	}

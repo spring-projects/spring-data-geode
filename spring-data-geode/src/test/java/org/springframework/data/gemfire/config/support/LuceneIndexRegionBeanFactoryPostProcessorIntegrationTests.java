@@ -73,6 +73,7 @@ public class LuceneIndexRegionBeanFactoryPostProcessorIntegrationTests extends I
 			.map(beanFactory -> beanFactory.getBeanDefinition(beanName))
 			.orElse(null);
 	}
+
 	@Test
 	public void regionLuceneIndexAndDiskStoreBeanDependenciesAreCorrect() {
 
@@ -115,6 +116,7 @@ public class LuceneIndexRegionBeanFactoryPostProcessorIntegrationTests extends I
 
 	@Test
 	public void gemfireBeanProcessingOrderIsCorrect() {
+
 		assertThat(beanNames.indexOf("BookTitleLuceneIndex")).isLessThan(beanNames.indexOf("Books"));
 		assertThat(beanNames.indexOf("ContractDescriptionLuceneIndex")).isLessThan(beanNames.indexOf("Contracts"));
 	}

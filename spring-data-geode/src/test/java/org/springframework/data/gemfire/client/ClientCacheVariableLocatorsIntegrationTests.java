@@ -42,12 +42,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileSystemUtils;
 
 /**
- * IntegrationTests with test cases testing the use of variable "locators" attribute
+ * IntegrationTests with test cases testing the use of variable {@literal locators} attribute
  * on &lt;gfe:pool/&lt; in SDG XML namespace configuration metadata when connecting a client/server.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.fork.ServerProcess
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.6.3
@@ -65,8 +67,7 @@ public class ClientCacheVariableLocatorsIntegrationTests extends ForkingClientSe
 		arguments.add(String.format("-Dgemfire.name=%1$s",
 			ClientCacheVariableLocatorsIntegrationTests.class.getSimpleName().concat("Server")));
 
-		arguments.add("/".concat(ClientCacheVariableLocatorsIntegrationTests.class.getName().replace(".", "/")
-			.concat("-server-context.xml")));
+		arguments.add(getServerContextXmlFileLocation(ClientCacheVariableLocatorsIntegrationTests.class));
 
 		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
 	}

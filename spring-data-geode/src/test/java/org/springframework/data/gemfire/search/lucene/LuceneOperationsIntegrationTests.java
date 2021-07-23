@@ -43,6 +43,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -61,6 +62,9 @@ import lombok.RequiredArgsConstructor;
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.lucene.LuceneIndex
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
+ * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
+ * @see org.springframework.data.gemfire.search.lucene.LuceneOperations
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.1.0
@@ -68,11 +72,9 @@ import lombok.RequiredArgsConstructor;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LuceneOperationsIntegrationTests {
+public class LuceneOperationsIntegrationTests extends IntegrationTestsSupport {
 
 	private static final AtomicLong IDENTIFIER = new AtomicLong(0L);
-
-	protected static final String GEMFIRE_LOG_LEVEL = "none";
 
 	private static final Person jonDoe = Person.newPerson(LocalDate.of(1969, Month.JULY, 4), "Jon", "Doe").with("Master of Science");
 	private static final Person janeDoe = Person.newPerson(LocalDate.of(1969, Month.AUGUST, 16), "Jane", "Doe").with("Doctor of Astrophysics");
@@ -120,8 +122,8 @@ public class LuceneOperationsIntegrationTests {
 		assertThat(asNames(masterDoes)).containsAll(asNames(asUsers(jonDoe, pieDoe)));
 	}
 
+	@PeerCacheApplication
 	@SuppressWarnings("unused")
-	@PeerCacheApplication(name = "LuceneOperationsIntegrationTests", logLevel = GEMFIRE_LOG_LEVEL)
 	static class TestConfiguration {
 
 		@Bean(name = "People")

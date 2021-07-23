@@ -37,6 +37,7 @@ import org.springframework.data.gemfire.client.PoolResolver;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.config.annotation.EnablePool;
 import org.springframework.data.gemfire.config.annotation.EnablePools;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -50,6 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.client.PoolManager
  * @see org.springframework.data.gemfire.client.PoolResolver
  * @see org.springframework.data.gemfire.client.support.PoolManagerPoolResolver
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.3.0
@@ -57,7 +59,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class PoolManagerPoolResolverIntegrationTests {
+public class PoolManagerPoolResolverIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;
@@ -72,7 +74,7 @@ public class PoolManagerPoolResolverIntegrationTests {
 	@Qualifier("SwimmingPool")
 	private Pool swimmingPool;
 
-	private PoolResolver poolResolver = new PoolManagerPoolResolver();
+	private final PoolResolver poolResolver = new PoolManagerPoolResolver();
 
 	@Resource(name = "RegionWithDefaultPool")
 	private Region<?, ?> regionWithDefaultPool;
@@ -129,7 +131,7 @@ public class PoolManagerPoolResolverIntegrationTests {
 
 	@Test
 	public void resolvePoolFromNullRegionIsNullSafeAndReturnsNull() {
-		assertThat(this.poolResolver.resolve((Region) null)).isNull();
+		assertThat(this.poolResolver.resolve((Region<?, ?>) null)).isNull();
 	}
 
 	@ClientCacheApplication(name = "PoolManagerPoolResolverIntegrationTests")
@@ -141,7 +143,7 @@ public class PoolManagerPoolResolverIntegrationTests {
 	static class TestConfiguration {
 
 		@Bean("RegionWithDefaultPool")
-		ClientRegionFactoryBean regionWithDefaultPool(ClientCache clientCache) {
+		ClientRegionFactoryBean<Object, Object> regionWithDefaultPool(ClientCache clientCache) {
 
 			ClientRegionFactoryBean<Object, Object> clientRegion = new ClientRegionFactoryBean<>();
 
@@ -153,7 +155,7 @@ public class PoolManagerPoolResolverIntegrationTests {
 
 		@Bean("RegionWithSwimmingPool")
 		@DependsOn("SwimmingPool")
-		ClientRegionFactoryBean regionWithNamedPool(ClientCache clientCache) {
+		ClientRegionFactoryBean<Object, Object> regionWithNamedPool(ClientCache clientCache) {
 
 			ClientRegionFactoryBean<Object, Object> clientRegion = new ClientRegionFactoryBean<>();
 

@@ -24,19 +24,20 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
@@ -54,6 +55,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.cache.annotation.Cacheable
  * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.CachingDefinedRegionsConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://jira.spring.io/browse/DATAGEODE-232">Add support for @CacheConfig in @EnableCachingDefinedRegions</a>
@@ -62,9 +64,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests {
-
-	private static final String LOG_LEVEL = "error";
+public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;
@@ -117,7 +117,6 @@ public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests {
 			assertThat(region).doesNotContainKey("0");
 			assertThat(region).isEmpty();
 		});
-
 	}
 
 	@Test
@@ -132,7 +131,6 @@ public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests {
 	@Test
 	public void cacheableMethodTwoCachesToCOnly() {
 
-
 		assertThat(this.service.cacheableMethodTwo("3")).isEqualTo("TWO");
 
 		Collections.singletonList(this.c).forEach(region -> assertThat(region).containsKey("3"));
@@ -142,14 +140,13 @@ public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests {
 	@Test
 	public void cacheableMethodThreeCachesToAAndD() {
 
-
 		assertThat(this.service.cacheableMethodThree("4")).isEqualTo("THREE");
 
 		Arrays.asList(this.a, this.d).forEach(region -> assertThat(region).containsKey("4"));
 		Arrays.asList(this.b, this.c).forEach(region -> assertThat(region).isEmpty());
 	}
 
-	@ClientCacheApplication(name = "CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests", logLevel = LOG_LEVEL)
+	@ClientCacheApplication
 	@EnableCachingDefinedRegions(clientRegionShortcut = ClientRegionShortcut.LOCAL)
 	static class TestConfiguration {
 

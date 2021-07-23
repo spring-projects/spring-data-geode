@@ -14,23 +14,23 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.Region;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,9 @@ import org.springframework.util.Assert;
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.transaction.GemfireTransactionManager
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -56,15 +58,12 @@ import org.springframework.util.Assert;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class GemfireTransactionManagerIntegrationTests {
-
-	private static final String GEMFIRE_LOG_LEVEL = "error";
+public class GemfireTransactionManagerIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<Object, Object> example;
 
 	@Autowired
-	@SuppressWarnings("all")
 	private SuspendAndResumeCacheTransactionsService service;
 
 	@Test(expected = IllegalArgumentException.class)
@@ -90,10 +89,7 @@ public class GemfireTransactionManagerIntegrationTests {
 		}
 	}
 
-	@PeerCacheApplication(
-		name = "GemfireTransactionManagerIntegrationTests",
-		logLevel = GEMFIRE_LOG_LEVEL
-	)
+	@PeerCacheApplication
 	@EnableGemfireCacheTransactions
 	static class TestConfiguration {
 

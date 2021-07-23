@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -64,19 +64,21 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.apache.geode.cache.lucene.LuceneIndex
  * @see org.apache.geode.cache.lucene.LuceneService
  * @see org.springframework.data.gemfire.config.xml.LuceneIndexParser
  * @see org.springframework.data.gemfire.config.xml.LuceneServiceParser
+ * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
+ * @see org.springframework.data.gemfire.search.lucene.LuceneServiceFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
- * @since 1.1.0
+ * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LuceneNamespaceUnitTests {
+public class LuceneNamespaceUnitTests extends IntegrationTestsSupport {
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
@@ -100,10 +102,10 @@ public class LuceneNamespaceUnitTests {
 	private LuceneIndex luceneIndexFour;
 
 	@Autowired
-	private LuceneSerializer luceneSerializer;
+	private LuceneSerializer<?> luceneSerializer;
 
 	private static String[] asArray(List<String> list) {
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	private static String[] toStringArray(Object[] array) {
@@ -207,7 +209,7 @@ public class LuceneNamespaceUnitTests {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public LuceneService getObject() throws Exception {
 
 			return Optional.ofNullable(this.luceneService).orElseGet(() -> {
@@ -251,7 +253,7 @@ public class LuceneNamespaceUnitTests {
 			});
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		private Answer<LuceneIndex> mockLuceneIndex(LuceneService mockLuceneService,
 				Map<String, Analyzer> fieldAnalyzers, List<String> fieldNames,
 					AtomicReference<LuceneSerializer> luceneSerializer) {
@@ -313,6 +315,7 @@ public class LuceneNamespaceUnitTests {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static class MockLuceneSerializerFactoryBean implements FactoryBean<LuceneSerializer> {
 
 		private LuceneSerializer luceneSerializer;

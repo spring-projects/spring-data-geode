@@ -34,7 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests testing {@link Region sub-Region} functionality from a cache client.
+ * Integration Tests for client {@link Region sub-Region} configuration.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -51,7 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
-	public static void startGemFireServer() throws Exception {
+	public static void startGeodeServer() throws Exception {
 		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(ClientSubRegionIntegrationTests.class));
 	}
@@ -76,6 +76,7 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 	}
 
 	private void assertRegion(Region<?, ?> region, String name, String fullPath) {
+
 		assertThat(region).isNotNull();
 		assertThat(region.getName()).isEqualTo(name);
 		assertThat(region.getFullPath()).isEqualTo(fullPath);
@@ -84,9 +85,11 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 	@Test
 	public void gemFireSubRegionCreationConfigurationIsCorrect() {
 
-		assertThat(clientCache).describedAs("The Client Cache was not properly initialized!").isNotNull();
+		assertThat(this.clientCache)
+			.describedAs("The Client Cache was not properly initialized!")
+			.isNotNull();
 
-		Region<?, ?> parent = clientCache.getRegion("Parent");
+		Region<?, ?> parent = this.clientCache.getRegion("Parent");
 
 		assertRegion(parent, "Parent");
 
@@ -94,7 +97,7 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 
 		assertRegion(child, "Child", "/Parent/Child");
 
-		Region<?, ?> clientCacheChild = clientCache.getRegion("/Parent/Child");
+		Region<?, ?> clientCacheChild = this.clientCache.getRegion("/Parent/Child");
 
 		assertThat(child).isSameAs(clientCacheChild);
 	}
@@ -102,16 +105,16 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 	@Test
 	public void springSubRegionCreationConfigurationIsCorrect() {
 
-		assertRegion(parent, "Parent");
-		assertRegion(child, "Child", "/Parent/Child");
+		assertRegion(this.parent, "Parent");
+		assertRegion(this.child, "Child", "/Parent/Child");
 	}
 
 	@Test
 	public void templateCreationConfigurationIsCorrect() {
 
-		assertThat(parentTemplate).isNotNull();
-		assertThat(parentTemplate.getRegion()).isSameAs(parent);
-		assertThat(childTemplate).isNotNull();
-		assertThat(childTemplate.getRegion()).isSameAs(child);
+		assertThat(this.parentTemplate).isNotNull();
+		assertThat(this.parentTemplate.getRegion()).isSameAs(this.parent);
+		assertThat(this.childTemplate).isNotNull();
+		assertThat(this.childTemplate.getRegion()).isSameAs(this.child);
 	}
 }

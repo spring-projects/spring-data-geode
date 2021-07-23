@@ -88,6 +88,6 @@ public class EnableEntityDefinedRegionsWithAssignableTypeFilterIntegrationTests 
 		excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "Programmer"),
 		includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = User.class)
 	)
-	static class TestGeodeConfiguration { }
+	static class TestConfiguration { }
 
 }

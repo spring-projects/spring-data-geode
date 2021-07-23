@@ -33,8 +33,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the contract and functionality of using SDG's XML namespace configuration
- * metadata to configure {@link DiskStore DiskStores}.
+ * Integration Tests testing the contract and functionality of using SDG's XML namespace configuration metadata to
+ * configure {@link DiskStore DiskStores}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -46,7 +46,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "diskstore-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(locations = "diskstore-ns.xml",
+	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class DiskStoreNamespaceIntegrationTests extends IntegrationTestsSupport {
 

@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,8 +46,10 @@ import example.app.repo.UserRepository;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.repository.GemfireRepository
  * @see org.springframework.data.gemfire.repository.config.EnableGemfireRepositories
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://github.com/spring-projects/spring-data-geode/issues/483">Fix bug with SDG Repository derived queries using the IN operator with numeric values.</a>
@@ -55,11 +58,11 @@ import example.app.repo.UserRepository;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class RepositoryQueryUsingInOperatorIntegrationTests {
+public class RepositoryQueryUsingInOperatorIntegrationTests extends IntegrationTestsSupport {
 
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
-	private List<User> users = Arrays.asList(
+	private final List<User> users = Arrays.asList(
 		User.as("jonDoe").identifiedBy(1),
 		User.as("janeDoe").identifiedBy(2),
 		User.as("cookieDoe").identifiedBy(3),
@@ -144,9 +147,9 @@ public class RepositoryQueryUsingInOperatorIntegrationTests {
 		assertThat(usersByName).containsExactly(findUsersByNames("jonDoe", "sourDoe"));
 	}
 
-	@ClientCacheApplication(name = "RepositoryQueryUsingInOperatorIntegrationTests")
+	@ClientCacheApplication
 	@EnableEntityDefinedRegions(basePackageClasses = User.class, clientRegionShortcut = ClientRegionShortcut.LOCAL)
 	@EnableGemfireRepositories(basePackageClasses = UserRepository.class)
-	static class TestGeodeConfiguration { }
+	static class TestConfiguration { }
 
 }

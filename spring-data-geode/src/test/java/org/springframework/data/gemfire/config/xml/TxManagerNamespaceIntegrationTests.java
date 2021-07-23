@@ -29,8 +29,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
+ * Integration Tests for SDG Transaction Manager configuration in SDG XML namespace configuration metadata.
+ *
  * @author Costin Leau
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "/org/springframework/data/gemfire/config/xml/tx-ns.xml",

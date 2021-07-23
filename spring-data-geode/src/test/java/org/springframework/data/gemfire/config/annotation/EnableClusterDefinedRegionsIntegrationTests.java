@@ -54,6 +54,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.data.gemfire.config.annotation.ClusterDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableClusterDefinedRegions
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
@@ -62,13 +63,13 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = EnableClusterDefinedRegionsIntegrationTests.ClientTestConfiguration.class)
+@ContextConfiguration(classes = EnableClusterDefinedRegionsIntegrationTests.GeodeClientTestConfiguration.class)
 @SuppressWarnings("unused")
 public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
-	public static void startGemFireServer() throws Exception {
-		startGemFireServer(ServerTestConfiguration.class);
+	public static void startGeodeServer() throws Exception {
+		startGemFireServer(GeodeServerTestConfiguration.class);
 	}
 
 	@Autowired
@@ -109,7 +110,7 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 
 	@ClientCacheApplication
 	@EnableClusterDefinedRegions
-	static class ClientTestConfiguration {
+	static class GeodeClientTestConfiguration {
 
 		@Bean
 		static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
@@ -131,12 +132,12 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 	}
 
 	@CacheServerApplication(name = "EnableClusterDefinedRegionsIntegrationTests")
-	static class ServerTestConfiguration {
+	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
 
 			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(ServerTestConfiguration.class);
+				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
 
 			applicationContext.registerShutdownHook();
 		}

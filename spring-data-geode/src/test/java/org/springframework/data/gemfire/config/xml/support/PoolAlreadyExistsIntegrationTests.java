@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,11 +29,12 @@ import org.apache.geode.cache.client.Pool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.function.annotation.OnRegion;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests to test the configuration of the {@link ClientCache} {@literal DEFAULT} {@link Pool},
+ * Integration Tests testing the configuration of the {@link ClientCache} {@literal DEFAULT} {@link Pool},
  * client {@link Region Region's} using a configured {@link Pool} and a {@link Function} referring to
  * a client {@link Region} requiring the configured {@link Pool}.
  *
@@ -43,12 +43,16 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.Pool
+ * @see org.springframework.data.gemfire.client.PoolFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class PoolAlreadyExistsIntegrationTests {
+public class PoolAlreadyExistsIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;

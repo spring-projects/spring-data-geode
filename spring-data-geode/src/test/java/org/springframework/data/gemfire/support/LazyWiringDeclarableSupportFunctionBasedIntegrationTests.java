@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.gemfire.function.sample.HelloFunctionExecution;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
@@ -43,6 +43,9 @@ import org.springframework.util.StringUtils;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.7.0
@@ -50,7 +53,7 @@ import org.springframework.util.StringUtils;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests {
+public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private Cache gemfireCache;
@@ -83,7 +86,7 @@ public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests {
 		assertThat(helloFunctionExecution.hello(null)).isEqualTo("Hello Everyone!");
 	}
 
-	protected static abstract class FunctionAdaptor extends LazyWiringDeclarableSupport implements Function {
+	protected static abstract class FunctionAdaptor<T> extends LazyWiringDeclarableSupport implements Function<T> {
 
 		private final String id;
 
@@ -114,7 +117,7 @@ public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests {
 	}
 
 	@SuppressWarnings("all")
-	public static class HelloGemFireFunction extends FunctionAdaptor {
+	public static class HelloGemFireFunction extends FunctionAdaptor<Object> {
 
 		protected static final String ADDRESS_TO_PARAMETER = "hello.address.to";
 		protected static final String DEFAULT_ADDRESS_TO = "World";
@@ -139,17 +142,18 @@ public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests {
 		}
 
 		@Override
-		protected void doPostInit(final Properties parameters) {
+		protected void doPostInit(Properties parameters) {
 			addressTo = parameters.getProperty(ADDRESS_TO_PARAMETER, getDefaultAddressTo());
 		}
 
 		@Override
-		public void execute(final FunctionContext context) {
+		public void execute(FunctionContext context) {
 			context.getResultSender().lastResult(formatHelloGreeting(addressTo(context)));
 		}
 
 		// precedence is... 1. Caller 2. GemFire 3. Spring
 		protected String addressTo(FunctionContext context) {
+
 			Object arguments = context.getArguments();
 			String addressTo = null;
 

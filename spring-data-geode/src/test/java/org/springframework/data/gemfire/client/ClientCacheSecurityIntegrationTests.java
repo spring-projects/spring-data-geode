@@ -15,9 +15,7 @@
  */
 package org.springframework.data.gemfire.client;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,7 +64,7 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 
 		arguments.add(String.format("-Dgemfire.name=%1$s", ClientCacheSecurityIntegrationTests.class.getSimpleName().concat("Server")));
 		arguments.add(String.format("-Djavax.net.ssl.keyStore=%1$s", System.getProperty("javax.net.ssl.keyStore")));
-		arguments.add("/org/springframework/data/gemfire/client/ClientCacheSecurityTest-server-context.xml");
+		arguments.add(getServerContextXmlFileLocation(ClientCacheSecurityIntegrationTests.class));
 
 		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
 	}
@@ -86,7 +84,7 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 
 	@Test
 	public void exampleRegionGet() {
-		assertThat(String.valueOf(example.get("TestKey")), is(equalTo("TestValue")));
+		assertThat(String.valueOf(example.get("TestKey"))).isEqualTo("TestValue");
 	}
 
 	@SuppressWarnings("unused")
@@ -106,7 +104,8 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 
 		public static void main(String[] args) {
 
-			String configLocation = "org/springframework/data/gemfire/client/ClientCacheSecurityTest-server-context.xml";
+			String configLocation = args.length > 0 ? args[0]
+				: "org/springframework/data/gemfire/client/ClientCacheSecurityIntegrationTests-server-context.xml";
 
 			ConfigurableApplicationContext applicationContext = new ClassPathXmlApplicationContext(configLocation);
 

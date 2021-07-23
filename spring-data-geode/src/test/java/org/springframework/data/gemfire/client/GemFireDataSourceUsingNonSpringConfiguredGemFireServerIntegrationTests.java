@@ -60,7 +60,12 @@ import org.springframework.util.StringUtils;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
  * @see org.springframework.data.gemfire.client.GemfireDataSourcePostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.7.0
  */
 @RunWith(SpringRunner.class)
@@ -102,12 +107,6 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 			GemFireBasedServerProcess.getServerProcessControlFilename());
 	}
 
-	private static void writeAsCacheXmlFileToDirectory(String classpathResource, File serverWorkingDirectory) throws IOException {
-
-		FileCopyUtils.copy(new ClassPathResource(classpathResource).getInputStream(),
-			new FileOutputStream(new File(serverWorkingDirectory, "cache.xml")));
-	}
-
 	private static String customClasspath() {
 
 		String[] classpathElements = ProcessExecutor.JAVA_CLASSPATH.split(File.pathSeparator);
@@ -121,6 +120,12 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 		}
 
 		return StringUtils.collectionToDelimitedString(customClasspath, File.pathSeparator);
+	}
+
+	private static void writeAsCacheXmlFileToDirectory(String classpathResource, File serverWorkingDirectory) throws IOException {
+
+		FileCopyUtils.copy(new ClassPathResource(classpathResource).getInputStream(),
+			new FileOutputStream(new File(serverWorkingDirectory, "cache.xml")));
 	}
 
 	private static void waitForProcessStart(long milliseconds, ProcessWrapper process, String processControlFilename) {
@@ -138,6 +143,8 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 
 	@AfterClass
 	public static void stopGemFireServer() {
+
+		stop(gemfireServer);
 
 		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", String.valueOf(true)))) {
 			org.springframework.util.FileSystemUtils.deleteRecursively(gemfireServer.getWorkingDirectory());

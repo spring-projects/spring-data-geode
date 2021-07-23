@@ -47,6 +47,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.server.CacheServer
  * @see org.springframework.data.gemfire.config.annotation.CacheServerApplication
@@ -57,13 +58,13 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.9.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ClientServerCacheApplicationIntegrationTests.ClientTestConfiguration.class)
+@ContextConfiguration(classes = ClientServerCacheApplicationIntegrationTests.GeodeClientTestConfiguration.class)
 @SuppressWarnings("all")
 public class ClientServerCacheApplicationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
-	public static void setupGemFireServer() throws Exception {
-		startGemFireServer(ServerTestConfiguration.class);
+	public static void startGeodeServer() throws Exception {
+		startGemFireServer(GeodeServerTestConfiguration.class);
 	}
 
 	@Autowired
@@ -79,7 +80,7 @@ public class ClientServerCacheApplicationIntegrationTests extends ForkingClientS
 	}
 
 	@ClientCacheApplication
-	static class ClientTestConfiguration {
+	static class GeodeClientTestConfiguration {
 
 		@Bean(name = "Echo")
 		ClientRegionFactoryBean<String, String> echoRegion(ClientCache gemfireCache) {
@@ -95,10 +96,10 @@ public class ClientServerCacheApplicationIntegrationTests extends ForkingClientS
 	}
 
 	@CacheServerApplication(name = "ClientServerCacheApplicationIntegrationTests")
-	public static class ServerTestConfiguration {
+	public static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
-			runSpringApplication(ServerTestConfiguration.class, args);
+			runSpringApplication(GeodeServerTestConfiguration.class, args);
 		}
 
 		@Bean("Echo")

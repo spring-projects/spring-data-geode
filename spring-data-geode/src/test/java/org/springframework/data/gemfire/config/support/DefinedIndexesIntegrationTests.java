@@ -49,6 +49,7 @@ import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
 import org.springframework.data.gemfire.test.model.Gender;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -57,17 +58,20 @@ import org.springframework.test.context.junit4.SpringRunner;
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.springframework.data.gemfire.IndexFactoryBean
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.query.Index
  * @see org.apache.geode.cache.query.QueryService
+ * @see org.springframework.data.gemfire.IndexFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.7.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class DefinedIndexesIntegrationTests {
+public class DefinedIndexesIntegrationTests extends IntegrationTestsSupport {
 
 	private static final List<String> definedIndexNames = new ArrayList<>(3);
 
@@ -121,8 +125,8 @@ public class DefinedIndexesIntegrationTests {
 		assertThat(name).isEqualTo(queryService.getIndex(people, name.getName()));
 	}
 
-	@PeerCacheApplication(logLevel = "error")
-	static class DefinedIndexesConfiguration {
+	@PeerCacheApplication
+	static class TestConfiguration {
 
 		@Bean
 		// TODO remove when the Annotation config model includes support

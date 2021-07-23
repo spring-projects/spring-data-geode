@@ -30,6 +30,7 @@ import org.apache.geode.distributed.Locator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -46,14 +47,13 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.distributed.Locator
  * @see org.springframework.data.gemfire.config.annotation.LocatorApplication
  * @see org.springframework.data.gemfire.config.annotation.LocatorApplicationConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.2.0
  */
 @RunWith(SpringRunner.class)
 @SuppressWarnings("unused")
-public class LocatorApplicationIntegrationTests {
-
-	private static final String GEMFIRE_LOG_LEVEL = "error";
+public class LocatorApplicationIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private Locator locator;
@@ -101,7 +101,6 @@ public class LocatorApplicationIntegrationTests {
 	@LocatorApplication(
 		name = "LocatorApplicationIntegrationTests",
 		bindAddress = "localhost",
-		logLevel = GEMFIRE_LOG_LEVEL,
 		port = 0
 	)
 	static class TestConfiguration { }

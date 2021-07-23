@@ -34,11 +34,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.TestUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests for {@link CacheParser}.
+ * Integration Tests for {@link CacheParser} and {@link CacheFactoryBean}.
  *
  * @author Costin Leau
  * @author John Blum
@@ -46,12 +47,13 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Cache
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.xml.CacheParser
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class CacheNamespaceIntegrationTests {
+public class CacheNamespaceIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	@SuppressWarnings("unused")

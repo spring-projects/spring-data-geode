@@ -15,6 +15,7 @@ package org.springframework.data.gemfire.function.config;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -25,7 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
-public class FunctionsWithClientCacheTests {
+public class FunctionsWithClientCacheTests extends IntegrationTestsSupport {
 
 	@Test
 	public void doNothing() {

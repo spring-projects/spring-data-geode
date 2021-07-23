@@ -38,11 +38,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.test.support.MapBuilder;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration test to test SDG support for storing and reading JSON data to/from a {@link Region}
+ * Integration Tests testings SDG support for storing and reading JSON data to/from a {@link Region}
  * by (un)marshalling JSON data using Jackson.
  *
  * @author David Turanski
@@ -56,8 +57,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-@SuppressWarnings({ "unused" })
-public class JSONRegionAdviceIntegrationTests {
+@SuppressWarnings("unused")
+public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 
 	// TODO figure out why auto-proxying the Region for JSON support prevents the GemfireTemplate from being "auto-wired",
 	// as a GemfireTemplate rather than GemfireOperations, resulting in a NoSuchBeanDefinitionException thrown by the

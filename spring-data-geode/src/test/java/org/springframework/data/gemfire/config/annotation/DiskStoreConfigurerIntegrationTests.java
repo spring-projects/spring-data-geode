@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.DiskStoreFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -48,6 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.DiskStoreConfigurer
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStore
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStores
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -56,7 +58,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class DiskStoreConfigurerIntegrationTests {
+public class DiskStoreConfigurerIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	@Qualifier("configurerOne")
@@ -67,6 +69,7 @@ public class DiskStoreConfigurerIntegrationTests {
 	private TestDiskStoreConfigurer configurerTwo;
 
 	private void assertDiskStoreConfigurerCalled(TestDiskStoreConfigurer configurer, String... beanNames) {
+
 		assertThat(configurer).isNotNull();
 		assertThat(configurer).hasSize(beanNames.length);
 		assertThat(configurer).contains(beanNames);

@@ -33,15 +33,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the contract and functionality of GemFire 8 {@link GatewaySender}
- * and {@link GatewayReceiver} support.
+ * Integration Tests testing GemFire 8 {@link GatewaySender} and {@link GatewayReceiver} configuration
+ * using SDG XML namespace configuration metadata.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.wan.GatewayReceiver
  * @see org.apache.geode.cache.wan.GatewaySender
- * @see org.apache.geode.cache.wan.GatewayEventSubstitutionFilter
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean
  * @see org.springframework.data.gemfire.wan.GatewaySenderFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner

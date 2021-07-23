@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.cache.config.EnableGemfireCaching;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,6 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.cache.config.EnableGemfireCaching
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.3.0
@@ -62,9 +64,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class CacheErrorHandlerIntegrationTests {
-
-	private static final String GEMFIRE_LOG_LEVEL = "error";
+public class CacheErrorHandlerIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ClientCache clientCache;
@@ -92,10 +92,10 @@ public class CacheErrorHandlerIntegrationTests {
 		assertThat(this.cacheableService.processCacheableOperation("one")).isEqualTo("TEST");
 	}
 
-	@ClientCacheApplication(logLevel = GEMFIRE_LOG_LEVEL)
+	@ClientCacheApplication
 	@EnableCachingDefinedRegions
 	@EnableGemfireCaching
-	static class GeodeClientConfiguration extends CachingConfigurerSupport {
+	static class GeodeClientTestConfiguration extends CachingConfigurerSupport {
 
 		@Nullable @Override
 		public CacheErrorHandler errorHandler() {

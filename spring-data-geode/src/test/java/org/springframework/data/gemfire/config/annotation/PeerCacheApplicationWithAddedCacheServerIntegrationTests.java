@@ -45,6 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.server.CacheServer
+ * @see org.apache.geode.distributed.Locator
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -53,7 +54,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = PeerCacheApplicationWithAddedCacheServerIntegrationTests.TestPeerCacheConfiguration.class)
 @SuppressWarnings("unused")
-// TODO: Convert to Unit Test once STDG is used by SDG.
 public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
 		extends ForkingClientServerIntegrationTestsSupport {
 
@@ -132,7 +132,7 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
 	}
 
 	@EnableCacheServer
-	@PeerCacheApplication(name = "PeerCacheApplicationWithAddedCacheServerIntegrationTests")
+	@PeerCacheApplication
 	static class TestPeerCacheConfiguration { }
 
 }

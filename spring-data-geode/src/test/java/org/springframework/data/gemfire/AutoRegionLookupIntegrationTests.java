@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Region;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests to test the contract and functionality of Spring Data GemFire's Auto Region Lookup functionality.
+ * Integration Tests for SDG Auto {@link Region} Lookup functionality.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.5.0
@@ -39,19 +42,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class AutoRegionLookupIntegrationTests {
+public class AutoRegionLookupIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	@Test
 	public void testAutoRegionLookup() {
-		assertTrue(applicationContext.containsBean("SpringPartitionedRegion"));
-		assertTrue(applicationContext.containsBean("SpringReplicateParent"));
-		assertTrue(applicationContext.containsBean("/SpringReplicateParent/SpringReplicateChild"));
-		assertTrue(applicationContext.containsBean("NativePartitionedRegion"));
-		assertTrue(applicationContext.containsBean("NativeReplicateParent"));
-		assertTrue(applicationContext.containsBean("/NativeReplicateParent/NativeReplicateChild"));
-		assertTrue(applicationContext.containsBean("/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild"));
+
+		assertThat(this.applicationContext.containsBean("SpringPartitionedRegion")).isTrue();
+		assertThat(this.applicationContext.containsBean("SpringReplicateParent")).isTrue();
+		assertThat(this.applicationContext.containsBean("/SpringReplicateParent/SpringReplicateChild")).isTrue();
+		assertThat(this.applicationContext.containsBean("NativePartitionedRegion")).isTrue();
+		assertThat(this.applicationContext.containsBean("NativeReplicateParent")).isTrue();
+		assertThat(this.applicationContext.containsBean("/NativeReplicateParent/NativeReplicateChild")).isTrue();
+		assertThat(this.applicationContext.containsBean("/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild")).isTrue();
 	}
 }

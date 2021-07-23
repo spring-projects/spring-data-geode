@@ -92,6 +92,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.create\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionCreate",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -106,6 +107,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.create\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionCreateWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -119,6 +121,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.get\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionGet",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -132,6 +135,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.getAll\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionGetAll",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -146,6 +150,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.getAll\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionGetAllWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -159,6 +164,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.getEntry\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionGetEntry",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -172,6 +178,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.invalidate\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionInvalidate",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -185,6 +192,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.invalidate\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionInvalidateWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -198,6 +206,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.keySet\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionKeySet",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -211,6 +220,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.keySetOnServer\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionKeySetOnServer",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -224,6 +234,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.localClear\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionLocalClear",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -237,6 +248,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.localDestroy\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionLocalDestroy",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -250,6 +262,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.localDestroy\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionLocalDestroyWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -263,6 +276,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.localInvalidate\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionLocalInvalidate",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -276,6 +290,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.localInvalidate\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionLocalInvalidateWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -289,6 +304,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.put\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionPut",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -302,6 +318,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.put\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionPutWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -315,6 +332,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.putAll\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionPutAll",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -328,6 +346,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.putAll\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionPutAllWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -341,6 +360,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.putIfAbsent\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionPutIfAbsent",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -354,6 +374,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.query\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionQuery",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -367,6 +388,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.remove\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionRemoveWithKey",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -380,6 +402,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.remove\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionRemoveWithKeyAndValue",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -393,6 +416,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.removeAll\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionRemoveAll",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -407,6 +431,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.removeAll\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionRemoveAllWithCallbackArgument",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -420,6 +445,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.replace\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionReplace",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -433,6 +459,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.replace\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionReplaceWithKeyOldValueNewValue",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -446,6 +473,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.selectValue\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionSelectValue",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -459,6 +487,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.size\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionSize",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -472,6 +501,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.sizeOnServer\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionSizeOnServer",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -485,6 +515,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 		assertThat(logMessage)
 			.containsPattern("Region data access call \\[org.apache.geode.cache.Region.*.values\\(..\\)\\] with stack trace");
+
 		assertThat(logMessage).contains(String.format("%s.logsRegionValues",
 			RegionDataAccessTracingAspectUnitTests.class.getName()));
 	}
@@ -514,6 +545,5 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 
 			return clientRegion;
 		}
-
 	}
 }

@@ -22,39 +22,42 @@ import javax.annotation.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.cache.GemfireCacheManager;
-import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
+import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
+import org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
 /**
- * Integration tests for {@link EnableGemfireCaching} and {@link GemfireCachingConfiguration}.
+ * Integration Tests for {@link EnableGemfireCaching} and {@link GemfireCachingConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
- * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.cache.annotation.Cacheable
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.data.gemfire.cache.config.EnableGemfireCaching
  * @see org.springframework.data.gemfire.cache.config.GemfireCachingConfiguration
- * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
+ * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-public class EnableGemfireCachingIntegrationTests {
+@SuppressWarnings("unused")
+public class EnableGemfireCachingIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private CalculatorService calculator;
@@ -130,26 +133,16 @@ public class EnableGemfireCachingIntegrationTests {
 		}
 	}
 
+	@ClientCacheApplication
+	@EnableCachingDefinedRegions
 	@EnableGemfireCaching
-	@PeerCacheApplication(name = "EnableGemfireCachingIntegrationTests", logLevel = "warning")
+	@EnableGemFireMockObjects
 	@SuppressWarnings("unused")
 	static class TestConfiguration {
 
 		@Bean
 		CalculatorService calculatorService() {
 			return new CalculatorService();
-		}
-
-		@Bean("Factorials")
-		LocalRegionFactoryBean<Long, Long> factorialsRegion(GemFireCache gemfireCache) {
-
-			LocalRegionFactoryBean<Long, Long> factorials = new LocalRegionFactoryBean<>();
-
-			factorials.setCache(gemfireCache);
-			factorials.setClose(false);
-			factorials.setPersistent(false);
-
-			return factorials;
 		}
 	}
 }

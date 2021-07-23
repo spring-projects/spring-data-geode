@@ -40,6 +40,7 @@ import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.data.gemfire.repository.sample.Customer;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.support.PersistentEntityInformation;
 import org.springframework.test.context.ContextConfiguration;
@@ -64,7 +65,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class SimpleGemfireRepositoryTransactionalIntegrationTest {
+public class SimpleGemfireRepositoryTransactionalIntegrationTest extends IntegrationTestsSupport {
 
 	// TODO add additional test cases for SimpleGemfireRepository (Region operations) in the presence of Transactions!!!
 

@@ -30,6 +30,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.transaction.event.TransactionApplicationEvent;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -50,12 +51,13 @@ import lombok.ToString;
  * @see org.springframework.context.ApplicationEventPublisher
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.transaction.event.TransactionApplicationEvent
  * @see org.springframework.transaction.annotation.Transactional
  * @since 2.3.0
  */
 @SuppressWarnings("unused")
-public abstract class AbstractTransactionalEventListenerIntegrationTests {
+public abstract class AbstractTransactionalEventListenerIntegrationTests extends IntegrationTestsSupport {
 
 	protected static final String GEMFIRE_LOG_LEVEL = "error";
 

@@ -22,9 +22,7 @@ import static org.mockito.Mockito.spy;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.ClusterSchemaObjectInitializer;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.SchemaObjectContext;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,12 +41,12 @@ import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdmin
 import org.springframework.data.gemfire.config.support.RestTemplateConfigurer;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.util.ReflectionUtils;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -107,23 +105,6 @@ public class ClusterConfigurationWithClientHttpRequestInterceptorsIntegrationTes
 	@Qualifier("testRestTemplateConfigurerTwo")
 	private RestTemplateConfigurer restTemplateConfigurerTwo;
 
-	// TODO: Replace with STDG
-	@SuppressWarnings("unchecked")
-	private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
-
-		Field field = ReflectionUtils.findField(target.getClass(), fieldName);
-
-		return Optional.ofNullable(field)
-			.map(it -> {
-				ReflectionUtils.makeAccessible(it);
-				return field;
-			})
-			.map(it -> (T) ReflectionUtils.getField(it, target))
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field with name [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
-	}
-
 	@Before
 	public void setupIsCorrect() {
 
@@ -158,7 +139,7 @@ public class ClusterConfigurationWithClientHttpRequestInterceptorsIntegrationTes
 
 		RestHttpGemfireAdminTemplate template = schemaObjectContext.getGemfireAdminOperations();
 
-		this.theRestTemplate = getFieldValue(template, "restTemplate");
+		this.theRestTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(this.theRestTemplate).isNotNull();
 	}

@@ -53,6 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
@@ -80,7 +81,7 @@ import org.springframework.util.Assert;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @ContextConfiguration
 @SuppressWarnings("all")
-public class DurableClientCacheIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
+public class DurableClientCacheIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	private static final boolean DEBUG = true;
 
@@ -90,19 +91,20 @@ public class DurableClientCacheIntegrationTest extends ForkingClientServerIntegr
 		Collections.synchronizedList(new ArrayList<Integer>());
 
 	private static final String CACHE_SERVER_PORT =
-		DurableClientCacheIntegrationTest.class.getName().concat(".cache-server-port");
+		DurableClientCacheIntegrationTests.class.getName().concat(".cache-server-port");
 
 	private static final String CLIENT_CACHE_INTERESTS_RESULT_POLICY =
-		DurableClientCacheIntegrationTest.class.getName().concat(".interests-result-policy");
+		DurableClientCacheIntegrationTests.class.getName().concat(".interests-result-policy");
 
 	private static final String DURABLE_CLIENT_TIMEOUT =
-		DurableClientCacheIntegrationTest.class.getName().concat(".durable-client-timeout");
+		DurableClientCacheIntegrationTests.class.getName().concat(".durable-client-timeout");
 
 	private static final String SERVER_HOST = "localhost";
 
 	@BeforeClass
-	public static void startGemFireServer() throws IOException {
-		startGemFireServer(DurableClientCacheIntegrationTest.class);
+	public static void startGeodeServer() throws IOException {
+		startGemFireServer(ServerProcess.class,
+			getServerContextXmlFileLocation(DurableClientCacheIntegrationTests.class));
 	}
 
 	private static boolean isAfterDirtiesContext() {
@@ -138,7 +140,7 @@ public class DurableClientCacheIntegrationTest extends ForkingClientServerIntegr
 		assertThat(distributedSystemProperties).isNotNull();
 
 		assertThat(distributedSystemProperties.getProperty(DistributedSystemUtils.DURABLE_CLIENT_ID_PROPERTY_NAME))
-			.isEqualTo(DurableClientCacheIntegrationTest.class.getSimpleName());
+			.isEqualTo(DurableClientCacheIntegrationTests.class.getSimpleName());
 
 		assertThat(distributedSystemProperties.getProperty(DistributedSystemUtils.DURABLE_CLIENT_TIMEOUT_PROPERTY_NAME))
 			.isEqualTo(valueBeforeAndAfterDirtiesContext("300", "600"));

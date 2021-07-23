@@ -15,8 +15,7 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -35,8 +34,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the use of Eviction configuration settings (EvictionAttributes)
- * in the SDG XML namespace configuration metadata.
+ * Integration Tests for Apache Geode {@link Region} Eviction configuration settings ({@link EvictionAttributes})
+ * using SDG XML namespace configuration metadata.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -74,65 +73,63 @@ public class RegionEvictionAttributesNamespaceIntegrationTests extends Integrati
 	@Test
 	public void testEntryCountRegionEvictionAttributes() {
 
-		assertNotNull(one);
-		assertNotNull(one.getAttributes());
-		assertEquals(DataPolicy.REPLICATE, one.getAttributes().getDataPolicy());
-		assertNotNull(one.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, one.getAttributes().getEvictionAttributes().getAction());
-		assertEquals(EvictionAlgorithm.LRU_ENTRY, one.getAttributes().getEvictionAttributes().getAlgorithm());
-		assertEquals(4096, one.getAttributes().getEvictionAttributes().getMaximum());
+		assertThat(one).isNotNull();
+		assertThat(one.getAttributes()).isNotNull();
+		assertThat(one.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(one.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(one.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(one.getAttributes().getEvictionAttributes().getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_ENTRY);
+		assertThat(one.getAttributes().getEvictionAttributes().getMaximum()).isEqualTo(4096);
 
-		assertNotNull(two);
-		assertNotNull(two.getAttributes());
-		assertEquals(DataPolicy.PARTITION, two.getAttributes().getDataPolicy());
-		assertNotNull(two.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.LOCAL_DESTROY, two.getAttributes().getEvictionAttributes().getAction());
-		assertEquals(EvictionAlgorithm.LRU_ENTRY, two.getAttributes().getEvictionAttributes().getAlgorithm());
-
-		assertEquals(EvictionAttributes.DEFAULT_ENTRIES_MAXIMUM,
-			two.getAttributes().getEvictionAttributes().getMaximum());
+		assertThat(two).isNotNull();
+		assertThat(two.getAttributes()).isNotNull();
+		assertThat(two.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
+		assertThat(two.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(two.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.LOCAL_DESTROY);
+		assertThat(two.getAttributes().getEvictionAttributes().getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_ENTRY);
+		assertThat(two.getAttributes().getEvictionAttributes().getMaximum()).isEqualTo(EvictionAttributes.DEFAULT_ENTRIES_MAXIMUM);
 	}
 
 	@Test
 	public void testHeapPercentageRegionEvictionAttributes() {
 
-		assertNotNull(three);
-		assertNotNull(three.getAttributes());
-		assertEquals(DataPolicy.REPLICATE, three.getAttributes().getDataPolicy());
-		assertNotNull(three.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, three.getAttributes().getEvictionAttributes().getAction());
-		assertEquals(EvictionAlgorithm.LRU_HEAP, three.getAttributes().getEvictionAttributes().getAlgorithm());
+		assertThat(three).isNotNull();
+		assertThat(three.getAttributes()).isNotNull();
+		assertThat(three.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(three.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(three.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(three.getAttributes().getEvictionAttributes().getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_HEAP);
 
-		assertNotNull(four);
-		assertNotNull(four.getAttributes());
-		assertEquals(DataPolicy.PARTITION, four.getAttributes().getDataPolicy());
-		assertNotNull(four.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, four.getAttributes().getEvictionAttributes().getAction());
-		assertEquals(EvictionAlgorithm.LRU_HEAP, three.getAttributes().getEvictionAttributes().getAlgorithm());
-		assertEquals(0, four.getAttributes().getEvictionAttributes().getMaximum());
+		assertThat(four).isNotNull();
+		assertThat(four.getAttributes()).isNotNull();
+		assertThat(four.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
+		assertThat(four.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(four.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(three.getAttributes().getEvictionAttributes().getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_HEAP);
+		assertThat(four.getAttributes().getEvictionAttributes().getMaximum()).isEqualTo(0);
 	}
 
 	@Test
 	public void testMemorySizeRegionEvictionAttributes() {
 
-		assertNotNull(five);
-		assertNotNull(five.getAttributes());
-		assertEquals(DataPolicy.REPLICATE, five.getAttributes().getDataPolicy());
-		assertNotNull(five.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, five.getAttributes().getEvictionAttributes().getAction());
-		assertEquals(EvictionAlgorithm.LRU_MEMORY, five.getAttributes().getEvictionAttributes().getAlgorithm());
-		assertEquals(128, five.getAttributes().getEvictionAttributes().getMaximum());
+		assertThat(five).isNotNull();
+		assertThat(five.getAttributes()).isNotNull();
+		assertThat(five.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
+		assertThat(five.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(five.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(five.getAttributes().getEvictionAttributes().getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_MEMORY);
+		assertThat(five.getAttributes().getEvictionAttributes().getMaximum()).isEqualTo(128);
 
-		assertNotNull(six);
-		assertNotNull(six.getAttributes());
-		assertEquals(DataPolicy.PARTITION, six.getAttributes().getDataPolicy());
-		assertNotNull(six.getAttributes().getEvictionAttributes());
-		assertEquals(EvictionAction.OVERFLOW_TO_DISK, six.getAttributes().getEvictionAttributes().getAction());
-		assertEquals(EvictionAlgorithm.LRU_MEMORY, six.getAttributes().getEvictionAttributes().getAlgorithm());
+		assertThat(six).isNotNull();
+		assertThat(six.getAttributes()).isNotNull();
+		assertThat(six.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
+		assertThat(six.getAttributes().getEvictionAttributes()).isNotNull();
+		assertThat(six.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
+		assertThat(six.getAttributes().getEvictionAttributes().getAlgorithm()).isEqualTo(EvictionAlgorithm.LRU_MEMORY);
 
-		int expectedMaximum =
-			Boolean.getBoolean("org.springframework.data.gemfire.test.GemfireTestRunner.nomock") ? 512 : 256;
+		int expectedMaximum = Boolean.getBoolean("org.springframework.data.gemfire.test.GemfireTestRunner.nomock")
+			? 512 : 256;
 
-		assertEquals(expectedMaximum, six.getAttributes().getEvictionAttributes().getMaximum());
+		assertThat(six.getAttributes().getEvictionAttributes().getMaximum()).isEqualTo(expectedMaximum);
 	}
 }

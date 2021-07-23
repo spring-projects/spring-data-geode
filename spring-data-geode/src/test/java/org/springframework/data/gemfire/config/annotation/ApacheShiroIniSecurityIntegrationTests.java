@@ -31,8 +31,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Integration tests for Apache Geode Integrated Security using an Apache Shiro INI security configuration resource.
  *
  * @author John Blum
+ * @see org.junit.Test
  * @see org.springframework.data.gemfire.config.annotation.AbstractGeodeSecurityIntegrationTests
- * @since 1.0.0
+ * @see org.springframework.test.context.ActiveProfiles
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
+ * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
@@ -42,7 +46,7 @@ public class ApacheShiroIniSecurityIntegrationTests extends AbstractGeodeSecurit
 	protected static final String SHIRO_INI_CONFIGURATION_PROFILE = "shiro-ini-configuration";
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void startGeodeServer() throws IOException {
 		runGeodeServer(SHIRO_INI_CONFIGURATION_PROFILE);
 	}
 

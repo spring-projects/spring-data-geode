@@ -42,6 +42,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author David Turanski
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.fork.ServerProcess
+ * @see org.springframework.data.gemfire.client.GemfireDataSourcePostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
@@ -50,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class GemFireDataSourceIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
-	public static void startGemFireServer() throws Exception {
+	public static void startGeodeServer() throws Exception {
 		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(GemFireDataSourceIntegrationTests.class));
 	}

@@ -73,6 +73,7 @@ import org.springframework.web.client.RestTemplate;
  * @see org.springframework.core.env.ConfigurableEnvironment
  * @see org.springframework.core.env.PropertiesPropertySource
  * @see org.springframework.data.gemfire.config.admin.GemfireAdminOperations
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.http.client.ClientHttpRequestInterceptor
  * @see org.springframework.http.client.InterceptingClientHttpRequestFactory

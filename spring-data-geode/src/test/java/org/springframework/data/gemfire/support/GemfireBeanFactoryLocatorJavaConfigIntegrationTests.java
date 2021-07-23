@@ -60,6 +60,7 @@ public class GemfireBeanFactoryLocatorJavaConfigIntegrationTests extends Integra
 
 	@Test
 	public void beanFactoryContainsTestBeanFactoryLocatorBean() {
+
 		assertThat(beanFactory.containsBean("testBeanFactoryLocator")).isTrue();
 
 		GemfireBeanFactoryLocator testBeanFactoryLocator = beanFactory.getBean("testBeanFactoryLocator",
@@ -76,6 +77,7 @@ public class GemfireBeanFactoryLocatorJavaConfigIntegrationTests extends Integra
 
 	@Test
 	public void registeredBeanFactoriesIsCorrect() {
+
 		Set<String> beanNames = asSet("gemfireCache", "testBeanFactoryLocator", "aliasOne", "aliasTwo");
 
 		assertThat(GemfireBeanFactoryLocator.BEAN_FACTORIES).hasSameSizeAs(beanNames);

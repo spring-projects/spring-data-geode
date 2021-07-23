@@ -13,39 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
-import static org.junit.Assert.assertEquals;
-
-import org.apache.geode.cache.Cache;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Cache;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration test trying various basic configurations of GemFire through
- * Spring.
- *
- * Made abstract to avoid multiple caches running at the same time.
+ * Integration Tests trying various basic configurations of Apache Geode caches with Spring.
  *
  * @author Costin Leau
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.Cache
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "basic-cache.xml")
-public class CacheIntegrationTest {
+public class CacheIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
-	ApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
-	Cache cache;
+	private Cache cache;
 
 	@After
 	public void tearDown() {
@@ -53,30 +55,30 @@ public class CacheIntegrationTest {
 	}
 
 	@Test
-	public void testBasicCache() throws Exception {
-		cache = applicationContext.getBean("default-cache",Cache.class);
+	public void testBasicCache() {
+		this.cache = this.applicationContext.getBean("default-cache",Cache.class);
 	}
 
 	@Test
-	public void testCacheWithProps() throws Exception {
+	public void testCacheWithProps() {
 		cache = applicationContext.getBean("cache-with-props", Cache.class);
 
 		// the name property seems to be ignored
-		assertEquals("cache-with-props", cache.getDistributedSystem().getName());
-		assertEquals("cache-with-props", cache.getName());
+		assertThat(cache.getDistributedSystem().getName()).isEqualTo("cache-with-props");
+		assertThat(cache.getName()).isEqualTo("cache-with-props");
 	}
 
 	@Test
-	public void testNamedCache() throws Exception {
+	public void testNamedCache() {
 
-		cache = applicationContext.getBean("named-cache", Cache.class);
+		this.cache = this.applicationContext.getBean("named-cache", Cache.class);
 
-		assertEquals("named-cache", cache.getDistributedSystem().getName());
-		assertEquals("named-cache", cache.getName());
+		assertThat(cache.getDistributedSystem().getName()).isEqualTo("named-cache");
+		assertThat(cache.getName()).isEqualTo("named-cache");
 	}
 
 	@Test
-	public void testCacheWithXml() throws Exception {
-		applicationContext.getBean("cache-with-xml", Cache.class);
+	public void testCacheWithXml() {
+		this.applicationContext.getBean("cache-with-xml", Cache.class);
 	}
 }

@@ -16,7 +16,7 @@
 	<util:properties id="serverProperties">
 		<prop key="gemfire.cache.server.host">localhost</prop>
 		<prop key="gemfire.cache.server.port">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest.cache-server-port}
+			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.cache-server-port}
 		</prop>
 	</util:properties>
 
@@ -45,7 +45,7 @@
 		<entry key="three" value="3"/>
 	</util:map>
 
-	<bean class="org.springframework.data.gemfire.client.DurableClientCacheIntegrationTest$RegionDataLoadingBeanPostProcessor"
+	<bean class="org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests$RegionDataLoadingBeanPostProcessor"
 		  c:regionName="Example" p:regionData-ref="exampleRegionData"/>
 
 </beans>

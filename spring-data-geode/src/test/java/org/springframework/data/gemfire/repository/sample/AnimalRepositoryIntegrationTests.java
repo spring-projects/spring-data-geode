@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.sample;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,17 +23,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration test testing the functionality behind PR #55 involving persisting application domain object/entities
- * to multiple Regions in a GemFire Cache.
+ * Integration Tests testing the functionality behind PR #55 involving persisting application domain object/entities
+ * to multiple Regions in an Apache Geode cache.
  *
  * @author Stuart Williams
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.repository.GemfireRepository
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @link https://github.com/spring-projects/spring-data-gemfire/pull/55
@@ -43,7 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class AnimalRepositoryTest {
+public class AnimalRepositoryIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private CatRepository catRepo;
@@ -52,14 +54,18 @@ public class AnimalRepositoryTest {
 	private DogRepository dogRepo;
 
 	protected static Animal newAnimal(long id, String name) {
+
 		Animal animal = new Animal();
+
 		animal.setId(id);
 		animal.setName(name);
+
 		return animal;
 	}
 
 	@Test
 	public void entityStoredInMultipleRegionsIsSuccessful() {
+
 		Animal felix = newAnimal(1, "Felix");
 		Animal leo = newAnimal(2, "Leo");
 		Animal cerberus = newAnimal(3, "Cerberus");

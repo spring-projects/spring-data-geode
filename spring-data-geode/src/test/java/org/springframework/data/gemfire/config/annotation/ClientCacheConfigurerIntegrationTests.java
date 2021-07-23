@@ -59,8 +59,6 @@ public class ClientCacheConfigurerIntegrationTests extends IntegrationTestsSuppo
 
 	private static final AtomicBoolean testClientCacheConfigurerThreeCalled = new AtomicBoolean(false);
 
-	private static final String GEMFIRE_LOG_LEVEL = "error";
-
 	@Autowired
 	private ClientCache clientCache;
 
@@ -100,8 +98,8 @@ public class ClientCacheConfigurerIntegrationTests extends IntegrationTestsSuppo
 		assertThat(testClientCacheConfigurerThreeCalled.get()).isTrue();
 	}
 
+	@ClientCacheApplication
 	@EnableGemFireMockObjects
-	@ClientCacheApplication(logLevel = GEMFIRE_LOG_LEVEL)
 	static class TestConfiguration {
 
 		@Bean

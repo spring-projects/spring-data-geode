@@ -16,9 +16,7 @@
  */
 package org.springframework.data.gemfire.client;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -31,6 +29,7 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 
+import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,8 +54,9 @@ import org.springframework.util.Assert;
 public class ClientCachePoolIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
-	public static void setupGemFireServer() throws Exception {
-		startGemFireServer(ClientCachePoolIntegrationTests.class);
+	public static void startGeodeServer() throws Exception {
+		startGemFireServer(ServerProcess.class,
+			getServerContextXmlFileLocation(ClientCachePoolIntegrationTests.class));
 	}
 
 	@Resource(name = "Factorials")
@@ -65,16 +65,16 @@ public class ClientCachePoolIntegrationTests extends ForkingClientServerIntegrat
 	@Test
 	public void computeFactorials() {
 
-		assertThat(factorials.get(0l), is(equalTo(1l)));
-		assertThat(factorials.get(1l), is(equalTo(1l)));
-		assertThat(factorials.get(2l), is(equalTo(2l)));
-		assertThat(factorials.get(3l), is(equalTo(6l)));
-		assertThat(factorials.get(4l), is(equalTo(24l)));
-		assertThat(factorials.get(5l), is(equalTo(120l)));
-		assertThat(factorials.get(6l), is(equalTo(720l)));
-		assertThat(factorials.get(7l), is(equalTo(5040l)));
-		assertThat(factorials.get(8l), is(equalTo(40320l)));
-		assertThat(factorials.get(9l), is(equalTo(362880l)));
+		assertThat(factorials.get(0l)).isEqualTo(1l);
+		assertThat(factorials.get(1l)).isEqualTo(1l);
+		assertThat(factorials.get(2l)).isEqualTo(2l);
+		assertThat(factorials.get(3l)).isEqualTo(6l);
+		assertThat(factorials.get(4l)).isEqualTo(24l);
+		assertThat(factorials.get(5l)).isEqualTo(120l);
+		assertThat(factorials.get(6l)).isEqualTo(720l);
+		assertThat(factorials.get(7l)).isEqualTo(5040l);
+		assertThat(factorials.get(8l)).isEqualTo(40320l);
+		assertThat(factorials.get(9l)).isEqualTo(362880l);
 	}
 
 	public static class FactorialsClassLoader implements CacheLoader<Long, Long> {

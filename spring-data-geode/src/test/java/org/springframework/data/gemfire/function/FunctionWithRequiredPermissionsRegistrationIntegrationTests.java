@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.security.ResourcePermission;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.config.EnableGemfireFunctions;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -44,21 +44,23 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
  * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctions
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-@SuppressWarnings({ "unchecked", "unused" })
-public class FunctionWithRequiredPermissionsRegistrationIntegrationTests {
+@SuppressWarnings("unused")
+public class FunctionWithRequiredPermissionsRegistrationIntegrationTests extends IntegrationTestsSupport {
 
 	@Test
 	public void functionsRegisteredWithRequiredPermissionsSuccessfully() {
 
-		Function function = FunctionService.getFunction("testFunctionWithRequiredPermissions");
+		Function<?> function = FunctionService.getFunction("testFunctionWithRequiredPermissions");
 
 		assertThat(function).isNotNull();
+
 		assertThat(function.getRequiredPermissions("test")).containsExactly(
 			new ResourcePermission(ResourcePermission.Resource.CLUSTER, ResourcePermission.Operation.MANAGE),
 			new ResourcePermission(ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ, "Example")

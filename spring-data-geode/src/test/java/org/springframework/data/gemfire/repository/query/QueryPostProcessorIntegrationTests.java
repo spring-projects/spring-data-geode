@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,12 +22,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.geode.cache.GemFireCache;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,21 +39,28 @@ import org.springframework.data.gemfire.repository.sample.PersonRepository;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.repository.sample.UserRepository;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The QueryPostProcessorIntegrationTests class...
+ * Integration Tests for {@link QueryPostProcessor}.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.junit.Test
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.springframework.data.gemfire.repository.query.QueryPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
+ * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class QueryPostProcessorIntegrationTests {
+public class QueryPostProcessorIntegrationTests extends IntegrationTestsSupport {
 
 	private static final AtomicLong idSequence = new AtomicLong(0L);
 
@@ -212,6 +218,7 @@ public class QueryPostProcessorIntegrationTests {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	static class RecordingQueryPostProcessor implements QueryPostProcessor<Repository, String> {
 
 		List<String> queries = new CopyOnWriteArrayList<>();

@@ -55,6 +55,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see java.util.regex.Pattern
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
+ * @see org.springframework.context.ApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.EntityDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
@@ -113,6 +114,6 @@ public class EnableEntityDefinedRegionsWithRegexFilterIntegrationTests extends I
 		clientRegionShortcut = ClientRegionShortcut.LOCAL,
 		includeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*Programmer")
 	)
-	static class TestGeodeConfiguration { }
+	static class TestConfiguration { }
 
 }

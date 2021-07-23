@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.sample;
 
 import static org.junit.Assert.assertEquals;
@@ -23,23 +22,26 @@ import static org.junit.Assert.assertTrue;
 
 import javax.annotation.Resource;
 
-import org.apache.geode.cache.Region;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Region;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The AlgorithmRepositoryTest class is a test suite of test cases testing the contract and functionality of GemFire's
- * Repository extension when using a plain old Java interface for defining the application domain object/entity type,
- * rather than a Java class, that is the subject of the persistence operations.
+ * The AlgorithmRepositoryIntegrationTests class is a test suite of test cases testing the contract and functionality of
+ * GemFire's Repository extension when using a plain old Java interface for defining the application domain object
+ * /entity type, rather than a Java class, that is the subject of the persistence operations.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.repository.GemfireRepository
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.4.0
@@ -47,16 +49,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class AlgorithmRepositoryTest {
+public class AlgorithmRepositoryIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private AlgorithmRepository algorithmRepo;
 
 	@Resource(name = "Algorithms")
-	private Region algorithmsRegion;
+	private Region<?, ?> algorithmsRegion;
 
 	@Test
 	public void algorithmsRepositoryFunctionsCorrectly() {
+
 		assertNotNull("A reference to the AlgorithmRepository was not properly configured!", algorithmRepo);
 		assertNotNull("A reference to the 'Algorithms' GemFire Cache Region was not properly configured!",
 			algorithmsRegion);
@@ -92,9 +95,8 @@ public class AlgorithmRepositoryTest {
 		}
 	}
 
-	protected static final class BinarySearch extends AbstractAlgorithm {
-	}
+	protected static final class BinarySearch extends AbstractAlgorithm { }
 
-	protected static final class HeapSort extends AbstractAlgorithm {
-	}
+	protected static final class HeapSort extends AbstractAlgorithm { }
+
 }

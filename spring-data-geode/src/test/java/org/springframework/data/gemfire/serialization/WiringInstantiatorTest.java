@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.serialization;
 
 import static org.junit.Assert.assertEquals;
@@ -29,24 +28,32 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.util.List;
 
-import org.apache.geode.DataSerializable;
-import org.apache.geode.Instantiator;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.DataSerializable;
+import org.apache.geode.Instantiator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Costin Leau
+ * @author John Blum
+ *
+ * @see org.junit.Test
+ * @see org.apache.geode.Instantiator
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration("simple-config.xml")
 @SuppressWarnings("unused")
-public class WiringInstantiatorTest {
+public class WiringInstantiatorTest extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -55,7 +62,6 @@ public class WiringInstantiatorTest {
 	private WiringInstantiator instantiator;
 
 
-	@SuppressWarnings("serial")
 	public static class AnnotatedBean implements DataSerializable {
 
 		@Autowired
@@ -73,7 +79,6 @@ public class WiringInstantiatorTest {
 
 	}
 
-	@SuppressWarnings("serial")
 	public static class TemplateWiringBean implements DataSerializable {
 
 		Beans beans;
@@ -89,7 +94,6 @@ public class WiringInstantiatorTest {
 
 	}
 
-	@SuppressWarnings("serial")
 	public static class TypeA implements DataSerializable {
 
 		public void fromData(DataInput arg0) { }
@@ -98,7 +102,6 @@ public class WiringInstantiatorTest {
 
 	}
 
-	@SuppressWarnings("serial")
 	public static class TypeB implements DataSerializable {
 
 		public void fromData(DataInput arg0) { }

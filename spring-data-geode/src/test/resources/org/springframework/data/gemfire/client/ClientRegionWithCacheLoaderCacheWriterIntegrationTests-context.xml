@@ -16,8 +16,8 @@
 
 	<gfe:client-cache properties-ref="gemfireProperties"/>
 
-	<bean id="localCacheLoader" class="org.springframework.data.gemfire.client.ClientRegionWithCacheLoaderWriterTest$LocalAppDataCacheLoader"/>
-	<bean id="localCacheWriter" class="org.springframework.data.gemfire.client.ClientRegionWithCacheLoaderWriterTest$LocalAppDataCacheWriter"/>
+	<bean id="localCacheLoader" class="org.springframework.data.gemfire.client.ClientRegionWithCacheLoaderCacheWriterIntegrationTests$LocalAppDataCacheLoader"/>
+	<bean id="localCacheWriter" class="org.springframework.data.gemfire.client.ClientRegionWithCacheLoaderCacheWriterIntegrationTests$LocalAppDataCacheWriter"/>
 
 	<gfe:client-region id="localAppDataRegion" name="LocalAppData" shortcut="LOCAL">
 		<gfe:cache-loader>

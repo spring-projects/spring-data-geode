@@ -42,11 +42,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileSystemUtils;
 
 /**
- * Integration Tests with test cases testing the use of variable "servers" attribute on &lt;gfe:pool/&lt;
- * in SDG XML namespace configuration metadata when connecting a client/server.
+ * Integration Tests with test cases testing the use of variable {@literal servers} attribute
+ * on &lt;gfe:pool/&lt; in SDG XML namespace configuration metadata when connecting a client/server.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.fork.ServerProcess
+ * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.6.3
@@ -61,9 +64,10 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 
 		List<String> arguments = new ArrayList<String>();
 
-		arguments.add(String.format("-Dgemfire.name=%1$s", ClientCacheVariableServersIntegrationTests.class.getSimpleName().concat("Server")));
-		arguments.add("/".concat(ClientCacheVariableServersIntegrationTests.class.getName().replace(".", "/")
-			.concat("-server-context.xml")));
+		arguments.add(String.format("-Dgemfire.name=%1$s",
+			ClientCacheVariableServersIntegrationTests.class.getSimpleName().concat("Server")));
+
+		arguments.add(getServerContextXmlFileLocation(ClientCacheVariableServersIntegrationTests.class));
 
 		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
 	}

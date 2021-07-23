@@ -34,19 +34,21 @@ import org.springframework.data.gemfire.IndexType;
 import org.springframework.data.gemfire.mapping.annotation.Indexed;
 import org.springframework.data.gemfire.test.model.Book;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for {@link EnableIndexing} and the {@link Indexed} annotation.
+ * Integration Tests for {@link EnableIndexing}, {@link IndexConfiguration} and the {@link Indexed} annotation.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.query.Index
  * @see org.springframework.data.gemfire.config.annotation.EnableIndexing
+ * @see org.springframework.data.gemfire.config.annotation.IndexConfiguration
  * @see org.springframework.data.gemfire.mapping.annotation.Indexed
- * @see org.springframework.data.gemfire.test.model.Person
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.3
@@ -54,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class EnableOqlIndexingConfigurationIntegrationTests {
+public class EnableOqlIndexingConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "People")
 	private Region<Long, Person> people;
@@ -95,7 +97,7 @@ public class EnableOqlIndexingConfigurationIntegrationTests {
 			"lastName", "/People", IndexType.FUNCTIONAL);
 	}
 
-	@ClientCacheApplication(logLevel = "none")
+	@ClientCacheApplication
 	@EnableEntityDefinedRegions(
 		basePackageClasses = Person.class,
 		clientRegionShortcut = ClientRegionShortcut.LOCAL,

@@ -190,19 +190,25 @@ public class SpELExpressionConfiguredPoolsIntegrationTests extends IntegrationTe
 	}
 
 	public static class AnotherServerPoolFactoryBean extends TestPoolFactoryBean {
-		@Override ConnectionEndpointList getServerList() {
+
+		@Override
+		ConnectionEndpointList getServerList() {
 			return anotherServers;
 		}
 	}
 
 	public static class LocatorPoolFactoryBean extends TestPoolFactoryBean {
-		@Override ConnectionEndpointList getLocatorList() {
+
+		@Override
+		ConnectionEndpointList getLocatorList() {
 			return locators;
 		}
 	}
 
 	public static class ServerPoolFactoryBean extends TestPoolFactoryBean {
-		@Override ConnectionEndpointList getServerList() {
+
+		@Override
+		ConnectionEndpointList getServerList() {
 			return servers;
 		}
 	}

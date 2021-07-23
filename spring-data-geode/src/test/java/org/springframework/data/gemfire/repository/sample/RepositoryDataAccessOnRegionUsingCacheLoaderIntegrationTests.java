@@ -40,6 +40,7 @@ import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.repository.Repository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,6 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.repository.Repository
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -63,7 +65,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class RepositoryDataAccessOnRegionUsingCacheLoaderIntegrationTests {
+public class RepositoryDataAccessOnRegionUsingCacheLoaderIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private PersonRepository personRepository;
@@ -106,7 +108,7 @@ public class RepositoryDataAccessOnRegionUsingCacheLoaderIntegrationTests {
 		assertThat(people).isEmpty();
 	}
 
-	@ClientCacheApplication(name = "RepositoryDataAccessOnRegionUsingCacheLoaderIntegrationTests")
+	@ClientCacheApplication
 	static class TestConfiguration {
 
 		@Bean("simple")

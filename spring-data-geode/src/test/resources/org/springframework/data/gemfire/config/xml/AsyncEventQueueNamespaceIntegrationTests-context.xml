@@ -12,7 +12,7 @@
 	   	http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<bean class="org.springframework.data.gemfire.test.mock.config.GemFireMockObjectsBeanPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
 
 	<util:properties id="gemfireProperties">
 		<prop key="name">AsyncEventQueueNamespaceTest</prop>
@@ -41,28 +41,28 @@
 						   pause-event-dispatching="false"
 						   persistent="true">
 		<gfe:async-event-listener>
-			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceTest.TestAsyncEventListener" c:name="TestAeqListener"/>
+			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceIntegrationTests.TestAsyncEventListener" c:name="TestAeqListener"/>
 		</gfe:async-event-listener>
 	</gfe:async-event-queue>
 
-	<bean id="testListenerOne" class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceTest.TestAsyncEventListener"
+	<bean id="testListenerOne" class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceIntegrationTests.TestAsyncEventListener"
 		  c:name="TestListenerOne"/>
 
 	<gfe:async-event-queue id="TestAsyncEventQueueWithFilters">
 		<gfe:async-event-listener ref="testListenerOne"/>
 		<gfe:event-filter>
-			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceTest.TestGatewayEventFilter" c:name="GatewayEventFilterOne"/>
-			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceTest.TestGatewayEventFilter" c:name="GatewayEventFilterTwo"/>
+			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceIntegrationTests.TestGatewayEventFilter" c:name="GatewayEventFilterOne"/>
+			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceIntegrationTests.TestGatewayEventFilter" c:name="GatewayEventFilterTwo"/>
 		</gfe:event-filter>
 		<gfe:event-substitution-filter>
-			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceTest.TestGatewayEventSubstitutionFilter"
+			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceIntegrationTests.TestGatewayEventSubstitutionFilter"
 				  c:name="GatewayEventSubstitutionFilterOne"/>
 		</gfe:event-substitution-filter>
 	</gfe:async-event-queue>
 
 	<gfe:async-event-queue id="TestPausedAsyncEventQueue" pause-event-dispatching="true">
 		<gfe:async-event-listener>
-			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceTest.TestAsyncEventListener" c:name="TestAeqListener"/>
+			<bean class="org.springframework.data.gemfire.config.xml.AsyncEventQueueNamespaceIntegrationTests.TestAsyncEventListener" c:name="TestAeqListener"/>
 		</gfe:async-event-listener>
 	</gfe:async-event-queue>
 

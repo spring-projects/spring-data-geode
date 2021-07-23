@@ -36,21 +36,27 @@ import org.springframework.data.gemfire.config.annotation.ClientCacheApplication
 import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
 import org.springframework.data.gemfire.test.model.Gender;
 import org.springframework.data.gemfire.test.model.Person;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests testing the configuration of a {@link ClientRegionShortcut#LOCAL}
+ * Integration Tests testing the configuration of a {@link ClientRegionShortcut#LOCAL}
  * {@link ClientCache} {@link Region}.
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.6.3
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LocalOnlyClientCacheIntegrationTests {
+public class LocalOnlyClientCacheIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "People")
 	private Region<Long, Person> people;
@@ -81,9 +87,9 @@ public class LocalOnlyClientCacheIntegrationTests {
 		assertThat(this.people).hasSize(1);
 	}
 
-	@ClientCacheApplication(logLevel = "error")
+	@ClientCacheApplication
 	@EnableEntityDefinedRegions(basePackageClasses = Person.class,
 		clientRegionShortcut = ClientRegionShortcut.LOCAL, strict = true)
-	static class GemFireClientCacheConfiguration { }
+	static class TestConfiguration { }
 
 }

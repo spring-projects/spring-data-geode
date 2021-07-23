@@ -87,7 +87,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 
 	@BeforeClass
 	public static void startGeodeServer() throws Exception {
-		startGemFireServer(GemFireServerConfiguration.class);
+		startGemFireServer(GeodeServerTestConfiguration.class);
 	}
 
 	@Resource(name = "TemperatureReadings")
@@ -120,7 +120,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 
 	@Configuration
 	@EnableContinuousQueries
-	@Import(GemFireClientConfiguration.class)
+	@Import(GeodeClientConfiguration.class)
 	static class TestConfiguration {
 
 		@ContinuousQuery(name = "BoilingTemperatures",
@@ -137,7 +137,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 	}
 
 	@ClientCacheApplication(logLevel = "error", subscriptionEnabled = true)
-	static class GemFireClientConfiguration {
+	static class GeodeClientConfiguration {
 
 		@Bean
 		ClientCacheConfigurer clientCachePoolPortConfigurer(
@@ -175,13 +175,13 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 		}
 	}
 
-	@CacheServerApplication(name = "EnableContinuousQueriesConfigurationIntegrationTests", logLevel = "error")
-	static class GemFireServerConfiguration {
+	@CacheServerApplication
+	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
 
 			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(GemFireServerConfiguration.class);
+				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
 
 			applicationContext.registerShutdownHook();
 		}

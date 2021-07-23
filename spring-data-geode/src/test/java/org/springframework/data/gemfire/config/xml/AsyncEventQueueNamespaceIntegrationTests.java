@@ -35,27 +35,28 @@ import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
 
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * The AsyncEventQueueNamespaceTest class is a test suite of test cases testing the contract and functionality
- * of configuring a Pivotal GemFire or Apache Geode {@link AsyncEventQueue} using the SDG XML namespace.
+ * Integration Tests testing the contract and functionality of an {@link AsyncEventQueue}
+ * using SDG XML namespace configuration metadata.
  *
  * @author John Blum
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
+ * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
  * @see org.springframework.data.gemfire.config.AsyncEventQueueParser
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.wan.AsyncEventQueueFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
- * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("all")
-public class AsyncEventQueueNamespaceTest {
+public class AsyncEventQueueNamespaceIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "TestAsyncEventQueue")
 	private AsyncEventQueue asyncEventQueue;

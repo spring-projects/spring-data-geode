@@ -37,8 +37,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * as a Spring managed bean in a Spring {@link org.springframework.context.ApplicationContext}.
  *
  * @author John Blum
+ * @see org.junit.Test
+ * @see org.apache.shiro.realm.text.PropertiesRealm
  * @see org.springframework.data.gemfire.config.annotation.AbstractGeodeSecurityIntegrationTests
- * @since 1.0.0
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
+ * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
@@ -48,7 +52,7 @@ public class ApacheShiroRealmSecurityIntegrationTests extends AbstractGeodeSecur
 	protected static final String SHIRO_REALM_CONFIGURATION_PROFILE = "shiro-realm-configuration";
 
 	@BeforeClass
-	public static void setup() throws IOException {
+	public static void startGeodeServer() throws IOException {
 		runGeodeServer(SHIRO_REALM_CONFIGURATION_PROFILE);
 	}
 

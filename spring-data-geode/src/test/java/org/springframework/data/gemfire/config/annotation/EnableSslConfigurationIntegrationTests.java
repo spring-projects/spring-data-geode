@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = EnableSslConfigurationIntegrationTests.ClientTestConfiguration.class)
+@ContextConfiguration(classes = EnableSslConfigurationIntegrationTests.GeodeClientTestConfiguration.class)
 @SuppressWarnings("all")
 public class EnableSslConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
@@ -69,26 +68,10 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 	private Region<String, String> echo;
 
 	@BeforeClass
-	public static void setupGemFireServer() throws Exception {
-
-		String hostname = "localhost";
-
-		int availablePort = findAvailablePort();
-
-		gemfireServer = run(ServerTestConfiguration.class,
+	public static void startGeodeServer() throws Exception {
+		startGemFireServer(GeodeServerTestConfiguration.class,
 			String.format("-Dgemfire.name=%s", asApplicationName(EnableSslConfigurationIntegrationTests.class)),
-			String.format("-Djavax.net.ssl.keyStore=%s", System.getProperty("javax.net.ssl.keyStore")),
-			String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, availablePort));
-
-		waitForServerToStart("localhost", availablePort);
-
-		System.setProperty(GEMFIRE_CACHE_SERVER_PORT_PROPERTY, String.format("%s[%d]", hostname, availablePort));
-		System.setProperty(GEMFIRE_POOL_SERVERS_PROPERTY, String.format("%s[%d]", hostname, availablePort));
-	}
-
-	@AfterClass
-	public static void tearDownGemFireServer() {
-		stop(gemfireServer);
+			String.format("-Djavax.net.ssl.keyStore=%s", System.getProperty("javax.net.ssl.keyStore")));
 	}
 
 	@Test
@@ -98,7 +81,7 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 
 	@ClientCacheApplication(logLevel = LOG_LEVEL)
 	@EnableSsl(keystorePassword = "s3cr3t", truststorePassword = "s3cr3t")
-	static class ClientTestConfiguration {
+	static class GeodeClientTestConfiguration {
 
 		@Bean
 		ClientCacheConfigurer clientCacheSslConfigurer(
@@ -125,12 +108,12 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 
 	@CacheServerApplication(name = "EnableSslConfigurationIntegrationTests", logLevel = LOG_LEVEL)
 	@EnableSsl(keystorePassword = "s3cr3t", truststorePassword = "s3cr3t")
-	static class ServerTestConfiguration {
+	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
 
 			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(ServerTestConfiguration.class);
+				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
 
 			applicationContext.registerShutdownHook();
 		}
