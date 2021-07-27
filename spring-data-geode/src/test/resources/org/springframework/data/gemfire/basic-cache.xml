@@ -4,8 +4,6 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd"
 	   default-lazy-init="true">
 
-	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
-
 	<bean id="default-cache" class="org.springframework.data.gemfire.CacheFactoryBean">
 		<property name="properties">
 			<props>
@@ -24,20 +22,20 @@
 		</property>
 	</bean>
 
-	<bean id="named-cache" class="org.springframework.data.gemfire.CacheFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="name">named-cache</prop>
-				<prop key="log-level">error</prop>
-			</props>
-		</property>
-	</bean>
-
 	<bean id="cache-with-xml" class="org.springframework.data.gemfire.CacheFactoryBean">
 		<property name="cacheXml" value="classpath:gemfire-cache.xml"/>
 		<property name="properties">
 			<props>
 				<prop key="name">cache-with-xml</prop>
+				<prop key="log-level">error</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="named-cache" class="org.springframework.data.gemfire.CacheFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="name">named-cache</prop>
 				<prop key="log-level">error</prop>
 			</props>
 		</property>
@@ -51,5 +49,7 @@
 			</props>
 		</property>
 	</bean>
+
+	<bean class="org.springframework.data.gemfire.CacheIntegrationTests$CacheWithXmlFactoryBeanPostProcessor"/>
 
 </beans>

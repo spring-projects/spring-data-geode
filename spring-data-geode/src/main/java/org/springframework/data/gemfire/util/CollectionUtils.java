@@ -39,7 +39,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * {@link CollectionUtils} is a utility class for working with the Java Collections Framework and classes.
+ * {@link CollectionUtils} is an abstract utility class used to workin with the Java Collections Framework and classes.
  *
  * @author John Blum
  * @see java.util.Collection

@@ -17,9 +17,10 @@
 package org.springframework.data.gemfire.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -284,7 +285,7 @@ public class GemfireCacheUnitTests {
 	@SuppressWarnings("unchecked")
 	public void putIfAbsentReturnsNull() {
 
-		when(mockRegion.putIfAbsent(eq("key"), any())).thenReturn(null);
+		doReturn(null).when(mockRegion).putIfAbsent(eq("key"), any());
 
 		Cache.ValueWrapper value = GemfireCache.wrap(mockRegion).putIfAbsent("key", "mockValue");
 

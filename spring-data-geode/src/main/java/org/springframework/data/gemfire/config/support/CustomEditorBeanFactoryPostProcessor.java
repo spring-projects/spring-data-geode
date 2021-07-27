@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.support;
 
+import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 
 import org.apache.geode.cache.EvictionAction;
@@ -49,11 +49,13 @@ import org.springframework.data.gemfire.wan.OrderPolicyConverter;
 
 /**
  * {@link CustomEditorBeanFactoryPostProcessor} is a Spring {@link BeanFactoryPostProcessor} implementation
- * used to register custom {@link java.beans.PropertyEditor PropertyEditors} / Spring {@link Converter Converters}
- * that are used to perform type conversions between String-based configuration meta-data and actual GemFire
- * or Spring Data GemFire defined (enumerated) types.
+ * used to register custom {@link PropertyEditor PropertyEditors} / Spring {@link Converter Converters}
+ * that are used to perform type conversions between {@link String String-based} configuration metadata
+ * and actual Apache Geode or Spring Data for Apache Geode defined (enumerated) types.
  *
  * @author John Blum
+ * @see java.beans.PropertyEditor
+ * @see java.beans.PropertyEditorSupport
  * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor
  * @since 1.6.0
  */
@@ -63,7 +65,6 @@ public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProc
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("all")
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
 		beanFactory.registerCustomEditor(ConnectionEndpoint.class, StringToConnectionEndpointConverter.class);
@@ -81,9 +82,8 @@ public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProc
 		beanFactory.registerCustomEditor(SubscriptionEvictionPolicy.class, SubscriptionEvictionPolicyConverter.class);
 	}
 
-	/* (non-Javadoc) */
 	public static class ConnectionEndpointArrayToIterableConverter extends PropertyEditorSupport
-			implements Converter<ConnectionEndpoint[], Iterable>  {
+			implements Converter<ConnectionEndpoint[], Iterable<?>>  {
 
 		/**
 		 * {@inheritDoc}
@@ -95,7 +95,6 @@ public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProc
 		}
 	}
 
-	/* (non-Javadoc) */
 	public static class StringToConnectionEndpointConverter
 			extends AbstractPropertyEditorConverterSupport<ConnectionEndpoint> {
 
@@ -103,13 +102,11 @@ public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProc
 		 * {@inheritDoc}
 		 */
 		@Override
-		@SuppressWarnings("all")
 		public ConnectionEndpoint convert(String source) {
 			return assertConverted(source, ConnectionEndpoint.parse(source), ConnectionEndpoint.class);
 		}
 	}
 
-	/* (non-Javadoc) */
 	public static class StringToConnectionEndpointListConverter
 			extends AbstractPropertyEditorConverterSupport<ConnectionEndpointList> {
 
@@ -117,7 +114,6 @@ public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProc
 		 * {@inheritDoc}
 		 */
 		@Override
-		@SuppressWarnings("all")
 		public ConnectionEndpointList convert(String source) {
 			return assertConverted(source, ConnectionEndpointList.parse(0, source.split(",")),
 				ConnectionEndpointList.class);

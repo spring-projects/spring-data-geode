@@ -10,7 +10,7 @@
   ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">pdxDiskStoreTest</prop>
+		<prop key="name">PdxDiskStoreIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 	<!--
@@ -21,8 +21,8 @@
 		<constructor-arg type="boolean" value="true"/>
 		<constructor-arg>
 			<list>
-				<value>org.springframework.data.gemfire.PdxDiskStoreIntegrationTest\$KeyHolder</value>
-				<value>org.springframework.data.gemfire.PdxDiskStoreIntegrationTest\$ValueHolder</value>
+				<value>org.springframework.data.gemfire.PdxDiskStoreIntegrationTests\$KeyHolder</value>
+				<value>org.springframework.data.gemfire.PdxDiskStoreIntegrationTests\$ValueHolder</value>
 			</list>
 		</constructor-arg>
 	</bean>
@@ -39,17 +39,18 @@
 	  </gfe:disk-store>
 	  -->
 
-	<gfe:cache properties-ref="gemfireProperties" pdx-serializer-ref="autoSerializer" pdx-persistent="true" pdx-disk-store="pdxStore"/>
+	<gfe:cache properties-ref="gemfireProperties" pdx-serializer-ref="autoSerializer"
+			   pdx-persistent="true" pdx-disk-store="pdxStore"/>
+
+	<gfe:disk-store id="pdxStore" auto-compact="true" compaction-threshold="50" queue-size="50" max-oplog-size="10" time-interval="60000">
+		<gfe:disk-dir location="./gemfire/pdx-store" max-size="50"/>
+	</gfe:disk-store>
 
 	<gfe:disk-store id="dataStore" auto-compact="true" compaction-threshold="75" queue-size="50" max-oplog-size="10" time-interval="600000">
 		<gfe:disk-dir location="./gemfire/data-store/" max-size="50"/>
 	</gfe:disk-store>
 
 	<gfe:partitioned-region id="pdxDataRegion" name="PdxData" persistent="true" disk-store-ref="dataStore" disk-synchronous="true"/>
-
-	<gfe:disk-store id="pdxStore" auto-compact="true" compaction-threshold="50" queue-size="50" max-oplog-size="10" time-interval="60000">
-		<gfe:disk-dir location="./gemfire/pdx-store" max-size="50"/>
-	</gfe:disk-store>
 
 	<!--
 	  <bean id="pdxDataTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="pdxDataRegion"/>

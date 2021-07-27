@@ -56,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
 /**
- * Integration Tests testing the contract and integratino between natively-defined cache {@link Region Regions}
+ * Integration Tests testing the contract and integration between natively-defined cache {@link Region Regions}
  * and SDG's {@link Region} lookup functionality combined with {@link Region} attribute(s) mutation.
  *
  * @author John Blum

@@ -11,24 +11,19 @@
         http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<util:properties id="server.properties">
-		<prop key="gemfire.cache.server.host">localhost</prop>
-		<prop key="gemfire.cache.server.port">23579</prop>
-	</util:properties>
-
-	<context:property-placeholder properties-ref="server.properties"/>
+	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">ClientCacheVariableLocatorsTestServer</prop>
+		<prop key="name">ClientCacheVariableLocatorsIntegrationTestsServer</prop>
 		<prop key="log-level">error</prop>
-		<prop key="locators">localhost[11235]</prop>
-		<prop key="start-locator">localhost[11235]</prop>
+		<prop key="locators">localhost[${spring.data.gemfire.locator.port}]</prop>
+		<prop key="start-locator">localhost[${spring.data.gemfire.locator.port}]</prop>
 	</util:properties>
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<gfe:cache-server bind-address="${gemfire.cache.server.host}" port="${gemfire.cache.server.port}"
-					  auto-startup="true" max-connections="1"/>
+	<gfe:cache-server bind-address="${spring.data.gemfire.cache.server.host:localhost}"
+					  port="${spring.data.gemfire.cache.server.port}" max-connections="1"/>
 
 	<gfe:replicated-region id="Example" persistent="false" key-constraint="java.lang.String" value-constraint="java.lang.Integer">
 		<gfe:cache-loader>

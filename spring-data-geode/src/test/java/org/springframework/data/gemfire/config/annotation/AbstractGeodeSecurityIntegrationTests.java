@@ -162,18 +162,15 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 		private final User user;
 
-		/* (non-Javadoc) */
 		public static GeodeClientAuthInitialize create() {
 			return new GeodeClientAuthInitialize(RUN_COUNT.incrementAndGet() < 2 ? SCIENTIST : ANALYST);
 		}
 
-		/* (non-Javadoc) */
 		public GeodeClientAuthInitialize(User user) {
 			Assert.notNull(user, "User cannot be null");
 			this.user = user;
 		}
 
-		/* (non-Javadoc) */
 		@Override
 		protected Properties doGetCredentials(Properties securityProperties) {
 
@@ -185,7 +182,6 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 				.build();
 		}
 
-		/* (non-Javadoc) */
 		protected User getUser() {
 			return this.user;
 		}
@@ -223,15 +219,15 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 	@CacheServerApplication(name = "GeodeSecurityIntegrationTestsServer")
 	@Import({
-		ApacheShiroIniSecurityIntegrationTests.ApacheShiroIniConfiguration.class,
+		ApacheGeodeSecurityManagerSecurityIntegrationTests.ApacheGeodeSecurityManagerConfiguration.class,
 		ApacheShiroRealmSecurityIntegrationTests.ApacheShiroRealmConfiguration.class,
-		ApacheGeodeSecurityManagerSecurityIntegrationTests.ApacheGeodeSecurityManagerConfiguration.class
+		ApacheShiroIniSecurityIntegrationTests.ApacheShiroIniConfiguration.class
 	})
 	@Profile("apache-geode-server")
 	public static class GeodeServerConfiguration {
 
 		public static void main(String[] args) {
-			runSpringApplication(GeodeServerConfiguration.class, args);
+			runSpringApplication(GeodeServerConfiguration.class, args).refresh();
 		}
 
 		@Autowired
@@ -244,7 +240,6 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 			echoRegion.setCache(gemfireCache);
 			echoRegion.setCacheLoader(echoCacheLoader());
-			echoRegion.setClose(false);
 			echoRegion.setPersistent(false);
 
 			return echoRegion;
@@ -260,8 +255,8 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 				}
 
 				@Override
-				public void close() {
-				}
+				public void close() { }
+
 			};
 		}
 
@@ -316,7 +311,6 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 			return getName();
 		}
 
-		/* (non-Javadoc) */
 		public User with(String credentials) {
 
 			this.credentials = credentials;
@@ -324,7 +318,6 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 			return this;
 		}
 
-		/* (non-Javadoc) */
 		public User with(Role... roles) {
 
 			Collections.addAll(this.roles, roles);
@@ -344,7 +337,6 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 		private final Set<ResourcePermission> permissions = new HashSet<>();
 
-		/* (non-Javadoc) */
 		public boolean hasPermission(ResourcePermission permission) {
 
 			for (ResourcePermission thisPermission : this) {

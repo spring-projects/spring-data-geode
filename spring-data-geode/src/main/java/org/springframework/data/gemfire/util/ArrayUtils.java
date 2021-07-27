@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
- * The ArrayUtils class is a utility class for working with Object arrays.
+ * {@link ArrayUtils} is an abstract utility class used to work with {@link Object} arrays.
  *
  * @author David Turanski
  * @author John Blum

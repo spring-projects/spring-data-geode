@@ -66,7 +66,11 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	@SuppressWarnings({ "unchecked", "unused" })

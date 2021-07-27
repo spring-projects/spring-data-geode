@@ -20,11 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Resource;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,17 +35,22 @@ import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.client.Pool;
+import org.apache.geode.cache.client.PoolManager;
+import org.apache.geode.cache.server.CacheServer;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.FileSystemUtils;
 
 /**
- * Integration Tests with test cases testing the use of variable {@literal servers} attribute
- * on &lt;gfe:pool/&lt; in SDG XML namespace configuration metadata when connecting a client/server.
+ * Integration Tests testing the use of variable {@literal servers} attribute on &lt;gfe:pool/&lt; in SDG XML Namespace
+ * configuration metadata when connecting a client and server.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -56,34 +63,50 @@ import org.springframework.util.FileSystemUtils;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-@SuppressWarnings("all")
+@SuppressWarnings("unused")
 public class ClientCacheVariableServersIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
 
-		List<String> arguments = new ArrayList<String>();
+		final int cacheServerPortOne = findAndReserveAvailablePort();
+		final int cacheServerPortTwo = findAndReserveAvailablePort();
 
-		arguments.add(String.format("-Dgemfire.name=%1$s",
-			ClientCacheVariableServersIntegrationTests.class.getSimpleName().concat("Server")));
+		System.setProperty("test.cache.server.port.one", String.valueOf(cacheServerPortOne));
+		System.setProperty("test.cache.server.port.two", String.valueOf(cacheServerPortTwo));
 
+		List<String> arguments = new ArrayList<>();
+
+		arguments.add(String.format("-Dtest.cache.server.port.one=%d", cacheServerPortOne));
+		arguments.add(String.format("-Dtest.cache.server.port.two=%d", cacheServerPortTwo));
 		arguments.add(getServerContextXmlFileLocation(ClientCacheVariableServersIntegrationTests.class));
 
-		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
 	}
 
 	@AfterClass
-	public static void tearDown() {
-
-		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			getGemFireServerProcess()
-				.map(ProcessWrapper::getWorkingDirectory)
-				.ifPresent(workingDirectory -> FileSystemUtils.deleteRecursively(workingDirectory));
-		}
+	public static void cleanup() {
+		System.clearProperty("test.cache.server.port.one");
+		System.clearProperty("test.cache.server.port.two");
 	}
 
 	@Resource(name = "Example")
 	private Region<String, Integer> example;
+
+	@Before
+	public void setup() {
+
+		assertThat(this.example).isNotNull();
+		assertThat(this.example.getName()).isEqualTo("Example");
+		assertThat(this.example.getAttributes()).isNotNull();
+		assertThat(this.example.getAttributes().getPoolName()).isEqualTo("serverPool");
+
+		Pool pool = PoolManager.find("serverPool");
+
+		assertThat(pool).isNotNull();
+		assertThat(pool.getName()).isEqualTo("serverPool");
+		assertThat(pool.getServers()).hasSize(3);
+	}
 
 	@Test
 	public void clientServerConnectionSuccessful() {
@@ -105,6 +128,26 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 		@Override
 		public void close() {
 			cacheMissCounter.set(0);
+		}
+	}
+
+	public static final class CacheServerConfigurationApplicationListener
+			implements ApplicationListener<ContextRefreshedEvent> {
+
+		@Override
+		public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+
+			ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
+
+			Map<String, CacheServer> cacheServers =
+				CollectionUtils.nullSafeMap(applicationContext.getBeansOfType(CacheServer.class));
+
+			for (CacheServer cacheServer : cacheServers.values()) {
+				System.err.printf("CacheServer host:port [%s:%d]%n",
+					cacheServer.getBindAddress(), cacheServer.getPort());
+			}
+
+			System.err.flush();
 		}
 	}
 }

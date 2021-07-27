@@ -24,25 +24,26 @@
 
 	<context:property-placeholder properties-ref="clientProperties"/>
 
-	<bean class="org.springframework.data.gemfire.client.SpELExpressionConfiguredPoolsIntegrationTests.TestBeanFactoryPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.client.SpELExpressionConfiguredPoolsIntegrationTests.TestBeanPostProcessor"/>
 
 	<bean id="spelBean" class="org.springframework.data.gemfire.client.SpELExpressionConfiguredPoolsIntegrationTests.SpELBoundBean">
 		<constructor-arg index="0" ref="clientProperties"/>
 	</bean>
 
-	<gfe:pool id="locatorPool" locators="${gemfire.cache.client.locators.hosts-and-ports}">
+	<gfe:pool id="locatorPoolOne" locators="${gemfire.cache.client.locators.hosts-and-ports}">
 		<gfe:locator host="${gemfire.cache.client.locator.1.host}" port="${gemfire.cache.client.locator.1.port}"/>
 		<gfe:locator host="mars" port="30303"/>
 	</gfe:pool>
 
-	<gfe:pool id="serverPool" servers="mercury[1234],venus[9876],earth[4554],jupiter[],uranis[$Ox0+(!)*]">
+	<gfe:pool id="locatorPoolTwo" locators="[10335], cardboardbox[], #{spelBean.locatorsHostsPorts()}"/>
+
+	<gfe:pool id="serverPoolOne" servers="mercury[1234],venus[9876],earth[4554],jupiter[],uranis[$Ox0+(!)*]">
 		<gfe:server host="#{spelBean.serverTwoHost()}" port="#{spelBean.serverTwoPort()}"/>
 		<gfe:server host="${gemfire.cache.client.server.1.host}" port="${gemfire.cache.client.server.1.port}"/>
 		<gfe:server host="neptune" port="42424"/>
 	</gfe:pool>
 
-	<gfe:pool id="anotherLocatorPool" locators="[10335], cardboardbox[], #{spelBean.locatorsHostsPorts()}"/>
+	<gfe:pool id="serverPoolTwo" servers="${gemfire.cache.client.servers.hosts-and-ports}"/>
 
-	<gfe:pool id="anotherServerPool" servers="${gemfire.cache.client.servers.hosts-and-ports}"/>
 
 </beans>

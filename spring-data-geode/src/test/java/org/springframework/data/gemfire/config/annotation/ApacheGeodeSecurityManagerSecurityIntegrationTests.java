@@ -38,7 +38,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration tests for Apache Geode Integrated Security using an application-specific, Apache Geode
+ * Integration Tests for Apache Geode Integrated Security using an application-specific, Apache Geode
  * {@link org.apache.geode.security.SecurityManager}.
  *
  * @author John Blum
@@ -52,8 +52,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
 @ActiveProfiles("apache-geode-client")
+@ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
 public class ApacheGeodeSecurityManagerSecurityIntegrationTests extends AbstractGeodeSecurityIntegrationTests {
 
 	protected static final String GEODE_SECURITY_MANAGER_PROPERTY_CONFIGURATION_PROFILE =

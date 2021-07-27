@@ -42,7 +42,8 @@
 	</util:properties>
 
 	<gfe:pool id="gemfireServerPool" max-connections="1" min-connections="1">
-		<gfe:server host="${client.server.host}" port="${client.server.port}"/>
+		<gfe:server host="${spring.data.gemfire.cache.server.host:localhost}"
+					port="${spring.data.gemfire.cache.server.port}"/>
 	</gfe:pool>
 
 	<gfe:client-cache properties-ref="gemfireProperties" pool-name="gemfireServerPool"/>

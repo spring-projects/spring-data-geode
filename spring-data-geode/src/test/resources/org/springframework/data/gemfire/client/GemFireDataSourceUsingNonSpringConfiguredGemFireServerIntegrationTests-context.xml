@@ -15,7 +15,7 @@
 
 	<util:properties id="client.properties">
 		<prop key="client.server.host">localhost</prop>
-		<prop key="client.server.port">42082</prop>
+		<prop key="client.server.port">${CACHE_SERVER_PORT}</prop>
 	</util:properties>
 
 	<context:property-placeholder properties-ref="client.properties"/>

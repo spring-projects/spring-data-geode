@@ -10,7 +10,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">ComplexSubRegionConfig</prop>
+		<prop key="name">SubRegionIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -26,7 +26,7 @@
 							   initial-capacity="1000"
 							   key-constraint="java.lang.Long"
 							   persistent="true"
-							   scope="distributed-ack"
+							   scope="DISTRIBUTED_ACK"
 							   statistics="true"
 							   value-constraint="java.lang.String">
 			<!-- NOTE Async Event Queue and Gateway Sender tests are covered in the subregionsubelement-ns.xml and associated test class -->
@@ -39,7 +39,6 @@
 			<gfe:cache-writer>
 				<bean class="org.springframework.data.gemfire.SimpleCacheWriter"/>
 			</gfe:cache-writer>
-			<gfe:membership-attributes loss-action="limited-access" required-roles="TEST" resumption-action="reinitialize"/>
 			<gfe:subscription type="CACHE_CONTENT"/>
 			<gfe:eviction action="OVERFLOW_TO_DISK" threshold="10000"/>
 		</gfe:replicated-region>

@@ -12,7 +12,7 @@
 ">
 
 	<util:properties id="clientProperties">
-		<prop key="gemfire.cache.client.durable-client-id">DurableClientCacheIntegrationTest</prop>
+		<prop key="gemfire.cache.client.durable-client-id">DurableClientCacheIntegrationTests</prop>
 		<prop key="gemfire.cache.client.durable-client-timeout">
 			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.durable-client-timeout:300}
 		</prop>
@@ -20,9 +20,7 @@
 			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.interests-result-policy:KEYS_VALUES}
 		</prop>
 		<prop key="gemfire.cache.server.host">localhost</prop>
-		<prop key="gemfire.cache.server.port">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.cache-server-port}
-		</prop>
+		<prop key="gemfire.cache.server.port">${spring.data.gemfire.cache.server.port}</prop>
 	</util:properties>
 
 	<context:property-placeholder properties-ref="clientProperties"/>

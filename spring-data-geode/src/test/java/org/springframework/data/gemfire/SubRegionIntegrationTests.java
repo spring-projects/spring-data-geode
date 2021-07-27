@@ -27,11 +27,8 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.InterestPolicy;
-import org.apache.geode.cache.LossAction;
-import org.apache.geode.cache.MembershipAttributes;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.ResumptionAction;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 
@@ -55,8 +52,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.4.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(value = "complex-subregion.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings({ "rawtypes", "unused" })
 public class SubRegionIntegrationTests extends IntegrationTestsSupport {
 
@@ -124,16 +120,6 @@ public class SubRegionIntegrationTests extends IntegrationTestsSupport {
 		assertThat(evictionAttributes).isNotNull();
 		assertThat(evictionAttributes.getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
 		assertThat(evictionAttributes.getMaximum()).isEqualTo(10000);
-
-		MembershipAttributes membershipAttributes = regionAttributes.getMembershipAttributes();
-
-		assertThat(membershipAttributes).isNotNull();
-		assertThat(membershipAttributes.getRequiredRoles()).isNotNull();
-		assertThat(membershipAttributes.getRequiredRoles().size()).isEqualTo(1);
-		assertThat(membershipAttributes.getRequiredRoles().iterator().next().getName().equalsIgnoreCase("TEST"))
-			.isTrue();
-		assertThat(membershipAttributes.getLossAction()).isEqualTo(LossAction.LIMITED_ACCESS);
-		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(ResumptionAction.REINITIALIZE);
 
 		SubscriptionAttributes subscriptionAttributes = regionAttributes.getSubscriptionAttributes();
 

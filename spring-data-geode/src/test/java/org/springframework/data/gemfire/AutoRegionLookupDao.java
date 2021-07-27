@@ -27,19 +27,21 @@ import org.springframework.dao.support.DaoSupport;
 import org.springframework.stereotype.Repository;
 
 /**
- * The AutoRegionLookupDao class is a Data Access Object (DAO) encapsulating references to several GemFire Cache Regions
- * defined in native GemFire cache.xml and registered as beans in the Spring context using Spring Data GemFire's
- * auto Region lookup functionality.  This class is used in the AutoRegionLookupWithComponentScanningIntegrationTests
- * class to ensure this @Repository component is auto-wired properly.
+ * {@link AutoRegionLookupDao} is a Data Access Object (DAO) encapsulating references to several cache
+ * {@link Region Regions} defined in native Apache Geode {@literal cache.xml} and registered as beans in the Spring
+ * context using Spring Data for Apache Geode's auto {@link Region} lookup functionality.
+ *
+ * This class is used by the {@link AutoRegionLookupWithComponentScanningIntegrationTests} class to ensure
+ * this {@link Repository @Repository} component is auto-wired properly.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.dao.support.DaoSupport
  * @see org.springframework.stereotype.Repository
- * @see org.apache.geode.cache.Region
  * @since 1.5.0
  */
-@DependsOn("gemfireCache")
 //@Lazy
+@DependsOn("gemfireCache")
 @Repository("autoRegionLookupDao")
 @SuppressWarnings("unused")
 public class AutoRegionLookupDao extends DaoSupport {
@@ -64,14 +66,14 @@ public class AutoRegionLookupDao extends DaoSupport {
 			DataPolicy expectedDataPolicy) {
 
 		assertThat(region)
-			.describedAs("Region (%1$s) was not properly configured and initialized!", expectedName)
+			.describedAs("Region [%s] was not properly configured and initialized", expectedName)
 			.isNotNull();
 
 		assertThat(region.getName()).isEqualTo(expectedName);
 		assertThat(region.getFullPath()).isEqualTo(expectedFullPath);
 
 		assertThat(region.getAttributes())
-			.describedAs("Region (%1$s) must have RegionAttributes defined!", expectedName)
+			.describedAs("Region [%s] must have RegionAttributes defined", expectedName)
 			.isNotNull();
 
 		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);

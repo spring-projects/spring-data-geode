@@ -13,14 +13,7 @@
         http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<util:properties id="serverProperties">
-		<prop key="gemfire.cache.server.host">localhost</prop>
-		<prop key="gemfire.cache.server.port">
-			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.cache-server-port}
-		</prop>
-	</util:properties>
-
-	<context:property-placeholder properties-ref="serverProperties"/>
+	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
 		<prop key="name">DurableClientCacheIntegrationTestServer</prop>
@@ -29,7 +22,8 @@
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<gfe:cache-server bind-address="${gemfire.cache.server.host}" port="${gemfire.cache.server.port}"/>
+	<gfe:cache-server bind-address="${spring.data.gemfire.cache.server.host:localhost}"
+					  port="${spring.data.gemfire.cache.server.port}"/>
 
 	<gfe:replicated-region id="Example" persistent="false" initial-capacity="11" load-factor="0.75"
 						   key-constraint="java.lang.String" value-constraint="java.lang.Integer"/>

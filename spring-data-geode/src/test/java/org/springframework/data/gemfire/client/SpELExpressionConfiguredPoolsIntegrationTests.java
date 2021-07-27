@@ -18,15 +18,21 @@ package org.springframework.data.gemfire.client;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolFactory;
@@ -34,19 +40,20 @@ import org.apache.geode.cache.client.PoolFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
+import org.springframework.data.gemfire.test.support.MapBuilder;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
+import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests that test the use of property placeholders in nested &lt;gfe:locator&gt; and &lt;gfe:server&gt;
- * elements of the SDG XML namespace &lt;gfe:pool&gt; element along with testing property placeholders in
- * the &lt;gfe:pool&gt; element <code>locators</code> and <code>servers</code> attributes.
+ * Integration Tests testing the use of property placeholders in nested &lt;gfe:locator&gt; and &lt;gfe:server&gt;
+ * elements of the SDG XML Namespace &lt;gfe:pool&gt; element along with testing property placeholders
+ * in the &lt;gfe:pool&gt; element <code>locators</code> and <code>servers</code> attributes.
  *
  * @author John Blum
  * @see java.util.Properties
@@ -66,26 +73,34 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class SpELExpressionConfiguredPoolsIntegrationTests extends IntegrationTestsSupport {
 
-	private static final ConnectionEndpointList anotherLocators = new ConnectionEndpointList();
-	private static final ConnectionEndpointList anotherServers = new ConnectionEndpointList();
-	private static final ConnectionEndpointList locators = new ConnectionEndpointList();
-	private static final ConnectionEndpointList servers = new ConnectionEndpointList();
+	private static final ConnectionEndpointList locatorsOne = new ConnectionEndpointList();
+	private static final ConnectionEndpointList locatorsTwo = new ConnectionEndpointList();
+	private static final ConnectionEndpointList serversOne = new ConnectionEndpointList();
+	private static final ConnectionEndpointList serversTwo = new ConnectionEndpointList();
+
+	private static final Map<String, ConnectionEndpointList> poolToConnectionsMap =
+		Collections.unmodifiableMap(MapBuilder.<String, ConnectionEndpointList>newMapBuilder()
+			.put("locatorPoolOne", locatorsOne)
+			.put("locatorPoolTwo", locatorsTwo)
+			.put("serverPoolOne", serversOne)
+			.put("serverPoolTwo", serversTwo)
+			.build());
 
 	@Autowired
-	@Qualifier("locatorPool")
-	private Pool locatorPool;
+	@Qualifier("locatorPoolOne")
+	private Pool locatorPoolOne;
 
 	@Autowired
-	@Qualifier("serverPool")
-	private Pool serverPool;
+	@Qualifier("locatorPoolTwo")
+	private Pool locatorPoolTwo;
 
 	@Autowired
-	@Qualifier("anotherLocatorPool")
-	private Pool anotherLocatorPool;
+	@Qualifier("serverPoolOne")
+	private Pool serverPoolOne;
 
 	@Autowired
-	@Qualifier("anotherServerPool")
-	private Pool anotherServerPool;
+	@Qualifier("serverPoolTwo")
+	private Pool serverPoolTwo;
 
 	private static void assertConnectionEndpoints(ConnectionEndpointList connectionEndpoints,
 			String... expected) {
@@ -109,38 +124,38 @@ public class SpELExpressionConfiguredPoolsIntegrationTests extends IntegrationTe
 	}
 
 	@Test
-	public void anotherLocatorPoolFactoryConfiguration() {
-
-		String[] expected = { "cardboardbox[10334]", "localhost[10335]", "pobox[10334]", "safetydepositbox[10336]" };
-
-		assertConnectionEndpoints(anotherLocators, expected);
-	}
-
-	@Test
-	public void anotherServerPoolFactoryConfiguration() {
-
-		String[] expected = { "boombox[1234]", "jambox[40404]", "toolbox[8181]" };
-
-		assertConnectionEndpoints(anotherServers, expected);
-	}
-
-	@Test
-	public void locatorPoolFactoryConfiguration() {
+	public void locatorPoolOneFactoryConfiguration() {
 
 		String[] expected = { "backspace[10334]", "jambox[11235]", "mars[30303]", "pluto[20668]", "skullbox[12480]" };
 
-		assertConnectionEndpoints(locators, expected);
+		assertConnectionEndpoints(locatorsOne, expected);
 	}
 
 	@Test
-	public void serverPoolFactoryConfiguration() {
+	public void locatorPoolTwoFactoryConfiguration() {
+
+		String[] expected = { "cardboardbox[10334]", "localhost[10335]", "pobox[10334]", "safetydepositbox[10336]" };
+
+		assertConnectionEndpoints(locatorsTwo, expected);
+	}
+
+	@Test
+	public void serverPoolOneFactoryConfiguration() {
 
 		String[] expected = {
 			"earth[4554]", "jupiter[40404]", "mars[5112]", "mercury[1234]",
 			"neptune[42424]", "saturn[41414]", "uranis[0]", "venus[9876]"
 		};
 
-		assertConnectionEndpoints(servers, expected);
+		assertConnectionEndpoints(serversOne, expected);
+	}
+
+	@Test
+	public void serverPoolTwoFactoryConfiguration() {
+
+		String[] expected = { "boombox[1234]", "jambox[40404]", "toolbox[8181]" };
+
+		assertConnectionEndpoints(serversTwo, expected);
 	}
 
 	public static class SpELBoundBean {
@@ -165,89 +180,55 @@ public class SpELExpressionConfiguredPoolsIntegrationTests extends IntegrationTe
 		}
 	}
 
-	public static class TestBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+	public static class TestBeanPostProcessor implements BeanPostProcessor {
 
-		@Override
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		@Nullable @Override
+		public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
-			postProcessBeanDefinition(beanFactory, "anotherLocatorPool", AnotherLocatorPoolFactoryBean.class);
-			postProcessBeanDefinition(beanFactory, "anotherServerPool", AnotherServerPoolFactoryBean.class);
-			postProcessBeanDefinition(beanFactory, "locatorPool", LocatorPoolFactoryBean.class);
-			postProcessBeanDefinition(beanFactory, "serverPool", ServerPoolFactoryBean.class);
+			if (isPoolFactoryBean(bean, beanName)) {
+
+				PoolFactoryBean poolFactoryBeanSpy = spy((PoolFactoryBean) bean);
+
+				doReturn(true).when(poolFactoryBeanSpy).isClientCachePresent();
+
+				doAnswer(invocation -> {
+
+					ConnectionEndpointList list = poolToConnectionsMap.get(beanName);
+
+					PoolFactory mockPoolFactory = GemFireMockObjectsSupport.mockPoolFactory();
+
+					when(mockPoolFactory.addLocator(anyString(), anyInt())).thenAnswer(newAnswer(mockPoolFactory,
+						connectionEndpoint -> list.add(connectionEndpoint)));
+
+					when(mockPoolFactory.addServer(anyString(), anyInt())).thenAnswer(newAnswer(mockPoolFactory,
+						connectionEndpoint -> list.add(connectionEndpoint)));
+
+					return mockPoolFactory;
+
+				}).when(poolFactoryBeanSpy).createPoolFactory();
+
+				bean = poolFactoryBeanSpy;
+			}
+
+			return bean;
 		}
 
-		private void postProcessBeanDefinition(ConfigurableListableBeanFactory beanFactory,
-				String beanName, Class<?> beanType) {
-
-			beanFactory.getBeanDefinition(beanName).setBeanClassName(beanType.getName());
-		}
-	}
-
-	public static class AnotherLocatorPoolFactoryBean extends TestPoolFactoryBean {
-		@Override ConnectionEndpointList getLocatorList() {
-			return anotherLocators;
-		}
-	}
-
-	public static class AnotherServerPoolFactoryBean extends TestPoolFactoryBean {
-
-		@Override
-		ConnectionEndpointList getServerList() {
-			return anotherServers;
-		}
-	}
-
-	public static class LocatorPoolFactoryBean extends TestPoolFactoryBean {
-
-		@Override
-		ConnectionEndpointList getLocatorList() {
-			return locators;
-		}
-	}
-
-	public static class ServerPoolFactoryBean extends TestPoolFactoryBean {
-
-		@Override
-		ConnectionEndpointList getServerList() {
-			return servers;
-		}
-	}
-
-	static class TestPoolFactoryBean extends PoolFactoryBean {
-
-		ConnectionEndpointList getLocatorList() {
-			throw new UnsupportedOperationException("Not Implemented");
+		private boolean isPoolFactoryBean(Object bean, String beanName) {
+			return bean instanceof PoolFactoryBean && poolToConnectionsMap.containsKey(beanName);
 		}
 
-		ConnectionEndpointList getServerList() {
-			throw new UnsupportedOperationException("Not Implemented");
-		}
+		private Answer<PoolFactory> newAnswer(PoolFactory mockPoolFactory,
+			Consumer<ConnectionEndpoint> connectionEndpointConsumer) {
 
-		@Override
-		protected PoolFactory createPoolFactory() {
+			return invocation -> {
 
-			PoolFactory mockPoolFactory = GemFireMockObjectsSupport.mockPoolFactory();
-
-			when(mockPoolFactory.addLocator(anyString(), anyInt())).thenAnswer(invocation -> {
 				String host = invocation.getArgument(0);
 				int port = invocation.getArgument(1);
-				getLocatorList().add(newConnectionEndpoint(host, port));
+
+				connectionEndpointConsumer.accept(newConnectionEndpoint(host, port));
+
 				return mockPoolFactory;
-			});
-
-			when(mockPoolFactory.addServer(anyString(), anyInt())).thenAnswer(invocation -> {
-				String host = invocation.getArgument(0);
-				int port = invocation.getArgument(1);
-				getServerList().add(newConnectionEndpoint(host, port));
-				return mockPoolFactory;
-			});
-
-			return mockPoolFactory;
-		}
-
-		@Override
-		boolean isClientCachePresent() {
-			return true;
+			};
 		}
 	}
 }

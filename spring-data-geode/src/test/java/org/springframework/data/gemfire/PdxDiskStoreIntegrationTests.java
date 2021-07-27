@@ -42,7 +42,7 @@ import org.springframework.util.Assert;
  * and to reproduce the issue in JIRA SGF-197.
  *
  * @author John Blum
- * @link https://jira.springsource.org/browse/SGF-197
+ * @see java.io.File
  * @see org.junit.Test
  * @see org.apache.geode.cache.DiskStore
  * @see org.apache.geode.cache.Region
@@ -51,10 +51,11 @@ import org.springframework.util.Assert;
  * @see org.springframework.test.annotation.DirtiesContext
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
+ * @link https://jira.springsource.org/browse/SGF-197
  * @since 1.3.3
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration("/org/springframework/data/gemfire/pdxdiskstore-config.xml")
+@ContextConfiguration
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SuppressWarnings("unused")
 public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
@@ -77,11 +78,11 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 			.isEqualTo(expectedRegionPath);
 	}
 
-	private static File createFile(final String pathname) {
+	private static File createFile(String pathname) {
 		return new File(pathname);
 	}
 
-	private static void deleteRecursive(final File path) {
+	private static void deleteRecursive(File path) {
 
 		if (path.isDirectory()) {
 			for (File file : path.listFiles()) {
@@ -100,7 +101,7 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 	}
 
 	@AfterClass
-	public static void tearDownAfterClass() {
+	public static void cleanupAfterClass() {
 		deleteRecursive(createFile("./gemfire"));
 	}
 
@@ -132,12 +133,12 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 
 	protected static class AbstractHolderSupport {
 
-		protected static boolean equals(final Object obj1, final Object obj2) {
-			return (obj1 != null && obj1.equals(obj2));
+		protected static boolean equals(Object obj1, Object obj2) {
+			return obj1 != null && obj1.equals(obj2);
 		}
 
-		protected static int hashCode(final Object obj) {
-			return (obj == null ? 0 : obj.hashCode());
+		protected static int hashCode(Object obj) {
+			return obj == null ? 0 : obj.hashCode();
 		}
 	}
 
@@ -149,7 +150,9 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 		public KeyHolder() { }
 
 		public KeyHolder(T key) {
+
 			Assert.notNull(key, "The key cannot be null!");
+
 			this.key = key;
 		}
 
@@ -198,8 +201,7 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 
 		private T value;
 
-		public ValueHolder() {
-		}
+		public ValueHolder() { }
 
 		public ValueHolder(T value) {
 			this.value = value;

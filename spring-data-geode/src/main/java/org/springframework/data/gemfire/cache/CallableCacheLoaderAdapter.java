@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.cache;
 
 import java.util.concurrent.Callable;
@@ -93,7 +92,9 @@ public class CallableCacheLoaderAdapter<K, V> implements Callable<V>, CacheLoade
 	 * @see org.apache.geode.cache.Region
 	 */
 	public CallableCacheLoaderAdapter(CacheLoader<K, V> delegate, K key, Region<K, V> region, Object argument) {
+
 		Assert.notNull(delegate, "CacheLoader must not be null");
+
 		this.cacheLoader = delegate;
 		this.argument = argument;
 		this.key = key;
@@ -106,7 +107,7 @@ public class CallableCacheLoaderAdapter<K, V> implements Callable<V>, CacheLoade
 	 * @return an Object argument used by this {@link CacheLoader} when loading the value for the specified key.
 	 */
 	protected Object getArgument() {
-		return argument;
+		return this.argument;
 	}
 
 	/**
@@ -116,7 +117,7 @@ public class CallableCacheLoaderAdapter<K, V> implements Callable<V>, CacheLoade
 	 * @see org.apache.geode.cache.CacheLoader
 	 */
 	protected CacheLoader<K, V> getCacheLoader() {
-		return cacheLoader;
+		return this.cacheLoader;
 	}
 
 	/**
@@ -125,7 +126,7 @@ public class CallableCacheLoaderAdapter<K, V> implements Callable<V>, CacheLoade
 	 * @return the specified key for which the value will be loaded.
 	 */
 	protected K getKey() {
-		return key;
+		return this.key;
 	}
 
 	/**
@@ -135,7 +136,7 @@ public class CallableCacheLoaderAdapter<K, V> implements Callable<V>, CacheLoade
 	 * @see org.apache.geode.cache.Region
 	 */
 	protected Region<K, V> getRegion() {
-		return region;
+		return this.region;
 	}
 
 	/**
@@ -147,10 +148,12 @@ public class CallableCacheLoaderAdapter<K, V> implements Callable<V>, CacheLoade
 	 * @see #load(LoaderHelper)
 	 */
 	public final V call() throws Exception {
+
 		Assert.state(getKey() != null, "The key for which the value is loaded for cannot be null");
 		Assert.state(getRegion() != null, "The Region to load cannot be null");
 
 		return load(new LoaderHelper<K, V>() {
+
 			public V netSearch(final boolean doNetLoad) throws CacheLoaderException, TimeoutException {
 				throw new UnsupportedOperationException("not implemented");
 			}

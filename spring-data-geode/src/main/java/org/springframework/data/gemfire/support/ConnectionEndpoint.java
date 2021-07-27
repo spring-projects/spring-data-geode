@@ -69,18 +69,19 @@ public class ConnectionEndpoint implements Cloneable, Comparable<ConnectionEndpo
 	}
 
 	/**
-	 * Parses the host and port value into a valid ConnectionEndpoint.
+	 * Factory method used to parse the {@link String host and port} value into a valid {@link ConnectionEndpoint}.
 	 *
-	 * @param hostPort a String value containing the host and port formatted as 'host[port]'.
-	 * @param defaultPort an Integer value indicating the default port to use if the port is unspecified
-	 * in the host and port String value.
-	 * @return a valid ConnectionEndpoint initialized with the host and port, or with the default port
-	 * if port was unspecified.
+	 * @param hostPort {@link String} containing the host and port formatted as {@literal host[port]}
+	 * or {@literal host:port}.
+	 * @param defaultPort {@link Integer} indicating the default port to use if the port is unspecified
+	 * in the {@link String host and port} value.
+	 * @return a valid {@link ConnectionEndpoint} initialized with the {@link String host and port},
+	 * or with the default port if port was unspecified.
 	 * @see #ConnectionEndpoint(String, int)
 	 */
 	public static ConnectionEndpoint parse(String hostPort, int defaultPort) {
 
-		Assert.hasText(hostPort, "'hostPort' must be specified");
+		Assert.hasText(hostPort, String.format("Host & Port [%s] must be specified", hostPort));
 
 		String host = StringUtils.trimAllWhitespace(hostPort);
 

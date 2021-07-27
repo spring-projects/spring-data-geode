@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,14 +32,10 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.FileSystemUtils;
 
 /**
  * Integration Tests to test SSL configuration between a Pivotal GemFire or Apache Geode client and server
@@ -62,21 +57,14 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 
 		List<String> arguments = new ArrayList<String>();
 
-		arguments.add(String.format("-Dgemfire.name=%1$s", ClientCacheSecurityIntegrationTests.class.getSimpleName().concat("Server")));
+		arguments.add(String.format("-Dgemfire.name=%1$s",
+			ClientCacheSecurityIntegrationTests.class.getSimpleName().concat("Server")));
+
 		arguments.add(String.format("-Djavax.net.ssl.keyStore=%1$s", System.getProperty("javax.net.ssl.keyStore")));
+
 		arguments.add(getServerContextXmlFileLocation(ClientCacheSecurityIntegrationTests.class));
 
 		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
-	}
-
-	@AfterClass
-	public static void tearDown() {
-
-		if (Boolean.valueOf(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			getGemFireServerProcess()
-				.map(ProcessWrapper::getWorkingDirectory)
-				.ifPresent(workingDirectory -> FileSystemUtils.deleteRecursively(workingDirectory));
-		}
 	}
 
 	@Resource(name = "Example")
@@ -98,18 +86,5 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 		@Override
 		public void close() { }
 
-	}
-
-	public static class SslGemFireServer {
-
-		public static void main(String[] args) {
-
-			String configLocation = args.length > 0 ? args[0]
-				: "org/springframework/data/gemfire/client/ClientCacheSecurityIntegrationTests-server-context.xml";
-
-			ConfigurableApplicationContext applicationContext = new ClassPathXmlApplicationContext(configLocation);
-
-			applicationContext.registerShutdownHook();
-		}
 	}
 }

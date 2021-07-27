@@ -20,10 +20,6 @@ import java.util.Optional;
 
 import org.apache.geode.internal.datasource.ConfigProperty;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -41,6 +37,10 @@ import org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFact
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  * {@link BeanDefinitionParser} for the &lt;gfe:cache&gt; SDG XML Namespace (XSD) element.
@@ -155,7 +155,7 @@ class CacheParser extends AbstractSingleBeanDefinitionParser {
 
 		String pdxDiskStoreName = element.getAttribute("pdx-disk-store");
 
-		if (!StringUtils.isEmpty(pdxDiskStoreName)) {
+		if (StringUtils.hasText(pdxDiskStoreName)) {
 			registerPdxDiskStoreAwareBeanFactoryPostProcessor(getRegistry(parserContext), pdxDiskStoreName);
 		}
 	}

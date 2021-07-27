@@ -42,6 +42,8 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.ConfigurableRegionFactoryBean;
 import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.client.support.BeanFactoryPoolResolver;
+import org.springframework.data.gemfire.client.support.ComposablePoolResolver;
 import org.springframework.data.gemfire.client.support.PoolManagerPoolResolver;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean;
@@ -78,6 +80,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.DisposableBean
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.data.gemfire.ConfigurableRegionFactoryBean
+ * @see org.springframework.data.gemfire.client.PoolResolver
  * @see org.springframework.data.gemfire.config.annotation.RegionConfigurer
  * @see org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean
  * @see org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean
@@ -89,8 +92,6 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 
 	public static final String DEFAULT_POOL_NAME = "DEFAULT";
 	public static final String GEMFIRE_POOL_NAME = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME;
-
-	protected static final PoolResolver DEFAULT_POOL_RESOLVER = new PoolManagerPoolResolver();
 
 	private boolean close = false;
 	private boolean destroy = false;
@@ -133,12 +134,27 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 
 	private Float loadFactor;
 
-	private PoolResolver poolResolver = DEFAULT_POOL_RESOLVER;
+	private PoolResolver defaultPoolResolver;
+	private PoolResolver poolResolver;
 
 	private RegionAttributes<K, V> attributes;
 
 	private String diskStoreName;
 	private String poolName;
+
+	/**
+	 * Initializes a the instance of {@link ClientRegionFactoryBean}.
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+
+		this.defaultPoolResolver =
+			ComposablePoolResolver.compose(new BeanFactoryPoolResolver(getBeanFactory()), new PoolManagerPoolResolver());
+
+		this.poolResolver = defaultPoolResolver;
+
+		super.afterPropertiesSet();
+	}
 
 	/**
 	 * Creates a new {@link Region} with the given {@link String name}.
@@ -267,7 +283,6 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 			.orElse(null);
 	}
 
-	@SuppressWarnings("all")
 	private boolean eagerlyInitializePool(String poolName) {
 
 		return Optional.ofNullable(getPoolResolver().resolve(poolName))
@@ -708,13 +723,29 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 	 * @return the configured {@link PoolResolver}.  If no {@link PoolResolver} was configured, then return the default,
 	 * {@link PoolManagerPoolResolver}.
 	 * @see org.springframework.data.gemfire.client.PoolResolver
-	 * @see org.springframework.data.gemfire.client.support.PoolManagerPoolResolver
+	 * @see #getDefaultPoolResolver()
 	 */
 	public @NonNull PoolResolver getPoolResolver() {
 
 		PoolResolver poolResolver = this.poolResolver;
 
-		return poolResolver != null ? poolResolver : DEFAULT_POOL_RESOLVER;
+		return poolResolver != null ? poolResolver : getDefaultPoolResolver();
+	}
+
+	/**
+	 * Gets a reference to the configured, default {@link PoolResolver} used by this client {@link Region} to resolve
+	 * {@link Pool} objects if a explicit {@link PoolResolver} was not configured.
+	 *
+	 * The {@literal default} {@link PoolResolver} uses a composition of the {@link BeanFactoryPoolResolver}
+	 * and {@link PoolManagerPoolResolver} to fallback on.
+	 *
+	 * @return the {@literal default} {@link PoolResolver}.
+	 * @see org.springframework.data.gemfire.client.support.BeanFactoryPoolResolver
+	 * @see org.springframework.data.gemfire.client.support.PoolManagerPoolResolver
+	 * @see org.springframework.data.gemfire.client.PoolResolver
+	 */
+	public @NonNull PoolResolver getDefaultPoolResolver() {
+		return this.defaultPoolResolver;
 	}
 
 	public void setRegionIdleTimeout(ExpirationAttributes regionIdleTimeout) {

@@ -13,39 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.MethodInvokingBean;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.beans.factory.xml.XmlReaderContext;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
@@ -54,7 +46,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Unit tests for {@link PoolParser}.
+ * Unit Tests for {@link PoolParser}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -62,32 +54,23 @@ import org.w3c.dom.NodeList;
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.config.xml.PoolParser
+ * @see org.w3c.dom.Element
  * @since 1.7.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PoolParserUnitTests {
 
-	@Mock
-	private BeanDefinitionRegistry mockRegistry;
-
-	private PoolParser parser;
-
-	@Before
-	public void setup() {
-
+	@BeforeClass
+	public static void setup() {
 		PoolParser.INFRASTRUCTURE_COMPONENTS_REGISTERED.set(true);
-
-		this.parser = new PoolParser() {
-
-			@Override
-			BeanDefinitionRegistry resolveRegistry(ParserContext parserContext) {
-				return PoolParserUnitTests.this.mockRegistry;
-			}
-		};
 	}
 
-	@SuppressWarnings("all")
-	protected void assertBeanDefinition(BeanDefinition beanDefinition, String expectedHost, String expectedPort) {
+	private final ParserContext parserContext =
+		new ParserContext(mock(XmlReaderContext.class), mock(BeanDefinitionParserDelegate.class));
+
+	private final PoolParser parser = new PoolParser();
+
+	private void assertBeanDefinition(BeanDefinition beanDefinition, String expectedHost, String expectedPort) {
 
 		assertThat(beanDefinition).isNotNull();
 		assertThat(beanDefinition.getBeanClassName()).isEqualTo(ConnectionEndpoint.class.getName());
@@ -98,59 +81,20 @@ public class PoolParserUnitTests {
 			.isEqualTo(expectedPort);
 	}
 
-	protected void assertPropertyNotPresent(BeanDefinition beanDefinition, String propertyName) {
+	private void assertPropertyNotPresent(BeanDefinition beanDefinition, String propertyName) {
 		assertThat(beanDefinition.getPropertyValues().contains(propertyName)).isFalse();
 	}
 
-	protected void assertPropertyPresent(BeanDefinition beanDefinition, String propertyName) {
+	private void assertPropertyPresent(BeanDefinition beanDefinition, String propertyName) {
 		assertThat(beanDefinition.getPropertyValues().contains(propertyName)).isTrue();
 	}
 
-	@SuppressWarnings("all")
-	protected void assertPropertyValue(BeanDefinition beanDefinition, String propertyName, Object propertyValue) {
-		assertThat(beanDefinition.getPropertyValues().getPropertyValue(propertyName).getValue())
-			.isEqualTo(propertyValue);
+	private void assertPropertyValue(BeanDefinition beanDefinition, String propertyName, Object propertyValue) {
+		assertThat(this.<Object>getPropertyValue(beanDefinition, propertyName)).isEqualTo(propertyValue);
 	}
 
-	protected String generateBeanName(Class<?> type) {
-		return generateBeanName(type.getName());
-	}
-
-	protected String generateBeanName(String beanClassName) {
-		return String.format("%1$s%2$s%3$d", beanClassName, BeanDefinitionReaderUtils.GENERATED_BEAN_NAME_SEPARATOR, 0);
-	}
-
-	@SuppressWarnings("all")
-	protected Answer<Void> newAnswer(String beanReference, String targetMethod, String host, String port) {
-
-		return invocation -> {
-
-			String generatedName = invocation.getArgument(0);
-
-			BeanDefinition methodInvokingBeanDefinition = invocation.getArgument(1);
-
-			assertThat(methodInvokingBeanDefinition).isNotNull();
-			assertThat(methodInvokingBeanDefinition.getBeanClassName()).isEqualTo(MethodInvokingBean.class.getName());
-			assertThat(generatedName).isEqualTo(generateBeanName(methodInvokingBeanDefinition.getBeanClassName()));
-			assertPropertyValue(methodInvokingBeanDefinition, "targetObject", new RuntimeBeanReference(beanReference));
-			assertPropertyValue(methodInvokingBeanDefinition, "targetMethod", targetMethod);
-
-			BeanDefinition argumentsDefinition = getPropertyValue(methodInvokingBeanDefinition, "arguments");
-
-			assertThat(argumentsDefinition.getBeanClassName()).isEqualTo(ConnectionEndpointList.class.getName());
-
-			ConstructorArgumentValues constructorArguments = argumentsDefinition.getConstructorArgumentValues();
-
-			assertThat(constructorArguments.getArgumentCount()).isEqualTo(2);
-			assertThat(constructorArguments.getArgumentValue(0, Integer.class).getValue()).isEqualTo(port);
-			assertThat(constructorArguments.getArgumentValue(1, String.class).getValue()).isEqualTo(host);
-
-			return null;
-		};
-	}
-
-	@SuppressWarnings("all")
-	protected <T> T getPropertyValue(BeanDefinition beanDefinition, String propertyName) {
+	@SuppressWarnings("unchecked")
+	private <T> T getPropertyValue(BeanDefinition beanDefinition, String propertyName) {
 		return (T) beanDefinition.getPropertyValues().getPropertyValue(propertyName).getValue();
 	}
 
@@ -307,11 +251,12 @@ public class PoolParserUnitTests {
 		BeanDefinitionBuilder poolBuilder =
 			BeanDefinitionBuilder.genericBeanDefinition(this.parser.getBeanClass(mockPoolElement));
 
-		this.parser.doParse(mockPoolElement, null, poolBuilder);
+		this.parser.doParse(mockPoolElement, this.parserContext, poolBuilder);
 
 		BeanDefinition poolDefinition = poolBuilder.getBeanDefinition();
 
 		assertThat(poolDefinition).isNotNull();
+		assertThat(poolDefinition.getBeanClassName()).isEqualTo(PoolFactoryBean.class.getName());
 
 		PropertyValues poolPropertyValues = poolDefinition.getPropertyValues();
 
@@ -339,25 +284,16 @@ public class PoolParserUnitTests {
 
 		NodeList mockNodeList = mock(NodeList.class);
 
-		when(mockPoolElement.getAttribute(PoolParser.ID_ATTRIBUTE)).thenReturn("TestPool");
 		when(mockPoolElement.getAttribute(eq(PoolParser.LOCATORS_ATTRIBUTE_NAME))).thenReturn(
 			"#{T(example.app.config.GemFireProperties).locatorHostsPorts()}");
 		when(mockPoolElement.getAttribute(eq(PoolParser.SERVERS_ATTRIBUTE_NAME))).thenReturn("");
 		when(mockPoolElement.getChildNodes()).thenReturn(mockNodeList);
 		when(mockNodeList.getLength()).thenReturn(0);
-		when(this.mockRegistry.containsBeanDefinition(anyString())).thenReturn(false);
-
-		Answer<Void> answer = newAnswer("&TestPool", "addLocators",
-			"#{T(example.app.config.GemFireProperties).locatorHostsPorts()}",
-				String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
-
-		doAnswer(answer).when(this.mockRegistry).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			any(BeanDefinition.class));
 
 		BeanDefinitionBuilder poolBuilder =
 			BeanDefinitionBuilder.genericBeanDefinition(this.parser.getBeanClass(mockPoolElement));
 
-		this.parser.doParse(mockPoolElement, null, poolBuilder);
+		this.parser.doParse(mockPoolElement, this.parserContext, poolBuilder);
 
 		BeanDefinition poolDefinition = poolBuilder.getBeanDefinition();
 
@@ -365,15 +301,11 @@ public class PoolParserUnitTests {
 		assertPropertyNotPresent(poolDefinition, "locators");
 		assertPropertyNotPresent(poolDefinition, "servers");
 
-		verify(mockPoolElement, times(1)).getAttribute(eq(PoolParser.ID_ATTRIBUTE));
 		verify(mockPoolElement, times(1)).getAttribute(eq(PoolParser.LOCATORS_ATTRIBUTE_NAME));
 		verify(mockPoolElement, times(1)).getAttribute(eq(PoolParser.SERVERS_ATTRIBUTE_NAME));
 		verify(mockPoolElement, times(1)).getChildNodes();
 		verify(mockNodeList, times(1)).getLength();
 		verify(mockNodeList, never()).item(anyInt());
-		verify(this.mockRegistry, times(1)).containsBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)));
-		verify(this.mockRegistry, times(1)).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			isA(BeanDefinition.class));
 	}
 
 	@Test
@@ -383,19 +315,11 @@ public class PoolParserUnitTests {
 
 		NodeList mockNodeList = mock(NodeList.class);
 
-		when(mockPoolElement.getAttribute(PoolParser.ID_ATTRIBUTE)).thenReturn("TestPool");
 		when(mockPoolElement.getAttribute(eq(PoolParser.LOCATORS_ATTRIBUTE_NAME))).thenReturn("");
 		when(mockPoolElement.getAttribute(eq(PoolParser.SERVERS_ATTRIBUTE_NAME))).thenReturn(
 			"${gemfire.server.hosts-and-ports}");
 		when(mockPoolElement.getChildNodes()).thenReturn(mockNodeList);
 		when(mockNodeList.getLength()).thenReturn(0);
-		when(this.mockRegistry.containsBeanDefinition(anyString())).thenReturn(false);
-
-		Answer<Void> answer = newAnswer("&TestPool", "addServers",
-			"${gemfire.server.hosts-and-ports}", String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
-
-		doAnswer(answer).when(this.mockRegistry).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			any(BeanDefinition.class));
 
 		BeanDefinitionBuilder poolBuilder =
 			BeanDefinitionBuilder.genericBeanDefinition(this.parser.getBeanClass(mockPoolElement));
@@ -408,32 +332,32 @@ public class PoolParserUnitTests {
 		assertPropertyNotPresent(poolDefinition, "locators");
 		assertPropertyNotPresent(poolDefinition, "servers");
 
-		verify(mockPoolElement, times(1)).getAttribute(eq(PoolParser.ID_ATTRIBUTE));
 		verify(mockPoolElement, times(1)).getAttribute(eq(PoolParser.LOCATORS_ATTRIBUTE_NAME));
 		verify(mockPoolElement, times(1)).getAttribute(eq(PoolParser.SERVERS_ATTRIBUTE_NAME));
 		verify(mockPoolElement, times(1)).getChildNodes();
 		verify(mockNodeList, times(1)).getLength();
 		verify(mockNodeList, never()).item(anyInt());
-		verify(this.mockRegistry, times(1)).containsBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)));
-		verify(this.mockRegistry, times(1)).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			isA(BeanDefinition.class));
 	}
 
 	@Test
 	public void buildConnection() {
 
-		assertBeanDefinition(this.parser.buildConnection("earth", "1234", true), "earth", "1234");
-		assertBeanDefinition(this.parser.buildConnection("mars", " ", true), "mars",
-			String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
-		assertBeanDefinition(this.parser.buildConnection("  ", "1234", true), PoolParser.DEFAULT_HOST, "1234");
-		assertBeanDefinition(this.parser.buildConnection("  ", "", true), PoolParser.DEFAULT_HOST,
-			String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
-		assertBeanDefinition(this.parser.buildConnection("jupiter", "9876", false), "jupiter", "9876");
-		assertBeanDefinition(this.parser.buildConnection("saturn", null, false), "saturn",
-			String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
-		assertBeanDefinition(this.parser.buildConnection(null, "9876", false), PoolParser.DEFAULT_HOST, "9876");
-		assertBeanDefinition(this.parser.buildConnection("", "  ", false), PoolParser.DEFAULT_HOST,
-			String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
+		assertBeanDefinition(this.parser.buildConnection("earth", "1234", true),
+			"earth", "1234");
+		assertBeanDefinition(this.parser.buildConnection("mars", " ", true),
+			"mars", String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
+		assertBeanDefinition(this.parser.buildConnection("  ", "1234", true),
+			PoolParser.DEFAULT_HOST, "1234");
+		assertBeanDefinition(this.parser.buildConnection("  ", "", true),
+			PoolParser.DEFAULT_HOST, String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
+		assertBeanDefinition(this.parser.buildConnection("jupiter", "9876", false),
+			"jupiter", "9876");
+		assertBeanDefinition(this.parser.buildConnection("saturn", null, false),
+			"saturn", String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
+		assertBeanDefinition(this.parser.buildConnection(null, "9876", false),
+			PoolParser.DEFAULT_HOST, "9876");
+		assertBeanDefinition(this.parser.buildConnection("", "  ", false),
+			PoolParser.DEFAULT_HOST, String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
 	}
 
 	@Test
@@ -490,6 +414,16 @@ public class PoolParserUnitTests {
 	}
 
 	@Test
+	public void defaultLocatorPort() {
+		assertThat(this.parser.defaultPort(false)).isEqualTo(PoolParser.DEFAULT_LOCATOR_PORT);
+	}
+
+	@Test
+	public void defaultServerPort() {
+		assertThat(this.parser.defaultPort(true)).isEqualTo(PoolParser.DEFAULT_SERVER_PORT);
+	}
+
+	@Test
 	public void parseLocator() {
 
 		Element mockElement = mock(Element.class);
@@ -497,10 +431,13 @@ public class PoolParserUnitTests {
 		when(mockElement.getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME))).thenReturn("skullbox");
 		when(mockElement.getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME))).thenReturn("1234");
 
-		assertBeanDefinition(this.parser.parseLocator(mockElement), "skullbox", "1234");
+		assertBeanDefinition(this.parser.parseLocator(mockElement, this.parserContext),
+			"skullbox", "1234");
 
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME));
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME));
+
+		verifyNoMoreInteractions(mockElement);
 	}
 
 	@Test
@@ -511,11 +448,13 @@ public class PoolParserUnitTests {
 		when(mockElement.getAttribute(PoolParser.HOST_ATTRIBUTE_NAME)).thenReturn("");
 		when(mockElement.getAttribute(PoolParser.PORT_ATTRIBUTE_NAME)).thenReturn(null);
 
-		assertBeanDefinition(this.parser.parseLocator(mockElement), PoolParser.DEFAULT_HOST,
-			String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
+		assertBeanDefinition(this.parser.parseLocator(mockElement, this.parserContext),
+			PoolParser.DEFAULT_HOST, String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
 
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME));
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME));
+
+		verifyNoMoreInteractions(mockElement);
 	}
 
 	@Test
@@ -523,26 +462,16 @@ public class PoolParserUnitTests {
 
 		Element mockElement = mock(Element.class);
 
-		when(mockElement.getAttribute(eq(PoolParser.ID_ATTRIBUTE))).thenReturn("TestPool");
 		when(mockElement.getAttribute(eq(PoolParser.LOCATORS_ATTRIBUTE_NAME)))
 			.thenReturn("jupiter, saturn[1234],  [9876] ");
-		when(this.mockRegistry.containsBeanDefinition(anyString())).thenReturn(false);
-
-		Answer<Void> answer = newAnswer("&TestPool", "addLocators",
-			"jupiter, saturn[1234],  [9876] ", String.valueOf(PoolParser.DEFAULT_LOCATOR_PORT));
-
-		doAnswer(answer).when(this.mockRegistry).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			any(BeanDefinition.class));
 
 		BeanDefinitionBuilder poolBuilder = BeanDefinitionBuilder.genericBeanDefinition();
 
-		assertThat(this.parser.parseLocators(mockElement, poolBuilder, mockRegistry)).isTrue();
+		this.parser.parseLocators(mockElement, this.parserContext, poolBuilder);
 
-		verify(mockElement, times(1)).getAttribute(eq(PoolParser.ID_ATTRIBUTE));
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.LOCATORS_ATTRIBUTE_NAME));
-		verify(this.mockRegistry, times(1)).containsBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)));
-		verify(this.mockRegistry, times(1)).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			isA(BeanDefinition.class));
+
+		verifyNoMoreInteractions(mockElement);
 	}
 
 	@Test
@@ -553,10 +482,13 @@ public class PoolParserUnitTests {
 		when(mockElement.getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME))).thenReturn("pluto");
 		when(mockElement.getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME))).thenReturn("9876");
 
-		assertBeanDefinition(this.parser.parseServer(mockElement), "pluto", "9876");
+		assertBeanDefinition(this.parser.parseServer(mockElement, this.parserContext),
+			"pluto", "9876");
 
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME));
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME));
+
+		verifyNoMoreInteractions(mockElement);
 	}
 
 	@Test
@@ -567,11 +499,13 @@ public class PoolParserUnitTests {
 		when(mockElement.getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME))).thenReturn(" ");
 		when(mockElement.getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME))).thenReturn("");
 
-		assertBeanDefinition(this.parser.parseServer(mockElement), PoolParser.DEFAULT_HOST,
-			String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
+		assertBeanDefinition(this.parser.parseServer(mockElement, this.parserContext),
+			PoolParser.DEFAULT_HOST, String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
 
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.HOST_ATTRIBUTE_NAME));
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.PORT_ATTRIBUTE_NAME));
+
+		verifyNoMoreInteractions(mockElement);
 	}
 
 	@Test
@@ -579,21 +513,14 @@ public class PoolParserUnitTests {
 
 		Element mockElement = mock(Element.class);
 
-		when(mockElement.getAttribute(eq(PoolParser.ID_ATTRIBUTE))).thenReturn("TestPool");
 		when(mockElement.getAttribute(eq(PoolParser.SERVERS_ATTRIBUTE_NAME))).thenReturn("mars[], venus[9876]");
-		when(this.mockRegistry.containsBeanDefinition(anyString())).thenReturn(false);
-
-		Answer<Void> answer = newAnswer("&TestPool", "addServers",
-			"mars[], venus[9876]", String.valueOf(PoolParser.DEFAULT_SERVER_PORT));
-
-		doAnswer(answer).when(this.mockRegistry).registerBeanDefinition(eq(generateBeanName(MethodInvokingBean.class)),
-			any(BeanDefinition.class));
 
 		BeanDefinitionBuilder poolBuilder = BeanDefinitionBuilder.genericBeanDefinition();
 
-		assertThat(this.parser.parseServers(mockElement, poolBuilder, this.mockRegistry)).isTrue();
+		this.parser.parseServers(mockElement, this.parserContext, poolBuilder);
 
-		verify(mockElement, times(1)).getAttribute(eq(PoolParser.ID_ATTRIBUTE));
 		verify(mockElement, times(1)).getAttribute(eq(PoolParser.SERVERS_ATTRIBUTE_NAME));
+
+		verifyNoMoreInteractions(mockElement);
 	}
 }

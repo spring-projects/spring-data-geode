@@ -41,8 +41,8 @@
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<gfe:cache-server auto-startup="true" bind-address="${gemfire.server.host}" port="${gemfire.server.port}"
-					  max-connections="1"/>
+	<gfe:cache-server auto-startup="true" bind-address="${spring.data.gemfire.cache.server.host:localhost}"
+					  port="${spring.data.gemfire.cache.server.port}" max-connections="1"/>
 
 	<gfe:replicated-region id="Example" persistent="false">
 		<gfe:cache-loader>

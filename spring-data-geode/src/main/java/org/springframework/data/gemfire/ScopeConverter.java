@@ -13,44 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
+
+import java.beans.PropertyEditor;
 
 import org.apache.geode.cache.Scope;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.gemfire.support.AbstractPropertyEditorConverterSupport;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
- * The ScopeConverter class is a Spring Converter and JavaBeans PropertyEditor that converts Strings
- * into GemFire Scope constant values.
+ * The {@link ScopeConverter} class is a Spring {@link Converter} and JavaBeans {@link PropertyEditor}
+ * that converts a {@link String} into a {@link Scope}.
  *
  * @author John Blum
- * @see org.springframework.data.gemfire.support.AbstractPropertyEditorConverterSupport
+ * @see java.beans.PropertyEditor
  * @see org.apache.geode.cache.Scope
+ * @see org.springframework.core.convert.converter.Converter
+ * @see org.springframework.data.gemfire.support.AbstractPropertyEditorConverterSupport
  * @since 1.6.0
  */
 @SuppressWarnings("unused")
 public class ScopeConverter extends AbstractPropertyEditorConverterSupport<Scope> {
 
 	/**
-	 * Converts the given String source into an instance of GemFire Scope.
+	 * Converts the given {@link String} into an instance of {@link Scope}.
 	 *
 	 * @param source the String to convert into a GemFire Scope.
 	 * @return a GemFire Scope for the given String.
 	 * @throws java.lang.IllegalArgumentException if the String is not a valid GemFire Scope.
-	 * @see org.springframework.data.gemfire.ScopeType#getScope(ScopeType)
-	 * @see org.springframework.data.gemfire.ScopeType#valueOfIgnoreCase(String)
 	 * @see org.apache.geode.cache.Scope#fromString(String)
-	 * @see #assertConverted(String, Object, Class)
+	 * @see org.springframework.data.gemfire.ScopeType#valueOfIgnoreCase(String)
+	 * @see org.springframework.data.gemfire.ScopeType#getScope(ScopeType)
 	 */
 	@Override
-	public Scope convert(final String source) {
+	public @NonNull Scope convert(@Nullable String source) {
+
 		try {
 			return Scope.fromString(source);
 		}
-		catch (IllegalArgumentException e) {
+		catch (IllegalArgumentException cause) {
 			return assertConverted(source, ScopeType.getScope(ScopeType.valueOfIgnoreCase(source)), Scope.class);
 		}
 	}
-
 }

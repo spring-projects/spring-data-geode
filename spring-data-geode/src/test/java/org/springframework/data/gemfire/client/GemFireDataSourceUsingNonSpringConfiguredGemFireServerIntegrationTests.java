@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -45,7 +44,6 @@ import org.springframework.data.gemfire.tests.integration.ForkingClientServerInt
 import org.springframework.data.gemfire.tests.process.ProcessExecutor;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
-import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
@@ -71,7 +69,6 @@ import org.springframework.util.StringUtils;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings({ "rawtypes", "unused"})
-// TODO: slow test!
 public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTests
 		extends ForkingClientServerIntegrationTestsSupport {
 
@@ -80,16 +77,21 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 	@BeforeClass
 	public static void startGemFireServer() throws IOException {
 
-		System.setProperty("gemfire.log-level", GEMFIRE_LOG_LEVEL);
+		String serverName =
+			GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTests.class.getSimpleName() + "Server";
 
-		String serverName = "DataSourceGemFireBasedServer";
+		int serverPort =findAvailablePort();
+
+		System.setProperty("CACHE_SERVER_PORT", String.valueOf(serverPort));
 
 		File serverWorkingDirectory = new File(FileSystemUtils.WORKING_DIRECTORY, serverName.toLowerCase());
 
-		Assert.isTrue(serverWorkingDirectory.isDirectory() || serverWorkingDirectory.mkdirs(),
-			String.format("Server working directory [%s] does not exist and could not be created", serverWorkingDirectory));
+		assertThat(serverWorkingDirectory.isDirectory() || serverWorkingDirectory.mkdirs())
+			.describedAs("Server working directory [%s] does not exist and could not be created", serverWorkingDirectory)
+			.isTrue();
 
-		writeAsCacheXmlFileToDirectory("gemfire-datasource-integration-test-cache.xml", serverWorkingDirectory);
+		writeAsCacheXmlFileToDirectory("gemfire-datasource-integration-tests-cache.xml",
+			serverWorkingDirectory);
 
 		Assert.isTrue(new File(serverWorkingDirectory, "cache.xml").isFile(),
 			String.format("Expected a cache.xml file to exist in directory [%s]", serverWorkingDirectory));
@@ -98,13 +100,12 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 
 		arguments.add(ServerLauncher.Command.START.getName());
 		arguments.add(String.format("-Dgemfire.name=%s", serverName));
-		arguments.add(String.format("-Dgemfire.log-level=%s", GEMFIRE_LOG_LEVEL));
+		arguments.add(String.format("-DCACHE_SERVER_PORT=%d", serverPort));
 
 		gemfireServer = run(serverWorkingDirectory, customClasspath(),
 			GemFireBasedServerProcess.class, arguments.toArray(new String[0]));
 
-		waitForProcessStart(TimeUnit.SECONDS.toMillis(20), gemfireServer,
-			GemFireBasedServerProcess.getServerProcessControlFilename());
+		waitForServerToStart("localhost", serverPort);
 	}
 
 	private static String customClasspath() {
@@ -128,23 +129,12 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 			new FileOutputStream(new File(serverWorkingDirectory, "cache.xml")));
 	}
 
-	private static void waitForProcessStart(long milliseconds, ProcessWrapper process, String processControlFilename) {
-
-		ThreadUtils.timedWait(milliseconds, TimeUnit.MILLISECONDS.toMillis(500), new ThreadUtils.Condition() {
-
-			private final File processControlFile = new File(process.getWorkingDirectory(), processControlFilename);
-
-			@Override
-			public boolean evaluate() {
-				return processControlFile.isFile();
-			}
-		});
-	}
-
 	@AfterClass
 	public static void stopGemFireServer() {
 
 		stop(gemfireServer);
+
+		System.clearProperty("CACHE_SERVER_PORT");
 
 		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", String.valueOf(true)))) {
 			org.springframework.util.FileSystemUtils.deleteRecursively(gemfireServer.getWorkingDirectory());

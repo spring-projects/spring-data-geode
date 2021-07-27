@@ -60,7 +60,11 @@ public class EnablePdxConfigurationIntegrationTests extends IntegrationTestsSupp
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
@@ -126,8 +130,8 @@ public class EnablePdxConfigurationIntegrationTests extends IntegrationTestsSupp
 
 	}
 
-	@EnableGemFireMockObjects
 	@PeerCacheApplication
+	@EnableGemFireMockObjects
 	@EnablePdx(diskStoreName = "TestDiskStore", serializerBeanName = "MockPdxSerializer")
 	@SuppressWarnings("unused")
 	static class TestEnablePdxWithDiskStoreConfiguration {
@@ -160,8 +164,8 @@ public class EnablePdxConfigurationIntegrationTests extends IntegrationTestsSupp
 		}
 	}
 
-	@EnableGemFireMockObjects
 	@ClientCacheApplication
+	@EnableGemFireMockObjects
 	@EnablePdx
 	@SuppressWarnings("unused")
 	static class TestEnablePdxConfigurationWithNoDiskStoreConfiguration {

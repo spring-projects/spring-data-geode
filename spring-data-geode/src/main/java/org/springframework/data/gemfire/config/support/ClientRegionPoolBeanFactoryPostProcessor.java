@@ -14,13 +14,15 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.support;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.client.Pool;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
@@ -31,13 +33,16 @@ import org.springframework.data.gemfire.util.SpringUtils;
 
 /**
  * {@link ClientRegionPoolBeanFactoryPostProcessor} is a Spring {@link BeanFactoryPostProcessor} implementation
- * ensuring a proper dependency is declared between a GemFire client {@link org.apache.geode.cache.Region}
- * and the GemFire client {@link org.apache.geode.cache.client.Pool} it references and uses, providing
- * the GemFire client {@link org.apache.geode.cache.client.Pool} has been defined and configured with
- * Spring (Data GemFire) configuration meta-data (e.g. XML).
+ * ensuring a proper dependency is declared between a client {@link Region} and a client {@link Pool} it references
+ * and uses, providing the client {@link Pool} has been defined and configured with Spring Data for Apache Geode
+ * configuration metadata (e.g. XML).
  *
  * @author John Blum
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.Pool
+ * @see org.springframework.beans.factory.config.BeanDefinition
  * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor
+ * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @since 1.8.2
  */
 public class ClientRegionPoolBeanFactoryPostProcessor extends AbstractDependencyStructuringBeanFactoryPostProcessor {
@@ -48,7 +53,6 @@ public class ClientRegionPoolBeanFactoryPostProcessor extends AbstractDependency
 	 * {@inheritDoc}
 	 */
 	@Override
-	@SuppressWarnings("all")
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
 		Set<String> clientRegionBeanNames = new HashSet<>();

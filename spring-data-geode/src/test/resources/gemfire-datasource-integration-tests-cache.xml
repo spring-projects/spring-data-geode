@@ -4,7 +4,7 @@
 	   xsi:schemaLocation="http://geode.apache.org/schema/cache https://geode.apache.org/schema/cache/cache-1.0.xsd"
 	   version="1.0">
 
-	<cache-server hostname-for-clients="localhost" port="42082"/>
+	<cache-server hostname-for-clients="localhost" port="${CACHE_SERVER_PORT}"/>
 
 	<region name="ServerRegion" refid="PARTITION"/>
 

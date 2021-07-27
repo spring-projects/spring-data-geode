@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.support;
 
+import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
 /**
- * The AbstractPropertyEditorConverterSupport class is an abstract base class for Spring Converter implementations
- * that also implement the JavaBeans PropertyEditor interface.
+ * The {@link AbstractPropertyEditorConverterSupport} class is an abstract base class for Spring {@link Converter}
+ * implementations that also implement the JavaBeans {@link PropertyEditor} interface.
  *
  * @author John Blum
+ * @see java.beans.PropertyEditor
  * @see java.beans.PropertyEditorSupport
  * @see org.springframework.core.convert.converter.Converter
  * @since 1.6.0
@@ -45,7 +46,9 @@ public abstract class AbstractPropertyEditorConverterSupport<T> extends Property
 	 * an instance of {@link Class type} T.
 	 */
 	protected T assertConverted(String source, T convertedValue, Class<T> type) {
+
 		Assert.notNull(convertedValue, String.format("[%1$s] is not a valid %2$s", source, type.getSimpleName()));
+
 		return convertedValue;
 	}
 

@@ -11,7 +11,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">LookupRegionMutationIntegrationTest</prop>
+		<prop key="name">LookupRegionMutationIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

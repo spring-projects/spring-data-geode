@@ -43,7 +43,7 @@ import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.util.ReflectionUtils;
 
 /**
@@ -69,6 +69,8 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 
 		Optional.ofNullable(this.applicationContext)
 			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -158,11 +160,6 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 	static class AbstractTestConfiguration {
 
 		@Bean
-		GemFireMockObjectsBeanPostProcessor testBeanPostProcessor() {
-			return new GemFireMockObjectsBeanPostProcessor();
-		}
-
-		@Bean
 		TestRegionConfigurer testRegionConfigurerOne() {
 			return new TestRegionConfigurer();
 		}
@@ -198,6 +195,7 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 	}
 
 	@ClientCacheApplication
+	@EnableGemFireMockObjects
 	@EnableEntityDefinedRegions(basePackageClasses = NonEntity.class,
 		excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION,
 			classes = { LocalRegion.class, PartitionRegion.class, ReplicateRegion.class
@@ -218,6 +216,7 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 	}
 
 	@PeerCacheApplication
+	@EnableGemFireMockObjects
 	@EnableEntityDefinedRegions(basePackageClasses = NonEntity.class,
 		excludeFilters = {
 			@ComponentScan.Filter(type = FilterType.ANNOTATION,

@@ -75,7 +75,11 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 
 	@After
 	public void shutdown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	@Test

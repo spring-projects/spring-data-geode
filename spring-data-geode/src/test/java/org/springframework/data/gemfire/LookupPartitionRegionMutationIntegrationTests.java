@@ -70,7 +70,7 @@ import org.springframework.util.StringUtils;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LookupPartitionRegionMutationIntegrationTest {
+public class LookupPartitionRegionMutationIntegrationTests {
 
 	@Resource(name = "Example")
 	private Region<?, ?> example;

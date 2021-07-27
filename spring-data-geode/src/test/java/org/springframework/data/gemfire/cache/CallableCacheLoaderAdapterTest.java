@@ -63,8 +63,8 @@ public class CallableCacheLoaderAdapterTest {
 
 	@Test
 	public void constructCallableCacheLoaderAdapterWithArgumentKeyAndRegion() {
-		CallableCacheLoaderAdapter<String, Object> instance =
 
+		CallableCacheLoaderAdapter<String, Object> instance =
 			new CallableCacheLoaderAdapter<>(mockCacheLoader, "key", mockRegion, "test");
 
 		assertThat(instance).isNotNull();
@@ -160,7 +160,7 @@ public class CallableCacheLoaderAdapterTest {
 		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void callThrowsIllegalStateExceptionForNullRegion() throws Exception {
 
 		CallableCacheLoaderAdapter<String, Object> instance =

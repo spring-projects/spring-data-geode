@@ -17,9 +17,9 @@
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -55,6 +55,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -76,7 +77,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class LuceneNamespaceUnitTests extends IntegrationTestsSupport {
 

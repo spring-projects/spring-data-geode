@@ -4,20 +4,15 @@
 	   xmlns:gfe="http://www.springframework.org/schema/geode"
 	   xmlns:util="http://www.springframework.org/schema/util"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xsi:schemaLocation="
-        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/geode https://www.springframework.org/schema/geode/spring-geode.xsd
-        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
-">
+        http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
-	<util:properties id="client.properties">
-		<prop key="gemfire.cache.client.pool.locator.hosts-and-ports">localhost[11235]</prop>
-	</util:properties>
-
-	<context:property-placeholder properties-ref="client.properties"/>
+	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
+		<prop key="name">ClientCacheVariableLocatorsIntegrationTestsClient</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -27,6 +22,8 @@
 					   key-constraint="java.lang.String" value-constraint="java.lang.Integer"/>
 
 	<!-- Keep the definition of this GemFire Pool bean after the Region (Example) that depends on it! -->
-	<gfe:pool id="locatorPool" locators="${gemfire.cache.client.pool.locator.hosts-and-ports}"/>
+	<gfe:pool id="locatorPool" locators="localhost[12345],localhost[9876]">
+		<gfe:locator host="${spring.data.gemfire.locator.host:localhost}" port="${spring.data.gemfire.locator.port}"/>
+	</gfe:pool>
 
 </beans>

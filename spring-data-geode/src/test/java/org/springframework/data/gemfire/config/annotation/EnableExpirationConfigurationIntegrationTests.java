@@ -61,7 +61,11 @@ public class EnableExpirationConfigurationIntegrationTests extends IntegrationTe
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {

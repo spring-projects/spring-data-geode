@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -50,7 +49,6 @@ import org.springframework.data.gemfire.fork.LocatorProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileUtils;
-import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.data.gemfire.tests.util.ThrowableUtils;
 import org.springframework.data.gemfire.tests.util.ZipUtils;
 import org.springframework.data.gemfire.util.ArrayUtils;
@@ -136,9 +134,8 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 		String locatorName = "ClusterConfigLocator";
 
-		locatorWorkingDirectory = new File(System.getProperty("java.io.tmpdir"), locatorName.toLowerCase());
-
-		assertThat(locatorWorkingDirectory.isDirectory() || locatorWorkingDirectory.mkdirs()).isTrue();
+		locatorWorkingDirectory =
+			createDirectory(new File(System.getProperty("java.io.tmpdir"), locatorName.toLowerCase()));
 
 		ZipUtils.unzip(new ClassPathResource("/cluster_config.zip"), locatorWorkingDirectory);
 
@@ -160,23 +157,9 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 		locatorProcess.registerShutdownHook();
 
-		waitForLocatorStart(TimeUnit.SECONDS.toMillis(30));
+		waitForServerToStart("localhost", availablePort);
 
 		System.setProperty("spring.data.gemfire.locator.port", String.valueOf(availablePort));
-	}
-
-	private static void waitForLocatorStart(final long milliseconds) {
-
-		ThreadUtils.timedWait(milliseconds, 500, new ThreadUtils.Condition() {
-
-			final File pidControlFile = new File(locatorWorkingDirectory,
-				LocatorProcess.getLocatorProcessControlFilename());
-
-			@Override
-			public boolean evaluate() {
-				return !pidControlFile.isFile();
-			}
-		});
 	}
 
 	@AfterClass
@@ -201,7 +184,8 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 		return assertRegion(actualRegion, expectedRegionName, Region.SEPARATOR+expectedRegionName);
 	}
 
-	private Region<?, ?> assertRegion(Region<?, ?> actualRegion, String expectedRegionName, String expectedRegionFullPath) {
+	private Region<?, ?> assertRegion(Region<?, ?> actualRegion, String expectedRegionName,
+			String expectedRegionFullPath) {
 
 		assertThat(actualRegion).as(String.format("The [%s] was not properly configured and initialized!",
 			expectedRegionName)).isNotNull();
@@ -211,7 +195,8 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 		return actualRegion;
 	}
 
-	private Region<?, ?> assertRegionAttributes(Region<?, ?> actualRegion, DataPolicy expectedDataPolicy, Scope expectedScope) {
+	private Region<?, ?> assertRegionAttributes(Region<?, ?> actualRegion, DataPolicy expectedDataPolicy,
+			Scope expectedScope) {
 
 		assertThat(actualRegion).isNotNull();
 		assertThat(actualRegion.getAttributes()).isNotNull();

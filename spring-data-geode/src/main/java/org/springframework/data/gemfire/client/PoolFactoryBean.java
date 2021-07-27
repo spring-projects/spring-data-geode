@@ -17,12 +17,12 @@ package org.springframework.data.gemfire.client;
 
 import static java.util.stream.StreamSupport.stream;
 import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeCollection;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,9 @@ import org.springframework.data.gemfire.config.annotation.PoolConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
@@ -110,15 +112,32 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	private long idleTimeout = PoolFactory.DEFAULT_IDLE_TIMEOUT;
 	private long pingInterval = PoolFactory.DEFAULT_PING_INTERVAL;
 
-	private ConnectionEndpointList locators = new ConnectionEndpointList();
-	private ConnectionEndpointList servers = new ConnectionEndpointList();
+	private final ConnectionEndpointList locators = new ConnectionEndpointList();
+	private final ConnectionEndpointList servers = new ConnectionEndpointList();
+	private final ConnectionEndpointList xmlDeclaredLocators = new ConnectionEndpointList();
+	private final ConnectionEndpointList xmlDeclaredServers = new ConnectionEndpointList();
 
 	private List<PoolConfigurer> poolConfigurers = Collections.emptyList();
 
 	private volatile Pool pool;
 
-	private PoolConfigurer compositePoolConfigurer = (beanName, bean) ->
-		nullSafeCollection(this.poolConfigurers).forEach(poolConfigurer -> poolConfigurer.configure(beanName, bean));
+	private final PoolConfigurer xmlDeclaredServersPoolConfigurer = (beanName, bean) ->
+		bean.addServers(this.xmlDeclaredServers);
+
+	private final PoolConfigurer xmlDeclaredLocatorsPoolConfigurer = (beanName, bean) ->
+		bean.addLocators(this.xmlDeclaredLocators);
+
+	private final PoolConfigurer compositePoolConfigurer = (beanName, bean) -> {
+
+		List<PoolConfigurer> allPoolConfigurers =
+			new ArrayList<>(CollectionUtils.nullSafeSize(this.poolConfigurers) + 2);
+
+		allPoolConfigurers.add(this.xmlDeclaredLocatorsPoolConfigurer);
+		allPoolConfigurers.add(this.xmlDeclaredServersPoolConfigurer);
+		allPoolConfigurers.addAll(CollectionUtils.nullSafeCollection(this.poolConfigurers));
+
+		allPoolConfigurers.forEach(poolConfigurer -> poolConfigurer.configure(beanName, bean));
+	};
 
 	private PoolFactoryInitializer poolFactoryInitializer;
 
@@ -252,10 +271,12 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 
 			eagerlyInitializeClientCache();
 
-			Pool namedPool = resolvePool(getName());
+			String poolName = getName();
+
+			Pool namedPool = resolvePool(poolName);
 
 			this.pool = namedPool != null ? namedPool
-				: postProcess(create(postProcess(configure(initialize(createPoolFactory()))), getName()));
+				: postProcess(create(postProcess(configure(initialize(createPoolFactory()))), poolName));
 
 			return this.pool;
 		});
@@ -340,10 +361,10 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 			it.setSubscriptionTimeoutMultiplier(this.subscriptionTimeoutMultiplier);
 			it.setThreadLocalConnections(this.threadLocalConnections);
 
-			nullSafeCollection(this.locators).forEach(locator ->
+			CollectionUtils.nullSafeCollection(this.locators).forEach(locator ->
 				it.addLocator(locator.getHost(), locator.getPort()));
 
-			nullSafeCollection(this.servers).forEach(server ->
+			CollectionUtils.nullSafeCollection(this.servers).forEach(server ->
 				it.addServer(server.getHost(), server.getPort()));
 		});
 
@@ -412,6 +433,8 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 	 *
 	 * @return the {@link Class type} of {@link Pool} produced by this {@link PoolFactoryBean}.
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
+	 * @see org.apache.geode.cache.client.Pool
+	 * @see java.lang.Class
 	 */
 	@Override
 	public Class<?> getObjectType() {
@@ -445,19 +468,49 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 		return this.compositePoolConfigurer;
 	}
 
+	/**
+	 * Configures the {@link String name} of the {@link Pool} bean.
+	 *
+	 * @param name {@link String} containing the name for the {@link Pool} bean.
+	 * @see #getName()
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Gets the configured {@link String name} of the {@link Pool} bean.
+	 *
+	 * @return the configured {@link String name} of the {@link Pool} bean.
+	 * @see #getBeanName()
+	 * @see #setName(String)
+	 */
 	protected String getName() {
 		return this.name;
 	}
 
-	public void setPool(Pool pool) {
+	/**
+	 * Configures the {@link Pool} to be returned by this {@link PoolFactoryBean}.
+	 *
+	 * @param pool the {@link Pool} to be returned by this {@link PoolFactoryBean}.
+	 * @see org.apache.geode.cache.client.Pool
+	 */
+	public void setPool(@Nullable Pool pool) {
 		this.pool = pool;
 	}
 
-	public Pool getPool() {
+	/**
+	 * Gets the {@link Pool} configured and built by this {@link PoolFactoryBean}.
+	 *
+	 * May return a proxy {@link Pool} if the actual {@link Pool} has not yet been configured and built by
+	 * this {@link PoolFactoryBean}. In this case, the proxy {@link Pool} object will have the same configuration
+	 * as the final {@link Pool} built by this {@link PoolFactoryBean}.
+	 *
+	 * @return the {@link Pool} configured and built by this {@link PoolFactoryBean}.
+	 * @see org.apache.geode.cache.client.Pool
+	 * @see #setPool(Pool)
+	 */
+	public @NonNull Pool getPool() {
 
 		return Optional.ofNullable(this.pool).orElseGet(() -> new PoolAdapter() {
 
@@ -666,17 +719,17 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 		this.loadConditioningInterval = loadConditioningInterval;
 	}
 
-	public void setLocators(ConnectionEndpoint[] connectionEndpoints) {
-		setLocators(ConnectionEndpointList.from(connectionEndpoints));
+	public void setLocators(ConnectionEndpoint[] locators) {
+		setLocators(ConnectionEndpointList.from(locators));
 	}
 
-	public void setLocators(Iterable<ConnectionEndpoint> connectionEndpoints) {
+	public void setLocators(Iterable<ConnectionEndpoint> locators) {
 		getLocators().clear();
-		getLocators().add(connectionEndpoints);
+		getLocators().add(locators);
 	}
 
 	ConnectionEndpointList getLocators() {
-		return locators;
+		return this.locators;
 	}
 
 	public void setMaxConnections(int maxConnections) {
@@ -777,17 +830,17 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 		this.serverGroup = serverGroup;
 	}
 
-	public void setServers(ConnectionEndpoint[] connectionEndpoints) {
-		setServers(ConnectionEndpointList.from(connectionEndpoints));
+	public void setServers(ConnectionEndpoint[] servers) {
+		setServers(ConnectionEndpointList.from(servers));
 	}
 
-	public void setServers(Iterable<ConnectionEndpoint> connectionEndpoints) {
+	public void setServers(Iterable<ConnectionEndpoint> servers) {
 		getServers().clear();
-		getServers().add(connectionEndpoints);
+		getServers().add(servers);
 	}
 
 	ConnectionEndpointList getServers() {
-		return servers;
+		return this.servers;
 	}
 
 	public void setSocketBufferSize(int socketBufferSize) {
@@ -835,11 +888,13 @@ public class PoolFactoryBean extends AbstractFactoryBeanSupport<Pool> implements
 		this.threadLocalConnections = threadLocalConnections;
 	}
 
-	// Internal framework use only.
-	public final void setLocatorsConfiguration(Object locatorsConfiguration) { }
+	public void setXmlDeclaredLocators(ConnectionEndpointList xmlDeclaredLocators) {
+		this.xmlDeclaredLocators.add(xmlDeclaredLocators);
+	}
 
-	// Internal framework use only.
-	public final void setServersConfiguration(Object serversConfiguration) { }
+	public void setXmlDeclaredServers(ConnectionEndpointList xmlDeclaredServers) {
+		this.xmlDeclaredServers.add(xmlDeclaredServers);
+	}
 
 	/**
 	 * Callback interface to initialize the {@link PoolFactory} used by this {@link PoolFactoryBean}

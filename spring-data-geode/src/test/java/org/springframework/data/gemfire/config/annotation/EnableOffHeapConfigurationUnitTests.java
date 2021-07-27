@@ -59,7 +59,11 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
@@ -191,16 +195,14 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 	@EnableEntityDefinedRegions(basePackageClasses = Person.class)
 	@EnableOffHeap(memorySize = "8192m")
 	@Import(TestRegionConfiguration.class)
-	static class EnableOffHeapForAllRegionsConfiguration {
-	}
+	static class EnableOffHeapForAllRegionsConfiguration { }
 
 	@PeerCacheApplication
 	@EnableGemFireMockObjects
 	@EnableEntityDefinedRegions(basePackageClasses = Person.class)
 	@EnableOffHeap(memorySize = "1024m", regionNames = { "People", "ExamplePartitionRegion" })
 	@Import(TestRegionConfiguration.class)
-	static class EnableOffHeapForSelectRegionsConfiguration {
-	}
+	static class EnableOffHeapForSelectRegionsConfiguration { }
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication(
@@ -210,6 +212,6 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 		evictionOffHeapPercentage = 75.25f
 	)
 	@EnableOffHeap(memorySize = "1024g")
-	static class OffHeapCriticalAndEvictionMemoryPercentagesConfiguration {
-	}
+	static class OffHeapCriticalAndEvictionMemoryPercentagesConfiguration { }
+
 }

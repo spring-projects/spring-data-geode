@@ -42,7 +42,7 @@ import org.apache.geode.cache.Region;
 import org.springframework.cache.Cache;
 
 /**
- * Unit tests for {@link GemfireCacheManager}.
+ * Unit Tests for {@link GemfireCacheManager}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -169,7 +169,7 @@ public class GemfireCacheManagerUnitTests {
 		}
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void assertGemFireRegionAvailableWithDestroyedGemFireRegionThrowIllegalStateException() {
 
 		when(mockRegion.isDestroyed()).thenReturn(true);

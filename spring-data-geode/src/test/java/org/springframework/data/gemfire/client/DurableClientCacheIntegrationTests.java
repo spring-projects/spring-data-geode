@@ -90,9 +90,6 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 	private static List<Integer> regionCacheListenerEventValues =
 		Collections.synchronizedList(new ArrayList<Integer>());
 
-	private static final String CACHE_SERVER_PORT =
-		DurableClientCacheIntegrationTests.class.getName().concat(".cache-server-port");
-
 	private static final String CLIENT_CACHE_INTERESTS_RESULT_POLICY =
 		DurableClientCacheIntegrationTests.class.getName().concat(".interests-result-policy");
 
@@ -188,7 +185,7 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 		try {
 
 			ClientCache clientCache = new ClientCacheFactory()
-				.addPoolServer(SERVER_HOST, Integer.getInteger(GEMFIRE_POOL_SERVERS_PROPERTY))
+				.addPoolServer(SERVER_HOST, Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY))
 				.set("name", "ClientCacheProducer")
 				.set("log-level", "error")
 				.create();

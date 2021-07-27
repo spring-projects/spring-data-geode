@@ -88,6 +88,7 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.GemFireException
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.CacheFactory
+ * @see org.apache.geode.cache.DiskStore
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.TransactionListener
@@ -250,6 +251,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * are copied when read (i.e. {@link Region#get(Object)}.
 	 * @see #getCopyOnRead()
 	 */
+	@SuppressWarnings("unused")
 	public boolean isCopyOnRead() {
 		return Boolean.TRUE.equals(getCopyOnRead());
 	}
@@ -510,6 +512,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * in the Spring container.
 	 * @see org.springframework.context.Phased#getPhase()
 	 */
+	@SuppressWarnings("unused")
 	protected void setPhase(int phase) {
 		this.phase = phase;
 	}
@@ -598,18 +601,30 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * @param cache {@link GemFireCache} to close.
 	 * @see org.apache.geode.cache.GemFireCache#isClosed()
 	 * @see org.apache.geode.cache.GemFireCache#close()
+	 * @see #isNotClosed(GemFireCache)
 	 */
 	protected void close(@Nullable GemFireCache cache) {
 
 		Optional.ofNullable(cache)
-			.filter(it -> !it.isClosed())
+			.filter(this::isNotClosed)
 			.ifPresent(GemFireCache::close);
 
 		setCache(null);
 	}
 
 	/**
-	 * Destroys the cache bean on Spring Container shutdown.
+	 * Determines if the {@link GemFireCache} has not been closed yet.
+	 *
+	 * @param cache {@link GemFireCache} to evaluate.
+	 * @return a boolean value indicating if the {@link GemFireCache} is not yet closed.
+	 * @see org.apache.geode.cache.GemFireCache
+	 */
+	protected boolean isNotClosed(@Nullable GemFireCache cache) {
+		return cache == null || !cache.isClosed();
+	}
+
+	/**
+	 * Destroys the cache bean on Spring container shutdown.
 	 *
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 * @see #close(GemFireCache)

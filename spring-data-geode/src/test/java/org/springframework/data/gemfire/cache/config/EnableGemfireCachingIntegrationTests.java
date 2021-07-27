@@ -15,14 +15,10 @@
  */
 package org.springframework.data.gemfire.cache.config;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-
-import javax.annotation.Resource;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -99,9 +95,6 @@ public class EnableGemfireCachingIntegrationTests extends IntegrationTestsSuppor
 	static class CalculatorService {
 
 		private volatile boolean cacheMiss;
-
-		@Resource(name = "Factorials")
-		private Region<Long, Long> factorials;
 
 		public boolean isCacheMiss() {
 			boolean cacheMiss = this.cacheMiss;

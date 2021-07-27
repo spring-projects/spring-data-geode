@@ -97,7 +97,11 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		destroyAllGemFireMockObjects();
 	}
 
 	private <K, V> void assertRegion(Region<K, V> region, String name) {

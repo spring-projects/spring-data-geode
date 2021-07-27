@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.support;
 
 import java.net.InetSocketAddress;
@@ -23,17 +22,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 
 /**
- * The ConnectionEndpointList class is an Iterable collection of ConnectionEndpoint objects.
+ * The {@link ConnectionEndpointList} class is an {@link Iterable} collection of {@link ConnectionEndpoint} objects.
  *
  * @author John Blum
  * @see java.lang.Iterable
  * @see java.net.InetSocketAddress
  * @see java.util.AbstractList
+ * @see java.util.List
  * @see org.springframework.data.gemfire.support.ConnectionEndpoint
  * @since 1.6.3
  */
@@ -43,11 +47,13 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	private final List<ConnectionEndpoint> connectionEndpoints;
 
 	/**
-	 * Factory method for creating a {@link ConnectionEndpointList} from an array of {@link ConnectionEndpoint}s.
+	 * Factory method used to create a {@link ConnectionEndpointList} from an array of
+	 * {@link ConnectionEndpoint ConnectionPoints}.
 	 *
-	 * @param connectionEndpoints the array of {@link ConnectionEndpoint}s used to initialize
-	 * the {@link ConnectionEndpointList}.
-	 * @return a {@link ConnectionEndpointList} initialized with the array of {@link ConnectionEndpoint}s.
+	 * @param connectionEndpoints array of {@link ConnectionEndpoint ConnectionPoints}
+	 * used to initialize a new instance of {@link ConnectionEndpointList}.
+	 * @return a {@link ConnectionEndpointList} initialized with the array of
+	 * {@link ConnectionEndpoint ConnectionPoints}.
 	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint
 	 */
 	public static ConnectionEndpointList from(ConnectionEndpoint... connectionEndpoints) {
@@ -55,11 +61,13 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Converts an array of {@link InetSocketAddress} into an instance of {@link ConnectionEndpointList}.
+	 * Factory method used to create a {@link ConnectionEndpointList} from an array of
+	 * {@link InetSocketAddress InetSocketAddresses}.
 	 *
-	 * @param socketAddresses the array of {@link InetSocketAddress} used to initialize
-	 * an instance of {@link ConnectionEndpointList}.
-	 * @return a {@link ConnectionEndpointList} initialized with the array of {@link InetSocketAddress}.
+	 * @param socketAddresses array of {@link InetSocketAddress InetSocketAddresses}
+	 * used to initialize a new instance of {@link ConnectionEndpointList}.
+	 * @return a {@link ConnectionEndpointList} initialized from the array of
+	 * {@link InetSocketAddress InetSocketAddresses}.
 	 * @see java.net.InetSocketAddress
 	 * @see #from(Iterable)
 	 */
@@ -68,17 +76,19 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Converts an {@link Iterable} collection of {@link InetSocketAddress} into an instance
-	 * of {@link ConnectionEndpointList}.
+	 * Factory method used to create a {@link ConnectionEndpointList} from an {@link Iterable} of
+	 * {@link InetSocketAddress InetSocketAddresses}.
 	 *
-	 * @param socketAddresses in {@link Iterable} collection of {@link InetSocketAddress} used to initialize
-	 * an instance of {@link ConnectionEndpointList}.
-	 * @return a {@link ConnectionEndpointList} initialized with the array of {@link InetSocketAddress}.
-	 * @see java.lang.Iterable
+	 * @param socketAddresses {@link Iterable} of {@link InetSocketAddress InetSocketAddresses}
+	 * used to initialize a new instance of {@link ConnectionEndpointList}.
+	 * @return a {@link ConnectionEndpointList} initialized from an {@link Iterable} of
+	 * {@link InetSocketAddress InetSocketAddresses}.
 	 * @see java.net.InetSocketAddress
+	 * @see java.lang.Iterable
 	 */
 	public static ConnectionEndpointList from(Iterable<InetSocketAddress> socketAddresses) {
-		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<ConnectionEndpoint>();
+
+		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<>();
 
 		for (InetSocketAddress socketAddress : CollectionUtils.nullSafeIterable(socketAddresses)) {
 			connectionEndpoints.add(ConnectionEndpoint.from(socketAddress));
@@ -88,17 +98,34 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Parses the array of hosts and ports in the format 'host[port]' to convert into an instance
-	 * of ConnectionEndpointList.
+	 * Parses the comma-delimited {@link String hosts and ports} in the format {@literal host[port]}
+	 * or {@literal host:port} to convert into an instance of {@link ConnectionEndpointList}.
 	 *
-	 * @param defaultPort the default port number to use if port is not specified in a host and port value.
-	 * @param hostsPorts the array of hosts and ports to parse.
-	 * @return a ConnectionEndpointList representing the hosts and ports in the array.
+	 * @param commaDelimitedHostAndPorts {@link String} containing a comma-delimited {@link String} of hosts and ports.
+	 * @param defaultPort {@link Integer default port number} to use if port is not specified in a host and port value.
+	 * @return a new {@link ConnectionEndpointList} representing the {@link String hosts and ports}.
+	 * @see #parse(int, String...)
+	 */
+	public static ConnectionEndpointList parse(String commaDelimitedHostAndPorts, int defaultPort) {
+
+		String[] hostsPorts = StringUtils.commaDelimitedListToStringArray(commaDelimitedHostAndPorts);
+
+		return parse(defaultPort, hostsPorts);
+	}
+
+	/**
+	 * Parses the array of {@link String hosts and ports} in the format {@literal host[port]} or {@literal host:port}
+	 * to convert into an instance of {@link ConnectionEndpointList}.
+	 *
+	 * @param defaultPort {@link Integer default port number} to use if port is not specified in a host and port value.
+	 * @param hostsPorts array of {@link String hosts and ports} to parse.
+	 * @return a new {@link ConnectionEndpointList} representing the {@link String hosts and ports} in the array.
 	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint#parse(String, int)
+	 * @see #ConnectionEndpointList(Iterable)
 	 */
 	public static ConnectionEndpointList parse(int defaultPort, String... hostsPorts) {
-		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<ConnectionEndpoint>(
-			ArrayUtils.length(hostsPorts));
+
+		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<>(ArrayUtils.length(hostsPorts));
 
 		for (String hostPort : ArrayUtils.nullSafeArray(hostsPorts, String.class)) {
 			connectionEndpoints.add(ConnectionEndpoint.parse(hostPort, defaultPort));
@@ -108,46 +135,59 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Constructs an empty, uninitialized instance of the ConnectionEndpointList collection.
+	 * Constructs a new, empty and uninitialized instance of the {@link ConnectionEndpointList}.
+	 *
+	 * @see #ConnectionEndpointList(Iterable)
 	 */
 	public ConnectionEndpointList() {
-		this(Collections.<ConnectionEndpoint>emptyList());
+		this(Collections.emptyList());
 	}
 
 	/**
-	 * Constructs an instance of ConnectionEndpointList initialized with the the array of ConnectionEndpoints.
+	 * Constructs a new instance of {@link ConnectionEndpointList} initialized with an array
+	 * of {@link ConnectionEndpoint ConnectionEndpoints}.
 	 *
-	 * @param connectionEndpoints is an array containing ConnectionEndpoints to add to this collection.
+	 * @param connectionEndpoints array of {@link ConnectionEndpoint ConnectionEndpoints} to add to this list.
 	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint
 	 * @see #ConnectionEndpointList(Iterable)
 	 */
-	public ConnectionEndpointList(ConnectionEndpoint... connectionEndpoints) {
+	public ConnectionEndpointList(@NonNull ConnectionEndpoint... connectionEndpoints) {
 		this(Arrays.asList(connectionEndpoints));
 	}
 
 	/**
-	 * Constructs an instance of ConnectionEndpointList initialized with the Iterable collection of ConnectionEndpoints.
+	 * Constructs a new instance of {@link ConnectionEndpointList} initialized with the {@link Iterable} collection
+	 * of {@link ConnectionEndpoint ConnectionEndpoints}.
 	 *
-	 * @param connectionEndpoints the Iterable object containing ConnectionEndpoints to add to this collection.
+	 * @param connectionEndpoints {@link Iterable} object containing {@link ConnectionEndpoint ConnectionEndpoints}
+	 * to add to this list.
 	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint
 	 * @see java.lang.Iterable
+	 * @see #add(Iterable)
 	 */
-	public ConnectionEndpointList(Iterable<ConnectionEndpoint> connectionEndpoints) {
-		this.connectionEndpoints = new ArrayList<ConnectionEndpoint>();
+	public ConnectionEndpointList(@NonNull Iterable<ConnectionEndpoint> connectionEndpoints) {
+		this.connectionEndpoints = new ArrayList<>();
 		add(connectionEndpoints);
 	}
 
-	/* (non-Javadoc) */
+	/**
+	 * Adds the given {@link ConnectionEndpoint} to this list.
+	 *
+	 * @param connectionEndpoint {@link ConnectionEndpoint} to add to this list.
+	 * @return a boolean value indicating whether this list was modified by the add operation.
+	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint
+	 * @see #add(ConnectionEndpoint...)
+	 */
 	@Override
 	public boolean add(ConnectionEndpoint connectionEndpoint) {
-		return (add(ArrayUtils.asArray(connectionEndpoint)) == this);
+		return add(ArrayUtils.asArray(connectionEndpoint)) == this;
 	}
 
 	/**
-	 * Adds the array of ConnectionEndpoints to this list.
+	 * Adds the array of {@link ConnectionEndpoint ConnectionEndpoints} to this list.
 	 *
-	 * @param connectionEndpoints the array of ConnectionEndpoints to add to this list.
-	 * @return this ConnectionEndpointList to support the Builder pattern style of chaining.
+	 * @param connectionEndpoints array of {@link ConnectionEndpoint ConnectionEndpoints} to add to this list.
+	 * @return this {@link ConnectionEndpointList}.
 	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint
 	 * @see #add(Iterable)
 	 */
@@ -157,14 +197,16 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Adds the Iterable collection of ConnectionEndpoints to this list.
+	 * Adds the {@link Iterable} collection of {@link ConnectionEndpoint ConnectionEndpoints} to this list.
 	 *
-	 * @param connectionEndpoints the Iterable collection of ConnectionEndpoints to add to this list.
-	 * @return this ConnectionEndpointList to support the Builder pattern style of chaining.
+	 * @param connectionEndpoints {@link Iterable} collection of {@link ConnectionEndpoint ConnectionEndpoints}
+	 * to add to this list.
+	 * @return this {@link ConnectionEndpointList}.
 	 * @see org.springframework.data.gemfire.support.ConnectionEndpoint
 	 * @see #add(ConnectionEndpoint...)
 	 */
 	public final ConnectionEndpointList add(Iterable<ConnectionEndpoint> connectionEndpoints) {
+
 		for (ConnectionEndpoint connectionEndpoint : CollectionUtils.nullSafeIterable(connectionEndpoints)) {
 			this.connectionEndpoints.add(connectionEndpoint);
 		}
@@ -173,25 +215,19 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Clears the current list of {@link ConnectionEndpoint}s.
+	 * Clears the current list of {@link ConnectionEndpoint ConnectionEndpoints}.
 	 */
 	@Override
 	public void clear() {
 		this.connectionEndpoints.clear();
 	}
 
-	/**
-	 * Finds all ConnectionEndpoints in this list with the specified hostname.
-	 *
-	 * @param host a String indicating the hostname to use in the match.
-	 * @return a ConnectionEndpointList (sub-List) containing all the ConnectionEndpoints matching the given hostname.
-	 * @see #findBy(int)
-	 */
-	public ConnectionEndpointList findBy(String host) {
-		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<ConnectionEndpoint>(size());
+	private @NonNull ConnectionEndpointList findBy(@NonNull Predicate<ConnectionEndpoint> predicate) {
+
+		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<>(size());
 
 		for (ConnectionEndpoint connectionEndpoint : this) {
-			if (connectionEndpoint.getHost().equals(host)) {
+			if (predicate.test(connectionEndpoint)) {
 				connectionEndpoints.add(connectionEndpoint);
 			}
 		}
@@ -200,22 +236,31 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	}
 
 	/**
-	 * Finds all ConnectionEndpoints in this list with the specified port number.
+	 * Finds all {@link ConnectionEndpoint ConnectionEndpoints} in this list with the specified {@link String hostname}.
 	 *
-	 * @param port an Integer value indicating the port number to use in the match.
-	 * @return a ConnectionEndpointList (sub-List) containing all the ConnectionEndpoints matching the given port number.
+	 * @param host {@link String} indicating the hostname to use in the match.
+	 * @return a {@link ConnectionEndpointList} (sub-List) containing all the {@link ConnectionEndpoint ConnectionEndpoints}
+	 * matching the given {@link String hostname}.
+	 * @see #findBy(int)
+	 */
+	public @NonNull ConnectionEndpointList findBy(String host) {
+		return findBy(connectionEndpoint -> connectionEndpoint.getHost().equals(host));
+	}
+
+	/**
+	 * Finds all {@link ConnectionEndpoint ConnectionEndpoints} in this list with the specified port number.
+	 *
+	 * @param port {@link Integer} value indicating the port number to use in the match.
+	 * @return a {@link ConnectionEndpointList} (sub-List) containing all the {@link ConnectionEndpoint ConnectionEndpoints}
+	 * matching the given port number.
 	 * @see #findBy(String)
 	 */
-	public ConnectionEndpointList findBy(int port) {
-		List<ConnectionEndpoint> connectionEndpoints = new ArrayList<ConnectionEndpoint>(size());
+	public @NonNull ConnectionEndpointList findBy(int port) {
+		return findBy(connectionEndpoint -> connectionEndpoint.getPort() == port);
+	}
 
-		for (ConnectionEndpoint connectionEndpoint : this) {
-			if (connectionEndpoint.getPort() == port) {
-				connectionEndpoints.add(connectionEndpoint);
-			}
-		}
-
-		return new ConnectionEndpointList(connectionEndpoints);
+	private @Nullable ConnectionEndpoint findOne(@NonNull ConnectionEndpointList list) {
+		return list == null || list.isEmpty() ? null : list.get(0);
 	}
 
 	/**
@@ -226,9 +271,8 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 * or null if no {@link ConnectionEndpoint} exists with the given hostname.
 	 * @see #findBy(String)
 	 */
-	public ConnectionEndpoint findOne(String host) {
-		ConnectionEndpointList connectionEndpoints = findBy(host);
-		return (connectionEndpoints.isEmpty() ? null : connectionEndpoints.connectionEndpoints.get(0));
+	public @Nullable ConnectionEndpoint findOne(String host) {
+		return findOne(findBy(host));
 	}
 
 	/**
@@ -239,9 +283,8 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 * or null if no {@link ConnectionEndpoint} exists with the given port number.
 	 * @see #findBy(int)
 	 */
-	public ConnectionEndpoint findOne(int port) {
-		ConnectionEndpointList connectionEndpoints = findBy(port);
-		return (connectionEndpoints.isEmpty() ? null : connectionEndpoints.connectionEndpoints.get(0));
+	public @Nullable ConnectionEndpoint findOne(int port) {
+		return findOne(findBy(port));
 	}
 
 	/**
@@ -255,7 +298,7 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 */
 	@Override
 	public ConnectionEndpoint get(int index) {
-		return connectionEndpoints.get(index);
+		return this.connectionEndpoints.get(index);
 	}
 
 	/**
@@ -271,7 +314,7 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 */
 	@Override
 	public ConnectionEndpoint set(int index, ConnectionEndpoint element) {
-		return connectionEndpoints.set(index, element);
+		return this.connectionEndpoints.set(index, element);
 	}
 
 	/**
@@ -281,14 +324,15 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 */
 	@Override
 	public boolean isEmpty() {
-		return connectionEndpoints.isEmpty();
+		return this.connectionEndpoints.isEmpty();
 	}
 
-	/* (non-Javadoc) */
+	/**
+	 * @inheritDoc
+	 */
 	@Override
-	@SuppressWarnings("all")
-	public Iterator<ConnectionEndpoint> iterator() {
-		return Collections.unmodifiableList(connectionEndpoints).iterator();
+	public @NonNull Iterator<ConnectionEndpoint> iterator() {
+		return Collections.unmodifiableList(this.connectionEndpoints).iterator();
 	}
 
 	/**
@@ -298,7 +342,7 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 */
 	@Override
 	public int size() {
-		return connectionEndpoints.size();
+		return this.connectionEndpoints.size();
 	}
 
 	/**
@@ -307,9 +351,8 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 * @return an array of {@link ConnectionEndpoint}s representing this collection.
 	 */
 	@Override
-	@SuppressWarnings("all")
 	public ConnectionEndpoint[] toArray() {
-		return connectionEndpoints.toArray(new ConnectionEndpoint[connectionEndpoints.size()]);
+		return this.connectionEndpoints.toArray(new ConnectionEndpoint[0]);
 	}
 
 	/**
@@ -321,7 +364,8 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 	 * @see java.util.List
 	 */
 	public List<InetSocketAddress> toInetSocketAddresses() {
-		List<InetSocketAddress> inetSocketAddresses = new ArrayList<InetSocketAddress>(size());
+
+		List<InetSocketAddress> inetSocketAddresses = new ArrayList<>(size());
 
 		for (ConnectionEndpoint connectionEndpoint : this) {
 			inetSocketAddresses.add(connectionEndpoint.toInetSocketAddress());
@@ -330,7 +374,9 @@ public class ConnectionEndpointList extends AbstractList<ConnectionEndpoint> {
 		return inetSocketAddresses;
 	}
 
-	/* (non-Javadoc) */
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public String toString() {
 		return connectionEndpoints.toString();

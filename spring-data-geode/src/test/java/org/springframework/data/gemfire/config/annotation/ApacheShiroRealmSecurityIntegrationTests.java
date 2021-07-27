@@ -45,8 +45,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
 @ActiveProfiles("apache-geode-client")
+@ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
 public class ApacheShiroRealmSecurityIntegrationTests extends AbstractGeodeSecurityIntegrationTests {
 
 	protected static final String SHIRO_REALM_CONFIGURATION_PROFILE = "shiro-realm-configuration";

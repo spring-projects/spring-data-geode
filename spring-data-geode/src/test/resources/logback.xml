@@ -23,6 +23,10 @@
 
     <logger name="org.springframework" level="${logback.log.level:-ERROR}"/>
 
+    <logger name="org.springframework.data" level="${logback.log.level:-ERROR}"/>
+
+    <logger name="org.springframework.data.gemfire" level="${logback.log.level:-CONFIG}"/>
+
     <logger name="org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect" level="trace" additivity="false">
         <appender-ref ref="testAppender"/>
     </logger>

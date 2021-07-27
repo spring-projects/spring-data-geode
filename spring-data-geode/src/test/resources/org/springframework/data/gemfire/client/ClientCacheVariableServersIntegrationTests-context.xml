@@ -11,15 +11,10 @@
         http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<util:properties id="clientProperties">
-		<prop key="gemfire.cache.client.pool.server.hosts-and-ports">localhost[23579],localhost[23654]</prop>
-		<prop key="gemfire.cache.client.pool.server.host">localhost</prop>
-		<prop key="gemfire.cache.client.pool.server.port">24448</prop>
-	</util:properties>
-
-	<context:property-placeholder properties-ref="clientProperties"/>
+	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
+		<prop key="name">ClientCacheVariableServersIntegrationTestsClient</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -28,9 +23,9 @@
 	<gfe:client-region id="Example" pool-name="serverPool" shortcut="PROXY"
 					   key-constraint="java.lang.String" value-constraint="java.lang.Integer"/>
 
-	<!-- Keep the definition of this GemFire Pool bean after the Region (Example) that depends on it! -->
-	<gfe:pool id="serverPool" servers="${gemfire.cache.client.pool.server.hosts-and-ports}">
-		<gfe:server host="${gemfire.cache.client.pool.server.host}" port="${gemfire.cache.client.pool.server.port}"/>
+	<gfe:pool id="serverPool" servers="localhost[${test.cache.server.port.one}],localhost[${test.cache.server.port.two}]">
+		<gfe:server host="${spring.data.gemfire.cache.server.host:localhost}"
+					port="${spring.data.gemfire.cache.server.port}"/>
 	</gfe:pool>
 
 </beans>
