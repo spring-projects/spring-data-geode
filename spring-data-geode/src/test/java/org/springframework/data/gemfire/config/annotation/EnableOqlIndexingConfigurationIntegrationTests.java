@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.Index;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -63,7 +62,7 @@ public class EnableOqlIndexingConfigurationIntegrationTests {
 	@Resource(name = "PeopleIdKeyIdx")
 	private Index personIdKeyIndex;
 
-	@Resource(name = "PeopleLastNameHashIdx")
+	@Resource(name = "PeopleLastNameFunctionalIdx")
 	private Index personLastNameHashIndex;
 
 	@Test
@@ -92,8 +91,8 @@ public class EnableOqlIndexingConfigurationIntegrationTests {
 	public void idKeyIndexAndLastNameHashIndexAreSetupCorrectly() {
 
 		assertIndex(this.personIdKeyIndex, "PeopleIdKeyIdx", "id", "/People", IndexType.KEY);
-		assertIndex(this.personLastNameHashIndex, "PeopleLastNameHashIdx",
-			"lastName", "/People", IndexType.HASH);
+		assertIndex(this.personLastNameHashIndex, "PeopleLastNameFunctionalIdx",
+			"lastName", "/People", IndexType.FUNCTIONAL);
 	}
 
 	@ClientCacheApplication(logLevel = "none")

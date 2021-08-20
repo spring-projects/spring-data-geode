@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+
 /**
- * The IndexType class is an enumerated type of GemFire Index Types.
+ * {@link IndexType} is an enumerated type of Apache Geode {@link org.apache.geode.cache.query.IndexType Index Types}.
+ *
+ * NOTE: The Apache Geode {@link org.apache.geode.cache.query.IndexType} enum has been deprecated, therefore the SDG
+ * {@link IndexType} exists to replace it.
  *
  * @author John Blum
  * @see org.apache.geode.cache.query.IndexType
@@ -31,58 +37,68 @@ public enum IndexType {
 	PRIMARY_KEY(org.apache.geode.cache.query.IndexType.PRIMARY_KEY),
 	KEY(org.apache.geode.cache.query.IndexType.PRIMARY_KEY);
 
+	public static final IndexType DEFAULT = IndexType.FUNCTIONAL;
+
 	private final org.apache.geode.cache.query.IndexType gemfireIndexType;
 
 	/**
-	 * Constructs an instance of the IndexType enum initialized with the given GemFire IndexType.
+	 * Constructs a new instance of the {@link IndexType} enum initialized with the given Apache Geode
+	 * {@link org.apache.geode.cache.query.IndexType}.
 	 *
-	 * @param gemfireIndexType the corresponding GemFire IndexType
+	 * @param gemfireIndexType an Apache Geode {@link org.apache.geode.cache.query.IndexType}.
+	 * @throws IllegalArgumentException if the Apache Geode {@link org.apache.geode.cache.query.IndexType}
+	 * is {@literal  null}.
 	 * @see org.apache.geode.cache.query.IndexType
 	 */
-	IndexType(final org.apache.geode.cache.query.IndexType gemfireIndexType) {
+	IndexType(@NonNull org.apache.geode.cache.query.IndexType gemfireIndexType) {
+
+		Assert.notNull(gemfireIndexType, "The Apache Geode IndexType must not be null");
+
 		this.gemfireIndexType = gemfireIndexType;
 	}
 
 	/**
-	 * Null-safe operation to determine if the IndexType is a "FUNCTIONAL" Index.
+	 * Null-safe operation to determine if the given {@link IndexType} is a {@literal FUNCTIONAL} Index.
 	 *
-	 * @param indexType the IndexType to evaluate.
-	 * @return a boolean value indicating whether the IndexType is a "FUNCTIONAL" Index.
+	 * @param indexType {@link IndexType} to evaluate.
+	 * @return a boolean value indicating whether the given {@link IndexType} is a {@literal FUNCTIONAL} Index.
 	 * @see #isFunctional()
 	 */
-	public static boolean isFunctional(IndexType indexType) {
-		return (indexType != null && indexType.isFunctional());
+	public static boolean isFunctional(@Nullable IndexType indexType) {
+		return indexType != null && indexType.isFunctional();
 	}
 
 	/**
-	 * Null-safe operation to determine if the IndexType is a "HASH" Index.
+	 * Null-safe operation to determine if the given {@link IndexType} is a {@literal HASH} Index.
 	 *
-	 * @param indexType the IndexType to evaluate.
-	 * @return a boolean value indicating whether the IndexType is a "HASH" Index.
+	 * @param indexType {@link IndexType} to evaluate.
+	 * @return a boolean value indicating whether the given {@link IndexType} is a {@literal HASH} Index.
 	 * @see #isHash()
 	 */
 	public static boolean isHash(IndexType indexType) {
-		return (indexType != null && indexType.isHash());
+		return indexType != null && indexType.isHash();
 	}
 
 	/**
-	 * Null-safe operation to determine if the IndexType is a "KEY" Index.
+	 * Null-safe operation to determine if the given {@link IndexType} is a {@literal KEY} Index.
 	 *
-	 * @param indexType the IndexType to evaluate.
-	 * @return a boolean value indicating whether the IndexType is a "KEY" Index.
-	 * @see #isFunctional()
+	 * @param indexType {@link IndexType} to evaluate.
+	 * @return a boolean value indicating whether the given {@link IndexType} is a {@literal KEY} Index.
+	 * @see #isKey()
 	 */
 	public static boolean isKey(IndexType indexType) {
-		return (indexType != null && indexType.isKey());
+		return indexType != null && indexType.isKey();
 	}
 
 	/**
-	 * Returns an IndexType given the corresponding GemFire IndexType or null if no SDG IndexType
-	 * corresponds to the GemFire IndexType.
+	 * Returns an {@link IndexType} given the corresponding Apache Geode {@link org.apache.geode.cache.query.IndexType}
+	 * or {@literal null} if no SDG {@link IndexType} corresponds to the given Apache Geode
+	 * {@link org.apache.geode.cache.query.IndexType}.
 	 *
-	 * @param gemfireIndexType the GemFire IndexType.
-	 * @return a IndexType matching the GemFire IndexType or null if the GemFire IndexType does not match
-	 * any IndexType in this enumeration.
+	 * @param gemfireIndexType Apache Geode {@link org.apache.geode.cache.query.IndexType}.
+	 * @return an {@link IndexType} matching the Apache Geode {@link org.apache.geode.cache.query.IndexType}
+	 * or {@literal null} if the Apache Geode {@link org.apache.geode.cache.query.IndexType} does not match
+	 * any {@literal IndexType} in this enumeration.
 	 * @see org.apache.geode.cache.query.IndexType
 	 */
 	public static IndexType valueOf(org.apache.geode.cache.query.IndexType gemfireIndexType) {
@@ -97,10 +113,10 @@ public enum IndexType {
 	}
 
 	/**
-	 * Returns an IndexType matching the given String.
+	 * Return an {@link IndexType} matching the given {@link String}.
 	 *
-	 * @param value the String value describing the matching IndexType.
-	 * @return an IndexType matching the given String.
+	 * @param value {@link String} value describing {@link IndexType} to match.
+	 * @return an {@link IndexType} matching the given {@link String}.
 	 * @see java.lang.String#equalsIgnoreCase(String)
 	 */
 	public static IndexType valueOfIgnoreCase(String value) {
@@ -115,39 +131,40 @@ public enum IndexType {
 	}
 
 	/**
-	 * Gets the matching GemFire IndexType for this IndexType enumerated value.
+	 * Gets the matching Apache Geode {@link org.apache.geode.cache.query.IndexType} for this {@link IndexType}
+	 * enumerated value.
 	 *
-	 * @return the matching GemFire IndexType.
+	 * @return the matching Apache Geode {@link org.apache.geode.cache.query.IndexType}.
 	 * @see org.apache.geode.cache.query.IndexType
 	 */
-	public org.apache.geode.cache.query.IndexType getGemfireIndexType() {
-		return gemfireIndexType;
+	public @NonNull org.apache.geode.cache.query.IndexType getGemfireIndexType() {
+		return this.gemfireIndexType;
 	}
 
 	/**
-	 * Determines whether this IndexType is "FUNCTIONAL".
+	 * Determines whether this {@link IndexType} is a {@literal FUNCTIONAL} Index.
 	 *
-	 * @return a boolean value indicating whether this IndexType is "FUNCTIONAL".
+	 * @return a boolean value indicating whether this {@link IndexType} is a {@literal FUNCTIONAL} Index.
 	 */
 	public boolean isFunctional() {
 		return this.equals(FUNCTIONAL);
 	}
 
 	/**
-	 * Determines whether this IndexType is a "HASH" Index.
+	 * Determines whether this {@link IndexType} is a {@literal HASH} Index.
 	 *
-	 * @return a boolean value indicating whether this IndexType is a "HASH" Index.
+	 * @return a boolean value indicating whether this {@literal IndexType} is a {@literal HASH} Index.
 	 */
 	public boolean isHash() {
 		return this.equals(HASH);
 	}
 
 	/**
-	 * Determines whether this IndexType is a "KEY" Index.
+	 * Determines whether this {@literal IndexType} is a {@literal KEY} Index.
 	 *
-	 * @return a boolean value indicating whether this IndexType is a "KEY" Index.
+	 * @return a boolean value indicating whether this {@link IndexType} is a {@literal KEY} Index.
 	 */
 	public boolean isKey() {
-		return (this.equals(KEY) || this.equals(PRIMARY_KEY));
+		return this.equals(KEY) || this.equals(PRIMARY_KEY);
 	}
 }
