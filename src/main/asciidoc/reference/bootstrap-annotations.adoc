@@ -1885,9 +1885,9 @@ and it matches the criteria defined in the query predicate of the registered CQ,
 events without all the cruft of {data-store-name}'s plumbing. {sdg-acronym}'s new annotation-based configuration
 for CQs builds on the existing Continuous Query support in the <<apis:continuous-query, continuous query listener container>>.
 
-For instance, say a book publisher wants to register interest in and receive notification any time orders (demand)
-for a `Book` exceeds the current inventory (supply). Then the publisher's print application might register
-the following CQ:
+For instance, say a banking application registers interest in every customers' checking acccount to detect overdraft
+withdrawls and handle this event by either applying overdraft protection or notifyinfg the customer.  Then, the
+application might register the following CQ:
 
 .Spring `ClientCache` application with registered CQ and listener.
 [source, java]
@@ -1897,19 +1897,9 @@ the following CQ:
 @EnableContinuousQueries
 class PublisherPrintApplication {
 
-    @ContinuousQuery(name = "DemandExceedsSupply", query =
-       "SELECT book.* FROM /Books book, /Inventory inventory
-        WHERE book.title = 'How to crush it in the Book business like Amazon"
-        AND inventory.isbn = book.isbn
-        AND inventory.available < (
-            SELECT sum(order.lineItems.quantity)
-            FROM /Orders order
-            WHERE order.status = 'pending'
-            AND order.lineItems.isbn = book.isbn
-        )
-    ")
-    void handleSupplyProblem(CqEvent event) {
-        // start printing more books, fast!
+    @ContinuousQuery(name = "OverdraftProtection", query = "SELECT * FROM /CheckingAccount ca WHERE ca.balance < 0.0")
+    void handleOverdraft(CqEvent event) {
+        // Quick!!! Put more money into the checking account or notify the customer of the checking account!
     }
 }
 ----
