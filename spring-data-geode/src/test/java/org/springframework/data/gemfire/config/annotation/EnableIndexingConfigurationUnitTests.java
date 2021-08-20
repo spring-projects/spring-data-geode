@@ -68,6 +68,8 @@ import org.springframework.data.gemfire.config.annotation.test.entities.GenericR
 import org.springframework.data.gemfire.config.annotation.test.entities.LocalRegionEntity;
 import org.springframework.data.gemfire.config.annotation.test.entities.NonEntity;
 import org.springframework.data.gemfire.config.annotation.test.entities.ReplicateRegionEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
  * Unit Tests for the {@link EnableIndexing} and {@link IndexConfiguration} class.
@@ -95,19 +97,11 @@ public class EnableIndexingConfigurationUnitTests {
 
 	private static final Set<Index> indexes = Collections.synchronizedSet(new HashSet<>());
 
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-		indexes.clear();
-	}
-
-	private static String[] asArray(List<String> list) {
+	private static @NonNull String[] asArray(@NonNull List<String> list) {
 		return list.toArray(new String[0]);
 	}
 
-	private static String[] toStringArray(Object[] array) {
+	private static @NonNull String[] toStringArray(@NonNull Object[] array) {
 
 		String[] stringArray = new String[array.length];
 
@@ -120,8 +114,7 @@ public class EnableIndexingConfigurationUnitTests {
 		return stringArray;
 	}
 
-	/* (non-Javadoc) */
-	private static Index findIndexByName(String indexName) {
+	private static @Nullable Index findIndexByName(@Nullable String indexName) {
 
 		for (Index index : indexes) {
 			if (index.getName().equalsIgnoreCase(indexName)) {
@@ -132,7 +125,17 @@ public class EnableIndexingConfigurationUnitTests {
 		return null;
 	}
 
-	/* (non-Javadoc) */
+	private ConfigurableApplicationContext applicationContext;
+
+	@After
+	public void tearDown() {
+
+		Optional.ofNullable(this.applicationContext)
+			.ifPresent(ConfigurableApplicationContext::close);
+
+		indexes.clear();
+	}
+
 	private void assertLuceneIndex(LuceneIndex index, String name, String regionPath, String... fields) {
 
 		assertThat(index).isNotNull();
@@ -142,7 +145,6 @@ public class EnableIndexingConfigurationUnitTests {
 		assertThat(index.getFieldNames()).contains(fields);
 	}
 
-	/* (non-Javadoc) */
 	private void assertOqlIndex(Index index, String name, String expression, String from, IndexType indexType) {
 
 		assertThat(index).isNotNull();
@@ -152,7 +154,6 @@ public class EnableIndexingConfigurationUnitTests {
 		assertThat(index.getType()).isEqualTo(indexType.getGemfireIndexType());
 	}
 
-	/* (non-Javadoc) */
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
 
 		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
@@ -240,6 +241,7 @@ public class EnableIndexingConfigurationUnitTests {
 			return mockQueryService(mockRegionFactory(mock(Cache.class, "MockGemFireCache")));
 		}
 
+		@SuppressWarnings("deprecation")
 		Cache mockQueryService(Cache mockCache) throws Exception {
 
 			QueryService mockQueryService = mock(QueryService.class);
