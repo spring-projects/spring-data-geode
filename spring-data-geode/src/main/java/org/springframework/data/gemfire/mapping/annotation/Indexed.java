@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.mapping.annotation;
 
 import java.lang.annotation.Documented;
@@ -67,7 +66,7 @@ public @interface Indexed {
 	String expression() default "";
 
 	/**
-	 * The GemFire/Geode {@link org.apache.geode.cache.Region} on which the Index is created.
+	 * The Apache Geode {@link org.apache.geode.cache.Region} on which the {@link Index} is created.
 	 */
 	String from() default "";
 
@@ -76,6 +75,6 @@ public @interface Indexed {
 	 *
 	 * Defaults to {@link IndexType#HASH}.
 	 */
-	IndexType type() default IndexType.HASH;
+	IndexType type() default IndexType.FUNCTIONAL;
 
 }
