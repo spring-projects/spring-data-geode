@@ -46,7 +46,7 @@
 		<antlr.version>2.7.7</antlr.version>
 		<apache-shiro.version>1.7.1</apache-shiro.version>
 		<cache-api.version>1.1.1</cache-api.version>
-		<log4j.version>2.12.1</log4j.version>
+		<log4j.version>2.14.0</log4j.version>
 		<multithreadedtc.version>1.01</multithreadedtc.version>
 		<snappy.version>0.4</snappy.version>
 		<springdata.commons>2.6.0-SNAPSHOT</springdata.commons>
