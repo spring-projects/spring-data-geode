@@ -45,12 +45,10 @@ import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.data.gemfire.search.lucene.support.LuceneAccessorSupport;
 
 /**
- * Unit tests for {@link LuceneAccessor}.
+ * Unit Tests for {@link LuceneAccessor}.
  *
  * @author John Blum
- * @see org.junit.Rule
  * @see org.junit.Test
- * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.Spy
@@ -177,6 +175,7 @@ public class LuceneAccessorUnitTests {
 	@Test
 	public void resolveLuceneServiceLooksUpLuceneService() {
 
+		doReturn(mockCache).when(luceneAccessor).resolveCache();
 		doReturn(mockLuceneService).when(luceneAccessor).resolveLuceneService(eq(mockCache));
 
 		assertThat(luceneAccessor.getLuceneService()).isNull();
@@ -186,7 +185,7 @@ public class LuceneAccessorUnitTests {
 		verify(luceneAccessor, times(1)).resolveLuceneService(eq(mockCache));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void resolveLuceneServiceThrowsIllegalArgumentExceptionWhenCacheIsNull() {
 
 		try {
@@ -226,7 +225,7 @@ public class LuceneAccessorUnitTests {
 		verify(mockLuceneIndex, times(1)).getName();
 	}
 
-	@Test
+	@Test(expected = IllegalStateException.class)
 	public void resolveIndexNameThrowsIllegalStateExceptionWhenIndexNameIsUnresolvable() {
 
 		assertThat(luceneAccessor.getIndexName()).isNullOrEmpty();

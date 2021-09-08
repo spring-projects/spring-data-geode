@@ -33,8 +33,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests for Apache Geode cache transaction event handling configuration declared in
- * SDG XML namespace configuration metadata.
+ * Integration Tests for Apache Geode cache transaction event handlers (listeners) declared in SDG XML namespace
+ * configuration metadata.
  *
  * @author David Turanski
  * @author John Blum
@@ -49,12 +49,9 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(
-	locations = "tx-listeners-and-writers.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class
-)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-public class TxEventHandlersIntegrationTests extends IntegrationTestsSupport {
+public class TransactionEventHandlersIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	TestTransactionListener txListener1;

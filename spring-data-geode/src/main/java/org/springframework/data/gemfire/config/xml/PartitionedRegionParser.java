@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.xml;
 
 import java.util.List;
 
-import org.w3c.dom.Element;
-
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -31,6 +29,8 @@ import org.springframework.data.gemfire.RegionAttributesFactoryBean;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+
+import org.w3c.dom.Element;
 
 /**
  * Bean definition parser for the &lt;gfe:partitioned-region&gt; SDG XML namespace (XSD) element.
@@ -76,7 +76,7 @@ class PartitionedRegionParser extends AbstractPeerRegionParser {
 		BeanDefinitionBuilder partitionAttributesBuilder =
 			BeanDefinitionBuilder.genericBeanDefinition(PartitionAttributesFactoryBean.class);
 
-		mergeTemplateRegionPartitionAttributes(element, parserContext, regionBuilder, partitionAttributesBuilder);
+		mergeRegionTemplatePartitionAttributes(element, parserContext, regionBuilder, partitionAttributesBuilder);
 
 		parseCollocatedWith(element, regionBuilder, partitionAttributesBuilder, "colocated-with");
 		ParsingUtils.setPropertyValue(element, partitionAttributesBuilder, "copies", "redundantCopies");
@@ -86,21 +86,24 @@ class PartitionedRegionParser extends AbstractPeerRegionParser {
 		ParsingUtils.setPropertyValue(element, partitionAttributesBuilder, "total-buckets", "totalNumBuckets");
 		ParsingUtils.setPropertyValue(element, partitionAttributesBuilder, "total-max-memory");
 
-		Element partitionListenerSubElement = DomUtils.getChildElementByTagName(element, "partition-listener");
+		Element partitionListenerSubElement =
+			DomUtils.getChildElementByTagName(element, "partition-listener");
 
 		if (partitionListenerSubElement != null) {
 			partitionAttributesBuilder.addPropertyValue("partitionListeners",
 				parsePartitionListeners(partitionListenerSubElement, parserContext, regionBuilder));
 		}
 
-		Element partitionResolverSubElement = DomUtils.getChildElementByTagName(element, "partition-resolver");
+		Element partitionResolverSubElement =
+			DomUtils.getChildElementByTagName(element, "partition-resolver");
 
 		if (partitionResolverSubElement != null) {
 			partitionAttributesBuilder.addPropertyValue("partitionResolver",
 				parsePartitionResolver(partitionResolverSubElement, parserContext, regionBuilder));
 		}
 
-		List<Element> fixedPartitionSubElements = DomUtils.getChildElementsByTagName(element, "fixed-partition");
+		List<Element> fixedPartitionSubElements =
+			DomUtils.getChildElementsByTagName(element, "fixed-partition");
 
 		if (!CollectionUtils.isEmpty(fixedPartitionSubElements)){
 
@@ -122,10 +125,11 @@ class PartitionedRegionParser extends AbstractPeerRegionParser {
 			partitionAttributesBuilder.addPropertyValue("fixedPartitionAttributes", fixedPartitionAttributes);
 		}
 
-		regionAttributesBuilder.addPropertyValue("partitionAttributes", partitionAttributesBuilder.getBeanDefinition());
+		regionAttributesBuilder.addPropertyValue("partitionAttributes",
+			partitionAttributesBuilder.getBeanDefinition());
 	}
 
-	void mergeTemplateRegionPartitionAttributes(Element element, ParserContext parserContext,
+	void mergeRegionTemplatePartitionAttributes(Element element, ParserContext parserContext,
 			BeanDefinitionBuilder regionBuilder, BeanDefinitionBuilder partitionAttributesBuilder) {
 
 		String regionTemplateName = getParentName(element);
@@ -153,9 +157,12 @@ class PartitionedRegionParser extends AbstractPeerRegionParser {
 				}
 			}
 			else {
-				parserContext.getReaderContext().error(String.format(
-					"The Region template [%1$s] must be 'defined before' the Region [%2$s] referring to the template!",
-						regionTemplateName, resolveId(element, regionBuilder.getRawBeanDefinition(), parserContext)), element);
+
+				String message =
+					String.format("The Region template [%1$s] must be defined before the Region [%2$s] referring to the template!",
+						regionTemplateName, resolveId(element, regionBuilder.getRawBeanDefinition(), parserContext));
+
+				parserContext.getReaderContext().error(message, element);
 			}
 		}
 	}
@@ -164,8 +171,8 @@ class PartitionedRegionParser extends AbstractPeerRegionParser {
 			BeanDefinitionBuilder partitionAttributesBuilder, String attributeName) {
 
 		// NOTE rather than using a dependency (with depends-on) we could also set the colocatedWith property of the
-		// PartitionAttributesFactoryBean with a reference to the Region "this" Partitioned Region will be colocated
-		// with, where the colocated-with attribute refers to the the bean name/alias of the other, depended on Region
+		// PartitionAttributesFactoryBean with a reference to the Region "this" Partitioned Region will be collocated
+		// with, where the collocated-with attribute refers to the the bean name/alias of the other, depended on Region
 		// providing that the Region's name is also a bean alias of the bean definition.
 		//ParsingUtils.setPropertyReference(element, partitionAttributesBuilder, attributeName, "colocatedWith");
 

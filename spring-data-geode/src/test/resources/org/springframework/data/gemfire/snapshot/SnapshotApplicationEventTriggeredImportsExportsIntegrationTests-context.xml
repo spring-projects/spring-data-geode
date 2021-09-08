@@ -17,7 +17,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">SnapshotApplicationEventTriggeredImportsExportsIntegrationTest</prop>
+		<prop key="name">SnapshotApplicationEventTriggeredImportsExportsIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -41,33 +41,31 @@
 
 	<context:annotation-config/>
 
-	<bean
-		class="org.springframework.data.gemfire.snapshot.SnapshotApplicationEventTriggeredImportsExportsIntegrationTests.SnapshotImportsMonitor"/>
+	<bean class="org.springframework.data.gemfire.snapshot.SnapshotApplicationEventTriggeredImportsExportsIntegrationTests.SnapshotImportsMonitor"/>
 
 	<task:scheduler id="snapshotImportsMonitorScheduler" pool-size="1"/>
 
 	<task:annotation-driven scheduler="snapshotImportsMonitorScheduler"/>
 
 	<gfe-data:snapshot-service id="peopleSnapshotService" region-ref="People">
-		<gfe-data:snapshot-export location="gemfire/snapshots/people-snapshot.gfd"/>
-		<gfe-data:snapshot-export location="gemfire/snapshots/nonHandyNonDoePeople-snapshot.gfd"
+		<gfe-data:snapshot-export location="gemfire/data/snapshots/people-snapshot.gfd"/>
+		<gfe-data:snapshot-export location="gemfire/data/snapshots/nonHandyNonDoePeople-snapshot.gfd"
 								  filter-ref="nonHandyNonDoeSnapshotFilter"/>
 	</gfe-data:snapshot-service>
 
 	<gfe-data:snapshot-service id="doeSnapshotService" region-ref="Doe" suppress-import-on-init="true">
-		<gfe-data:snapshot-import location="gemfire/snapshots/people-snapshot.gfd">
-			<bean
-				class="org.springframework.data.gemfire.snapshot.SnapshotApplicationEventTriggeredImportsExportsIntegrationTests.LastNameSnapshotFilter"
-				c:lastName="Doe"/>
+		<gfe-data:snapshot-import location="gemfire/data/snapshots/people-snapshot.gfd">
+			<bean class="org.springframework.data.gemfire.snapshot.SnapshotApplicationEventTriggeredImportsExportsIntegrationTests.LastNameSnapshotFilter"
+				  c:lastName="Doe"/>
 		</gfe-data:snapshot-import>
 	</gfe-data:snapshot-service>
 
 	<gfe-data:snapshot-service id="everyoneElseSnapshotService" region-ref="EveryoneElse" suppress-import-on-init="true">
-		<gfe-data:snapshot-import location="gemfire/snapshots/nonHandyNonDoePeople-snapshot.gfd"/>
+		<gfe-data:snapshot-import location="gemfire/data/snapshots/nonHandyNonDoePeople-snapshot.gfd"/>
 	</gfe-data:snapshot-service>
 
 	<gfe-data:snapshot-service id="handySnapshotService" region-ref="Handy" suppress-import-on-init="true">
-		<gfe-data:snapshot-import location="gemfire/snapshots/people-snapshot.gfd">
+		<gfe-data:snapshot-import location="gemfire/data/snapshots/people-snapshot.gfd">
 			<bean class="org.springframework.data.gemfire.snapshot.SnapshotApplicationEventTriggeredImportsExportsIntegrationTests.LastNameSnapshotFilter"
 				  c:lastName="Handy"/>
 		</gfe-data:snapshot-import>

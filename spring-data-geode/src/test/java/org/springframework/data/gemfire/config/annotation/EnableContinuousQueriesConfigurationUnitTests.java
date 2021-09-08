@@ -89,6 +89,8 @@ import lombok.Data;
  * @see org.springframework.data.gemfire.config.annotation.EnableContinuousQueries
  * @see org.springframework.data.gemfire.listener.annotation.ContinuousQuery
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.1
  */
 public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTestsSupport {
@@ -107,11 +109,11 @@ public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTe
 
 			ErrorHandler mockErrorHandler = applicationContext.getBean("mockErrorHandler", ErrorHandler.class);
 
+			Executor mockTaskExecutor = applicationContext.getBean("mockTaskExecutor", Executor.class);
+
 			Pool mockPool = applicationContext.getBean("mockPool", Pool.class);
 
 			QueryService mockQueryService = applicationContext.getBean("mockQueryService", QueryService.class);
-
-			Executor mockTaskExecutor = applicationContext.getBean("mockTaskExecutor", Executor.class);
 
 			assertThat(applicationContext.containsBean("continuousQueryListenerContainer")).isTrue();
 
@@ -128,6 +130,7 @@ public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTe
 		}
 		finally {
 			IOUtils.close(applicationContext);
+			GemFireMockObjectsSupport.destroy();
 		}
 	}
 
@@ -162,6 +165,7 @@ public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTe
 		}
 		finally {
 			IOUtils.close(applicationContext);
+			GemFireMockObjectsSupport.destroy();
 		}
 	}
 
@@ -336,8 +340,8 @@ public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTe
 	static class TestContinuousQueryComponent {
 
 		@ContinuousQuery(name = "TestQuery", query = "SELECT * FROM /Example")
-		public void handle(CqEvent event) {
-		}
+		public void handle(CqEvent event) { }
+
 	}
 
 	@Data

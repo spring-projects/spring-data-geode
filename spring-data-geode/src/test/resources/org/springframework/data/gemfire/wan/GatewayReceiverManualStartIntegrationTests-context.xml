@@ -10,7 +10,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">ManualGatewayReceiverStartIntegrationTest</prop>
+		<prop key="name">GatewayReceiverManualStartIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

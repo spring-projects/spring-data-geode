@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.SubscriptionAttributes;
 
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
@@ -32,13 +33,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the contract and functionality of declaring and defining Subscription
- * Attributes for a {@link Region} in the SDG XML namespace (XSD) configuration metadata.
+ * Integration Tests testing the contract and functionality of declaring and defining {@link SubscriptionAttributes}
+ * for a {@link Region} in the SDG XML namespace configuration metadata.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.SubscriptionAttributes
  * @see org.springframework.data.gemfire.SubscriptionAttributesFactoryBean
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer

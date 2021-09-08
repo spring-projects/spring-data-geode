@@ -17,7 +17,6 @@ package org.springframework.data.gemfire.listener.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,9 +26,8 @@ import org.apache.geode.cache.query.CqQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer;
-import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,10 +39,11 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.client.Pool
  * @see org.apache.geode.cache.query.CqQuery
  * @see org.springframework.data.gemfire.fork.CqCacheServerProcess
  * @see org.springframework.data.gemfire.listener.ContinuousQueryListenerContainer
- * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -52,12 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-public class ContainerXmlConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
-
-	@BeforeClass
-	public static void startGemFireServer() throws Exception {
-		startGemFireServer(CqCacheServerProcess.class);
-	}
+public class ContainerXmlConfigurationIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;

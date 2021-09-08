@@ -17,36 +17,27 @@
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.config.annotation.EnableEviction.EvictionPolicy;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.After;
 import org.junit.Test;
-import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
-import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.util.ObjectSizer;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.eviction.EvictionActionType;
 import org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean;
 import org.springframework.data.gemfire.eviction.EvictionPolicyType;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
 /**
@@ -61,6 +52,7 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration
  * @see org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 public class EnableEvictionConfigurationUnitTests extends IntegrationTestsSupport {
@@ -69,9 +61,8 @@ public class EnableEvictionConfigurationUnitTests extends IntegrationTestsSuppor
 
 	@After
 	public void tearDown() {
-		if (applicationContext != null) {
-			applicationContext.close();
-		}
+		closeApplicationContext(this.applicationContext);
+		destroyAllGemFireMockObjects();
 	}
 
 	private void assertEvictionAttributes(Region<?, ?> region, EvictionAttributes expectedEvictionAttributes) {
@@ -180,49 +171,10 @@ public class EnableEvictionConfigurationUnitTests extends IntegrationTestsSuppor
 			lastMatchingEvictionAttributes);
 	}
 
-	@Configuration
+	@PeerCacheApplication
+	@EnableGemFireMockObjects
 	@SuppressWarnings("unused")
 	static class CacheRegionConfiguration {
-
-		@Bean("mockCache")
-		@SuppressWarnings("unchecked")
-		Cache mockCache() {
-
-			Cache mockCache = mock(Cache.class);
-
-			RegionFactory<Object, Object> mockRegionFactory = mock(RegionFactory.class);
-
-			AtomicReference<EvictionAttributes> evictionAttributes = new AtomicReference<>(null);
-
-			when(mockCache.createRegionFactory()).thenReturn(mockRegionFactory);
-
-			when(mockRegionFactory.setEvictionAttributes(any(EvictionAttributes.class)))
-				.thenAnswer((Answer<RegionFactory<?, ?>>) invocation -> {
-					evictionAttributes.set(invocation.getArgument(0));
-					return (RegionFactory<?, ?>) invocation.getMock();
-				}
-			);
-
-			when(mockRegionFactory.create(anyString()))
-				.thenAnswer(invocation -> {
-
-					String regionName = invocation.getArgument(0);
-
-					Region<?, ?> mockRegion = mock(Region.class, regionName);
-
-					RegionAttributes<?, ?> mockRegionAttributes =
-						mock(RegionAttributes.class, regionName.concat("Attributes"));
-
-					doReturn(regionName).when(mockRegion).getName();
-					doReturn(String.format("%1$s%2$s", Region.SEPARATOR, regionName)).when(mockRegion).getFullPath();
-					doReturn(mockRegion).when(mockRegion).getAttributes();
-					doReturn(evictionAttributes.get()).when(mockRegionAttributes).getEvictionAttributes();
-
-					return mockRegion;
-				});
-
-			return mockCache;
-		}
 
 		@Bean("PartitionRegion")
 		PartitionedRegionFactoryBean<Object, Object> mockPartitionRegion(Cache gemfireCache) {

@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -74,6 +75,11 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 		Assume.assumeTrue(String.format("Ignoring test class [%s]; Logback is not on the classpath",
 			RegionDataAccessTracingAspectUnitTests.class.getName()), ClassUtils.isPresent(LOGBACK_LOGGER_CLASS_NAME,
 				Thread.currentThread().getContextClassLoader()));
+	}
+
+	@After
+	public void tearDown() {
+		TestAppender.getInstance().clear();
 	}
 
 	@Resource(name = "ClientRegion")
@@ -172,6 +178,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 	@Test
 	public void logsRegionInvalidate() {
 
+		this.region.put("testKey", "testValue");
 		this.region.invalidate("testKey");
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
@@ -186,6 +193,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 	@Test
 	public void logsRegionInvalidateWithCallbackArgument() {
 
+		this.region.put("testKey", "testValue");
 		this.region.invalidate("testKey", regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
@@ -270,6 +278,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 	@Test
 	public void logsRegionLocalInvalidate() {
 
+		this.region.put("testKey", "testValue");
 		this.region.localInvalidate("testKey");
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
@@ -284,6 +293,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 	@Test
 	public void logsRegionLocalInvalidateWithCallbackArgument() {
 
+		this.region.put("testKey", "testValue");
 		this.region.localInvalidate("testKey", regionCallbackArgument(new AtomicBoolean(false)));
 
 		String logMessage = TestAppender.getInstance().lastLogMessage();
@@ -529,7 +539,7 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 	}
 
 	@ClientCacheApplication
-	@EnableGemFireMockObjects
+	@EnableGemFireMockObjects()
 	@EnableRegionDataAccessTracing
 	static class TestConfiguration {
 

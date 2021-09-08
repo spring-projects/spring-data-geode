@@ -64,7 +64,7 @@ public class GemfireFunctionTemplateIntegrationTests extends ForkingClientServer
 			.set("name", GemfireFunctionTemplateIntegrationTests.class.getSimpleName())
 			.set("log-level", "error")
 			.setPoolSubscriptionEnabled(true)
-			.addPoolServer("localhost", Integer.getInteger(GEMFIRE_POOL_SERVERS_PROPERTY))
+			.addPoolServer("localhost", Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY))
 			.create();
 
 		assertThat(this.gemfireCache).isNotNull();
@@ -88,7 +88,7 @@ public class GemfireFunctionTemplateIntegrationTests extends ForkingClientServer
 	}
 
 	@Test
-	public void testFunctionTemplates() {
+	public void functionTemplatesAreCorrect() {
 
 		verifyFunctionTemplateExecution(new GemfireOnRegionFunctionTemplate(gemfireRegion));
 		verifyFunctionTemplateExecution(new GemfireOnServerFunctionTemplate(gemfireCache));

@@ -48,7 +48,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-public class ManualGatewayReceiverStartIntegrationTests extends IntegrationTestsSupport {
+public class GatewayReceiverManualStartIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Auto")
 	private GatewayReceiver autoGatewayReceiver;
@@ -63,7 +63,7 @@ public class ManualGatewayReceiverStartIntegrationTests extends IntegrationTests
 	}
 
 	@Test
-	public void testAutoGatewayReceiver() {
+	public void autoGatewayReceiverConfigurationIsCorrect() {
 
 		assertThat(autoGatewayReceiver)
 			.describedAs("The 'Auto' GatewayReceiver was not properly configured or initialized!")
@@ -76,7 +76,7 @@ public class ManualGatewayReceiverStartIntegrationTests extends IntegrationTests
 		int gatewayReceiverPort = autoGatewayReceiver.getPort();
 
 		assertGreaterThanEqualToLessThanEqualTo(String.format(
-			"GatewayReceiver 'port' (%1$d) was not greater than equal to (%2$d) and less than equal to (%3$d)!",
+			"GatewayReceiver 'port' [%1$d] was not greater than equal to [%2$d] and less than equal to [%3$d]!",
 				gatewayReceiverPort, autoGatewayReceiver.getStartPort(), autoGatewayReceiver.getEndPort()),
 					gatewayReceiverPort, autoGatewayReceiver.getStartPort(), autoGatewayReceiver.getEndPort());
 
@@ -86,7 +86,7 @@ public class ManualGatewayReceiverStartIntegrationTests extends IntegrationTests
 	}
 
 	@Test
-	public void testManualGatewayReceiverConfiguration() throws IOException {
+	public void manualGatewayReceiverConfigurationIsCorrect() throws IOException {
 
 		assertThat(manualGatewayReceiver)
 			.describedAs("The 'Manual' GatewayReceiver was not properly configured or initialized!")
@@ -103,7 +103,7 @@ public class ManualGatewayReceiverStartIntegrationTests extends IntegrationTests
 		int gatewayReceiverPort = manualGatewayReceiver.getPort();
 
 		assertGreaterThanEqualToLessThanEqualTo(String.format(
-			"GatewayReceiver 'port' (%1$d) was not greater than equal to (%2$d) and less than equal to (%3$d)!",
+			"GatewayReceiver 'port' [%1$d] was not greater than equal to [%2$d] and less than equal to [%3$d]!",
 				gatewayReceiverPort, manualGatewayReceiver.getStartPort(), manualGatewayReceiver.getEndPort()),
 					gatewayReceiverPort, manualGatewayReceiver.getStartPort(), manualGatewayReceiver.getEndPort());
 

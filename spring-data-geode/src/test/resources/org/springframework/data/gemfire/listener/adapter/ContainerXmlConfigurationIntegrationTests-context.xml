@@ -16,7 +16,7 @@
 	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">ContainerXmlSetupIntegrationTests</prop>
+		<prop key="name">ContainerXmlConfigurationIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

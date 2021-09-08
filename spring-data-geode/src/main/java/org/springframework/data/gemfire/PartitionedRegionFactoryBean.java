@@ -16,14 +16,21 @@
 package org.springframework.data.gemfire;
 
 import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.util.Assert;
 
 /**
+ * Spring {@link FactoryBean} used to create an Apache Geode {@literal PARTITION} {@link Region}.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.RegionFactory
+ * @see org.springframework.beans.factory.BeanFactory
  */
 public class PartitionedRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> {
 
@@ -36,8 +43,8 @@ public class PartitionedRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K,
 		else {
 			// Validate that the user-defined Data Policy matches the appropriate Spring GemFire XML namespace
 			// configuration meta-data element for Region (i.e. <gfe:partitioned-region .../>)!
-			Assert.isTrue(dataPolicy.withPartitioning(), String.format(
-				"Data Policy [%s] is not supported in Partitioned Regions.", dataPolicy));
+			Assert.isTrue(dataPolicy.withPartitioning(),
+				String.format("Data Policy [%s] is not supported in Partitioned Regions.", dataPolicy));
 		}
 
 		// Validate the data-policy and persistent attributes are compatible when specified!

@@ -17,6 +17,8 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import javax.annotation.Resource;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,8 +28,6 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.ResumptionAction;
 import org.apache.geode.distributed.Role;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,33 +47,38 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "/org/springframework/data/gemfire/config/xml/membership-attributes-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings({ "deprecation", "unused" })
 public class MembershipAttributesIntegrationTests extends IntegrationTestsSupport {
 
-    @Autowired
-	private ApplicationContext applicationContext;
+	@Resource(name = "secure")
+	private Region<?, ?> secure;
+
+	@Resource(name = "simple")
+	private Region<?, ?> simple;
 
 	@Test
-	public void membershipAttributesConfigurationIsCorrect() {
+	public void secureRegionMembershipAttributesConfigurationIsCorrect() {
 
-		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
+		MembershipAttributes membershipAttributes = secure.getAttributes().getMembershipAttributes();
+
+		assertThat(membershipAttributes).isNotNull();
+		assertThat(membershipAttributes.getLossAction()).isEqualTo(LossAction.LIMITED_ACCESS);
+		assertThat(membershipAttributes.hasRequiredRoles()).isTrue();
+		assertThat(membershipAttributes.getRequiredRoles().stream().map(Role::getName))
+			.containsExactlyInAnyOrder("ROLE1", "ROLE2");
+		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(ResumptionAction.REINITIALIZE);
+	}
+
+	@Test
+	public void simpleRegionMembershipAttributesConfigurationIsCorrect() {
 
 		MembershipAttributes membershipAttributes = simple.getAttributes().getMembershipAttributes();
 
+		assertThat(membershipAttributes).isNotNull();
+		assertThat(membershipAttributes.getLossAction()).isEqualTo(LossAction.FULL_ACCESS);
 		assertThat(membershipAttributes.hasRequiredRoles()).isFalse();
-
-		Region<?, ?> secure = applicationContext.getBean("secure", Region.class);
-
-		membershipAttributes = secure.getAttributes().getMembershipAttributes();
-
-		assertThat(membershipAttributes.hasRequiredRoles()).isTrue();
-		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(ResumptionAction.REINITIALIZE);
-		assertThat(membershipAttributes.getLossAction()).isEqualTo(LossAction.LIMITED_ACCESS);
-
-		for (Role role : membershipAttributes.getRequiredRoles()) {
-			assertThat("ROLE1".equals(role.getName()) || "ROLE2".equals(role.getName())).isTrue();
-		}
+		assertThat(membershipAttributes.getRequiredRoles()).isEmpty();
+		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(ResumptionAction.NONE);
 	}
 }

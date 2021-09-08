@@ -15,7 +15,7 @@
 		<prop key="log-level">error</prop>
 	</util:properties>
 
-	<bean class="org.springframework.data.gemfire.config.xml.LuceneNamespaceUnitTests$LuceneNamespaceUnitTestsBeanFactoryPostProcessor"/>
+	<bean class="org.springframework.data.gemfire.config.xml.LuceneNamespaceUnitTests$LuceneNamespaceUnitTestsBeanPostProcessor"/>
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 

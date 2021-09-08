@@ -148,12 +148,24 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 	@Override
 	public void afterPropertiesSet() throws Exception {
 
+		initializePoolResolver();
+		super.afterPropertiesSet();
+	}
+
+	/**
+	 * Initializes the {@literal default} {@link PoolResolver} and optionally sets the main {@link PoolResolver}
+	 * used to resolve {@link Pool} objects from Apache Geode if not configured by the user.
+	 *
+	 * @see org.springframework.data.gemfire.client.PoolResolver
+	 * @see org.springframework.data.gemfire.client.support.BeanFactoryPoolResolver
+	 * @see org.springframework.data.gemfire.client.support.PoolManagerPoolResolver
+	 */
+	void initializePoolResolver() {
+
 		this.defaultPoolResolver =
 			ComposablePoolResolver.compose(new BeanFactoryPoolResolver(getBeanFactory()), new PoolManagerPoolResolver());
 
-		this.poolResolver = defaultPoolResolver;
-
-		super.afterPropertiesSet();
+		this.poolResolver = this.poolResolver != null ? this.poolResolver : this.defaultPoolResolver;
 	}
 
 	/**

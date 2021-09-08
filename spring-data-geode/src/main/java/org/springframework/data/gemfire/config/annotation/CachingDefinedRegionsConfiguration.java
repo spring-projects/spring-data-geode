@@ -309,6 +309,7 @@ public class CachingDefinedRegionsConfiguration extends AbstractAnnotationConfig
 
 					GemFireCache gemfireCache = beanFactory.getBean(GemFireCache.class);
 
+					regionFactoryBean.setBeanFactory(beanFactory);
 					regionFactoryBean.setCache(gemfireCache);
 					regionFactoryBean.setClientRegionShortcut(resolveClientRegionShortcut());
 					regionFactoryBean.setRegionConfigurers(resolveRegionConfigurers());

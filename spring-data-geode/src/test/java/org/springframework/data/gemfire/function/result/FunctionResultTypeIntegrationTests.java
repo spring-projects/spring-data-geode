@@ -15,7 +15,6 @@ package org.springframework.data.gemfire.function.result;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -27,9 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
-import org.springframework.data.gemfire.function.annotation.FunctionId;
-import org.springframework.data.gemfire.function.annotation.GemfireFunction;
-import org.springframework.data.gemfire.function.annotation.OnRegion;
 import org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions;
 import org.springframework.data.gemfire.function.config.EnableGemfireFunctions;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
@@ -53,12 +49,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = FunctionResultTypeIntegrationTests.TestGeodeConfiguration.class)
+@ContextConfiguration(classes = FunctionResultTypeIntegrationTests.TestConfiguration.class)
 @SuppressWarnings("unused")
 public class FunctionResultTypeIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
-	private FunctionExecutions functionExecutions;
+	private MixedResultTypeFunctionExecutions functionExecutions;
 
 	@Test
 	public void singleResultFunctionsExecuteCorrectly() {
@@ -79,12 +75,12 @@ public class FunctionResultTypeIntegrationTests extends IntegrationTestsSupport 
 	}
 
 	@PeerCacheApplication(name = "FunctionResultTypeIntegrationTests")
-	@EnableGemfireFunctionExecutions(basePackageClasses = FunctionExecutions.class)
+	@EnableGemfireFunctionExecutions(basePackageClasses = MixedResultTypeFunctionExecutions.class)
 	@EnableGemfireFunctions
-	public static class TestGeodeConfiguration {
+	public static class TestConfiguration {
 
 		@Bean("Numbers")
-		protected ReplicatedRegionFactoryBean<Long, BigDecimal> numbersRegion(GemFireCache gemFireCache) {
+		ReplicatedRegionFactoryBean<Long, BigDecimal> numbersRegion(GemFireCache gemFireCache) {
 
 			ReplicatedRegionFactoryBean<Long, BigDecimal> numbersRegion = new ReplicatedRegionFactoryBean<>();
 
@@ -94,33 +90,9 @@ public class FunctionResultTypeIntegrationTests extends IntegrationTestsSupport 
 			return numbersRegion;
 		}
 
-		@GemfireFunction(id = "returnSingleObject", hasResult = true)
-		public BigDecimal returnSingleObject() {
-			return new BigDecimal(5);
-		}
-
-		@GemfireFunction(id = "returnList", hasResult = true)
-		public List<BigDecimal> returnList() {
-			return Collections.singletonList(new BigDecimal(10));
-		}
-
-		@GemfireFunction(id = "returnPrimitive", hasResult = true)
-		public int returnPrimitive() {
-			return 7;
+		@Bean
+		MixedResultTypeFunctions functions() {
+			return new MixedResultTypeFunctions();
 		}
 	}
-}
-
-@OnRegion(region = "Numbers")
-interface FunctionExecutions {
-
-	@FunctionId("returnSingleObject")
-	BigDecimal returnFive();
-
-	@FunctionId("returnList")
-	List<BigDecimal> returnList();
-
-	@FunctionId("returnPrimitive")
-	int returnPrimitive();
-
 }

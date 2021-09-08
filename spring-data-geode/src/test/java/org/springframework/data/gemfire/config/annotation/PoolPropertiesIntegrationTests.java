@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.net.InetSocketAddress;
-import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
@@ -62,7 +61,7 @@ public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+		closeApplicationContext(this.applicationContext);
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,

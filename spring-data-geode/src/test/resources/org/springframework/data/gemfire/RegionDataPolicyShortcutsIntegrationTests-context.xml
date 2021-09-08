@@ -10,7 +10,7 @@
   ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">springGemFireRegionDataPolicyShortcutsIntegrationTest</prop>
+		<prop key="name">RegionDataPolicyShortcutsIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -26,14 +26,14 @@
 	<gfe:replicated-region id="ReplicateWithShortcut" shortcut="REPLICATE_PERSISTENT"/>
 
 	<gfe:partitioned-region id="ShortcutDefaults" shortcut="PARTITION_REDUNDANT_PERSISTENT_OVERFLOW"
-						  cloning-enabled="false" concurrency-checks-enabled="true" disk-synchronous="false"
-						  ignore-jta="true" initial-capacity="101" load-factor="0.85f" key-constraint="java.lang.Long"
-						  multicast-enabled="false" total-buckets="177" value-constraint="java.lang.String"/>
+							cloning-enabled="false" concurrency-checks-enabled="true" disk-synchronous="false"
+							ignore-jta="true" initial-capacity="101" load-factor="0.85f" key-constraint="java.lang.Long"
+							multicast-enabled="false" total-buckets="177" value-constraint="java.lang.String"/>
 
 	<gfe:partitioned-region id="ShortcutOverrides" shortcut="PARTITION_REDUNDANT_OVERFLOW"
-						  cloning-enabled="true" concurrency-checks-enabled="false" copies="3" disk-synchronous="true"
-						  ignore-jta="false" initial-capacity="51" load-factor="0.72f" key-constraint="java.lang.String"
-						  multicast-enabled="false" total-buckets="111" value-constraint="java.lang.Object">
+							cloning-enabled="true" concurrency-checks-enabled="false" copies="3" disk-synchronous="true"
+							ignore-jta="false" initial-capacity="51" load-factor="0.72f" key-constraint="java.lang.String"
+							multicast-enabled="false" total-buckets="111" value-constraint="java.lang.Object">
 		<gfe:eviction threshold="8192" type="ENTRY_COUNT" action="LOCAL_DESTROY"/>
 	</gfe:partitioned-region>
 

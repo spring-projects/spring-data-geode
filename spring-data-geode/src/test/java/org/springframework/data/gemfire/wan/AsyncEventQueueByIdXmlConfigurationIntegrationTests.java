@@ -19,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 import javax.annotation.Resource;
 
@@ -65,7 +64,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.2.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@ContextConfiguration(locations = "AsyncEventQueueByIdXmlConfigurationIntegrationTests-context.xml")
 @SuppressWarnings("unused")
 public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
@@ -106,14 +105,13 @@ public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends Forking
 	}
 
 	@EnableLocator
-	@PeerCacheApplication
+	@PeerCacheApplication(name = "AsyncEventQueueByIdXmlConfigurationIntegrationTestsServer")
 	static class GeodeServerConfiguration {
 
 		public static void main(String[] args) {
 
 			runSpringApplication(GeodeServerConfiguration.class, args);
-
-			new Scanner(System.in).nextLine();
+			block();
 		}
 
 		@Bean("TestAsyncEventQueueOne")

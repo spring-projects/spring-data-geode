@@ -11,7 +11,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">TemplateRegionsNamespaceTest</prop>
+		<prop key="name">TemplateRegionsNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
@@ -46,9 +46,7 @@
 		<gfe:cache-writer>
 			<bean class="org.springframework.data.gemfire.config.xml.TemplateRegionsNamespaceIntegrationTests$TestCacheWriter" p:name="B"/>
 		</gfe:cache-writer>
-		<gfe:membership-attributes required-roles="readWriteNode" loss-action="limited-access" resumption-action="none"/>
 	</gfe:region-template>
-
 
 	<!-- REPLICATE Regions -->
 	<gfe:replicated-region-template id="ReplicateRegionTemplate" concurrency-checks-enabled="true" concurrency-level="24"
@@ -123,7 +121,6 @@
 		<gfe:cache-writer>
 			<bean class="org.springframework.data.gemfire.config.xml.TemplateRegionsNamespaceIntegrationTests$TestCacheWriter" p:name="dbWriter"/>
 		</gfe:cache-writer>
-		<gfe:membership-attributes required-roles="admin,root,supertool" loss-action="no-access" resumption-action="reinitialize"/>
 		<gfe:partition-listener>
 			<bean class="org.springframework.data.gemfire.config.xml.TemplateRegionsNamespaceIntegrationTests$TestPartitionListener" p:name="testListener"/>
 		</gfe:partition-listener>

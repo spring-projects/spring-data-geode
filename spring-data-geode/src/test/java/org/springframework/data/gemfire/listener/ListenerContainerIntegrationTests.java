@@ -35,6 +35,7 @@ import org.apache.geode.cache.query.CqEvent;
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.util.SpringUtils;
 
 /**
@@ -67,9 +68,9 @@ public class ListenerContainerIntegrationTests extends ForkingClientServerIntegr
 
 		gemfireCache = new ClientCacheFactory()
 			.set("name", "ListenerContainerIntegrationTests")
-			.set("log-level", "warning")
+			.set("log-level", "error")
 			.setPoolSubscriptionEnabled(true)
-			.addPoolServer(DEFAULT_HOSTNAME, Integer.getInteger(GEMFIRE_POOL_SERVERS_PROPERTY))
+			.addPoolServer(DEFAULT_HOSTNAME, Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY))
 			.create();
 
 		String query = "SELECT * from /test-cq";
@@ -91,6 +92,8 @@ public class ListenerContainerIntegrationTests extends ForkingClientServerIntegr
 
 	@Test
 	public void testContainer() {
+
+		getGemFireServerProcess().ifPresent(ProcessWrapper::signal);
 
 		waitOn(() -> this.cqEvents.size() == 3, TimeUnit.SECONDS.toMillis(5));
 

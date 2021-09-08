@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,7 +32,7 @@ import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.wan.GatewaySender;
 
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.data.gemfire.IndexMaintenancePolicyConverter;
 import org.springframework.data.gemfire.IndexMaintenancePolicyType;
 import org.springframework.data.gemfire.IndexType;
@@ -52,59 +52,61 @@ import org.springframework.data.gemfire.wan.OrderPolicyConverter;
 import org.springframework.util.StringUtils;
 
 /**
- * Unit tests for {@link CustomEditorBeanFactoryPostProcessor}.
+ * Unit Tests for {@link CustomEditorBeanFactoryPostProcessor}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
- * @see CustomEditorBeanFactoryPostProcessor
+ * @see org.springframework.data.gemfire.config.support.CustomEditorBeanFactoryPostProcessor
  * @since 1.6.0
  */
-@SuppressWarnings("deprecation")
 public class CustomEditorBeanFactoryPostProcessorUnitTests {
 
-	protected ConnectionEndpoint newConnectionEndpoint(String host, int port) {
+	private ConnectionEndpoint newConnectionEndpoint(String host, int port) {
 		return new ConnectionEndpoint(host, port);
 	}
 
 	@Test
 	public void customEditorRegistrationIsSuccessful() {
-		ConfigurableListableBeanFactory mockBeanFactory = mock(ConfigurableListableBeanFactory.class);
 
-		new CustomEditorBeanFactoryPostProcessor().postProcessBeanFactory(mockBeanFactory);
+		PropertyEditorRegistry mockRegistry = mock(PropertyEditorRegistry.class);
 
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(ConnectionEndpoint.class),
-			eq(CustomEditorBeanFactoryPostProcessor.StringToConnectionEndpointConverter.class));
+		new CustomEditorBeanFactoryPostProcessor.CustomEditorPropertyEditorRegistrar().registerCustomEditors(mockRegistry);
+
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(ConnectionEndpoint.class),
+			isA(CustomEditorBeanFactoryPostProcessor.StringToConnectionEndpointConverter.class));
 		//verify(mockBeanFactory, times(1)).registerCustomEditor(eq(ConnectionEndpoint[].class),
 		//	eq(CustomEditorBeanFactoryPostProcessor.ConnectionEndpointArrayToIterableConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(ConnectionEndpointList.class),
-			eq(CustomEditorBeanFactoryPostProcessor.StringToConnectionEndpointListConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(EvictionAction.class),
-			eq(EvictionActionConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(EvictionPolicyType.class),
-			eq(EvictionPolicyConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(ExpirationAction.class),
-			eq(ExpirationActionConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(IndexMaintenancePolicyType.class),
-			eq(IndexMaintenancePolicyConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(IndexType.class),
-			eq(IndexTypeConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(InterestPolicy.class),
-			eq(InterestPolicyConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(InterestResultPolicy.class),
-			eq(InterestResultPolicyConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(Scope.class), eq(ScopeConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(GatewaySender.OrderPolicy.class),
-			eq(OrderPolicyConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(Scope.class), eq(ScopeConverter.class));
-		verify(mockBeanFactory, times(1)).registerCustomEditor(eq(SubscriptionEvictionPolicy.class),
-			eq(SubscriptionEvictionPolicyConverter.class));
-		verifyNoMoreInteractions(mockBeanFactory);
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(ConnectionEndpointList.class),
+			isA(CustomEditorBeanFactoryPostProcessor.StringToConnectionEndpointListConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(EvictionAction.class),
+			isA(EvictionActionConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(EvictionPolicyType.class),
+			isA(EvictionPolicyConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(ExpirationAction.class),
+			isA(ExpirationActionConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(IndexMaintenancePolicyType.class),
+			isA(IndexMaintenancePolicyConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(IndexType.class),
+			isA(IndexTypeConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(InterestPolicy.class),
+			isA(InterestPolicyConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(InterestResultPolicy.class),
+			isA(InterestResultPolicyConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(Scope.class), isA(ScopeConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(GatewaySender.OrderPolicy.class),
+			isA(OrderPolicyConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(Scope.class), isA(ScopeConverter.class));
+		verify(mockRegistry, times(1)).registerCustomEditor(eq(SubscriptionEvictionPolicy.class),
+			isA(SubscriptionEvictionPolicyConverter.class));
+
+		verifyNoMoreInteractions(mockRegistry);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void connectionEndpointArrayToIterableConversionIsSuccessful() {
+
 		ConnectionEndpoint[] array = {
 			newConnectionEndpoint("localhost", 10334),
 			newConnectionEndpoint("localhost", 40404)
@@ -126,6 +128,7 @@ public class CustomEditorBeanFactoryPostProcessorUnitTests {
 
 	@Test
 	public void stringToConnectionEndpointConversionIsSuccessful() {
+
 		String hostPort = "skullbox[54321]";
 
 		ConnectionEndpoint connectionEndpoint = new CustomEditorBeanFactoryPostProcessor
@@ -138,6 +141,7 @@ public class CustomEditorBeanFactoryPostProcessorUnitTests {
 
 	@Test
 	public void stringToConnectionEndpointListConversionIsSuccessful() {
+
 		String[] hostsPorts = { "toolbox[10334]", "skullbox", "[40404]" };
 		String source = StringUtils.arrayToCommaDelimitedString(hostsPorts);
 

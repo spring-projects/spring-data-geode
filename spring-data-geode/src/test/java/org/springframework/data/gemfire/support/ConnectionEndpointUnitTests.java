@@ -264,7 +264,7 @@ public class ConnectionEndpointUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("'hostPort' must be specified");
+			assertThat(expected).hasMessage("Host & Port [  ] must be specified");
 			assertThat(expected).hasNoCause();
 
 			throw expected;
@@ -279,7 +279,7 @@ public class ConnectionEndpointUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("'hostPort' must be specified");
+			assertThat(expected).hasMessage("Host & Port [] must be specified");
 			assertThat(expected).hasNoCause();
 
 			throw expected;
@@ -294,7 +294,7 @@ public class ConnectionEndpointUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("'hostPort' must be specified");
+			assertThat(expected).hasMessage("Host & Port [null] must be specified");
 			assertThat(expected).hasNoCause();
 
 			throw expected;

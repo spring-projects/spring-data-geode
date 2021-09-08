@@ -30,7 +30,7 @@ import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireM
 import org.xml.sax.SAXParseException;
 
 /**
- * Unit Tests testing the proper syntax for declaring "custom" expiration attributes on a {@link Region}.
+ * Integration Tests testing the proper syntax for declaring "custom" expiration attributes on a {@link Region}.
  *
  * @author John Blum
  * @see org.junit.Test

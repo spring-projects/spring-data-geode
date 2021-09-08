@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
@@ -32,6 +31,7 @@ class GemfireNamespaceHandler extends NamespaceHandlerSupport {
 
 	@Override
 	public void init() {
+
 		registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenParser());
 		registerBeanDefinitionParser("async-event-queue", new AsyncEventQueueParser());
 		registerBeanDefinitionParser("auto-region-lookup", new AutoRegionLookupParser());

@@ -13,20 +13,20 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">SimpleGemfireRepositoryTransactionalTest</prop>
+		<prop key="name">SimpleGemfireRepositoryTransactionalIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<gfe:replicated-region id="Customers" persistent="false" scope="distributed-ack" key-constraint="java.lang.Long"
+	<gfe:replicated-region id="Customers" persistent="false" key-constraint="java.lang.Long"
 						   value-constraint="org.springframework.data.gemfire.repository.sample.Customer"/>
 
 	<context:annotation-config/>
 
 	<gfe:transaction-manager/>
 
-	<bean id="customerService" class="org.springframework.data.gemfire.repository.support.SimpleGemfireRepositoryTransactionalIntegrationTest$CustomerService"/>
+	<bean id="customerService" class="org.springframework.data.gemfire.repository.support.SimpleGemfireRepositoryTransactionalIntegrationTests$CustomerService"/>
 
 	<bean id="customersTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="Customers"/>
 

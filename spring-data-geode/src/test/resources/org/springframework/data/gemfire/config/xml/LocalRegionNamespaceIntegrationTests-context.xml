@@ -11,7 +11,7 @@
 " default-lazy-init="true">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">LocalNamespaceConfig</prop>
+		<prop key="name">LocalRegionNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 		<prop key="off-heap-memory-size">64m</prop>
 	</util:properties>

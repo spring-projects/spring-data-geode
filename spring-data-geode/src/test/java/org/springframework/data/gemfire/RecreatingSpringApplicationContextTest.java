@@ -51,9 +51,8 @@ public abstract class RecreatingSpringApplicationContextTest extends Integration
 	}
 
 	@After
-	public void destroyContext() {
-		if (applicationContext != null) {
-			applicationContext.destroy();
-		}
+	public void closeContext() {
+		closeApplicationContext(this.applicationContext);
+		destroyAllGemFireMockObjects();
 	}
 }

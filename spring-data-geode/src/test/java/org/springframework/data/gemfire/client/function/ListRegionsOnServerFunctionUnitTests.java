@@ -139,7 +139,7 @@ public class ListRegionsOnServerFunctionUnitTests {
 
 	@Test
 	public void getIdIsFullyQualifiedClassName() {
-		assertThat(function.getId()).isEqualTo(ListRegionsOnServerFunction.class.getName());
+		assertThat(function.getId()).startsWith(ListRegionsOnServerFunction.class.getName());
 	}
 
 	@Test

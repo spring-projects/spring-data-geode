@@ -45,6 +45,7 @@ import org.springframework.data.gemfire.snapshot.event.SnapshotApplicationEvent;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.tests.util.ThreadUtils;
+import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -52,7 +53,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Integration Tests with test cases testing the effects of the {@link SnapshotServiceFactoryBean} using Spring
+ * Integration Tests testing the effects of the {@link SnapshotServiceFactoryBean} using Spring
  * {@link ApplicationEvent ApplicationEvents} to trigger imports and exports of cache {@link Region} data.
  *
  * @author John Blum
@@ -92,9 +93,10 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 	private Region<Long, Person> people;
 
 	@BeforeClass
-	public static void setupBeforeClass() throws Exception {
+	public static void setupSnapshotDirectoryAndFiles() throws Exception {
 
-		snapshotsDirectory = new File(new File(FileSystemUtils.WORKING_DIRECTORY, "gemfire"), "snapshots");
+		snapshotsDirectory = new File(new File(new File(FileSystemUtils.WORKING_DIRECTORY, "gemfire"),
+			"data"), "snapshots");
 
 		assertThat(snapshotsDirectory.isDirectory() || snapshotsDirectory.mkdirs()).isTrue();
 
@@ -107,10 +109,10 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 
 	@AfterClass
 	public static void tearDownAfterClass() {
-		//FileSystemUtils.deleteRecursive(snapshotsDirectory.getParentFile());
+		//FileSystemUtils.deleteRecursive(snapshotsDirectory.getParentFile().getParentFile());
 	}
 
-	protected void assertPeople(Region<Long, Person> targetRegion, Person... people) {
+	private void assertPeople(Region<Long, Person> targetRegion, Person... people) {
 
 		assertThat(targetRegion.size()).isEqualTo(people.length);
 
@@ -118,32 +120,34 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 			.forEach(person -> assertPerson(person, targetRegion.get(person.getId())));
 	}
 
-	protected void assertPerson(Person expectedPerson, Person actualPerson) {
+	private void assertPerson(Person expectedPerson, Person actualPerson) {
 
-		assertThat(actualPerson).as(String.format("Expected [%1$s]; but was [%2$s]", expectedPerson, actualPerson))
+		assertThat(actualPerson)
+			.describedAs(String.format("Expected [%1$s]; but was [%2$s]", expectedPerson, actualPerson))
 			.isNotNull();
+
 		assertThat(actualPerson.getId()).isEqualTo(expectedPerson.getId());
 		assertThat(actualPerson.getFirstname()).isEqualTo(expectedPerson.getFirstname());
 		assertThat(actualPerson.getLastname()).isEqualTo(expectedPerson.getLastname());
 	}
 
-	protected Person newPerson(String firstName, String lastName) {
+	private Person newPerson(String firstName, String lastName) {
 		return new Person(ID_SEQUENCE.incrementAndGet(), firstName, lastName);
 	}
 
-	protected Person put(Region<Long, Person> targetRegion, Person person) {
+	private Person put(Region<Long, Person> targetRegion, Person person) {
 
 		targetRegion.putIfAbsent(person.getId(), person);
 
 		return person;
 	}
 
-	protected void wait(int seconds, int expectedDoeSize, int expectedEveryoneSize, int expectedHandySize) {
+	private void wait(int seconds, int expectedDoeSize, int expectedEveryoneSize, int expectedHandySize) {
 
 		ThreadUtils.timedWait(TimeUnit.SECONDS.toMillis(seconds), 500,
-			() -> doe.size() < expectedDoeSize
-				|| everyoneElse.size() < expectedEveryoneSize
-				|| handy.size() < expectedHandySize);
+			() -> doe.size() == expectedDoeSize
+				|| everyoneElse.size() == expectedEveryoneSize
+				|| handy.size() == expectedHandySize);
 	}
 
 	@Test
@@ -161,7 +165,7 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 
 		eventPublisher.publishEvent(event);
 
-		wait(5, 2, 2, 1);
+		wait(15, 2, 2, 1);
 
 		assertPeople(doe, jonDoe, janeDoe);
 		assertPeople(everyoneElse, jackBlack, joeDirt);
@@ -177,7 +181,7 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 
 		eventPublisher.publishEvent(event);
 
-		wait(5, 5, 4, 3);
+		wait(15, 5, 4, 3);
 
 		assertPeople(doe, jonDoe, janeDoe, cookieDoe, pieDoe, sourDoe);
 		assertPeople(everyoneElse, jackBlack, joeDirt, jackHill, jillHill);
@@ -197,18 +201,18 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 		assertPeople(handy, jackHandy, randyHandy, sandyHandy, mandyHandy);
 	}
 
-	protected static class LastNameSnapshotFilter implements SnapshotFilter<Long, Person> {
+	static class LastNameSnapshotFilter implements SnapshotFilter<Long, Person> {
 
 		private final String lastName;
 
-		public LastNameSnapshotFilter(String lastName) {
-			Assert.hasText(lastName, "'lastName' must be specified");
+		LastNameSnapshotFilter(String lastName) {
+			Assert.hasText(lastName, "lastName must be specified");
 			this.lastName = lastName;
 		}
 
 		protected String getLastName() {
-			Assert.state(StringUtils.hasText(lastName), "'lastName' was not properly initialized");
-			return lastName;
+			Assert.state(StringUtils.hasText(this.lastName), "lastName was not properly initialized");
+			return this.lastName;
 		}
 
 		@Override
@@ -221,9 +225,9 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 		}
 	}
 
-	protected static class NotLastNameSnapshotFilter extends LastNameSnapshotFilter {
+	static class NotLastNameSnapshotFilter extends LastNameSnapshotFilter {
 
-		public NotLastNameSnapshotFilter(String lastName) {
+		NotLastNameSnapshotFilter(String lastName) {
 			super(lastName);
 		}
 
@@ -233,7 +237,7 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 		}
 	}
 
-	protected static class SnapshotImportsMonitor {
+	public static class SnapshotImportsMonitor {
 
 		@Autowired
 		private ApplicationEventPublisher eventPublisher;
@@ -246,7 +250,10 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 
 			boolean triggerEvent = false;
 
-			for (File snapshotFile : nullSafeArray(snapshotsDirectory.listFiles(FileSystemUtils.FileOnlyFilter.INSTANCE))) {
+			File[] snapshotFiles = ArrayUtils.nullSafeArray(snapshotsDirectory
+				.listFiles(FileSystemUtils.FileOnlyFilter.INSTANCE), File.class);
+
+			for (File snapshotFile : snapshotFiles) {
 				triggerEvent |= isUnprocessedSnapshotFile(snapshotFile);
 			}
 
@@ -255,20 +262,16 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 			}
 		}
 
-		protected File[] nullSafeArray(File... files) {
-			return (files != null ? files : new File[0]);
-		}
-
-		protected boolean isUnprocessedSnapshotFile(File snapshotFile) {
+		private boolean isUnprocessedSnapshotFile(File snapshotFile) {
 
 			Long lastModified = snapshotFile.lastModified();
 			Long previousLastModified = snapshotFileLastModifiedMap.get(snapshotFile);
 
-			previousLastModified = (previousLastModified != null ? previousLastModified : lastModified);
+			previousLastModified = previousLastModified != null ? previousLastModified : lastModified;
 
 			snapshotFileLastModifiedMap.put(snapshotFile, lastModified);
 
-			return !previousLastModified.equals(lastModified);
+			return previousLastModified < lastModified;
 		}
 	}
 }

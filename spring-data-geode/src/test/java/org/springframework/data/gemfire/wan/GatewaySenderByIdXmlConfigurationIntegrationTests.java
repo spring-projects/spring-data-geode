@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.wan;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 import javax.annotation.Resource;
 
@@ -76,7 +75,7 @@ public class GatewaySenderByIdXmlConfigurationIntegrationTests extends ForkingCl
 
 		System.setProperty("spring.data.gemfire.locator.port", String.valueOf(port));
 
-		geodeServer = run(GeodeServerConfiguration.class, "-Dspring.data.gemfire.locator.port=" + port);
+		geodeServer = run(GeodeServerApplication.class, "-Dspring.data.gemfire.locator.port=" + port);
 
 		waitForServerToStart("localhost", port);
 	}
@@ -104,14 +103,13 @@ public class GatewaySenderByIdXmlConfigurationIntegrationTests extends ForkingCl
 	}
 
 	@EnableLocator
-	@PeerCacheApplication
-	static class GeodeServerConfiguration {
+	@PeerCacheApplication(name = "GatewaySenderByIdXmlConfigurationIntegrationTestsServer")
+	static class GeodeServerApplication {
 
 		public static void main(String[] args) {
 
-			runSpringApplication(GeodeServerConfiguration.class, args);
-
-			new Scanner(System.in).nextLine();
+			runSpringApplication(GeodeServerApplication.class, args);
+			block();
 		}
 
 		@Bean("TestGatewaySenderOne")

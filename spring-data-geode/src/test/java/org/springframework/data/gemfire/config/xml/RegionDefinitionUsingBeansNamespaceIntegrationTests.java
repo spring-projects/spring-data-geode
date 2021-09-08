@@ -38,7 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Integration Tests testing the contract and functionality of the SDG {@link PeerRegionFactoryBean} class,
- * and specifically the specification of the Apache Geode {@link Region} {@link DataPolicy}, when used as
+ * and specifically the specification of the Apache Geode {@link Region} {@link DataPolicy} when used as
  * raw bean definition in Spring XML configuration metadata.
  *
  * @author John Blum

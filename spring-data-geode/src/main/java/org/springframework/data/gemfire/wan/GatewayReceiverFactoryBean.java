@@ -81,10 +81,13 @@ public class GatewayReceiverFactoryBean extends AbstractWANComponentFactoryBean<
 		super(cache);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected void doInit() {
 
-		GatewayReceiverFactory gatewayReceiverFactory = this.cache.createGatewayReceiverFactory();
+		GatewayReceiverFactory gatewayReceiverFactory = getCache().createGatewayReceiverFactory();
 
 		StreamSupport.stream(CollectionUtils.nullSafeIterable(this.gatewayReceiverConfigurers).spliterator(), false)
 			.forEach(it -> it.configure(getName(), this));

@@ -34,7 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests for Apache Geode {@link Region} Eviction configuration settings ({@link EvictionAttributes})
+ * Integration Tests for {@link Region} Eviction configuration settings ({@link EvictionAttributes})
  * using SDG XML namespace configuration metadata.
  *
  * @author John Blum

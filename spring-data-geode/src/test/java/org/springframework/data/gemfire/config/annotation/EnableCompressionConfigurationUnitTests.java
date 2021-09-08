@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.springframework.data.gemfire.config.annotation.CompressionConfiguration.SNAPPY_COMPRESSOR_BEAN_NAME;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
@@ -62,8 +61,8 @@ public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSup
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-		//GemFireMockObjectsSupport.destroy();
+		closeApplicationContext(this.applicationContext);
+		destroyAllGemFireMockObjects();
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
@@ -132,7 +131,6 @@ public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSup
 			LocalRegionFactoryBean<Object, Object> localRegion = new LocalRegionFactoryBean<>();
 
 			localRegion.setCache(gemfireCache);
-			localRegion.setClose(false);
 			localRegion.setPersistent(false);
 
 			return localRegion;
@@ -144,7 +142,6 @@ public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSup
 			PartitionedRegionFactoryBean<Object, Object> partitionRegion = new PartitionedRegionFactoryBean<>();
 
 			partitionRegion.setCache(gemfireCache);
-			partitionRegion.setClose(false);
 			partitionRegion.setPersistent(false);
 
 			return partitionRegion;
@@ -156,7 +153,6 @@ public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSup
 			ReplicatedRegionFactoryBean<Object, Object> replicateRegion = new ReplicatedRegionFactoryBean<>();
 
 			replicateRegion.setCache(gemfireCache);
-			replicateRegion.setClose(false);
 			replicateRegion.setPersistent(false);
 
 			return replicateRegion;
@@ -176,7 +172,6 @@ public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSup
 			ClientRegionFactoryBean<Object, Object> clientRegion = new ClientRegionFactoryBean<>();
 
 			clientRegion.setCache(gemfireCache);
-			clientRegion.setClose(false);
 			clientRegion.setShortcut(ClientRegionShortcut.LOCAL);
 
 			return clientRegion;

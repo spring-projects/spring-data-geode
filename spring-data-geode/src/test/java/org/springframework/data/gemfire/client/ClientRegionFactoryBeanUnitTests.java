@@ -22,17 +22,21 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.InputStream;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EvictionAttributes;
@@ -57,7 +61,10 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  * @author David Turanski
  * @author John Blum
  * @see org.junit.Test
+ * @see org.mockito.Mock
  * @see org.mockito.Mockito
+ * @see org.mockito.Spy
+ * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.apache.geode.cache.EvictionAttributes
  * @see org.apache.geode.cache.ExpirationAttributes
  * @see org.apache.geode.cache.Region
@@ -67,17 +74,25 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  */
 @SuppressWarnings("rawtypes")
+@RunWith(MockitoJUnitRunner.class)
 public class ClientRegionFactoryBeanUnitTests {
 
+	@Mock
+	private BeanFactory mockBeanFactory;
+
+	@Spy
 	private ClientRegionFactoryBean<Object, Object> factoryBean;
 
 	@Before
 	public void setup() {
-		this.factoryBean = spy(new ClientRegionFactoryBean<>());
+
+		this.factoryBean.setBeanFactory(this.mockBeanFactory);
+		this.factoryBean.initializePoolResolver();
 	}
 
 	@After
 	public void tearDown() throws Exception {
+
 		this.factoryBean.destroy();
 		this.factoryBean = null;
 	}
@@ -85,8 +100,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@Test
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	public void createRegionUsingDefaultShortcut() throws Exception {
-
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
 		ClientCache mockClientCache = mock(ClientCache.class);
 
@@ -102,7 +115,6 @@ public class ClientRegionFactoryBeanUnitTests {
 		when(mockClientCache.createClientRegionFactory(eq(ClientRegionShortcut.LOCAL)))
 			.thenReturn(mockClientRegionFactory);
 		when(mockClientRegionFactory.create(eq("TestRegion"))).thenReturn(mockRegion);
-		when(mockPool.getName()).thenReturn("TestPoolTwo");
 		when(mockRegionAttributes.getCloningEnabled()).thenReturn(false);
 		when(mockRegionAttributes.getCompressor()).thenReturn(mock(Compressor.class));
 		when(mockRegionAttributes.getConcurrencyChecksEnabled()).thenReturn(true);
@@ -167,8 +179,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	public void createRegionUsingDefaultPersistentShortcut() throws Exception {
 
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
-
 		ClientCache mockClientCache = mock(ClientCache.class);
 
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
@@ -205,8 +215,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings("unchecked")
 	public void createRegionWithSpecifiedShortcut() {
 
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
-
 		ClientCache mockClientCache = mock(ClientCache.class);
 
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
@@ -235,8 +243,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createRegionAsSubRegion() {
-
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
 		ClientCache mockClientCache = mock(ClientCache.class);
 
@@ -288,8 +294,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings("unchecked")
 	public void configurePoolFromClientRegionFactoryBeanAndEagerlyInitializePool() {
 
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
-
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
 		Pool mockPool = mock(Pool.class);
@@ -307,8 +311,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void configurePoolFromClientRegionFactoryBeanEvenWhenRegionAttributesPoolNameIsSet() {
-
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
@@ -334,8 +336,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings("unchecked")
 	public void configurePoolFromRegionAttributesAndEagerlyInitializePool() {
 
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
-
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
 		Pool mockPool = mock(Pool.class);
@@ -357,8 +357,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@Test(expected = IllegalArgumentException.class)
 	@SuppressWarnings("unchecked")
 	public void configurePoolThrowsExceptionWhileEagerlyInitializingPool() {
-
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
@@ -387,8 +385,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings("unchecked")
 	public void doesNotConfigurePoolWhenClientRegionFactoryBeanPoolIsDefaultPool() {
 
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
-
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
 		factoryBean.setBeanFactory(mockBeanFactory);
@@ -404,8 +400,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void doesNotConfigurePoolWhenRegionAttributesPoolIsDefaultPool() {
-
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
@@ -428,8 +422,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings("unchecked")
 	public void doesNotConfigurePoolWhenDeclaredPoolIsEmpty() {
 
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
-
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
 		RegionAttributes<Object, Object> mockRegionAttributes = mock(RegionAttributes.class);
@@ -451,8 +443,6 @@ public class ClientRegionFactoryBeanUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void doesNotConfigurePoolWhenDeclaredPoolIsNull() {
-
-		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
 		ClientRegionFactory<Object, Object> mockClientRegionFactory = mock(ClientRegionFactory.class);
 
@@ -780,12 +770,11 @@ public class ClientRegionFactoryBeanUnitTests {
 	@SuppressWarnings("unchecked")
 	public void destroyCallsRegionDestroy() throws Exception {
 
-		Region mockRegion = mock(Region.class, "MockRegion");
+		Region mockRegion = mock(Region.class, withSettings().lenient());
 
-		RegionService mockRegionService = mock(RegionService.class, "MockRegionService");
+		RegionService mockRegionService = mock(RegionService.class);
 
 		when(mockRegion.getRegionService()).thenReturn(mockRegionService);
-		when(mockRegionService.isClosed()).thenReturn(false);
 
 		doReturn(mockRegion).when(factoryBean).getObject();
 

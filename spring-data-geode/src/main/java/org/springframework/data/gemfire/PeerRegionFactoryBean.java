@@ -232,12 +232,12 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	}
 
 	/**
-	 * Creates an instance of {@link RegionFactory} with the given {@link Cache} which is then used to construct,
-	 * configure and initialize the {@link Region} specified by this {@link PeerRegionFactoryBean}.
+	 * Create a new instance of {@link RegionFactory} initialized with the given {@link Cache} that is then used
+	 * to construct, configure and initialize the {@link Region} specified by this {@link PeerRegionFactoryBean}.
 	 *
 	 * @param cache reference to the {@link Cache}.
-	 * @return a {@link RegionFactory} used to construct, configure and initialized the {@link Region} specified by
-	 * this {@link PeerRegionFactoryBean}.
+	 * @return a {@link RegionFactory} used to construct, configure and initialize the {@link Region}
+	 * specified by this {@link PeerRegionFactoryBean}.
 	 * @see org.apache.geode.cache.Cache#createRegionFactory(org.apache.geode.cache.RegionShortcut)
 	 * @see org.apache.geode.cache.Cache#createRegionFactory(org.apache.geode.cache.RegionAttributes)
 	 * @see org.apache.geode.cache.Cache#createRegionFactory()

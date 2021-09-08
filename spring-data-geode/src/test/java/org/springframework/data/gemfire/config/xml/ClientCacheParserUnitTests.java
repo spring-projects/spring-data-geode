@@ -14,13 +14,14 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,22 +35,23 @@ import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Unit tests for {@link ClientCacheParser}.
+ * Unit Tests for {@link ClientCacheParser}.
  *
  * @author John Blum
  * @author Patrick Johnson
  * @see org.junit.Test
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
+ * @see org.mockito.Spy
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.config.xml.ClientCacheParser
+ * @see org.w3c.dom.Element
  * @since 1.8.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -58,15 +60,15 @@ public class ClientCacheParserUnitTests {
 	@Mock
 	private Element mockElement;
 
-	protected void assertPropertyIsPresent(BeanDefinition beanDefinition, String propertyName) {
+	private void assertPropertyIsPresent(BeanDefinition beanDefinition, String propertyName) {
 		assertThat(beanDefinition.getPropertyValues().contains(propertyName)).isTrue();
 	}
 
-	protected void assertPropertyIsNotPresent(BeanDefinition beanDefinition, String propertyName) {
+	private void assertPropertyIsNotPresent(BeanDefinition beanDefinition, String propertyName) {
 		assertThat(beanDefinition.getPropertyValues().contains(propertyName)).isFalse();
 	}
 
-	protected void assertPropertyValueEquals(BeanDefinition beanDefinition, String propertyName,
+	private void assertPropertyValueEquals(BeanDefinition beanDefinition, String propertyName,
 			Object expectedPropertyValue) {
 
 		assertPropertyIsPresent(beanDefinition, propertyName);
@@ -82,6 +84,7 @@ public class ClientCacheParserUnitTests {
 
 	@Test
 	public void doParseSetsProperties() {
+
 		NodeList mockNodeList = mock(NodeList.class);
 
 		when(mockElement.getAttribute(eq("durable-client-id"))).thenReturn("123");
@@ -94,15 +97,11 @@ public class ClientCacheParserUnitTests {
 
 		BeanDefinitionBuilder clientCacheBuilder = BeanDefinitionBuilder.genericBeanDefinition();
 
-		final BeanDefinitionRegistry mockRegistry = mock(BeanDefinitionRegistry.class);
+		BeanDefinitionRegistry mockRegistry = mock(BeanDefinitionRegistry.class);
 
-		when(mockRegistry.containsBeanDefinition(anyString())).thenReturn(false);
+		ClientCacheParser clientCacheParser = spy(new ClientCacheParser());
 
-		ClientCacheParser clientCacheParser = new ClientCacheParser() {
-			@Override protected BeanDefinitionRegistry getRegistry(ParserContext parserContext) {
-				return mockRegistry;
-			}
-		};
+		doReturn(mockRegistry).when(clientCacheParser).getRegistry(any());
 
 		clientCacheParser.doParse(mockElement, null, clientCacheBuilder);
 

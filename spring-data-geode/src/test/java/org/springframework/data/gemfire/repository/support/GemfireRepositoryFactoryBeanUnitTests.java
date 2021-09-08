@@ -58,7 +58,7 @@ public class GemfireRepositoryFactoryBeanUnitTests {
 		}
 		catch (IllegalStateException expected) {
 
-			assertThat(expected).hasMessage("GemfireMappingContext");
+			assertThat(expected).hasMessage("GemfireMappingContext must not be null");
 
 			throw expected;
 		}

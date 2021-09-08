@@ -22,6 +22,8 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheListener;
+import org.apache.geode.cache.CacheLoader;
+import org.apache.geode.cache.CacheWriter;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
@@ -41,7 +43,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 
 /**
- * Integration Tests for the Local Region XML namespace configuration metadata.
+ * Integration Tests for the Local {@link Region} SDG XML namespace configuration metadata.
  *
  * @author Costin Leau
  * @author David Turanski
@@ -56,7 +58,7 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations="local-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSupport {
 
@@ -116,9 +118,9 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 		assertThat(cacheListeners[0]).isSameAs(applicationContext.getBean("c-listener"));
 		assertThat(cacheListeners[1] instanceof SimpleCacheListener).isTrue();
 		assertThat(cacheListeners[1]).isNotSameAs(cacheListeners[0]);
-		assertThat(TestUtils.<String>readField("cacheLoader", complexRegionFactoryBean))
+		assertThat(TestUtils.<CacheLoader>readField("cacheLoader", complexRegionFactoryBean))
 			.isSameAs(applicationContext.getBean("c-loader"));
-		assertThat(TestUtils.<String>readField("cacheWriter", complexRegionFactoryBean))
+		assertThat(TestUtils.<CacheWriter>readField("cacheWriter", complexRegionFactoryBean))
 			.isSameAs(applicationContext.getBean("c-writer"));
 	}
 

@@ -22,12 +22,9 @@ import java.util.Optional;
 
 import org.apache.geode.cache.Region;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -35,10 +32,15 @@ import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 /**
  * Abstract base class encapsulating functionality common to all Region parsers.
@@ -50,6 +52,10 @@ import org.springframework.util.xml.DomUtils;
  */
 abstract class AbstractRegionParser extends AbstractSingleBeanDefinitionParser {
 
+	protected static final String REGION_DEFINITION_SUFFIX = "region";
+	protected static final String REGION_TEMPLATE_SUFFIX = "-template";
+	protected static final String TEMPLATE_ATTRIBUTE = "template";
+
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -60,6 +66,13 @@ abstract class AbstractRegionParser extends AbstractSingleBeanDefinitionParser {
 		return getRegionFactoryClass();
 	}
 
+	/**
+	 * Return the {@link Class type} of the {@link Region} {@link FactoryBean}.
+	 *
+	 * @return the {@link Class type} of the {@link Region} {@link FactoryBean}.
+	 * @see org.springframework.beans.factory.FactoryBean
+	 * @see java.lang.Class
+	 */
 	protected abstract Class<?> getRegionFactoryClass();
 
 	/**
@@ -68,23 +81,41 @@ abstract class AbstractRegionParser extends AbstractSingleBeanDefinitionParser {
 	@Override
 	protected String getParentName(Element element) {
 
-		String regionTemplate = element.getAttribute("template");
+		String regionTemplate = element.getAttribute(TEMPLATE_ATTRIBUTE);
 
 		return StringUtils.hasText(regionTemplate) ? regionTemplate : super.getParentName(element);
 	}
 
-	protected boolean isRegionTemplate(Element element) {
+	/**
+	 * Determines whether the given SDG XML namespace configuration {@link Element} defines a {@link Region} template
+	 * used as the base configuration for one or more {@link Region Regions}.
+	 *
+	 * @param element SDG XML namespace {@link Element}.
+	 * @return a boolean value indicating whether the given SDG XML namespace configuration {@link Element}
+	 * defines a {@link Region} template.
+	 * @see org.w3c.dom.Element
+	 */
+	protected boolean isRegionTemplate(@NonNull Element element) {
 
 		String localName = element.getLocalName();
 
-		return localName != null && localName.endsWith("-template");
+		return localName != null && localName.endsWith(REGION_TEMPLATE_SUFFIX);
 	}
 
-	protected boolean isSubRegion(Element element) {
+	/**
+	 * Determines whether the current SDG XML namespace {@link Region} {@link Element} is a {@link Region Sub-Region}
+	 * definition.
+	 *
+	 * @param element SDG XML namespace {@link Region} {@link Element} to evaluate as a {@link Region Sub-Region}.
+	 * @return a boolean value indicating whether the current SDG XML namespace {@link Region} {@link Element}
+	 * is a {@link Region Sub-Region} definition.
+	 * @see org.w3c.dom.Element
+	 */
+	protected boolean isSubRegion(@NonNull Element element) {
 
 		String localName = element.getParentNode().getLocalName();
 
-		return localName != null && localName.endsWith("region");
+		return localName != null && localName.endsWith(REGION_DEFINITION_SUFFIX);
 	}
 
 	/**
@@ -93,7 +124,7 @@ abstract class AbstractRegionParser extends AbstractSingleBeanDefinitionParser {
 	@Override
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 
-		super.doParse(element, builder);
+		super.doParse(element, parserContext, builder);
 
 		builder.setAbstract(isRegionTemplate(element));
 

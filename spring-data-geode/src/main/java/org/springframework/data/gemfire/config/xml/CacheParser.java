@@ -21,6 +21,8 @@ import java.util.Optional;
 import org.apache.geode.internal.datasource.ConfigProperty;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -30,10 +32,14 @@ import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.config.support.CustomEditorBeanFactoryPostProcessor;
 import org.springframework.data.gemfire.config.support.GemfireFeature;
 import org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFactoryPostProcessor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -43,18 +49,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
 /**
- * {@link BeanDefinitionParser} for the &lt;gfe:cache&gt; SDG XML Namespace (XSD) element.
+ * Spring {@link BeanDefinitionParser} for the &lt;gfe:cache&gt; SDG XML namespace element.
  *
  * @author Costin Leau
  * @author Oliver Gierke
  * @author David Turanski
  * @author John Blum
  * @author Patrick Johnson
- * @see org.w3c.dom.Element
  * @see org.springframework.beans.factory.support.AbstractBeanDefinition
  * @see org.springframework.beans.factory.support.BeanDefinitionBuilder
  * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
  * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser
+ * @see org.springframework.beans.factory.xml.BeanDefinitionParser
  * @see org.springframework.beans.factory.xml.ParserContext
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.w3c.dom.Element
@@ -77,7 +83,7 @@ class CacheParser extends AbstractSingleBeanDefinitionParser {
 
 		super.doParse(element, cacheBuilder);
 
-		registerGemFireBeanFactoryPostProcessors(getRegistry(parserContext));
+		registerGemFirePropertyEditorRegistrarWithBeanFactory(getRegistry(parserContext));
 
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "cache-xml-location", "cacheXml");
 		ParsingUtils.setPropertyReference(element, cacheBuilder, "properties-ref", "properties");
@@ -92,13 +98,27 @@ class CacheParser extends AbstractSingleBeanDefinitionParser {
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "lock-lease");
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "lock-timeout");
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "message-sync-interval");
-		parsePdxDiskStore(element, parserContext, cacheBuilder);
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "pdx-ignore-unread-fields");
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "pdx-read-serialized");
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "pdx-persistent");
 		ParsingUtils.setPropertyReference(element, cacheBuilder, "pdx-serializer-ref", "pdxSerializer");
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "search-timeout");
 		ParsingUtils.setPropertyValue(element, cacheBuilder, "use-cluster-configuration");
+
+		parsePdxDiskStore(element, parserContext, cacheBuilder);
+		parseJndiBindings(element, parserContext, cacheBuilder);
+
+		Element gatewayConflictResolver =
+			DomUtils.getChildElementByTagName(element, "gateway-conflict-resolver");
+
+		if (gatewayConflictResolver != null) {
+
+			ParsingUtils.throwExceptionWhenGemFireFeatureUnavailable(GemfireFeature.WAN, element.getLocalName(),
+				"gateway-conflict-resolver", parserContext);
+
+			cacheBuilder.addPropertyValue("gatewayConflictResolver", ParsingUtils.parseRefOrSingleNestedBeanDeclaration(
+				gatewayConflictResolver, parserContext, cacheBuilder));
+		}
 
 		List<Element> transactionListeners =
 			DomUtils.getChildElementsByTagName(element, "transaction-listener");
@@ -121,32 +141,29 @@ class CacheParser extends AbstractSingleBeanDefinitionParser {
 			cacheBuilder.addPropertyValue("transactionWriter",
 				ParsingUtils.parseRefOrNestedBeanDeclaration(transactionWriter, parserContext, cacheBuilder));
 		}
-
-		Element gatewayConflictResolver =
-			DomUtils.getChildElementByTagName(element, "gateway-conflict-resolver");
-
-		if (gatewayConflictResolver != null) {
-
-			ParsingUtils.throwExceptionWhenGemFireFeatureUnavailable(GemfireFeature.WAN, element.getLocalName(),
-				"gateway-conflict-resolver", parserContext);
-
-			cacheBuilder.addPropertyValue("gatewayConflictResolver", ParsingUtils.parseRefOrSingleNestedBeanDeclaration(
-				gatewayConflictResolver, parserContext, cacheBuilder));
-		}
-
-		parseJndiBindings(element, cacheBuilder);
 	}
 
-	protected BeanDefinitionRegistry getRegistry(ParserContext parserContext) {
+	protected @NonNull BeanDefinitionRegistry getRegistry(@NonNull ParserContext parserContext) {
 		return parserContext.getRegistry();
 	}
 
-	private void registerGemFireBeanFactoryPostProcessors(BeanDefinitionRegistry registry) {
+	protected @Nullable BeanFactory resolveBeanFactory(@Nullable BeanDefinitionRegistry registry) {
 
-		AbstractBeanDefinition customEditorBeanFactoryPostProcessorDefinition =
-			BeanDefinitionBuilder.genericBeanDefinition(CustomEditorBeanFactoryPostProcessor.class).getBeanDefinition();
+		return registry instanceof ConfigurableApplicationContext ? ((ConfigurableApplicationContext) registry).getBeanFactory()
+			: registry instanceof ApplicationContext ? ((ApplicationContext) registry).getAutowireCapableBeanFactory()
+			: registry instanceof ConfigurableListableBeanFactory ? (ConfigurableListableBeanFactory) registry
+			: registry instanceof BeanFactory ? (BeanFactory) registry
+			: null;
+	}
 
-		BeanDefinitionReaderUtils.registerWithGeneratedName(customEditorBeanFactoryPostProcessorDefinition, registry);
+	private void registerGemFirePropertyEditorRegistrarWithBeanFactory(BeanDefinitionRegistry registry) {
+
+		Optional.ofNullable(registry)
+			.map(this::resolveBeanFactory)
+			.filter(ConfigurableListableBeanFactory.class::isInstance)
+			.map(ConfigurableListableBeanFactory.class::cast)
+			.ifPresent(beanFactory -> beanFactory.addPropertyEditorRegistrar(new CustomEditorBeanFactoryPostProcessor
+				.CustomEditorPropertyEditorRegistrar()));
 	}
 
 	private void parsePdxDiskStore(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -178,7 +195,8 @@ class CacheParser extends AbstractSingleBeanDefinitionParser {
 		return builder.getBeanDefinition();
 	}
 
-	private void parseJndiBindings(Element element, BeanDefinitionBuilder cacheBuilder) {
+	@SuppressWarnings("unused")
+	private void parseJndiBindings(Element element, ParserContext parserContext, BeanDefinitionBuilder cacheBuilder) {
 
 		List<Element> jndiBindings = DomUtils.getChildElementsByTagName(element, "jndi-binding");
 

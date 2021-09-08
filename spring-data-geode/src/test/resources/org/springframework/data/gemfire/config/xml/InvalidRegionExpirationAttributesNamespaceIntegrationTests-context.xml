@@ -11,7 +11,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">InvalidRegionExpirationAttributesNamespaceTest</prop>
+		<prop key="name">InvalidRegionExpirationAttributesNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

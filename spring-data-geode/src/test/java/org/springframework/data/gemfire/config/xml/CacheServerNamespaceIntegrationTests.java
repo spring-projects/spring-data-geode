@@ -46,8 +46,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "server-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class CacheServerNamespaceIntegrationTests extends IntegrationTestsSupport {
 
@@ -56,7 +55,7 @@ public class CacheServerNamespaceIntegrationTests extends IntegrationTestsSuppor
 
 	@Test
 	@SuppressWarnings("deprecation")
-	public void testBasicCacheServer() {
+	public void basicCacheServerConfigurationIsCorrect() {
 
 		CacheServer cacheServer = applicationContext.getBean("advanced-config", CacheServer.class);
 

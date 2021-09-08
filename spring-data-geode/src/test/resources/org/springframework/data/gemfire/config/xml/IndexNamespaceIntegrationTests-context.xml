@@ -21,7 +21,7 @@
 	<!-- as there can be only one cache per VM -->
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">IndexNamespaceTest</prop>
+		<prop key="name">IndexNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

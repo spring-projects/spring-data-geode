@@ -26,8 +26,11 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.wan.GatewaySender;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyEditorRegistrar;
+import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.Ordered;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.gemfire.IndexMaintenancePolicyConverter;
 import org.springframework.data.gemfire.IndexMaintenancePolicyType;
@@ -56,10 +59,20 @@ import org.springframework.data.gemfire.wan.OrderPolicyConverter;
  * @author John Blum
  * @see java.beans.PropertyEditor
  * @see java.beans.PropertyEditorSupport
+ * @see org.springframework.beans.PropertyEditorRegistrar
+ * @see org.springframework.beans.PropertyEditorRegistry
  * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor
  * @since 1.6.0
  */
-public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered {
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getOrder() {
+		return Ordered.HIGHEST_PRECEDENCE;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -67,21 +80,52 @@ public class CustomEditorBeanFactoryPostProcessor implements BeanFactoryPostProc
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
-		beanFactory.registerCustomEditor(ConnectionEndpoint.class, StringToConnectionEndpointConverter.class);
-		//beanFactory.registerCustomEditor(ConnectionEndpoint[].class, ConnectionEndpointArrayToIterableConverter.class);
-		beanFactory.registerCustomEditor(ConnectionEndpointList.class, StringToConnectionEndpointListConverter.class);
-		beanFactory.registerCustomEditor(EvictionAction.class, EvictionActionConverter.class);
-		beanFactory.registerCustomEditor(EvictionPolicyType.class, EvictionPolicyConverter.class);
-		beanFactory.registerCustomEditor(ExpirationAction.class, ExpirationActionConverter.class);
-		beanFactory.registerCustomEditor(IndexMaintenancePolicyType.class, IndexMaintenancePolicyConverter.class);
-		beanFactory.registerCustomEditor(IndexType.class, IndexTypeConverter.class);
-		beanFactory.registerCustomEditor(InterestPolicy.class, InterestPolicyConverter.class);
-		beanFactory.registerCustomEditor(InterestResultPolicy.class, InterestResultPolicyConverter.class);
-		beanFactory.registerCustomEditor(GatewaySender.OrderPolicy.class, OrderPolicyConverter.class);
-		beanFactory.registerCustomEditor(Scope.class, ScopeConverter.class);
-		beanFactory.registerCustomEditor(SubscriptionEvictionPolicy.class, SubscriptionEvictionPolicyConverter.class);
+		beanFactory.addPropertyEditorRegistrar(new CustomEditorPropertyEditorRegistrar());
+		//registerCustomEditors(beanFactory);
 	}
 
+	@SuppressWarnings("unused")
+	private void registerCustomEditors(ConfigurableListableBeanFactory beanFactory) {
+
+		if (beanFactory != null) {
+			beanFactory.registerCustomEditor(ConnectionEndpoint.class, StringToConnectionEndpointConverter.class);
+			//beanFactory.registerCustomEditor(ConnectionEndpoint[].class, ConnectionEndpointArrayToIterableConverter.class);
+			beanFactory.registerCustomEditor(ConnectionEndpointList.class, StringToConnectionEndpointListConverter.class);
+			beanFactory.registerCustomEditor(EvictionAction.class, EvictionActionConverter.class);
+			beanFactory.registerCustomEditor(EvictionPolicyType.class, EvictionPolicyConverter.class);
+			beanFactory.registerCustomEditor(ExpirationAction.class, ExpirationActionConverter.class);
+			beanFactory.registerCustomEditor(IndexMaintenancePolicyType.class, IndexMaintenancePolicyConverter.class);
+			beanFactory.registerCustomEditor(IndexType.class, IndexTypeConverter.class);
+			beanFactory.registerCustomEditor(InterestPolicy.class, InterestPolicyConverter.class);
+			beanFactory.registerCustomEditor(InterestResultPolicy.class, InterestResultPolicyConverter.class);
+			beanFactory.registerCustomEditor(GatewaySender.OrderPolicy.class, OrderPolicyConverter.class);
+			beanFactory.registerCustomEditor(Scope.class, ScopeConverter.class);
+			beanFactory.registerCustomEditor(SubscriptionEvictionPolicy.class, SubscriptionEvictionPolicyConverter.class);
+		}
+	}
+
+	public static class CustomEditorPropertyEditorRegistrar implements PropertyEditorRegistrar {
+
+		@Override
+		public void registerCustomEditors(PropertyEditorRegistry registry) {
+
+			if (registry != null) {
+				registry.registerCustomEditor(ConnectionEndpoint.class, new StringToConnectionEndpointConverter());
+				//registry.registerCustomEditor(ConnectionEndpoint[].class, new ConnectionEndpointArrayToIterableConverter()));
+				registry.registerCustomEditor(ConnectionEndpointList.class, new StringToConnectionEndpointListConverter());
+				registry.registerCustomEditor(EvictionAction.class, new EvictionActionConverter());
+				registry.registerCustomEditor(EvictionPolicyType.class, new EvictionPolicyConverter());
+				registry.registerCustomEditor(ExpirationAction.class, new ExpirationActionConverter());
+				registry.registerCustomEditor(IndexMaintenancePolicyType.class, new IndexMaintenancePolicyConverter());
+				registry.registerCustomEditor(IndexType.class, new IndexTypeConverter());
+				registry.registerCustomEditor(InterestPolicy.class, new InterestPolicyConverter());
+				registry.registerCustomEditor(InterestResultPolicy.class, new InterestResultPolicyConverter());
+				registry.registerCustomEditor(GatewaySender.OrderPolicy.class, new OrderPolicyConverter());
+				registry.registerCustomEditor(Scope.class, new ScopeConverter());
+				registry.registerCustomEditor(SubscriptionEvictionPolicy.class, new SubscriptionEvictionPolicyConverter());
+			}
+		}
+	}
 	public static class ConnectionEndpointArrayToIterableConverter extends PropertyEditorSupport
 			implements Converter<ConnectionEndpoint[], Iterable<?>>  {
 

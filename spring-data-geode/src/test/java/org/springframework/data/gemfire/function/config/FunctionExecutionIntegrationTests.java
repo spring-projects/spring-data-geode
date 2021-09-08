@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.execute.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -33,11 +34,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
+ * Integration Tests for the execution of Apache Geode {@link Function Functions}
+ * using SDG's {@link Function} execution annotation support.
+ *
  * @author David Turanski
  * @author John Blum
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestConfig.class, initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(classes = FunctionExecutionIntegrationTests.TestConfiguration.class,
+	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class FunctionExecutionIntegrationTests extends IntegrationTestsSupport {
 
@@ -60,9 +65,11 @@ public class FunctionExecutionIntegrationTests extends IntegrationTestsSupport {
 
 		assertThat(TestUtils.<Region<?, ?>>readField("region", template)).isSameAs(regionOne);
 	}
+
+	@Configuration
+	@EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.two")
+	@ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionIntegrationTests-context.xml")
+	static class TestConfiguration { }
+
 }
 
-@Configuration
-@EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.two")
-@ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionIntegrationTests-context.xml")
-class TestConfig { }

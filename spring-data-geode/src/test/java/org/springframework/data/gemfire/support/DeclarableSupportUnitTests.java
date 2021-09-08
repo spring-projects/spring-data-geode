@@ -100,7 +100,7 @@ public class DeclarableSupportUnitTests {
 		assertThat(testDeclarableSupport.locateBeanFactory()).isSameAs(mockBeanFactoryOne);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void locateBeanFactoryWithUnknownKeyHavingMultipleBeanFactoriesRegisteredThrowsIllegalArgumentException() {
 
 		GemfireBeanFactoryLocator.BEAN_FACTORIES.put("keyOne", mockBeanFactoryOne);

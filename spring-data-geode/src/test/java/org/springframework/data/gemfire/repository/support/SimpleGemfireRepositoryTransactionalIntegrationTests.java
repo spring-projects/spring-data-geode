@@ -33,6 +33,7 @@ import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireTemplate;
+import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.gemfire.repository.GemfireRepository;
@@ -62,11 +63,11 @@ import org.springframework.transaction.support.TransactionTemplate;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class SimpleGemfireRepositoryTransactionalIntegrationTest extends IntegrationTestsSupport {
+public class SimpleGemfireRepositoryTransactionalIntegrationTests extends IntegrationTestsSupport {
 
 	// TODO add additional test cases for SimpleGemfireRepository (Region operations) in the presence of Transactions!!!
 
-	static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
+	private static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
 
 	@Autowired
 	private CustomerService customerService;
@@ -74,7 +75,7 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 	@Resource(name = "Customers")
 	private Region<?, ?> customers;
 
-	static Customer createCustomer(String firstName, String lastName) {
+	private static Customer createCustomer(String firstName, String lastName) {
 
 		Customer customer = new SerializableCustomer(firstName, lastName);
 
@@ -86,10 +87,12 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 	@Before
 	public void setup() {
 
-		assertThat(this.customers).as("The 'Customers' Cache Region was not properly configured and initialized!")
+		assertThat(this.customers)
+			.describedAs("The 'Customers' Cache Region was not properly configured and initialized!")
 			.isNotNull();
+
 		assertThat(this.customers.getName()).isEqualTo("Customers");
-		assertThat(this.customers.getFullPath()).isEqualTo("/Customers");
+		assertThat(this.customers.getFullPath()).isEqualTo(GemfireUtils.toRegionPath("Customers"));
 		assertThat(this.customers.isEmpty()).isTrue();
 	}
 
@@ -99,7 +102,8 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 	}
 
 	@Test
-	public void testDeleteAll() {
+	public void deleteAllIsCorrect() {
+
 		Collection<Customer> expectedCustomers = new ArrayList<>(4);
 
 		expectedCustomers.add(createCustomer("Jon", "Doe"));
@@ -129,8 +133,7 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTest extends Integra
 
 	public static class SerializableCustomer extends Customer implements Serializable {
 
-		public SerializableCustomer() {
-		}
+		public SerializableCustomer() { }
 
 		public SerializableCustomer(final Long id) {
 			super(id);

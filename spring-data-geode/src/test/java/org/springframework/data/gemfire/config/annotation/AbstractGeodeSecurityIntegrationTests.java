@@ -227,7 +227,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 	public static class GeodeServerConfiguration {
 
 		public static void main(String[] args) {
-			runSpringApplication(GeodeServerConfiguration.class, args).refresh();
+			runSpringApplication(GeodeServerConfiguration.class, args);
 		}
 
 		@Autowired

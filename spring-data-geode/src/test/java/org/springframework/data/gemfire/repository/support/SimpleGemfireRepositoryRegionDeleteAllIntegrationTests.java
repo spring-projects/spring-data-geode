@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.repository.support;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import javax.annotation.Resource;
 
@@ -32,21 +31,16 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.CacheServerApplication;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
-import org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer;
 import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
 import org.springframework.data.gemfire.config.annotation.EnablePdx;
 import org.springframework.data.gemfire.repository.config.EnableGemfireRepositories;
-import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,7 +75,7 @@ public class SimpleGemfireRepositoryRegionDeleteAllIntegrationTests extends Fork
 
 	@BeforeClass
 	public static void startGeodeServer() throws Exception {
-		startGemFireServer(GeodeServerTestConfiguration.class);
+		startGemFireServer(GeodeServerTestConfiguration.class, "-Dspring.profiles.active=partition");
 	}
 
 	@Resource(name = "Users")
@@ -130,31 +124,13 @@ public class SimpleGemfireRepositoryRegionDeleteAllIntegrationTests extends Fork
 	@EnablePdx
 	@EnableEntityDefinedRegions(basePackageClasses = User.class)
 	@EnableGemfireRepositories(basePackageClasses = UserRepository.class)
-	static class GeodeClientTestConfiguration {
-
-		@Bean
-		static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-			return new PropertySourcesPlaceholderConfigurer();
-		}
-
-		@Bean
-		ClientCacheConfigurer clientCachePoolPortConfigurer(
-			@Value("${" + GEMFIRE_CACHE_SERVER_PORT_PROPERTY + ":40404}") int port) {
-
-			return (bean, clientCacheFactoryBean) -> clientCacheFactoryBean.setServers(
-				Collections.singletonList(new ConnectionEndpoint("localhost", port)));
-		}
-	}
+	static class GeodeClientTestConfiguration { }
 
 	@CacheServerApplication
 	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
-
-			applicationContext.registerShutdownHook();
+			runSpringApplication(GeodeServerTestConfiguration.class);
 		}
 
 		@Bean("Users")

@@ -34,7 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "index-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings({ "deprecation", "unused" })
 public class IndexNamespaceIntegrationTests extends IntegrationTestsSupport {
 
@@ -74,6 +74,7 @@ public class IndexNamespaceIntegrationTests extends IntegrationTestsSupport {
 		assertThat(complex.getName()).isEqualTo("complex-index");
 		assertThat(complex.getIndexedExpression()).isEqualTo("tsi.name");
 		assertThat(complex.getFromClause()).isEqualTo(Region.SEPARATOR + TEST_REGION_NAME + " tsi");
+		assertThat(complex.getRegion()).isNotNull();
 		assertThat(complex.getRegion().getName()).isEqualTo(TEST_REGION_NAME);
 		assertThat(complex.getType()).isEqualTo(org.apache.geode.cache.query.IndexType.HASH);
 	}

@@ -19,13 +19,13 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.wan.GatewaySender;
 
-import org.w3c.dom.Element;
-
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
+import org.w3c.dom.Element;
+
 /**
- * Abstract Spring XML Parser for peer {@link Region} bean definitions.
+ * Abstract Spring XML parser for peer {@link Region} bean definitions.
  *
  * @author John Blum
  * @see org.apache.geode.cache.Region
@@ -33,11 +33,15 @@ import org.springframework.beans.factory.xml.ParserContext;
  * @see org.apache.geode.cache.wan.GatewaySender
  * @see org.springframework.beans.factory.support.BeanDefinitionBuilder
  * @see org.springframework.beans.factory.xml.ParserContext
+ * @see org.springframework.data.gemfire.config.xml.AbstractRegionParser
  * @see org.w3c.dom.Element
  * @since 2.2.0
  */
 public abstract class AbstractPeerRegionParser extends AbstractRegionParser {
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected void doParseRegionConfiguration(Element element, ParserContext parserContext,
 			BeanDefinitionBuilder regionBuilder, BeanDefinitionBuilder regionAttributesBuilder, boolean subRegion) {

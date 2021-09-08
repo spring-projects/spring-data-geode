@@ -65,7 +65,7 @@ public class FunctionExecutionIntegrationTests extends ForkingClientServerIntegr
 			.set("name", FunctionExecutionIntegrationTests.class.getSimpleName())
 			.set("log-level", "error")
 			.setPoolSubscriptionEnabled(true)
-			.addPoolServer("localhost", Integer.getInteger(GEMFIRE_POOL_SERVERS_PROPERTY))
+			.addPoolServer("localhost", Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY))
 			.create();
 
 		assertThat(this.gemfireCache).isNotNull();

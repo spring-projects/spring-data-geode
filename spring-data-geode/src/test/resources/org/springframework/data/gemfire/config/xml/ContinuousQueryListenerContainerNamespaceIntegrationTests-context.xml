@@ -16,6 +16,7 @@
 	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
+		<prop key="name">ContinuousQueryListenerContainerNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

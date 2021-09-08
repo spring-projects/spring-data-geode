@@ -14,7 +14,7 @@
 	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">AsyncEventQueueXmlConfigurationByIdIntegrationTests</prop>
+		<prop key="name">AsyncEventQueueByIdXmlConfigurationIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 		<prop key="locators">localhost[${spring.data.gemfire.locator.port}]</prop>
 		<prop key="distributed-system-id">1</prop>

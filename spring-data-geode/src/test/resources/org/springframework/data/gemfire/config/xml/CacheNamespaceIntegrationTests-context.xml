@@ -9,8 +9,6 @@
 		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd"
 default-lazy-init="true">
 
-	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
-
 	<util:properties id="gemfireProperties">
 		<prop key="disable-tcp">false</prop>
 		<prop key="log-level">error</prop>

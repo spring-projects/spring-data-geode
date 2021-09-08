@@ -112,7 +112,6 @@ public class ClientCacheConfigurationIntegrationTests extends IntegrationTestsSu
 	@EnableGemFireMockObjects
 	@ClientCacheApplication(
 		name = "ClientCacheDefaultPoolWithCustomSocketFactoryConfiguration",
-		logLevel = "error",
 		serverConnectionTimeout = 60000,
 		socketFactoryBeanName = "mockSocketFactory"
 	)
@@ -125,7 +124,7 @@ public class ClientCacheConfigurationIntegrationTests extends IntegrationTestsSu
 	}
 
 	@EnableGemFireMockObjects
-	@ClientCacheApplication(name = "ClientCacheDefaultPoolWithCustomSocketFactoryConfiguration", logLevel = "error")
+	@ClientCacheApplication(name = "ClientCacheDefaultPoolWithDefaultSocketFactoryConfiguration")
 	static class ClientCacheDefaultPoolWithDefaultSocketFactoryConfiguration {
 
 		@Bean

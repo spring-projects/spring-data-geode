@@ -36,8 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
 /**
- * Integration Tests with test cases testing the configuration of {@link ExpirationAttributes} settings
- * on {@link Region} entries.
+ * Integration Tests testing the configuration of {@link ExpirationAttributes} settings on {@link Region} entries.
  *
  * @author John Blum
  * @see org.junit.Test

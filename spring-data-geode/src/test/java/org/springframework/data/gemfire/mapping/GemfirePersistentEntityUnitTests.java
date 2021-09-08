@@ -147,7 +147,7 @@ public class GemfirePersistentEntityUnitTests {
 		assertThat(identifierAccessor.getIdentifier()).isEqualTo(1L);
 	}
 
-	@Test
+	@Test(expected = MappingException.class)
 	public void identifierForAmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntityThrowsMappingException() {
 
 		AmbiguousIdAnnotatedFieldAndIdAnnotatedPropertyEntity entity =

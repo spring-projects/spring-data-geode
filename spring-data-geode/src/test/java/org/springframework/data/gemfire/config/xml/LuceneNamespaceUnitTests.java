@@ -17,31 +17,22 @@
 package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.stubbing.Answer;
 
-import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.lucene.LuceneIndex;
-import org.apache.geode.cache.lucene.LuceneIndexFactory;
 import org.apache.geode.cache.lucene.LuceneSerializer;
 import org.apache.geode.cache.lucene.LuceneService;
 
@@ -49,19 +40,21 @@ import org.apache.lucene.analysis.Analyzer;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.data.gemfire.search.lucene.LuceneServiceFactoryBean;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.lang.Nullable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import lombok.SneakyThrows;
+
 /**
- * Unit tests for the {@link LuceneServiceParser} and {@link LuceneIndexParser}.
+ * Unit Tests for the {@link LuceneServiceParser} and {@link LuceneIndexParser}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -189,104 +182,23 @@ public class LuceneNamespaceUnitTests extends IntegrationTestsSupport {
 		assertThat(this.luceneIndexFour.getLuceneSerializer()).isEqualTo(luceneSerializer);
 	}
 
-	public static class LuceneNamespaceUnitTestsBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+	public static class LuceneNamespaceUnitTestsBeanPostProcessor implements BeanPostProcessor {
 
-		@Override
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-			beanFactory.getBeanDefinition("luceneService")
-				.setBeanClassName(MockLuceneServiceFactoryBean.class.getName());
-		}
-	}
+		@SneakyThrows @Nullable @Override
+		public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
-	public static class MockLuceneServiceFactoryBean implements FactoryBean<LuceneService>, InitializingBean {
+			if (bean instanceof LuceneServiceFactoryBean) {
 
-		private GemFireCache gemfireCache;
+				LuceneServiceFactoryBean factoryBean = spy((LuceneServiceFactoryBean) bean);
 
-		private LuceneService luceneService;
+				doNothing().when(factoryBean).afterPropertiesSet();
+				doAnswer(invocation -> GemFireMockObjectsSupport.mockLuceneService(null))
+					.when(factoryBean).getObject();
 
-		@Override
-		public void afterPropertiesSet() throws Exception {
-			assertThat(this.gemfireCache).describedAs("GemFireCache must not be null").isNotNull();
-		}
+				bean = factoryBean;
+			}
 
-		@Override
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public LuceneService getObject() throws Exception {
-
-			return Optional.ofNullable(this.luceneService).orElseGet(() -> {
-
-				this.luceneService = mock(LuceneService.class);
-
-				when(this.luceneService.createIndexFactory()).thenAnswer(invocation -> {
-
-					LuceneIndexFactory mockLuceneIndexFactory = mock(LuceneIndexFactory.class);
-
-					List<String> fieldNames = new ArrayList<>();
-
-					when(mockLuceneIndexFactory.setFields((String[]) any())).thenAnswer(setFieldsInvocation -> {
-						Collections.addAll(fieldNames, toStringArray(setFieldsInvocation.getArguments()));
-						return mockLuceneIndexFactory;
-					});
-
-					Map<String, Analyzer> fieldAnalyzers = new HashMap<>();
-
-					when(mockLuceneIndexFactory.setFields(any(Map.class))).thenAnswer(setFieldsInvocation -> {
-						fieldAnalyzers.putAll(setFieldsInvocation.getArgument(0));
-						return mockLuceneIndexFactory;
-					});
-
-					AtomicReference<LuceneSerializer> luceneSerializer = new AtomicReference<>(null);
-
-					when(mockLuceneIndexFactory.setLuceneSerializer(any())).thenAnswer(setLuceneSerializerInvocation -> {
-						luceneSerializer.set(setLuceneSerializerInvocation.getArgument(0));
-						return mockLuceneIndexFactory;
-					});
-
-					Answer mockLuceneIndex =
-						mockLuceneIndex(this.luceneService, fieldAnalyzers, fieldNames, luceneSerializer);
-
-					doAnswer(mockLuceneIndex).when(mockLuceneIndexFactory).create(anyString(), anyString());
-
-					return mockLuceneIndexFactory;
-				});
-
-				return this.luceneService;
-			});
-		}
-
-		@SuppressWarnings("rawtypes")
-		private Answer<LuceneIndex> mockLuceneIndex(LuceneService mockLuceneService,
-				Map<String, Analyzer> fieldAnalyzers, List<String> fieldNames,
-					AtomicReference<LuceneSerializer> luceneSerializer) {
-
-			return invocation -> {
-
-				String indexName = invocation.getArgument(0);
-				String regionPath = invocation.getArgument(1);
-
-				LuceneIndex mockLuceneIndex = mock(LuceneIndex.class, indexName);
-
-				when(mockLuceneIndex.getFieldAnalyzers()).thenReturn(fieldAnalyzers);
-				when(mockLuceneIndex.getFieldNames()).thenReturn(asArray(fieldNames));
-				when(mockLuceneIndex.getLuceneSerializer()).thenAnswer(it -> luceneSerializer.get());
-				when(mockLuceneIndex.getName()).thenReturn(indexName);
-				when(mockLuceneIndex.getRegionPath()).thenReturn(regionPath);
-				when(mockLuceneService.getIndex(eq(indexName), eq(regionPath))).thenReturn(mockLuceneIndex);
-
-				return mockLuceneIndex;
-			};
-		}
-
-		@Override
-		public Class<?> getObjectType() {
-
-			return Optional.ofNullable(this.luceneService)
-				.<Class<?>>map(LuceneService::getClass)
-				.orElse(LuceneService.class);
-		}
-
-		public void setCache(GemFireCache gemfireCache) {
-			this.gemfireCache = gemfireCache;
+			return bean;
 		}
 	}
 

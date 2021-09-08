@@ -384,13 +384,13 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 		Region<Object, Object> accounts = this.applicationContext.getBean("Sessions", Region.class);
 
 		assertRegionWithAttributes(accounts, "Sessions", DataPolicy.REPLICATE,
-			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
+			null, true, false, null, Scope.DISTRIBUTED_ACK);
 
 		Region<Object, Object> genericRegionEntity =
 			this.applicationContext.getBean("GenericRegionEntity", Region.class);
 
 		assertRegionWithAttributes(genericRegionEntity, "GenericRegionEntity", DataPolicy.REPLICATE,
-			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
+			null, true, false, null, Scope.DISTRIBUTED_ACK);
 
 		Region<Object, Object> localRegionEntity =
 			this.applicationContext.getBean("LocalRegionEntity", Region.class);

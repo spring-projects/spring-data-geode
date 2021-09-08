@@ -103,7 +103,7 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("BeanFactory [%1$s] must be an instance of %2$s",
+			assertThat(expected).hasMessageStartingWith("BeanFactory [%1$s] must be an instance of %2$s",
 				mockBeanFactory.getClass().getName(), ConfigurableListableBeanFactory.class.getSimpleName());
 
 			assertThat(expected).hasNoCause();
@@ -120,7 +120,7 @@ public class AutoRegionLookupBeanPostProcessorUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("BeanFactory [null] must be an instance of %s",
+			assertThat(expected).hasMessageStartingWith("BeanFactory [null] must be an instance of %s",
 				ConfigurableListableBeanFactory.class.getSimpleName());
 
 			assertThat(expected).hasNoCause();

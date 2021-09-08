@@ -36,6 +36,7 @@ import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
 
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -48,13 +49,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
  * @see org.springframework.data.gemfire.config.AsyncEventQueueParser
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
  * @see org.springframework.data.gemfire.wan.AsyncEventQueueFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("all")
 public class AsyncEventQueueNamespaceIntegrationTests extends IntegrationTestsSupport {
 

@@ -34,9 +34,9 @@
 	 NOTE GemFire will switch the Region's DataPolicy when Entry Expiration Action settings
 	 are "LOCAL_[DESTROY|INVALIDATE]" based or the Eviction Action is "LOCAL_[DESTROY|INVALIDATE]".
 	-->
-	<gfe:replicated-region id="PreloadedExample" persistent="false">
+	<gfe:local-region id="PreloadedExample" data-policy="PRELOADED">
 		<gfe:entry-ttl timeout="120" action="LOCAL_DESTROY"/>
-	</gfe:replicated-region>
+	</gfe:local-region>
 
 	<gfe:partitioned-region id="PartitionExample" persistent="false">
 		<gfe:entry-ttl timeout="300" action="${expiration.action}"/>

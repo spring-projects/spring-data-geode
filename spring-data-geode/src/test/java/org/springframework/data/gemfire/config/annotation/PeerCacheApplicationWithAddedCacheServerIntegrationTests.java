@@ -132,7 +132,7 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
 	}
 
 	@EnableCacheServer
-	@PeerCacheApplication
+	@PeerCacheApplication(name = "PeerCacheApplicationWithAddedCacheServerIntegrationTests")
 	static class TestPeerCacheConfiguration { }
 
 }

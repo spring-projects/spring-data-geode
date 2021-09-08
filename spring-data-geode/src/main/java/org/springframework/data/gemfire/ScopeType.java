@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import org.apache.geode.cache.Scope;
@@ -29,6 +28,7 @@ import org.springframework.util.StringUtils;
  */
 @SuppressWarnings("unused")
 public enum ScopeType {
+
 	DISTRIBUTED_ACK(Scope.DISTRIBUTED_ACK),
 	DISTRIBUTED_NO_ACK(Scope.DISTRIBUTED_NO_ACK),
 	GLOBAL(Scope.GLOBAL),
@@ -42,7 +42,7 @@ public enum ScopeType {
 	 * @param gemfireScope the GemFire Scope paired with this enumerated value.
 	 * @see org.apache.geode.cache.Scope
 	 */
-	ScopeType(final Scope gemfireScope) {
+	ScopeType(Scope gemfireScope) {
 		this.gemfireScope = gemfireScope;
 	}
 
@@ -55,8 +55,8 @@ public enum ScopeType {
 	 * @see org.apache.geode.cache.Scope
 	 * @see #getScope()
 	 */
-	public static Scope getScope(final ScopeType scopeType) {
-		return (scopeType != null ? scopeType.getScope() : null);
+	public static Scope getScope(ScopeType scopeType) {
+		return scopeType != null ? scopeType.getScope() : null;
 	}
 
 	/**
@@ -69,6 +69,7 @@ public enum ScopeType {
 	 * @see #values()
 	 */
 	public static ScopeType valueOf(final Scope scope) {
+
 		for (ScopeType scopeType : values()) {
 			if (scopeType.getScope().equals(scope)) {
 				return scopeType;
@@ -89,6 +90,7 @@ public enum ScopeType {
 	 * @see #transform(String)
 	 */
 	public static ScopeType valueOfIgnoreCase(String name) {
+
 		name = transform(name);
 
 		for (ScopeType scopeType : values()) {
@@ -108,8 +110,8 @@ public enum ScopeType {
 	 * @return a String value with underscores for hyphens and all leading/trailing whitespace trimmed, or null
 	 * if the given String name is null.
 	 */
-	private static String transform(final String name) {
-		return (StringUtils.hasText(name) ? name.trim().replaceAll("-", "_") : name);
+	private static String transform(String name) {
+		return StringUtils.hasText(name) ? name.trim().replaceAll("-", "_") : name;
 	}
 
 	/**
@@ -119,7 +121,6 @@ public enum ScopeType {
 	 * @see org.apache.geode.cache.Scope
 	 */
 	public Scope getScope() {
-		return gemfireScope;
+		return this.gemfireScope;
 	}
-
 }

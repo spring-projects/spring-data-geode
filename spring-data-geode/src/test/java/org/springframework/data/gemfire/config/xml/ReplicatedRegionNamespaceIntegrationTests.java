@@ -45,7 +45,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 
 /**
- * Integration Tests for the Replicated Region XML namespace configuration metadata.
+ * Integration Tests for {@link DataPolicy#REPLICATE} {@link Region} XML namespace configuration metadata.
  *
  * @author Costin Leau
  * @author David Turanski
@@ -60,16 +60,15 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "replicated-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
-@SuppressWarnings("unused")
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@SuppressWarnings({ "rawtypes", "unused" })
 public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	@Test
-	public void testSimpleReplicateRegion() throws Exception {
+	public void simpleReplicateRegionConfigurationIsCorrect() throws Exception {
 
 		assertThat(applicationContext.containsBean("simple")).isTrue();
 
@@ -80,7 +79,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 		assertThat(TestUtils.<Boolean>readField("close", simpleRegionFactoryBean)).isEqualTo(false);
 		assertThat(TestUtils.<Scope>readField("scope", simpleRegionFactoryBean)).isNull();
 
-		RegionAttributes<?, ?> simpleRegionAttributes = TestUtils.readField("attributes", simpleRegionFactoryBean);
+		RegionAttributes<?, ?> simpleRegionAttributes = simpleRegionFactoryBean.getAttributes();
 
 		assertThat(simpleRegionAttributes).isNotNull();
 		assertThat(simpleRegionAttributes.getConcurrencyChecksEnabled()).isFalse();
@@ -89,8 +88,8 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "rawtypes" })
-	public void testPublishReplicateRegion() throws Exception {
+	@SuppressWarnings("deprecation")
+	public void publisherReplicateRegionConfigurationIsCorrect() throws Exception {
 
 		assertThat(applicationContext.containsBean("pub")).isTrue();
 
@@ -101,15 +100,14 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 		assertThat(TestUtils.<String>readField("name", publisherRegionFactoryBean)).isEqualTo("publisher");
 		assertThat(TestUtils.<Scope>readField("scope", publisherRegionFactoryBean)).isEqualTo(Scope.DISTRIBUTED_ACK);
 
-		RegionAttributes publisherRegionAttributes = TestUtils.readField("attributes", publisherRegionFactoryBean);
+		RegionAttributes publisherRegionAttributes = publisherRegionFactoryBean.getAttributes();
 
 		assertThat(publisherRegionAttributes.getConcurrencyChecksEnabled()).isTrue();
 		assertThat(publisherRegionAttributes.getPublisher()).isFalse();
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
-	public void testComplexReplicateRegion() throws Exception {
+	public void complexReplicateRegionConfigurationIsCorrect() throws Exception {
 
 		assertThat(applicationContext.containsBean("complex")).isTrue();
 
@@ -133,8 +131,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
-	public void testReplicatedRegionWithAttributes() {
+	public void replicatedRegionWithAttributesConfigurationIsCorrect() {
 
 		assertThat(applicationContext.containsBean("replicated-with-attributes")).isTrue();
 
@@ -165,7 +162,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testReplicatedWithSynchronousIndexUpdates() {
+	public void replicatedWithSynchronousIndexUpdatesConfigurationIsCorrect() {
 
 		assertThat(applicationContext.containsBean("replicated-with-synchronous-index-updates")).isTrue();
 
@@ -181,8 +178,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	@SuppressWarnings("rawtypes")
-	public void testRegionLookup() throws Exception {
+	public void regionLookupConfigurationIsCorrect() throws Exception {
 
 		Cache cache = applicationContext.getBean(Cache.class);
 
@@ -199,7 +195,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testCompressedReplicateRegion() {
+	public void compressedReplicateRegionConfigurationIsCorrect() {
 
 		assertThat(applicationContext.containsBean("Compressed")).isTrue();
 

@@ -97,6 +97,7 @@ public class WiringDeclarableSupportIntegrationTests extends IntegrationTestsSup
 	}
 
 	@Getter
+	@Setter
 	@NoArgsConstructor
 	@SuppressWarnings("unused")
 	public static class TestCacheLoader extends WiringDeclarableSupport implements CacheLoader<String, String> {

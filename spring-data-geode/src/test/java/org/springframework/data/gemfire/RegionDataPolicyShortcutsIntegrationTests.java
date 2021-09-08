@@ -30,6 +30,7 @@ import org.apache.geode.cache.RegionShortcut;
 
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
+import org.springframework.data.gemfire.util.RegionUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -48,8 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.4.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "region-datapolicy-shortcuts.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsSupport {
 
@@ -78,7 +78,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	private Region<?, ?> shortcutOverrides;
 
 	@Test
-	public void testLocalRegionWithDataPolicy() {
+	public void localRegionWithDataPolicyIsCorrect() {
 
 		assertThat(localWithDataPolicy)
 			.describedAs("A reference to the 'LocalWithDataPolicy' Region was not property configured!")
@@ -91,7 +91,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testLocalRegionWithShortcut() {
+	public void localRegionWithShortcutIsCorrect() {
 
 		assertThat(localWithShortcut)
 			.describedAs("A reference to the 'LocalWithShortcut' Region was not property configured!")
@@ -104,7 +104,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testPartitionRegionWithDataPolicy() {
+	public void partitionRegionWithDataPolicyIsCorrect() {
 
 		assertThat(partitionWithDataPolicy)
 			.describedAs("A reference to the 'PartitionWithDataPolicy' Region was not property configured!")
@@ -117,7 +117,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testPartitionRegionWithShortcut() {
+	public void partitionRegionWithShortcutIsCorrect() {
 
 		assertThat(partitionWithShortcut)
 			.describedAs("A reference to the 'PartitionWithShortcut' Region was not property configured!")
@@ -130,7 +130,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testReplicateRegionWithDataPolicy() {
+	public void replicateRegionWithDataPolicyIsCorrect() {
 
 		assertThat(replicateWithDataPolicy)
 			.describedAs("A reference to the 'ReplicateWithDataPolicy' Region was not property configured!")
@@ -143,7 +143,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testReplicateRegionWithShortcut() {
+	public void replicateRegionWithShortcutIsCorrect() {
 
 		assertThat(replicateWithShortcut)
 			.describedAs("A reference to the 'ReplicateWithShortcut' Region was not property configured!")
@@ -156,14 +156,14 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testShortcutDefaultsRegion() {
+	public void shortcutDefaultsRegionIsCorrect() {
 
 		assertThat(shortcutDefaults)
 			.describedAs("A reference to the 'ShortcutDefaults' Region was not properly configured!")
 			.isNotNull();
 
 		assertThat(shortcutDefaults.getName()).isEqualTo("ShortcutDefaults");
-		assertThat(shortcutDefaults.getFullPath()).isEqualTo("/ShortcutDefaults");
+		assertThat(shortcutDefaults.getFullPath()).isEqualTo(RegionUtils.toRegionPath("ShortcutDefaults"));
 		assertThat(shortcutDefaults.getAttributes()).isNotNull();
 		assertThat(shortcutDefaults.getAttributes().getCloningEnabled()).isFalse();
 		assertThat(shortcutDefaults.getAttributes().getConcurrencyChecksEnabled()).isTrue();
@@ -173,6 +173,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 		assertThat(shortcutDefaults.getAttributes().getInitialCapacity()).isEqualTo(101);
 		assertThat(new Float(shortcutDefaults.getAttributes().getLoadFactor())).isEqualTo(new Float(0.85f));
 		assertThat(shortcutDefaults.getAttributes().getKeyConstraint()).isEqualTo(Long.class);
+		assertThat(shortcutDefaults.getAttributes().getMulticastEnabled()).isFalse();
 		assertThat(shortcutDefaults.getAttributes().getValueConstraint()).isEqualTo(String.class);
 		assertThat(shortcutDefaults.getAttributes().getEvictionAttributes()).isNotNull();
 		assertThat(shortcutDefaults.getAttributes().getEvictionAttributes().getAction()).isEqualTo(EvictionAction.OVERFLOW_TO_DISK);
@@ -183,14 +184,14 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	}
 
 	@Test
-	public void testShortcutOverridesRegion() {
+	public void shortcutOverridesRegionIsCorrect() {
 
 		assertThat(shortcutOverrides)
 			.describedAs("A reference to the 'ShortcutOverrides' Region was not properly configured!")
 			.isNotNull();
 
 		assertThat(shortcutOverrides.getName()).isEqualTo("ShortcutOverrides");
-		assertThat(shortcutOverrides.getFullPath()).isEqualTo("/ShortcutOverrides");
+		assertThat(shortcutOverrides.getFullPath()).isEqualTo(RegionUtils.toRegionPath("ShortcutOverrides"));
 		assertThat(shortcutOverrides.getAttributes()).isNotNull();
 		assertThat(shortcutOverrides.getAttributes().getCloningEnabled()).isTrue();
 		assertThat(shortcutOverrides.getAttributes().getConcurrencyChecksEnabled()).isFalse();

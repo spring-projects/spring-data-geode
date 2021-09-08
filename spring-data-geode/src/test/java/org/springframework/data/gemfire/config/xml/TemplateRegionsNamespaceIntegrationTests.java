@@ -41,11 +41,8 @@ import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.InterestPolicy;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.LossAction;
-import org.apache.geode.cache.MembershipAttributes;
 import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.ResumptionAction;
 import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 import org.apache.geode.cache.asyncqueue.AsyncEvent;
@@ -55,7 +52,6 @@ import org.apache.geode.cache.partition.PartitionListenerAdapter;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.cache.util.ObjectSizer;
-import org.apache.geode.distributed.Role;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanIsAbstractException;
@@ -65,7 +61,6 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -187,27 +182,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(Arrays.asList(gatewaySenderIds).containsAll(region.getAttributes().getGatewaySenderIds())).isTrue();
 	}
 
-	private void assertDefaultMembershipAttributes(MembershipAttributes membershipAttributes) {
-
-		assumeNotNull(membershipAttributes);
-		assertMembershipAttributes(membershipAttributes, LossAction.FULL_ACCESS, ResumptionAction.NONE);
-	}
-
-	private void assertMembershipAttributes(MembershipAttributes membershipAttributes, LossAction expectedLossAction,
-			ResumptionAction expectedResumptionAction, String... expectedRequiredRoles) {
-
-		assertThat(membershipAttributes).as("The 'MembershipAttributes' must not be null!").isNotNull();
-		assertThat(membershipAttributes.getLossAction()).isEqualTo(expectedLossAction);
-		assertThat(membershipAttributes.getResumptionAction()).isEqualTo(expectedResumptionAction);
-
-		if (!ObjectUtils.isEmpty(expectedRequiredRoles)) {
-			for (Role membershipRole : membershipAttributes.getRequiredRoles()) {
-				assertThat(Arrays.asList(expectedRequiredRoles).contains(membershipRole.getName()))
-					.as(String.format("Role '%1$s' was not found!", membershipRole)).isTrue();
-			}
-		}
-	}
-
 	private void assertPartitionListener(Region<?, ?> region, String... expectedNames) {
 
 		assertThat(region).isNotNull();
@@ -235,6 +209,7 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 			.isEqualTo(expectedName);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void assertDefaultRegionAttributes(Region region) {
 
 		assertThat(region).describedAs("The Region must not be null!").isNotNull();
@@ -346,7 +321,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getKeyConstraint()).isNull();
 		assertThat(String.valueOf(nonTemplateBasedReplicateRegion.getAttributes().getLoadFactor())).isEqualTo("0.65");
 		assertThat(nonTemplateBasedReplicateRegion.getAttributes().isLockGrantor()).isFalse();
-		assertDefaultMembershipAttributes(nonTemplateBasedReplicateRegion.getAttributes().getMembershipAttributes());
 		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getPartitionAttributes()).isNull();
 		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
 		assertThat(nonTemplateBasedReplicateRegion.getAttributes().getStatisticsEnabled()).isFalse();
@@ -383,7 +357,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(templateBasedReplicateRegion.getAttributes().getKeyConstraint()).isEqualTo(String.class);
 		assertThat(String.valueOf(templateBasedReplicateRegion.getAttributes().getLoadFactor())).isEqualTo("0.85");
 		assertThat(templateBasedReplicateRegion.getAttributes().isLockGrantor()).isTrue();
-		assertDefaultMembershipAttributes(templateBasedReplicateRegion.getAttributes().getMembershipAttributes());
 		assertThat(templateBasedReplicateRegion.getAttributes().getPartitionAttributes()).isNull();
 		assertThat(templateBasedReplicateRegion.getAttributes().getScope()).isEqualTo(Scope.GLOBAL);
 		assertThat(templateBasedReplicateRegion.getAttributes().getStatisticsEnabled()).isTrue();
@@ -421,8 +394,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(templateBasedReplicateSubRegion.getAttributes().getKeyConstraint()).isEqualTo(Integer.class);
 		assertThat(String.valueOf(templateBasedReplicateSubRegion.getAttributes().getLoadFactor())).isEqualTo("0.95");
 		assertThat(templateBasedReplicateSubRegion.getAttributes().isLockGrantor()).isFalse();
-		assertMembershipAttributes(templateBasedReplicateSubRegion.getAttributes().getMembershipAttributes(),
-			LossAction.LIMITED_ACCESS, ResumptionAction.NONE, "readWriteNode");
 		assertThat(templateBasedReplicateSubRegion.getAttributes().getPartitionAttributes()).isNull();
 		assertThat(templateBasedReplicateSubRegion.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_NO_ACK);
 		assertThat(templateBasedReplicateSubRegion.getAttributes().getStatisticsEnabled()).isTrue();
@@ -461,8 +432,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getLoadFactor())
 			.isCloseTo(0.85f, offset(0.0f));
 		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().isLockGrantor()).isFalse();
-		assertDefaultMembershipAttributes(
-			templateBasedReplicateRegionNoOverrides.getAttributes().getMembershipAttributes());
 		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getPartitionAttributes()).isNull();
 		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getScope()).isEqualTo(Scope.DISTRIBUTED_ACK);
 		assertThat(templateBasedReplicateRegionNoOverrides.getAttributes().getStatisticsEnabled()).isTrue();
@@ -502,8 +471,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(templateBasedPartitionRegion.getAttributes().getKeyConstraint()).isEqualTo(Date.class);
 		assertThat(String.valueOf(templateBasedPartitionRegion.getAttributes().getLoadFactor())).isEqualTo("0.7");
 		assertThat(templateBasedPartitionRegion.getAttributes().isLockGrantor()).isFalse();
-		assertMembershipAttributes(templateBasedPartitionRegion.getAttributes().getMembershipAttributes(),
-			LossAction.NO_ACCESS, ResumptionAction.REINITIALIZE, "admin", "root", "supertool");
 		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes()).isNotNull();
 		assertThat(templateBasedPartitionRegion.getAttributes().getPartitionAttributes().getColocatedWith())
 			.isEqualTo("Neighbor");
@@ -557,7 +524,6 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 		assertThat(templateBasedLocalRegion.getAttributes().getKeyConstraint()).isEqualTo(Long.class);
 		assertThat(String.valueOf(templateBasedLocalRegion.getAttributes().getLoadFactor())).isEqualTo("0.85");
 		assertThat(templateBasedLocalRegion.getAttributes().isLockGrantor()).isFalse();
-		assertDefaultMembershipAttributes(templateBasedLocalRegion.getAttributes().getMembershipAttributes());
 		assertThat(templateBasedLocalRegion.getAttributes().getPartitionAttributes()).isNull();
 		assertThat(templateBasedLocalRegion.getAttributes().getScope()).isEqualTo(Scope.LOCAL);
 		assertThat(templateBasedLocalRegion.getAttributes().getStatisticsEnabled()).isTrue();

@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,10 +29,8 @@ import org.apache.geode.cache.Region;
 
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -50,41 +47,26 @@ import org.springframework.stereotype.Service;
  * @see org.springframework.cache.annotation.Cacheable
  * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.CachingDefinedRegionsConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.stereotype.Service
  * @see <a href="https://jira.spring.io/browse/DATAGEODE-232">Add support for @CacheConfig in @EnableCachingDefinedRegions</a>
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
-public class CachingDefinedRegionsConsidersCacheConfigCacheNamesIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class CachingDefinedRegionsConsidersCacheConfigCacheNamesIntegrationTests
+		extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void closeApplicationContext() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		AnnotationConfigApplicationContext applicationContext =
-			new AnnotationConfigApplicationContext();
-
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
-
-		this.applicationContext = applicationContext;
-
-		return applicationContext;
+	public void tearDown() {
+		destroyAllGemFireMockObjects();
 	}
 
 	private Set<String> resolveCacheRegionNames(Class<?>... annotatedClasses) {
 
 		newApplicationContext(annotatedClasses);
 
-		GemFireCache cache = this.applicationContext.getBean(GemFireCache.class);
+		GemFireCache cache = getBean(GemFireCache.class);
 
 		assertThat(cache).isNotNull();
 

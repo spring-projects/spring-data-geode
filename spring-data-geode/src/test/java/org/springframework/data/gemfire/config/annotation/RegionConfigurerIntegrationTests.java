@@ -66,10 +66,7 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 
 	@After
 	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
+		closeApplicationContext(this.applicationContext);
 		destroyAllGemFireMockObjects();
 	}
 

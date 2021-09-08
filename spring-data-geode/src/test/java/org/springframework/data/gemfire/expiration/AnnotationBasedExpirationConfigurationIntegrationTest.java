@@ -17,8 +17,8 @@
 package org.springframework.data.gemfire.expiration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import javax.annotation.Resource;
 
@@ -40,8 +40,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test cases testing the configuration of Annotation-defined expiration policies
- * on {@link Region} entry TTL and TTI custom expiration settings.
+ * Integration Tests testing the configuration of Annotation-defined expiration policies on {@link Region} entry
+ * TTL and TTI custom expiration settings.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -115,7 +115,7 @@ public class AnnotationBasedExpirationConfigurationIntegrationTest extends Integ
 
 		Region.Entry<Object, Object> mockRegionEntry = mock(Region.Entry.class, "MockRegionEntry");
 
-		when(mockRegionEntry.getValue()).thenReturn(value);
+		doReturn(value).when(mockRegionEntry).getValue();
 
 		return mockRegionEntry;
 	}
@@ -169,7 +169,7 @@ public class AnnotationBasedExpirationConfigurationIntegrationTest extends Integ
 		assertExpiration(genericExpiration.getExpiry(mockRegionEntry(new RegionEntryGenericExpirationPolicy())), 60, ExpirationAction.DESTROY);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = EvaluationException.class)
 	public void invalidExpirationAction() {
 
 		try {

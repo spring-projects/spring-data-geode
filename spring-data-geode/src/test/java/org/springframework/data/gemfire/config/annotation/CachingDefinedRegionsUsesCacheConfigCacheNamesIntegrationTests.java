@@ -38,6 +38,7 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,6 +57,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions
  * @see org.springframework.data.gemfire.config.annotation.CachingDefinedRegionsConfiguration
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://jira.spring.io/browse/DATAGEODE-232">Add support for @CacheConfig in @EnableCachingDefinedRegions</a>
@@ -146,8 +148,9 @@ public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests exte
 		Arrays.asList(this.b, this.c).forEach(region -> assertThat(region).isEmpty());
 	}
 
-	@ClientCacheApplication
+	@ClientCacheApplication(name = "CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests")
 	@EnableCachingDefinedRegions(clientRegionShortcut = ClientRegionShortcut.LOCAL)
+	@EnableGemFireMockObjects
 	static class TestConfiguration {
 
 		@Bean
