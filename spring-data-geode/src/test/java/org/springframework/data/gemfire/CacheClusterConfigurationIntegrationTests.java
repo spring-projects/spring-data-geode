@@ -55,6 +55,9 @@ import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Integration Tests testing the integration of Spring Data for Apache Geode with Apache Geode's new shared, persistent,
  * cluster configuration service.
@@ -75,9 +78,11 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 	private static final List<String> locatorProcessOutput = Collections.synchronizedList(new ArrayList<>());
 
+	private static final Logger logger = LoggerFactory.getLogger(CacheClusterConfigurationIntegrationTests.class);
+
 	private static ProcessWrapper locatorProcess;
 
-	private static final String LOG_LEVEL = "config";
+	private static final String LOG_LEVEL = "error";
 	private static final String LOG_FILE = "Locator.log";
 
 	@Rule
@@ -86,10 +91,10 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 		@Override
 		protected void failed(Throwable throwable, Description description) {
 
-			System.err.printf("Test [%s] failed...%n", description.getDisplayName());
-			System.err.println(ThrowableUtils.toString(throwable));
-			System.err.println("Locator process log file contents were...");
-			System.err.println(getLocatorProcessOutput(description));
+			logger.error("Test [%s] failed...{}", description.getDisplayName());
+			logger.error(ThrowableUtils.toString(throwable));
+			logger.error("Locator process log file contents were...");
+			logger.error(getLocatorProcessOutput(description));
 		}
 
 		@Override
@@ -142,8 +147,8 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 		List<String> arguments = new ArrayList<>();
 
 		arguments.add("-Dgemfire.name=" + locatorName);
-		arguments.add("-Dlog4j.geode.log.level=info");
-		arguments.add("-Dlogback.log.level=info");
+		arguments.add("-Dlog4j.geode.log.level=error");
+		arguments.add("-Dlogback.log.level=error");
 		arguments.add("-Dspring.data.gemfire.enable-cluster-configuration=true");
 		arguments.add("-Dspring.data.gemfire.load-cluster-configuration=true");
 		arguments.add(String.format("-Dgemfire.log-level=%s", LOG_LEVEL));

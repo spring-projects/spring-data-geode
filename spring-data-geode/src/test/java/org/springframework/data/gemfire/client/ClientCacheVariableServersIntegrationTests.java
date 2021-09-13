@@ -48,6 +48,9 @@ import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Integration Tests testing the use of variable {@literal servers} attribute on &lt;gfe:pool/&lt; in SDG XML Namespace
  * configuration metadata when connecting a client and server.
@@ -65,6 +68,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration
 @SuppressWarnings("unused")
 public class ClientCacheVariableServersIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
+
+	private static final Logger logger = LoggerFactory.getLogger(ClientCacheVariableServersIntegrationTests.class);
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
@@ -143,11 +148,9 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 				CollectionUtils.nullSafeMap(applicationContext.getBeansOfType(CacheServer.class));
 
 			for (CacheServer cacheServer : cacheServers.values()) {
-				System.err.printf("CacheServer host:port [%s:%d]%n",
+				logger.info("CacheServer host:port [{}:{}]%n",
 					cacheServer.getBindAddress(), cacheServer.getPort());
 			}
-
-			System.err.flush();
 		}
 	}
 }

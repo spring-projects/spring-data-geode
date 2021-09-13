@@ -285,19 +285,14 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
 		assertThat(this.applicationContext.containsBean("gemfireProperties")).isTrue();
 
-		Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
+		//Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
 
-
-		// TODO: uncomment when Spring Test for Apache Geode/Pivotal GemFire project replaces
-		// the test infrastructure classes in SDG.
-		/*
 		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
 
 		Properties gemfireProperties = gemfireCache.getDistributedSystem().getProperties();
-		*/
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.containsKey("name")).isTrue();

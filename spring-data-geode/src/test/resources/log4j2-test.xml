@@ -10,6 +10,7 @@
 	</Appenders>
 	<Loggers>
 		<Logger name="org.apache.geode" level="${sys:log4j.geode.log.level:-error}"/>
+		<Logger name="org.jgroups" level="${sys:log4j.geode.log.level:-error}"/>
 		<Logger name="org.springframework" level="${sys:log4j.spring.log.level:-error}"/>
 		<Logger name="org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter" level="off" additivity="false"/>
 		<Logger name="org.springframework.data.gemfire.support.SpringContextBootstrappingInitializer" level="off" additivity="false"/>

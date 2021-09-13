@@ -66,7 +66,7 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 	public static final int DEFAULT_PORT = 10334;
 
-	public static final String DEFAULT_LOG_LEVEL = "config";
+	public static final String DEFAULT_LOG_LEVEL = "warn";
 	public static final String DEFAULT_NAME = "SpringBasedLocatorApplication";
 
 	protected static final String EXCLUSIVE_LOCATOR_APPLICATION_ERROR_MESSAGE =

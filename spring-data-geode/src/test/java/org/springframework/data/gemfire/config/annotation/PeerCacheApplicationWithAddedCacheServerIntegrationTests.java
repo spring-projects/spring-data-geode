@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Scanner;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -30,7 +29,6 @@ import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.server.CacheServer;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
@@ -62,17 +60,15 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
 
 	private static ProcessWrapper gemfireLocator;
 
-	private static final String GEMFIRE_LOG_LEVEL = "config";
-
 	@BeforeClass
 	public static void startGemFireLocator() throws Exception {
 
 		locatorPort = findAvailablePort();
 
 		gemfireLocator = run(TestLocatorConfiguration.class,
-			"-Dspring.data.gemfire.locator.port=" + locatorPort,
-						String.format("-D%1$s%2$s=%3$s", GemFireProperties.PROPERTY_NAME_PREFIX,
-							GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(), false));
+"-Dspring.data.gemfire.locator.port=" + locatorPort,
+			String.format("-D%1$s%2$s=%3$s", GemFireProperties.PROPERTY_NAME_PREFIX,
+				GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(), false));
 
 		waitForServerToStart("localhost", locatorPort);
 
@@ -117,17 +113,12 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
 		assertThat(cacheServer.getPort()).isEqualTo(cacheServerPort);
 	}
 
-	@LocatorApplication(logLevel = GEMFIRE_LOG_LEVEL)
+	@LocatorApplication
 	static class TestLocatorConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(TestLocatorConfiguration.class);
-
-			applicationContext.registerShutdownHook();
-
-			new Scanner(System.in).nextLine();
+			runSpringApplication(TestLocatorConfiguration.class);
+			block();
 		}
 	}
 
