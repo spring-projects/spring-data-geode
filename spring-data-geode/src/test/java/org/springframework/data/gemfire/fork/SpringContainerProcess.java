@@ -10,15 +10,12 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-
 package org.springframework.data.gemfire.fork;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.gemfire.ForkUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +60,8 @@ public class SpringContainerProcess {
 		}
 	}
 
-	@SuppressWarnings({ "deprecation", "unused" })
-	private static void waitForShutdown(ConfigurableApplicationContext applicationContext) throws IOException {
-		ForkUtil.createControlFile(SpringContainerProcess.class.getName());
+	@SuppressWarnings({ "unused" })
+	private static void waitForShutdown(ConfigurableApplicationContext applicationContext) {
 		Scanner scanner = new Scanner(System.in);
 		scanner.nextLine();
 	}

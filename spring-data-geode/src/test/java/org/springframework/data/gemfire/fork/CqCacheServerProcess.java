@@ -25,7 +25,6 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.server.CacheServer;
 
-import org.springframework.data.gemfire.ForkUtil;
 import org.springframework.data.gemfire.util.SpringUtils;
 
 /**
@@ -85,10 +84,8 @@ public class CqCacheServerProcess {
 		return gemfireCache;
 	}
 
-	@SuppressWarnings({ "deprecation", "unused" })
-	private static void waitForShutdown(Cache gemfireCache) throws IOException {
-
-		ForkUtil.createControlFile(CqCacheServerProcess.class.getName());
+	@SuppressWarnings({ "unused" })
+	private static void waitForShutdown(Cache gemfireCache) {
 
 		Scanner scanner = new Scanner(System.in);
 

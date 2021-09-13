@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.fork;
 
 import java.io.IOException;
@@ -30,8 +29,6 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.server.CacheServer;
-
-import org.springframework.data.gemfire.ForkUtil;
 
 /**
  * @author Costin Leau
@@ -107,15 +104,13 @@ public class FunctionCacheServerProcess {
 		return gemfireCache;
 	}
 
-	@SuppressWarnings({ "deprecation", "unused" })
-	private static void waitForShutdown(Cache gemfireCache) throws IOException {
-		ForkUtil.createControlFile(FunctionCacheServerProcess.class.getName());
+	@SuppressWarnings({ "unused" })
+	private static void waitForShutdown(Cache gemfireCache) {
 		Scanner scanner = new Scanner(System.in);
 		scanner.nextLine();
 	}
 
-	@SuppressWarnings("serial")
-	static class EchoFunction implements Function {
+	static class EchoFunction implements Function<Object> {
 
 		@Override
 		public String getId() {
@@ -123,7 +118,9 @@ public class FunctionCacheServerProcess {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public void execute(FunctionContext functionContext) {
+
 			Object[] arguments = (Object[]) functionContext.getArguments();
 
 			for (int index = 0; index < arguments.length; index++) {
@@ -137,8 +134,8 @@ public class FunctionCacheServerProcess {
 		}
 	}
 
-	@SuppressWarnings("serial")
-	static class ServerFunction implements Function {
+	@SuppressWarnings("unchecked")
+	static class ServerFunction implements Function<Object> {
 
 		@Override
 		public String getId() {
