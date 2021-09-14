@@ -31,9 +31,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 import org.springframework.beans.factory.BeanFactory;
+
+import org.slf4j.Logger;
 
 /**
  * Unit tests for {@link AbstractFactoryBeanSupport}.

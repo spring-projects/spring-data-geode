@@ -19,13 +19,14 @@ package org.springframework.data.gemfire.search.lucene.support;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import org.apache.geode.pdx.PdxInstance;
-
-import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.pdx.PdxInstance;
+
+import org.aopalliance.intercept.MethodInterceptor;
 
 /**
  * Unit tests for {@link PdxInstanceMethodInterceptorFactory}.

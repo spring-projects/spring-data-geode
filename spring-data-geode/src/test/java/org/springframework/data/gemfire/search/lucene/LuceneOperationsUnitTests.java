@@ -24,12 +24,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.geode.cache.lucene.LuceneQueryProvider;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.lucene.LuceneQueryProvider;
 
 /**
  * Unit tests for the {@link LuceneOperations} interface.

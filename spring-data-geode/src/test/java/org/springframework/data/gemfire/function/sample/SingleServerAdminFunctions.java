@@ -16,10 +16,10 @@
  */
 package org.springframework.data.gemfire.function.sample;
 
+import java.util.List;
+
 import org.springframework.data.gemfire.function.annotation.FunctionId;
 import org.springframework.data.gemfire.function.annotation.OnServer;
-
-import java.util.List;
 
 /**
  * @author Patrick Johnson

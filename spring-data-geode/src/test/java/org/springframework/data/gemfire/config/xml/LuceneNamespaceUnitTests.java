@@ -46,9 +46,8 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.gemfire.search.lucene.LuceneServiceFactoryBean;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.lang.Nullable;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import lombok.SneakyThrows;
@@ -65,12 +64,13 @@ import lombok.SneakyThrows;
  * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
  * @see org.springframework.data.gemfire.search.lucene.LuceneServiceFactoryBean
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.1.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class LuceneNamespaceUnitTests extends IntegrationTestsSupport {
 

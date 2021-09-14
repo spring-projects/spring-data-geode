@@ -21,12 +21,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.cache.execute.ResultSender;
-
-import org.junit.Test;
 
 import org.springframework.data.gemfire.function.annotation.Filter;
 import org.springframework.data.gemfire.function.annotation.RegionData;

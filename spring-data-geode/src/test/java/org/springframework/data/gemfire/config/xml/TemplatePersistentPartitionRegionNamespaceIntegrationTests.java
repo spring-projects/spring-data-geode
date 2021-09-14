@@ -35,9 +35,8 @@ import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -49,14 +48,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.PartitionedRegionFactoryBean
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @link https://jira.spring.io/browse/SGF-384
  * @since 1.6.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class TemplatePersistentPartitionRegionNamespaceIntegrationTests extends IntegrationTestsSupport {
 

@@ -21,9 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.apache.geode.security.ResourcePermission;
-
 import org.junit.Test;
+
+import org.apache.geode.security.ResourcePermission;
 
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;

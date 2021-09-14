@@ -18,10 +18,10 @@ package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.RegionShortcut;
-
-import org.junit.Test;
 
 /**
  * Unit tests for {@link RegionShortcutToDataPolicyConverter}.

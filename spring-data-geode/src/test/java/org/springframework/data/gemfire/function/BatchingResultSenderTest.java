@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import org.junit.Test;
+
 import org.apache.geode.cache.execute.ResultSender;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
 
 /**
  * Unit tests for {@link BatchingResultSender}.

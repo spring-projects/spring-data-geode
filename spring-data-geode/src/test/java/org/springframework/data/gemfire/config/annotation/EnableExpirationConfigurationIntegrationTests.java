@@ -32,9 +32,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.expiration.AnnotationBasedExpiration;
+import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.stereotype.Service;
 
 /**

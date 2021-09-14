@@ -21,12 +21,12 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Test;
+
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.distributed.Locator;
-
-import org.junit.After;
-import org.junit.Test;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.ConfigurableApplicationContext;
