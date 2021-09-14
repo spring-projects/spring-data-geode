@@ -117,7 +117,7 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests
 	static class TestLocatorConfiguration {
 
 		public static void main(String[] args) {
-			runSpringApplication(TestLocatorConfiguration.class);
+			runSpringApplication(TestLocatorConfiguration.class, args);
 			block();
 		}
 	}

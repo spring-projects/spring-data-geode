@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.cache.Cache;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
  * Abstract base test class for native cache implementations.
@@ -30,8 +31,9 @@ import org.springframework.cache.Cache;
  * @author John Blum
  * @see org.junit.Test
  * @see org.springframework.cache.Cache
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  */
-public abstract class AbstractNativeCacheTests<T> {
+public abstract class AbstractNativeCacheTests<T> extends IntegrationTestsSupport {
 
 	protected static final String CACHE_NAME = "Example";
 

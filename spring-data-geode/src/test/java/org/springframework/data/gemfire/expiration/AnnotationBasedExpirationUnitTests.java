@@ -20,12 +20,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.expiration.AnnotationBasedExpiration.ExpirationMetaData;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
@@ -48,16 +52,24 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.mockito.Mock
  * @see org.mockito.Mockito
+ * @see org.mockito.Spy
  * @see org.springframework.data.gemfire.expiration.AnnotationBasedExpiration
  * @since 1.7.0
  */
 @SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 public class AnnotationBasedExpirationUnitTests {
 
+	@BeforeClass @AfterClass
+	public static void testSetupAndTearDown() {
+		AnnotationBasedExpiration.BEAN_FACTORY_REFERENCE.set(null);
+		AnnotationBasedExpiration.EVALUATION_CONTEXT_REFERENCE.set(null);
+	}
+
 	private final AnnotationBasedExpiration noDefaultExpiration = new AnnotationBasedExpiration();
 
-	protected void assertExpiration(ExpirationAttributes expirationAttributes, int expectedTimeout,
+	private void assertExpiration(ExpirationAttributes expirationAttributes, int expectedTimeout,
 			ExpirationAction expectedAction) {
 
 		assertThat(expirationAttributes).isNotNull();
@@ -65,7 +77,7 @@ public class AnnotationBasedExpirationUnitTests {
 		assertThat(expirationAttributes.getAction()).isEqualTo(expectedAction);
 	}
 
-	protected void assertExpiration(ExpirationMetaData expirationMetaData, int expectedTimeout,
+	private void assertExpiration(ExpirationMetaData expirationMetaData, int expectedTimeout,
 			ExpirationActionType expectedExpirationAction) {
 
 		assertThat(expirationMetaData).isNotNull();
@@ -178,15 +190,12 @@ public class AnnotationBasedExpirationUnitTests {
 			assertThat(TestUtils.<ConfigurableBeanFactory>readField("beanFactory", beanResolver)).isEqualTo(mockBeanFactory);
 
 			return null;
+
 		}).when(mockEvaluationContext).setBeanResolver(any(BeanResolver.class));
 
-		AnnotationBasedExpiration<Object, Object> annotationBasedExpiration = new AnnotationBasedExpiration<Object, Object>() {
+		AnnotationBasedExpiration<Object, Object> annotationBasedExpiration = spy(new AnnotationBasedExpiration<>());
 
-			@Override
-			StandardEvaluationContext newEvaluationContext() {
-				return mockEvaluationContext;
-			}
-		};
+		doReturn(mockEvaluationContext).when(annotationBasedExpiration).newEvaluationContext();
 
 		annotationBasedExpiration.setBeanFactory(mockBeanFactory);
 

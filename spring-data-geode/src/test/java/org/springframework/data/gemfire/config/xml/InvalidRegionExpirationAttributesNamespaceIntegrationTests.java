@@ -24,8 +24,7 @@ import org.apache.geode.cache.Region;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 
 import org.xml.sax.SAXParseException;
 
@@ -38,40 +37,31 @@ import org.xml.sax.SAXParseException;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.context.support.GenericXmlApplicationContext
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
  * @since 1.5.0
  */
-public class InvalidRegionExpirationAttributesNamespaceIntegrationTests extends IntegrationTestsSupport {
-
-	private String contextConfigLocation() {
-		return getClass().getName().replaceAll("\\.", "/").concat("-context.xml");
-	}
+public class InvalidRegionExpirationAttributesNamespaceIntegrationTests
+		extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext createApplicationContext() {
-		return new GenericXmlApplicationContext();
-	}
 
-	private ConfigurableApplicationContext configureContext(ConfigurableApplicationContext applicationContext) {
-		applicationContext.getBeanFactory().addBeanPostProcessor(new GemFireMockObjectsBeanPostProcessor());
-		return applicationContext;
-	}
+		GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
 
-	private ConfigurableApplicationContext initializeApplicationContext(ConfigurableApplicationContext applicationContext) {
-
-		assertThat(applicationContext).isInstanceOf(GenericXmlApplicationContext.class);
-		((GenericXmlApplicationContext) applicationContext).load(contextConfigLocation());
+		applicationContext.load(getContextXmlFileLocation(InvalidRegionExpirationAttributesNamespaceIntegrationTests.class));
 		applicationContext.registerShutdownHook();
 		applicationContext.refresh();
+
+		setApplicationContext(applicationContext);
 
 		return applicationContext;
 	}
 
 	@Test(expected = XmlBeanDefinitionStoreException.class)
-	public void testInvalidXmlSyntax() {
+	public void invalidXmlSyntaxThrowsException() {
 
 		try {
-			initializeApplicationContext(configureContext(createApplicationContext()));
+			createApplicationContext();
 		}
 		catch (XmlBeanDefinitionStoreException expected) {
 			assertThat(expected).hasCauseInstanceOf(SAXParseException.class);

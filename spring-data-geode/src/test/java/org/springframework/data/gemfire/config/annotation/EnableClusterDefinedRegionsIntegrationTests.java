@@ -34,7 +34,6 @@ import org.apache.geode.cache.client.ClientCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
@@ -135,11 +134,7 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
-
-			applicationContext.registerShutdownHook();
+			runSpringApplication(GeodeServerTestConfiguration.class, args);
 		}
 
 		@Bean("LocalRegion")

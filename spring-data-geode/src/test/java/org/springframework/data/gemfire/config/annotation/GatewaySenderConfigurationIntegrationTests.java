@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -37,11 +36,9 @@ import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.wan.GatewaySenderFactoryBean;
 import org.springframework.data.gemfire.wan.OrderPolicyType;
@@ -61,7 +58,7 @@ import org.springframework.data.gemfire.wan.OrderPolicyType;
  * @see org.springframework.data.gemfire.config.annotation.EnableGatewaySenders
  * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfigurer
  * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.data.gemfire.wan.GatewaySenderFactoryBean
  * @see org.springframework.test.context.ContextConfiguration
@@ -69,29 +66,22 @@ import org.springframework.data.gemfire.wan.OrderPolicyType;
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
-public class GatewaySenderConfigurationIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class GatewaySenderConfigurationIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void shutdown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
 	}
 
 	@Test
 	public void annotationConfigurationOfMultipleGatewaySendersWithDefaultsFromParent() {
 
-		this.applicationContext = newApplicationContext(BaseGatewaySenderTestConfiguration.class,
+		newApplicationContext(BaseGatewaySenderTestConfiguration.class,
 			TestConfigurationOfMultipleGatewaySenderAnnotationsButWithDefaultsFromParent.class);
 
-		TestGatewaySenderConfigurer gatewaySenderConfigurer =
-			this.applicationContext.getBean(TestGatewaySenderConfigurer.class);
+		TestGatewaySenderConfigurer gatewaySenderConfigurer = getBean(TestGatewaySenderConfigurer.class);
 
-		Map<String, GatewaySender> beansOfType = this.applicationContext.getBeansOfType(GatewaySender.class);
+		Map<String, GatewaySender> beansOfType = getBeansOfType(GatewaySender.class);
 
 		String[] senders = new String[] { "TestGatewaySender", "TestGatewaySender2" };
 
@@ -100,7 +90,7 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 
 		for (String sender : senders) {
 
-			GatewaySender gatewaySender = this.applicationContext.getBean(sender, GatewaySender.class);
+			GatewaySender gatewaySender = getBean(sender, GatewaySender.class);
 
 			assertThat(gatewaySender.isManualStart()).isEqualTo(true);
 			assertThat(gatewaySender.getRemoteDSId()).isEqualTo(2);
@@ -127,8 +117,8 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 			assertThat(gatewaySenderConfigurer.beanNames.get(gatewaySender.getId()).toArray())
 				.isEqualTo(new String[] { "transportBean2", "transportBean1" });
 
-			Region<?, ?> region1 = this.applicationContext.getBean("Region1", Region.class);
-			Region<?, ?> region2 = this.applicationContext.getBean("Region2", Region.class);
+			Region<?, ?> region1 = getBean("Region1", Region.class);
+			Region<?, ?> region2 = getBean("Region2", Region.class);
 
 			assertThat(region1.getAttributes().getGatewaySenderIds())
 				.containsExactlyInAnyOrder("TestGatewaySender", "TestGatewaySender2");
@@ -140,10 +130,10 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 	@Test
 	public void annotationConfiguredMultipleGatewaySenders() {
 
-		this.applicationContext = newApplicationContext(BaseGatewaySenderTestConfiguration.class,
+		newApplicationContext(BaseGatewaySenderTestConfiguration.class,
 			TestConfigurationWithMultipleGatewaySenderAnnotations.class);
 
-		Map<String, GatewaySender> beansOfType = this.applicationContext.getBeansOfType(GatewaySender.class);
+		Map<String, GatewaySender> beansOfType = getBeansOfType(GatewaySender.class);
 
 		assertThat(beansOfType.keySet().toArray()).containsExactlyInAnyOrder("TestGatewaySender", "TestGatewaySender2");
 	}
@@ -151,13 +141,11 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 	@Test
 	public void annotationConfiguredGatewaySender() {
 
-		this.applicationContext = newApplicationContext(BaseGatewaySenderTestConfiguration.class,
-			TestConfigurationWithAnnotations.class);
+		newApplicationContext(BaseGatewaySenderTestConfiguration.class, TestConfigurationWithAnnotations.class);
 
-		TestGatewaySenderConfigurer gatewaySenderConfigurer =
-			this.applicationContext.getBean(TestGatewaySenderConfigurer.class);
+		TestGatewaySenderConfigurer gatewaySenderConfigurer = getBean(TestGatewaySenderConfigurer.class);
 
-		GatewaySender gatewaySender = this.applicationContext.getBean("TestGatewaySender", GatewaySender.class);
+		GatewaySender gatewaySender = getBean("TestGatewaySender", GatewaySender.class);
 
 		assertThat(gatewaySender.isManualStart()).isEqualTo(true);
 		assertThat(gatewaySender.getRemoteDSId()).isEqualTo(2);
@@ -169,7 +157,7 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 		assertThat(gatewaySender.getDiskStoreName()).isEqualTo("someDiskStore");
 		assertThat(gatewaySender.getOrderPolicy()).isEqualTo(GatewaySender.OrderPolicy.PARTITION);
 		assertThat(gatewaySender.getGatewayEventFilters())
-			.containsExactlyInAnyOrder(this.applicationContext.getBean("SomeEventFilter", GatewayEventFilter.class));
+			.containsExactlyInAnyOrder(getBean("SomeEventFilter", GatewayEventFilter.class));
 		assertThat(((TestGatewayEventSubstitutionFilter) gatewaySender.getGatewayEventSubstitutionFilter()).name)
 			.isEqualTo("SomeEventSubstitutionFilter");
 		assertThat(gatewaySender.getAlertThreshold()).isEqualTo(1234);
@@ -183,8 +171,8 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 		assertThat(gatewaySenderConfigurer.beanNames.get(gatewaySender.getId()).toArray())
 			.isEqualTo(new String[] { "transportBean2", "transportBean1" });
 
-		Region<?, ?> region1 = this.applicationContext.getBean("Region1", Region.class);
-		Region<?, ?> region2 = this.applicationContext.getBean("Region2", Region.class);
+		Region<?, ?> region1 = getBean("Region1", Region.class);
+		Region<?, ?> region2 = getBean("Region2", Region.class);
 
 		assertThat(region1.getAttributes().getGatewaySenderIds()).containsExactlyInAnyOrder("TestGatewaySender");
 		assertThat(region2.getAttributes().getGatewaySenderIds()).containsExactlyInAnyOrder("TestGatewaySender");
@@ -193,13 +181,13 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 	@Test
 	public void annotationConfigurationOfMultipleGatewaySendersWithOverrides() {
 
-		this.applicationContext = newApplicationContext(BaseGatewaySenderTestConfiguration.class,
+		newApplicationContext(BaseGatewaySenderTestConfiguration.class,
 			TestConfigurationOfMultipleGatewaySenderAnnotationsWithOverrides.class);
 
 		TestGatewaySenderConfigurer gatewaySenderConfigurer =
-			this.applicationContext.getBean("gatewayConfigurer", TestGatewaySenderConfigurer.class);
+			getBean("gatewayConfigurer", TestGatewaySenderConfigurer.class);
 
-		Map<String, GatewaySender> beansOfType = this.applicationContext.getBeansOfType(GatewaySender.class);
+		Map<String, GatewaySender> beansOfType = getBeansOfType(GatewaySender.class);
 
 		String[] senders = new String[] { "TestGatewaySender", "TestGatewaySender2" };
 
@@ -208,7 +196,7 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 
 		for (String sender : senders) {
 
-			GatewaySender gatewaySender = this.applicationContext.getBean(sender, GatewaySender.class);
+			GatewaySender gatewaySender = getBean(sender, GatewaySender.class);
 
 			assertThat(gatewaySender.isManualStart()).isEqualTo(true);
 			assertThat(gatewaySender.getRemoteDSId()).isEqualTo(2);
@@ -228,34 +216,24 @@ public class GatewaySenderConfigurationIntegrationTests extends IntegrationTests
 			assertThat(gatewaySender.getSocketBufferSize()).isEqualTo(16384);
 		}
 
-		GatewaySender gatewaySender = this.applicationContext.getBean("TestGatewaySender", GatewaySender.class);
+		GatewaySender gatewaySender = getBean("TestGatewaySender", GatewaySender.class);
 
 		assertThat(gatewaySender.getGatewayTransportFilters().size()).isEqualTo(1);
 		assertThat(((GatewaySenderConfigurationIntegrationTests.TestGatewayTransportFilter) gatewaySender
 			.getGatewayTransportFilters().get(0)).name).isEqualTo("transportBean1");
 
-		gatewaySender = this.applicationContext.getBean("TestGatewaySender2", GatewaySender.class);
+		gatewaySender = getBean("TestGatewaySender2", GatewaySender.class);
 
 		assertThat(gatewaySender.getGatewayTransportFilters().size()).isEqualTo(2);
 		assertThat(gatewaySenderConfigurer.beanNames.get(gatewaySender.getId()).toArray())
 			.isEqualTo(new String[] { "transportBean2", "transportBean1" });
 
-		Region<?, ?> region1 = this.applicationContext.getBean("Region1", Region.class);
-		Region<?, ?> region2 = this.applicationContext.getBean("Region2", Region.class);
+		Region<?, ?> region1 = getBean("Region1", Region.class);
+		Region<?, ?> region2 = getBean("Region2", Region.class);
 
 		assertThat(region1.getAttributes().getGatewaySenderIds()).containsExactlyInAnyOrder("TestGatewaySender2");
 		assertThat(region2.getAttributes().getGatewaySenderIds())
 			.containsExactlyInAnyOrder("TestGatewaySender", "TestGatewaySender2");
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		AnnotationConfigApplicationContext applicationContext =
-			new AnnotationConfigApplicationContext(annotatedClasses);
-
-		applicationContext.registerShutdownHook();
-
-		return applicationContext;
 	}
 
 	@EnableGatewaySenders(gatewaySenders = {

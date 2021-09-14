@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.gemfire.config.annotation.TestSecurityManager.SECURITY_PASSWORD;
 import static org.springframework.data.gemfire.config.annotation.TestSecurityManager.SECURITY_USERNAME;
 
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,7 +63,7 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests
 
 	@After
 	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
+		closeApplicationContext(this.applicationContext);
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,

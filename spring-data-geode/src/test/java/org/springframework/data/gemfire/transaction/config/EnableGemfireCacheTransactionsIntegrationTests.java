@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.transaction.config;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.annotation.Resource;
 
@@ -30,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.transaction.GemfireTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
@@ -37,7 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Integration tests for {@link EnableGemfireCacheTransactions} and {@link GemfireCacheTransactionsConfiguration}.
+ * Integration Tests for {@link EnableGemfireCacheTransactions} and {@link GemfireCacheTransactionsConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -57,7 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class EnableGemfireCacheTransactionsIntegrationTests {
+public class EnableGemfireCacheTransactionsIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<Object, Object> example;
@@ -73,6 +73,7 @@ public class EnableGemfireCacheTransactionsIntegrationTests {
 
 	@Test
 	public void transactionManagerIsConfigured() {
+
 		assertThat(this.gemfireCache).isNotNull();
 		assertThat(this.transactionManager).isNotNull();
 		assertThat(this.transactionManager.getCache()).isSameAs(this.gemfireCache);
@@ -91,6 +92,7 @@ public class EnableGemfireCacheTransactionsIntegrationTests {
 
 	@Test(expected = RuntimeException.class)
 	public void doInTransactionRollsback() {
+
 		try {
 			assertThat(example).doesNotContainKey(2);
 			transactionalService.doInTransactionRollsBack(2, "fail");
@@ -108,7 +110,7 @@ public class EnableGemfireCacheTransactionsIntegrationTests {
 
 	@SuppressWarnings("unused")
 	@EnableGemfireCacheTransactions
-	@PeerCacheApplication(name = "EnableGemfireCacheTransactionsIntegrationTests", logLevel = "warning")
+	@PeerCacheApplication(name = "EnableGemfireCacheTransactionsIntegrationTests")
 	static class TestConfiguration {
 
 		@Bean("Example")

@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.function;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,15 +64,8 @@ public class ExceptionThrowingFunctionExecutionIntegrationTests extends ForkingC
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
-
-		List<String> arguments = new ArrayList<>();
-
-		arguments.add(String.format("-Dgemfire.name=%s",
-			ExceptionThrowingFunctionExecutionIntegrationTests.class.getSimpleName().concat("Server")));
-
-		arguments.add(getServerContextXmlFileLocation(ExceptionThrowingFunctionExecutionIntegrationTests.class));
-
-		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
+		startGemFireServer(ServerProcess.class,
+			getServerContextXmlFileLocation(ExceptionThrowingFunctionExecutionIntegrationTests.class));
 	}
 
 	@Test(expected = FunctionException.class)

@@ -32,13 +32,11 @@ import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.QueryService;
 
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 
 /**
  * Integration Tests for numerous conflicting {@link Index} configurations.
@@ -57,16 +55,15 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.context.annotation.Import
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see <a href="https://jira.spring.io/browse/SGF-432">IndexFactoryBean traps IndexExistsException instead of IndexNameConflictException</a>
  * @see <a href="https://jira.spring.io/browse/SGF-637">Improve IndexFactoryBean's resilience and options for handling GemFire IndexExistsExceptions and IndexNameConflictExceptions</a>
  * @since 1.6.3
  */
-public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
+public class IndexConflictsIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private static final AtomicBoolean IGNORE = new AtomicBoolean(false);
 	private static final AtomicBoolean OVERRIDE = new AtomicBoolean(false);
-
-	private ConfigurableApplicationContext applicationContext;
 
 	private void assertIndex(Index index, String expectedName, String expectedExpression, String expectedFromClause,
 			IndexType expectedType) {
@@ -80,16 +77,6 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 	private void assertIndexCount(int count) {
 		assertThat(getIndexCount()).isEqualTo(count);
-	}
-
-	private boolean close(ConfigurableApplicationContext applicationContext) {
-
-		if (applicationContext != null) {
-			applicationContext.close();
-			return !(applicationContext.isActive() || applicationContext.isRunning());
-		}
-
-		return true;
 	}
 
 	private Index getIndex(String indexName) {
@@ -108,19 +95,16 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 	}
 
 	private QueryService getQueryService() {
-		return this.applicationContext.getBean("gemfireCache", GemFireCache.class).getQueryService();
+		return getBean("gemfireCache", GemFireCache.class).getQueryService();
 	}
 
 	private boolean hasIndex(String indexName) {
-		return (getIndex(indexName) != null);
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
+		return getIndex(indexName) != null;
 	}
 
 	@Before
 	public void setup() {
+
 		assertThat(IGNORE.get()).isFalse();
 		assertThat(OVERRIDE.get()).isFalse();
 	}
@@ -130,8 +114,6 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 		OVERRIDE.set(false);
 		IGNORE.set(false);
-
-		assertThat(close(this.applicationContext)).isTrue();
 	}
 
 	@Test
@@ -139,10 +121,10 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 		assertThat(IGNORE.compareAndSet(false, true)).isTrue();
 
-		this.applicationContext = newApplicationContext(IndexDefinitionConflictConfiguration.class);
+		newApplicationContext(IndexDefinitionConflictConfiguration.class);
 
-		assertThat(this.applicationContext.containsBean("customerIdIndex")).isTrue();
-		assertThat(this.applicationContext.containsBean("customerIdentifierIndex")).isTrue();
+		assertThat(requireApplicationContext().containsBean("customerIdIndex")).isTrue();
+		assertThat(requireApplicationContext().containsBean("customerIdentifierIndex")).isTrue();
 		assertIndexCount(1);
 		assertThat(hasIndex("customerIdIndex")).isTrue();
 		assertThat(hasIndex("customerIdentifierIndex")).isFalse();
@@ -158,10 +140,10 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 		assertThat(OVERRIDE.compareAndSet(false, true)).isTrue();
 
-		this.applicationContext = newApplicationContext(IndexDefinitionConflictConfiguration.class);
+		newApplicationContext(IndexDefinitionConflictConfiguration.class);
 
-		assertThat(this.applicationContext.containsBean("customerIdIndex")).isTrue();
-		assertThat(this.applicationContext.containsBean("customerIdentifierIndex")).isTrue();
+		assertThat(containsBean("customerIdIndex")).isTrue();
+		assertThat(containsBean("customerIdentifierIndex")).isTrue();
 		assertIndexCount(1);
 		assertThat(hasIndex("customerIdIndex")).isFalse();
 		assertThat(hasIndex("customerIdentifierIndex")).isTrue();
@@ -176,7 +158,7 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 	public void indexDefinitionConflictThrowsIndexExistsException() throws Throwable {
 
 		try {
-			this.applicationContext = newApplicationContext(IndexDefinitionConflictConfiguration.class);
+			newApplicationContext(IndexDefinitionConflictConfiguration.class);
 		}
 		catch (BeanCreationException expected) {
 
@@ -206,10 +188,10 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 		assertThat(IGNORE.compareAndSet(false, true)).isTrue();
 
-		this.applicationContext = newApplicationContext(IndexNameConflictConfiguration.class);
+		newApplicationContext(IndexNameConflictConfiguration.class);
 
-		assertThat(this.applicationContext.containsBean("customerLastNameIndex")).isTrue();
-		assertThat(this.applicationContext.containsBean("customerFirstNameIndex")).isTrue();
+		assertThat(containsBean("customerLastNameIndex")).isTrue();
+		assertThat(containsBean("customerFirstNameIndex")).isTrue();
 		assertIndexCount(1);
 		assertThat(hasIndex(IndexNameConflictConfiguration.INDEX_NAME)).isTrue();
 
@@ -224,11 +206,11 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 
 		assertThat(OVERRIDE.compareAndSet(false, true)).isTrue();
 
-		this.applicationContext = newApplicationContext(IndexNameConflictConfiguration.class);
+		newApplicationContext(IndexNameConflictConfiguration.class);
 
-		assertThat(this.applicationContext.getBeansOfType(Index.class)).hasSize(2);
-		assertThat(this.applicationContext.containsBean("customerLastNameIndex")).isTrue();
-		assertThat(this.applicationContext.containsBean("customerFirstNameIndex")).isTrue();
+		assertThat(getBeansOfType(Index.class)).hasSize(2);
+		assertThat(containsBean("customerLastNameIndex")).isTrue();
+		assertThat(containsBean("customerFirstNameIndex")).isTrue();
 		assertIndexCount(1);
 		assertThat(hasIndex(IndexNameConflictConfiguration.INDEX_NAME)).isTrue();
 
@@ -242,7 +224,7 @@ public class IndexConflictsIntegrationTests extends IntegrationTestsSupport {
 	public void indexNameConflictThrowsIndexNameConflictException() throws Throwable {
 
 		try {
-			this.applicationContext = newApplicationContext(IndexNameConflictConfiguration.class);
+			newApplicationContext(IndexNameConflictConfiguration.class);
 		}
 		catch (BeanCreationException expected) {
 

@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -56,8 +55,6 @@ import org.apache.geode.cache.TransactionListener;
 import org.apache.geode.cache.TransactionWriter;
 import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.cache.util.GatewayConflictResolver;
-import org.apache.geode.distributed.DistributedMember;
-import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -244,7 +241,6 @@ public class CacheFactoryBeanUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void init() throws Exception {
 
 		BeanFactory mockBeanFactory = mock(BeanFactory.class);
@@ -252,10 +248,6 @@ public class CacheFactoryBeanUnitTests {
 		Cache mockCache = mock(Cache.class);
 
 		CacheTransactionManager mockCacheTransactionManager = mock(CacheTransactionManager.class);
-
-		DistributedMember mockDistributedMember = mock(DistributedMember.class, withSettings().lenient());
-
-		DistributedSystem mockDistributedSystem = mock(DistributedSystem.class, withSettings().lenient());
 
 		GatewayConflictResolver mockGatewayConflictResolver = mock(GatewayConflictResolver.class);
 
@@ -274,16 +266,8 @@ public class CacheFactoryBeanUnitTests {
 		when(mockBeanFactory.getAliases(anyString())).thenReturn(new String[0]);
 		when(mockCacheFactory.create()).thenReturn(mockCache);
 		when(mockCache.getCacheTransactionManager()).thenReturn(mockCacheTransactionManager);
-		when(mockCache.getDistributedSystem()).thenReturn(mockDistributedSystem);
 		when(mockCache.getResourceManager()).thenReturn(mockResourceManager);
 		when(mockCacheXml.getInputStream()).thenReturn(mock(InputStream.class));
-		when(mockDistributedSystem.getDistributedMember()).thenReturn(mockDistributedMember);
-		when(mockDistributedSystem.getName()).thenReturn("MockDistributedSystem");
-		when(mockDistributedMember.getId()).thenReturn("MockDistributedMember");
-		when(mockDistributedMember.getGroups()).thenReturn(Collections.emptyList());
-		when(mockDistributedMember.getRoles()).thenReturn(Collections.emptySet());
-		when(mockDistributedMember.getHost()).thenReturn("skullbox");
-		when(mockDistributedMember.getProcessId()).thenReturn(12345);
 
 		ClassLoader expectedThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 

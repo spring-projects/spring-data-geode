@@ -30,8 +30,6 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.compression.Compressor;
 import org.apache.geode.compression.SnappyCompressor;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
@@ -39,7 +37,7 @@ import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.test.model.Person;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
@@ -51,22 +49,15 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.CompressionConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnableCompression
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
-public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class EnableCompressionConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void tearDown() {
-		closeApplicationContext(this.applicationContext);
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
 	}
 
 	private void assertRegionCompressor(Region<?, ?> region, String regionName, Compressor compressor) {
@@ -81,40 +72,36 @@ public class EnableCompressionConfigurationUnitTests extends IntegrationTestsSup
 	@Test
 	public void enableCompressionForAllRegions() {
 
-		this.applicationContext = newApplicationContext(EnableCompressionForAllRegionsConfiguration.class);
+		newApplicationContext(EnableCompressionForAllRegionsConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("ExampleClientRegion")).isFalse();
+		assertThat(containsBean("ExampleClientRegion")).isFalse();
 
-		Compressor compressor = this.applicationContext.getBean(Compressor.class);
+		Compressor compressor = getBean(Compressor.class);
 
 		assertThat(compressor).isInstanceOf(SnappyCompressor.class);
 
 		Arrays.asList("People", "ExampleLocalRegion", "ExamplePartitionRegion", "ExampleReplicateRegion")
 			.forEach(regionName -> {
-				assertThat(this.applicationContext.containsBean(regionName)).isTrue();
-				assertRegionCompressor(this.applicationContext.getBean(regionName, Region.class),
-					regionName, compressor);
+				assertThat(containsBean(regionName)).isTrue();
+				assertRegionCompressor(getBean(regionName, Region.class), regionName, compressor);
 			});
 	}
 
 	@Test
 	public void enableCompressionForSelectRegions() {
 
-		this.applicationContext = newApplicationContext(EnableCompressionForSelectRegionsConfiguration.class);
+		newApplicationContext(EnableCompressionForSelectRegionsConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-
-		Compressor compressor = this.applicationContext.getBean("MockCompressor", Compressor.class);
+		Compressor compressor = getBean("MockCompressor", Compressor.class);
 
 		assertThat(compressor).isNotNull();
 		assertThat(compressor).isNotInstanceOf(SnappyCompressor.class);
-		assertThat(this.applicationContext.containsBean(SNAPPY_COMPRESSOR_BEAN_NAME)).isTrue();
+		assertThat(containsBean(SNAPPY_COMPRESSOR_BEAN_NAME)).isTrue();
 
 		Arrays.asList("People", "ExampleClientRegion").forEach(regionName -> {
-			assertThat(this.applicationContext.containsBean(regionName)).isTrue();
-			assertRegionCompressor(this.applicationContext.getBean(regionName, Region.class),
-				regionName, "People".equals(regionName) ? compressor : null);
+			assertThat(containsBean(regionName)).isTrue();
+			assertRegionCompressor(getBean(regionName, Region.class), regionName,
+				"People".equals(regionName) ? compressor : null);
 		});
 	}
 

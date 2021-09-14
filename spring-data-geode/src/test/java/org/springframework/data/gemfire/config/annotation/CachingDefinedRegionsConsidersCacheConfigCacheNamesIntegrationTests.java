@@ -58,7 +58,7 @@ public class CachingDefinedRegionsConsidersCacheConfigCacheNamesIntegrationTests
 		extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void tearDown() {
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
 	}
 

@@ -15,12 +15,14 @@
  */
 package org.springframework.data.gemfire;
 
+import java.io.File;
+
 import org.junit.After;
 import org.junit.Before;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 
 /**
  * Abstract base test class that creates the Spring {@link ConfigurableApplicationContext} after each method (test case).
@@ -31,17 +33,18 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  */
-public abstract class RecreatingSpringApplicationContextTest extends IntegrationTestsSupport {
-
-	protected GenericXmlApplicationContext applicationContext;
+public abstract class RecreatingSpringApplicationContextTest extends SpringApplicationContextIntegrationTestsSupport {
 
 	@Before
 	public void createContext() {
 
-		applicationContext = configureContext(new GenericXmlApplicationContext());
+		GenericXmlApplicationContext applicationContext = configureContext(new GenericXmlApplicationContext());
+
 		applicationContext.load(location());
 		applicationContext.registerShutdownHook();
 		applicationContext.refresh();
+
+		setApplicationContext(applicationContext);
 	}
 
 	protected abstract String location();
@@ -51,8 +54,12 @@ public abstract class RecreatingSpringApplicationContextTest extends Integration
 	}
 
 	@After
-	public void closeContext() {
-		closeApplicationContext(this.applicationContext);
+	public void cleanupAfterTests() {
+
 		destroyAllGemFireMockObjects();
+
+		for (String name : new File(".").list((file, filename) -> filename.startsWith("BACKUP"))) {
+			new File(name).delete();
+		}
 	}
 }

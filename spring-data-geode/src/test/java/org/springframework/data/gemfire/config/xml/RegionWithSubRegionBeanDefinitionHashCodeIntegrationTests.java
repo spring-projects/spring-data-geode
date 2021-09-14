@@ -20,12 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -75,26 +72,22 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @link https://jira.springsource.org/browse/SGF-178
  * @since 1.3.3
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(
-	locations = "/org/springframework/data/gemfire/config/xml/RegionWithSubRegionBeanDefinitionHashCodeTest-context.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class RegionWithSubRegionBeanDefinitionHashCodeIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	private AbstractApplicationContext applicationContext;
 
 	@Test
 	public void testNonParentRegionBeanDefinitionHashCode() {
 
-		BeanDefinition nonParentRegionBeanDefinition = applicationContext.getBeanFactory().getBeanDefinition("NON_PARENT");
+		BeanDefinition nonParentRegionBeanDefinition =
+			requireApplicationContext().getBeanFactory().getBeanDefinition("NON_PARENT");
 
 		assertThat(nonParentRegionBeanDefinition).isNotNull();
 		assertThat(nonParentRegionBeanDefinition.hashCode() != 0).isTrue();
@@ -103,7 +96,8 @@ public class RegionWithSubRegionBeanDefinitionHashCodeIntegrationTests extends I
 	@Test
 	public void testParentRegionBeanDefinitionHashCode() {
 
-		BeanDefinition parentRegionBeanDefinition = applicationContext.getBeanFactory().getBeanDefinition("PARENT");
+		BeanDefinition parentRegionBeanDefinition =
+			requireApplicationContext().getBeanFactory().getBeanDefinition("PARENT");
 
 		assertThat(parentRegionBeanDefinition).isNotNull();
 		assertThat(parentRegionBeanDefinition.hashCode() != 0).isTrue();
@@ -112,7 +106,8 @@ public class RegionWithSubRegionBeanDefinitionHashCodeIntegrationTests extends I
 	@Test
 	public void testChildRegionBeanDefinitionHashCode() {
 
-		BeanDefinition childRegionBeanDefinition = applicationContext.getBeanFactory().getBeanDefinition("/PARENT/CHILD");
+		BeanDefinition childRegionBeanDefinition =
+			requireApplicationContext().getBeanFactory().getBeanDefinition("/PARENT/CHILD");
 
 		assertThat(childRegionBeanDefinition).isNotNull();
 		assertThat(childRegionBeanDefinition.hashCode() != 0).isTrue();

@@ -38,7 +38,7 @@ import org.apache.geode.cache.client.Pool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -56,7 +56,8 @@ import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -107,13 +108,23 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 	@BeforeClass
 	public static void runGemFireCluster() throws Exception {
 
-		serverOne = run(createDirectory("serverOne"), GemFireCacheServerOneConfiguration.class);
+		int locatorPort = findAndReserveAvailablePort();
+		int cacheServerPortOne = findAndReserveAvailablePort();
+		int cacheServerPortTwo = findAndReserveAvailablePort();
 
-		waitForServerToStart("localhost", 41414);
+		serverOne = run(GemFireCacheServerOneConfiguration.class,
+			String.format("-Dspring.data.gemfire.cache.server.port=%d", cacheServerPortOne),
+			String.format("-Dspring.data.gemfire.locator.port=%d", locatorPort));
 
-		serverTwo = run(createDirectory("serverTwo"), GemFireCacheServerTwoConfiguration.class);
+		waitForServerToStart("localhost", cacheServerPortOne);
 
-		waitForServerToStart("localhost", 42424);
+		serverTwo = run(GemFireCacheServerTwoConfiguration.class,
+			String.format("-Dspring.data.gemfire.cache.server.port=%d", cacheServerPortTwo),
+			String.format("-Dspring.data.gemfire.locator.port=%d", locatorPort));
+
+		waitForServerToStart("localhost", cacheServerPortTwo);
+
+		System.setProperty("spring.data.gemfire.locator.port", String.valueOf(locatorPort));
 	}
 
 	@AfterClass
@@ -142,18 +153,20 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		assertThat(dogNames).containsAll(Arrays.asList("Spuds", "Maha"));
 	}
 
-	@Data
+	@Getter
+	@EqualsAndHashCode
 	@Region("Cats")
 	@RequiredArgsConstructor(staticName = "newCat")
 	static class Cat {
-		@Id @NonNull private String name;
+		@Id @NonNull private final String name;
 	}
 
-	@Data
+	@Getter
+	@EqualsAndHashCode
 	@Region("Dogs")
 	@RequiredArgsConstructor(staticName = "newDog")
 	static class Dog {
-		@Id @NonNull private String name;
+		@Id @NonNull private final String name;
 	}
 
 	@Configuration
@@ -188,7 +201,7 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		}
 
 		@Bean(name = "ServerOnePool")
-		PoolFactoryBean serverOnePool() {
+		PoolFactoryBean serverOnePool(@Value("${spring.data.gemfire.locator.port:11235}") int locatorPort) {
 
 			PoolFactoryBean serverOnePool = new PoolFactoryBean();
 
@@ -197,13 +210,13 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			serverOnePool.setReadTimeout(Long.valueOf(TimeUnit.SECONDS.toMillis(30)).intValue());
 			serverOnePool.setRetryAttempts(1);
 			serverOnePool.setServerGroup("serverOne");
-			serverOnePool.setLocators(ConnectionEndpointList.from(newConnectionEndpoint("localhost", 11235)));
+			serverOnePool.setLocators(ConnectionEndpointList.from(ConnectionEndpoint.from("localhost", locatorPort)));
 
 			return serverOnePool;
 		}
 
 		@Bean(name = "ServerTwoPool")
-		PoolFactoryBean serverTwoPool() {
+		PoolFactoryBean serverTwoPool(@Value("${spring.data.gemfire.locator.port:11235}") int locatorPort) {
 
 			PoolFactoryBean serverOnePool = new PoolFactoryBean();
 
@@ -212,7 +225,7 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			serverOnePool.setReadTimeout(Long.valueOf(TimeUnit.SECONDS.toMillis(30)).intValue());
 			serverOnePool.setRetryAttempts(1);
 			serverOnePool.setServerGroup("serverTwo");
-			serverOnePool.setLocators(ConnectionEndpointList.from(newConnectionEndpoint("localhost", 11235)));
+			serverOnePool.setLocators(ConnectionEndpointList.from(ConnectionEndpoint.from("localhost", locatorPort)));
 
 			return serverOnePool;
 		}
@@ -254,22 +267,19 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		GemfireTemplate dogsTemplate(GemFireCache gemfireCache) {
 			return new GemfireTemplate(gemfireCache.getRegion("Dogs"));
 		}
-
-		ConnectionEndpoint newConnectionEndpoint(String host, int port) {
-			return new ConnectionEndpoint(host, port);
-		}
 	}
 
 	static abstract class AbstractGemFireCacheServerConfiguration {
 
-		Properties gemfireProperties() {
+		@Bean
+		Properties gemfireProperties(@Value("${spring.data.gemfire.locator.port:11235}") int locatorPort) {
 
 			return PropertiesBuilder.create()
 				.setProperty("name", applicationName())
 				.setProperty("log-level", logLevel())
-				.setProperty("locators", "localhost[11235]")
+				.setProperty("locators", String.format("localhost[%d]", locatorPort))
 				.setProperty("groups", groups())
-				.setProperty("start-locator", startLocator())
+				.setProperty("start-locator", startLocator(locatorPort))
 				.build();
 		}
 
@@ -283,36 +293,34 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			return System.getProperty("spring.data.gemfire.log.level", GEMFIRE_LOG_LEVEL);
 		}
 
-		String startLocator() {
+		String startLocator(int locatorPort) {
 			return "";
 		}
 
 		@Bean
-		CacheFactoryBean gemfireCache() {
+		CacheFactoryBean gemfireCache(@Qualifier("gemfireProperties") Properties gemfireProperties) {
 
 			CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
 			gemfireCache.setClose(true);
-			gemfireCache.setProperties(gemfireProperties());
+			gemfireCache.setProperties(gemfireProperties);
 
 			return gemfireCache;
 		}
 
 		@Bean
-		CacheServerFactoryBean gemfireCacheServer(GemFireCache gemfireCache) {
+		CacheServerFactoryBean gemfireCacheServer(GemFireCache gemfireCache,
+				@Value("${spring.data.gemfire.cache.server.port:40404}") int cacheServerPort) {
 
 			CacheServerFactoryBean gemfireCacheServer = new CacheServerFactoryBean();
 
 			gemfireCacheServer.setAutoStartup(true);
 			gemfireCacheServer.setCache((Cache) gemfireCache);
 			gemfireCacheServer.setMaxTimeBetweenPings(Long.valueOf(TimeUnit.SECONDS.toMillis(60)).intValue());
-			gemfireCacheServer.setPort(cacheServerPort());
+			gemfireCacheServer.setPort(cacheServerPort);
 
 			return gemfireCacheServer;
 		}
-
-		abstract int cacheServerPort();
-
 	}
 
 	@Configuration
@@ -320,14 +328,13 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 	static class GemFireCacheServerOneConfiguration extends AbstractGemFireCacheServerConfiguration {
 
 		public static void main(String[] args) {
-			new AnnotationConfigApplicationContext(GemFireCacheServerOneConfiguration.class)
-				.registerShutdownHook();
+			runSpringApplication(GemFireCacheServerOneConfiguration.class, args);
 		}
 
 		@Resource(name = "Cats")
 		private org.apache.geode.cache.Region<String, Cat> cats;
 
-		Cat save(Cat cat) {
+		private Cat save(Cat cat) {
 			cats.put(cat.getName(), cat);
 			return cat;
 		}
@@ -342,18 +349,13 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		}
 
 		@Override
-		int cacheServerPort() {
-			return 41414;
-		}
-
-		@Override
 		String groups() {
 			return "serverOne";
 		}
 
 		@Override
-		String startLocator() {
-			return "localhost[11235]";
+		String startLocator(int locatorPort) {
+			return String.format("localhost[%d]", locatorPort);
 		}
 
 		@Bean(name = "Cats")
@@ -373,14 +375,13 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 	static class GemFireCacheServerTwoConfiguration extends AbstractGemFireCacheServerConfiguration {
 
 		public static void main(String[] args) {
-			new AnnotationConfigApplicationContext(GemFireCacheServerTwoConfiguration.class)
-				.registerShutdownHook();
+			runSpringApplication(GemFireCacheServerTwoConfiguration.class, args);
 		}
 
 		@Resource(name = "Dogs")
 		private org.apache.geode.cache.Region<String, Dog> dogs;
 
-		Dog save(Dog dog) {
+		private Dog save(Dog dog) {
 			dogs.put(dog.getName(), dog);
 			return dog;
 		}
@@ -389,11 +390,6 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		public void postConstruct() {
 			save(Dog.newDog("Spuds"));
 			save(Dog.newDog("Maha"));
-		}
-
-		@Override
-		int cacheServerPort() {
-			return 42424;
 		}
 
 		@Override

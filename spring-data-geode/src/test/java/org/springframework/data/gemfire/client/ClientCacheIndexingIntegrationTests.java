@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.client;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -64,15 +62,8 @@ public class ClientCacheIndexingIntegrationTests extends ForkingClientServerInte
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
-
-		List<String> arguments = new ArrayList<>();
-
-		arguments.add(String.format("-Dgemfire.name=%s",
-			ClientCacheIndexingIntegrationTests.class.getSimpleName().contains("Server")));
-
-		arguments.add(getServerContextXmlFileLocation(ClientCacheIndexingIntegrationTests.class));
-
-		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
+		startGemFireServer(ServerProcess.class,
+			getServerContextXmlFileLocation(ClientCacheIndexingIntegrationTests.class));
 	}
 
 	private Index getIndex(GemFireCache gemfireCache, String indexName) {

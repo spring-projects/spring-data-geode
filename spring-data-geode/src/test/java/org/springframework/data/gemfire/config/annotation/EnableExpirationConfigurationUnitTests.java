@@ -22,8 +22,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationPolicy;
 import static org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationType;
 
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Test;
 
@@ -33,12 +31,10 @@ import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpirationActionType;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
@@ -56,20 +52,14 @@ import org.springframework.data.gemfire.util.ArrayUtils;
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
  * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
-public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class EnableExpirationConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
 	}
 
@@ -122,11 +112,7 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 
 	@SuppressWarnings("unchecked")
 	private <K, V> Region<K, V> getRegion(String beanName) {
-		return this.applicationContext.getBean(beanName, Region.class);
-	}
-
-	private AnnotationConfigApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
+		return getBean(beanName, Region.class);
 	}
 
 	private  ExpirationAttributes newExpirationAttributes(int timeout, ExpirationActionType action) {
@@ -141,7 +127,7 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesDefaultExpirationPolicyConfiguration() {
 
-		this.applicationContext = newApplicationContext(DefaultExpirationPolicyConfiguration.class);
+		newApplicationContext(DefaultExpirationPolicyConfiguration.class);
 
 		ExpirationAttributes expectedExpiration = newExpirationAttributes(0, ExpirationActionType.INVALIDATE);
 
@@ -158,7 +144,7 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesCustomIdleTimeoutExpirationPolicyConfiguration() {
 
-		this.applicationContext = newApplicationContext(CustomIdleTimeoutExpirationPolicyConfiguration.class);
+		newApplicationContext(CustomIdleTimeoutExpirationPolicyConfiguration.class);
 
 		ExpirationAttributes expectedExpiration = newExpirationAttributes(300, ExpirationActionType.LOCAL_DESTROY);
 
@@ -176,7 +162,7 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesCustomTimeToLiveExpirationPolicyConfiguration() {
 
-		this.applicationContext = newApplicationContext(CustomTimeToLiveTimeoutExpirationPolicyConfiguration.class);
+		newApplicationContext(CustomTimeToLiveTimeoutExpirationPolicyConfiguration.class);
 
 		ExpirationAttributes expectedExpiration = newExpirationAttributes(900, ExpirationActionType.LOCAL_INVALIDATE);
 
@@ -194,7 +180,7 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesRegionSpecificExpirationPolicyConfiguration() {
 
-		this.applicationContext = newApplicationContext(RegionSpecificExpirationPolicyConfiguration.class);
+		newApplicationContext(RegionSpecificExpirationPolicyConfiguration.class);
 
 		ExpirationAttributes expectedIdleTimeout = newExpirationAttributes(180, ExpirationActionType.INVALIDATE);
 		ExpirationAttributes expectedTimeToLive = newExpirationAttributes(360, ExpirationActionType.DESTROY);
@@ -213,7 +199,7 @@ public class EnableExpirationConfigurationUnitTests extends IntegrationTestsSupp
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void usesMixedExpirationPolicyConfiguration() {
 
-		this.applicationContext = newApplicationContext(MixedExpirationPolicyConfiguration.class);
+		newApplicationContext(MixedExpirationPolicyConfiguration.class);
 
 		ExpirationAttributes expectedIdleTimeout = newExpirationAttributes(60, ExpirationActionType.LOCAL_INVALIDATE);
 		ExpirationAttributes expectedTimeToLive = newExpirationAttributes(600, ExpirationActionType.DESTROY);

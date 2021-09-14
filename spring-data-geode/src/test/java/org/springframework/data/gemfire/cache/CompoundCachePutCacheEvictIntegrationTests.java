@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
@@ -30,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -41,8 +41,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.gemfire.CacheFactoryBean;
-import org.springframework.data.gemfire.LocalRegionFactoryBean;
+import org.springframework.data.gemfire.cache.config.EnableGemfireCaching;
+import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
+import org.springframework.data.gemfire.config.annotation.EnableCachingDefinedRegions;
+import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
@@ -77,79 +79,89 @@ import lombok.RequiredArgsConstructor;
  * @since 1.9.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = CompoundCachePutCacheEvictIntegrationTests.ApplicationTestConfiguration.class)
+@ContextConfiguration(classes = CompoundCachePutCacheEvictIntegrationTests.TestConfiguration.class)
 @SuppressWarnings("unused")
 public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTestsSupport {
 
-	private Person janeDoe;
-	private Person jonDoe;
+	private Employee janeDoe;
+	private Employee jonDoe;
 
 	@Autowired
-	private PeopleService peopleService;
+	private EmployeeRepository employeeRepository;
 
-	@Resource(name = "People")
-	private org.apache.geode.cache.Region<Long, Person> peopleRegion;
+	@Autowired
+	private EmployeeService employeeService;
 
-	protected void assertNoPeopleInDepartment(Department department) {
+	@Resource(name = "Employees")
+	private org.apache.geode.cache.Region<Long, Employee> employeesRegion;
+
+	private void assertNoEmployeeInDepartment(Department department) {
 		assertPeopleInDepartment(department);
 	}
 
-	protected void assertPeopleInDepartment(Department department, Person... people) {
-		List<Person> peopleInDepartment = peopleService.findByDepartment(department);
+	private void assertPeopleInDepartment(Department department, Employee... people) {
+
+		List<Employee> peopleInDepartment = employeeService.findByDepartment(department);
 
 		assertThat(peopleInDepartment).isNotNull();
 		assertThat(peopleInDepartment.size()).isEqualTo(people.length);
 		assertThat(peopleInDepartment).contains(people);
 	}
 
-	protected Person newPerson(String name, String mobile, Department department) {
-		return newPerson(IdentifierSequence.nextId(), name, mobile, department);
+	private Employee newEmployee(String name, String mobile, Department department) {
+		return newEmployee(IdentifierSequence.nextId(), name, mobile, department);
 	}
 
-	protected Person newPerson(Long id, String name, String mobile, Department department) {
-		Person person = Person.newPerson(department, mobile, name);
-		person.setId(id);
-		return person;
-	}
-
-	protected Person save(Person person) {
-		peopleRegion.put(person.getId(), person);
-		return person;
+	private Employee newEmployee(Long id, String name, String mobile, Department department) {
+		Employee employee = Employee.newEmployee(department, mobile, name);
+		employee.setId(id);
+		return employee;
 	}
 
 	@Before
 	public void setup() {
-		janeDoe = save(newPerson("Jane Doe", "541-555-1234", Department.MARKETING));
-		jonDoe = save(newPerson("Jon Doe", "972-555-1248", Department.ENGINEERING));
 
-		assertThat(peopleRegion.containsValue(janeDoe)).isTrue();
-		assertThat(peopleRegion.containsValue(janeDoe)).isTrue();
+		janeDoe = employeeRepository.save(newEmployee("Jane Doe", "541-555-1234", Department.MARKETING));
+		jonDoe = employeeRepository.save(newEmployee("Jon Doe", "972-555-1248", Department.ENGINEERING));
+
+		assertThat(employeesRegion).containsValue(janeDoe);
+		assertThat(employeesRegion).containsValue(jonDoe);
 	}
 
 	@Test
 	public void janeDoeUpdateSuccessful() {
-		assertNoPeopleInDepartment(Department.DESIGN);
-		assertThat(peopleService.isCacheMiss()).isTrue();
+
+		assertNoEmployeeInDepartment(Department.DESIGN);
+		assertThat(employeeService.isCacheMiss()).isTrue();
 
 		janeDoe.setDepartment(Department.DESIGN);
-		peopleService.update(janeDoe);
+		employeeService.update(janeDoe);
 
+		assertThat(employeesRegion).containsValue(janeDoe);
 		assertPeopleInDepartment(Department.DESIGN, janeDoe);
-		assertThat(peopleService.isCacheMiss()).isTrue();
+		assertThat(employeeService.isCacheMiss()).isTrue();
+
+		assertThat(employeesRegion).containsValue(janeDoe);
+		assertPeopleInDepartment(Department.DESIGN, janeDoe);
+		assertThat(employeeService.isCacheMiss()).isFalse();
 	}
 
 	@Test
 	public void jonDoeUpdateSuccessful() {
+
 		jonDoe.setDepartment(Department.RESEARCH_DEVELOPMENT);
-		peopleService.update(jonDoe);
+		employeeService.update(jonDoe);
 
 		assertPeopleInDepartment(Department.RESEARCH_DEVELOPMENT, jonDoe);
-		assertThat(peopleService.isCacheMiss()).isTrue();
+		assertThat(employeeService.isCacheMiss()).isTrue();
+
+		assertPeopleInDepartment(Department.RESEARCH_DEVELOPMENT, jonDoe);
+		assertThat(employeeService.isCacheMiss()).isFalse();
 	}
 
 	@Configuration
 	@EnableCaching
-	@Import(ApplicationTestConfiguration.class)
+	@Import(TestConfiguration.class)
 	static class Sgf539WorkaroundConfiguration {
 
 		@Bean
@@ -177,25 +189,14 @@ public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTests
 	}
 
 	@Configuration
-	@EnableCaching
 	@Import(GemFireConfiguration.class)
-	static class ApplicationTestConfiguration {
+	static class TestConfiguration {
 
 		@Bean
-		GemfireCacheManager cacheManager(GemFireCache gemfireCache) {
+		GemfireRepositoryFactoryBean<EmployeeRepository, Employee, Long> personRepository() {
 
-			GemfireCacheManager cacheManager = new GemfireCacheManager();
-
-			cacheManager.setCache(gemfireCache);
-
-			return cacheManager;
-		}
-
-		@Bean
-		GemfireRepositoryFactoryBean<PersonRepository, Person, Long> personRepository() {
-
-			GemfireRepositoryFactoryBean<PersonRepository, Person, Long> personRepository =
-				new GemfireRepositoryFactoryBean<>(PersonRepository.class);
+			GemfireRepositoryFactoryBean<EmployeeRepository, Employee, Long> personRepository =
+				new GemfireRepositoryFactoryBean<>(EmployeeRepository.class);
 
 			personRepository.setGemfireMappingContext(new GemfireMappingContext());
 
@@ -203,79 +204,16 @@ public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTests
 		}
 
 		@Bean
-		PeopleService peopleService(PersonRepository personRepository) {
-			return new PeopleService(personRepository);
+		EmployeeService peopleService(EmployeeRepository personRepository) {
+			return new EmployeeService(personRepository);
 		}
 	}
 
-	@Configuration
-	static class GemFireConfiguration {
-
-		static final String DEFAULT_GEMFIRE_LOG_LEVEL = "error";
-
-		Properties gemfireProperties() {
-
-			Properties gemfireProperties = new Properties();
-
-			gemfireProperties.setProperty("name", applicationName());
-			gemfireProperties.setProperty("locators", "");
-			gemfireProperties.setProperty("log-level", logLevel());
-
-			return gemfireProperties;
-		}
-
-		String applicationName() {
-			return CompoundCachePutCacheEvictIntegrationTests.class.getName();
-		}
-
-		String logLevel() {
-			return System.getProperty("spring.data.gemfire.log.level", DEFAULT_GEMFIRE_LOG_LEVEL);
-		}
-
-		@Bean
-		CacheFactoryBean gemfireCache() {
-
-			CacheFactoryBean gemfireCache = new CacheFactoryBean();
-
-			gemfireCache.setClose(true);
-			gemfireCache.setProperties(gemfireProperties());
-
-			return gemfireCache;
-		}
-
-		@Bean(name = "People")
-		LocalRegionFactoryBean<Long, Person> peopleRegion(GemFireCache gemfireCache) {
-
-			LocalRegionFactoryBean<Long, Person> peopleRegion = new LocalRegionFactoryBean<>();
-
-			peopleRegion.setCache(gemfireCache);
-			peopleRegion.setPersistent(false);
-
-			return peopleRegion;
-		}
-
-		@Bean(name = "DepartmentPeople")
-		LocalRegionFactoryBean<Long, Person> departmentPeopleRegion(GemFireCache gemfireCache) {
-
-			LocalRegionFactoryBean<Long, Person> departmentPeopleRegion = new LocalRegionFactoryBean<>();
-
-			departmentPeopleRegion.setCache(gemfireCache);
-			departmentPeopleRegion.setPersistent(false);
-
-			return departmentPeopleRegion;
-		}
-
-		@Bean(name = "MobilePeople")
-		LocalRegionFactoryBean<Long, Person> mobilePeopleRegion(GemFireCache gemfireCache) {
-
-			LocalRegionFactoryBean<Long, Person> mobilePeopleRegion = new LocalRegionFactoryBean<>();
-
-			mobilePeopleRegion.setCache(gemfireCache);
-			mobilePeopleRegion.setPersistent(false);
-
-			return mobilePeopleRegion;
-		}
-	}
+	@ClientCacheApplication
+	@EnableCachingDefinedRegions(clientRegionShortcut = ClientRegionShortcut.LOCAL)
+	@EnableEntityDefinedRegions(basePackageClasses = Employee.class, clientRegionShortcut = ClientRegionShortcut.LOCAL)
+	@EnableGemfireCaching
+	static class GemFireConfiguration { }
 
 	public enum Department {
 
@@ -291,9 +229,9 @@ public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTests
 	}
 
 	@Data
-	@Region("People")
-	@RequiredArgsConstructor(staticName = "newPerson")
-	public static class Person implements Serializable {
+	@Region("Employees")
+	@RequiredArgsConstructor(staticName = "newEmployee")
+	public static class Employee implements Serializable {
 
 		@Id
 		private Long id;
@@ -305,32 +243,32 @@ public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTests
 	}
 
 	@Service
-	public static class PeopleService extends CacheableService {
+	public static class EmployeeService extends CacheableService {
 
-		private final PersonRepository personRepository;
+		private final EmployeeRepository employeeRepository;
 
-		public PeopleService(PersonRepository personRepository) {
-			this.personRepository = personRepository;
+		public EmployeeService(EmployeeRepository employeeRepository) {
+			this.employeeRepository = employeeRepository;
 		}
 
-		@Cacheable("DepartmentPeople")
-		public List<Person> findByDepartment(Department department) {
+		@Cacheable("DepartmentEmployees")
+		public List<Employee> findByDepartment(Department department) {
 			setCacheMiss();
-			return personRepository.findByDepartment(department);
+			return employeeRepository.findByDepartment(department);
 		}
 
-		@Cacheable("MobilePeople")
-		public Person findByMobile(String mobile) {
+		@Cacheable("MobileEmployees")
+		public Employee findByMobile(String mobile) {
 			setCacheMiss();
-			return personRepository.findByMobile(mobile);
+			return employeeRepository.findByMobile(mobile);
 		}
 
 		@Caching(
-			evict = @CacheEvict(value = "DepartmentPeople", key = "#p0.department"),
-			put = @CachePut(value = "MobilePeople", key="#p0.mobile")
+			evict = @CacheEvict(value = "DepartmentEmployees", key = "#p0.department"),
+			put = @CachePut(value = "MobileEmployees", key="#p0.mobile")
 		)
-		public Person update(Person person) {
-			return personRepository.save(person);
+		public Employee update(Employee employee) {
+			return employeeRepository.save(employee);
 		}
 	}
 
@@ -351,11 +289,11 @@ public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTests
 		}
 	}
 
-	public interface PersonRepository extends CrudRepository<Person, Long> {
+	public interface EmployeeRepository extends CrudRepository<Employee, Long> {
 
-		List<Person> findByDepartment(Department department);
+		List<Employee> findByDepartment(Department department);
 
-		Person findByMobile(String mobile);
+		Employee findByMobile(String mobile);
 
 	}
 }

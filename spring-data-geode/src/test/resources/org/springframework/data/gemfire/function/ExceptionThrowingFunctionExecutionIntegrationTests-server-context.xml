@@ -10,24 +10,17 @@
         http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
-	<util:properties id="serverProperties">
-		<prop key="server.bind-address">localhost</prop>
-		<prop key="server.hostname-for-clients">localhost</prop>
-		<prop key="server.max-connections">1</prop>
-		<prop key="server.port">12480</prop>
-	</util:properties>
-
-	<context:property-placeholder properties-ref="serverProperties"/>
+	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">ExceptionThrowingFunctionExecutionIntegrationTestServer</prop>
+		<prop key="name">ExceptionThrowingFunctionExecutionIntegrationTestsServer</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<gfe:cache-server bind-address="${server.bind-address}" port="${server.port}"
-					  host-name-for-clients="${server.hostname-for-clients}" max-connections="${server.max-connections}"/>
+	<gfe:cache-server bind-address="localhost" port="${spring.data.gemfire.cache.server.port}"
+					  host-name-for-clients="localhost" max-connections="1"/>
 
 	<gfe:function-service>
 		<gfe:function>

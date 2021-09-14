@@ -51,6 +51,7 @@ import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
@@ -63,6 +64,7 @@ import org.springframework.util.StringUtils;
  * @author John Blum
  * @see org.junit.Test
  * @see org.springframework.data.gemfire.LookupRegionFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @since 1.7.0
@@ -70,7 +72,7 @@ import org.springframework.util.StringUtils;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class LookupPartitionRegionMutationIntegrationTests {
+public class LookupPartitionRegionMutationIntegrationTests extends IntegrationTestsSupport {
 
 	@Resource(name = "Example")
 	private Region<?, ?> example;

@@ -18,10 +18,9 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
@@ -29,12 +28,11 @@ import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.CacheFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -49,35 +47,27 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.mock.env.MockPropertySource
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class PeerCachePropertiesIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
+public class PeerCachePropertiesIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-			Class<?>... annotatedClasses) {
+		Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer = applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+			MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+			propertySources.addFirst(testPropertySource);
 
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
+			return applicationContext;
+		};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@Test
@@ -95,15 +85,14 @@ public class PeerCachePropertiesIntegrationTests extends IntegrationTestsSupport
 			.withProperty("spring.data.gemfire.pdx.ignore-unread-fields", false)
 			.withProperty("spring.data.gemfire.pdx.persistent", true);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestPeerCacheConfiguration.class);
+		newApplicationContext(testPropertySource, TestPeerCacheConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("mockPdxSerializer")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("mockPdxSerializer")).isTrue();
 
-		Cache testPeerCache = this.applicationContext.getBean("gemfireCache", Cache.class);
+		Cache testPeerCache = getBean("gemfireCache", Cache.class);
 
-		PdxSerializer mockPdxSerializer = this.applicationContext.getBean("mockPdxSerializer", PdxSerializer.class);
+		PdxSerializer mockPdxSerializer = getBean("mockPdxSerializer", PdxSerializer.class);
 
 		assertThat(testPeerCache).isNotNull();
 		assertThat(mockPdxSerializer).isNotNull();
@@ -143,14 +132,13 @@ public class PeerCachePropertiesIntegrationTests extends IntegrationTestsSupport
 			.withProperty("spring.data.gemfire.cache.peer.search-timeout", 120)
 			.withProperty("spring.data.gemfire.cache.peer.use-cluster-configuration", true);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestDynamicPeerCacheConfiguration.class);
+		newApplicationContext(testPropertySource, TestDynamicPeerCacheConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		CacheFactoryBean cacheFactoryBean = this.applicationContext.getBean("&gemfireCache", CacheFactoryBean.class);
+		CacheFactoryBean cacheFactoryBean = getBean("&gemfireCache", CacheFactoryBean.class);
 
-		Cache cache = this.applicationContext.getBean("gemfireCache", Cache.class);
+		Cache cache = getBean("gemfireCache", Cache.class);
 
 		assertThat(cacheFactoryBean).isNotNull();
 		assertThat(cacheFactoryBean.isUseBeanFactoryLocator()).isTrue();

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,12 +37,12 @@ import org.apache.geode.ra.GFConnectionFactory;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.gemfire.config.annotation.EnableGemFireAsLastResource;
 import org.springframework.data.gemfire.config.annotation.GemFireAsLastResourceConfiguration;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -62,47 +61,39 @@ import org.springframework.transaction.annotation.Transactional;
  * @see org.apache.geode.ra.GFConnectionFactory
  * @see org.springframework.data.gemfire.config.annotation.EnableGemFireAsLastResource
  * @see org.springframework.data.gemfire.config.annotation.GemFireAsLastResourceConfiguration
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.transaction.PlatformTransactionManager
  * @see org.springframework.transaction.annotation.EnableTransactionManagement
  * @see org.springframework.transaction.annotation.Transactional
  * @since 2.0.0
  */
-public class EnableGemFireAsLastResourceIntegrationTests {
+public class EnableGemFireAsLastResourceIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
-	private static List<SpringGemFireTransactionEvents> transactionEvents = new ArrayList<>();
+	private static final List<SpringGemFireTransactionEvents> transactionEvents = new ArrayList<>();
 
 	@Before
 	public void setup() {
 		transactionEvents.clear();
 	}
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		return applicationContext;
-	}
-
 	@Test
 	public void configurationIsCorrect() {
 
-		ConfigurableApplicationContext applicationContext =
-			newApplicationContext(TestGemFireAsLastResourceConfiguration.class);
+		newApplicationContext(TestGemFireAsLastResourceConfiguration.class);
 
-		assertThat(applicationContext).isNotNull();
-
-		GemFireCache gemfireCache = applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getCopyOnRead()).isTrue();
 
 		GemFireAsLastResourceConnectionAcquiringAspect connectionAcquiringAspect =
-			applicationContext.getBean(GemFireAsLastResourceConnectionAcquiringAspect.class);
+			getBean(GemFireAsLastResourceConnectionAcquiringAspect.class);
 
 		assertThat(connectionAcquiringAspect).isNotNull();
 		assertThat(connectionAcquiringAspect.getOrder()).isEqualTo(3);
 
 		GemFireAsLastResourceConnectionClosingAspect connectionClosingAspect =
-			applicationContext.getBean(GemFireAsLastResourceConnectionClosingAspect.class);
+			getBean(GemFireAsLastResourceConnectionClosingAspect.class);
 
 		assertThat(connectionClosingAspect).isNotNull();
 		assertThat(connectionClosingAspect.getOrder()).isEqualTo(1);
@@ -219,6 +210,7 @@ public class EnableGemFireAsLastResourceIntegrationTests {
 	@Configuration
 	@EnableGemFireAsLastResource
 	@EnableTransactionManagement(order = 2)
+	@SuppressWarnings("unused")
 	static class TestGemFireAsLastResourceConfiguration {
 
 		@Bean("gemfireCache")
@@ -282,12 +274,12 @@ public class EnableGemFireAsLastResourceIntegrationTests {
 
 	@Configuration
 	@EnableGemFireAsLastResource
-	static class TestMissingEnableTransactionManagementAnnotationConfiguration {
-	}
+	static class TestMissingEnableTransactionManagementAnnotationConfiguration { }
 
 	@Configuration
 	@EnableGemFireAsLastResource
 	@EnableTransactionManagement
+	@SuppressWarnings("unused")
 	static class TestMissingEnableTransactionManagementOrderAttributeConfiguration {
 
 		@Bean("transactionManager")
@@ -298,6 +290,7 @@ public class EnableGemFireAsLastResourceIntegrationTests {
 
 	@Configuration
 	@Import(TestGemFireAsLastResourceConfiguration.class)
+	@SuppressWarnings("unused")
 	static class TestSpringApplicationConfiguration {
 
 		@Bean("TestTransactionalServiceClass")
@@ -330,8 +323,8 @@ public class EnableGemFireAsLastResourceIntegrationTests {
 
 	}
 
-	@Service("TestTransactionalServiceClass")
 	@Transactional
+	@Service("TestTransactionalServiceClass")
 	static class TestTransactionalServiceClass implements TestTransactionalService {
 
 		public void doInTransactionCommits() {

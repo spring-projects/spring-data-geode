@@ -25,12 +25,10 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.data.gemfire.tests.util.IOUtils;
 
 /**
  * Integration Tests for {@link org.apache.geode.cache.client.ClientCache}.
@@ -45,15 +43,11 @@ import org.springframework.data.gemfire.tests.util.IOUtils;
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  */
 @SuppressWarnings("unused")
-public class ClientCacheIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
-	}
+public class ClientCacheIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private boolean testClientCacheClose(Class<?> clientCacheConfiguration) {
 
@@ -71,7 +65,7 @@ public class ClientCacheIntegrationTests extends IntegrationTestsSupport {
 			return clientCache.isClosed();
 		}
 		finally {
-			IOUtils.close(applicationContext);
+			closeApplicationContext(applicationContext);
 		}
 	}
 

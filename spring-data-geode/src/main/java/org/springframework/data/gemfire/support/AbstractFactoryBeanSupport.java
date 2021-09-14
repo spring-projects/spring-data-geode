@@ -159,6 +159,64 @@ public abstract class AbstractFactoryBeanSupport<T>
 	}
 
 	/**
+	 * Returns an {@link Optional} reference to the {@link Logger} used by this {@link FactoryBean}
+	 * to log {@link String messages}.
+	 *
+	 * @return an {@link Optional} reference to the {@link Logger} used by this {@link FactoryBean}
+	 * to log {@link String messages}.
+	 * @see java.util.Optional
+	 * @see org.slf4j.Logger
+	 * @see #getLog()
+	 */
+	protected Optional<Logger> getOptionalLog() {
+		return Optional.ofNullable(getLog());
+	}
+
+	/**
+	 * Determines whether {@literal DEBUG} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal DEBUG} logging is enabled.
+	 * @see org.slf4j.Logger#isDebugEnabled()
+	 * @see #getOptionalLog()
+	 */
+	public boolean isDebugLoggingEnabled() {
+		return getOptionalLog().filter(Logger::isInfoEnabled).isPresent();
+	}
+
+	/**
+	 * Determines whether {@literal INFO} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal INFO} logging is enabled.
+	 * @see org.slf4j.Logger#isInfoEnabled()
+	 * @see #getOptionalLog()
+	 */
+	public boolean isInfoLoggingEnabled() {
+		return getOptionalLog().filter(Logger::isInfoEnabled).isPresent();
+	}
+
+	/**
+	 * Determines whether {@literal ERROR} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal ERROR} logging is enabled.
+	 * @see org.slf4j.Logger#isErrorEnabled()
+	 * @see #getOptionalLog()
+	 */
+	public boolean isErrorLoggingEnabled() {
+		return getOptionalLog().filter(Logger::isInfoEnabled).isPresent();
+	}
+
+	/**
+	 * Determines whether {@literal WARN} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal WARN} logging is enabled.
+	 * @see org.slf4j.Logger#isWarnEnabled()
+	 * @see #getOptionalLog()
+	 */
+	public boolean isWarnLoggingEnabled() {
+		return getOptionalLog().filter(Logger::isInfoEnabled).isPresent();
+	}
+
+	/**
 	 * Indicates that this {@link FactoryBean} produces a single bean instance.
 	 *
 	 * @return {@literal true} by default.
@@ -189,7 +247,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see #getLog()
 	 */
 	protected void logDebug(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLog()
 			.filter(Logger::isDebugEnabled)
 			.ifPresent(log -> log.debug(message.get()));
 	}
@@ -214,7 +272,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see #getLog()
 	 */
 	protected void logInfo(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLog()
 			.filter(Logger::isInfoEnabled)
 			.ifPresent(log -> log.info(message.get()));
 	}
@@ -239,7 +297,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see #getLog()
 	 */
 	protected void logWarning(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLog()
 			.filter(Logger::isWarnEnabled)
 			.ifPresent(log -> log.warn(message.get()));
 	}
@@ -264,7 +322,7 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @see #getLog()
 	 */
 	protected void logError(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLog()
 			.filter(Logger::isErrorEnabled)
 			.ifPresent(log -> log.error(message.get()));
 	}

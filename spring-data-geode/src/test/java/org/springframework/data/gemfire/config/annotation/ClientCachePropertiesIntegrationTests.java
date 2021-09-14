@@ -18,10 +18,9 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.client.ClientCache;
@@ -32,12 +31,11 @@ import org.apache.geode.cache.control.ResourceManager;
 import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -51,34 +49,26 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.mock.env.MockPropertySource
  * @since 2.0.0
  */
-public class ClientCachePropertiesIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
+public class ClientCachePropertiesIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
 			Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer = applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+			MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+			propertySources.addFirst(testPropertySource);
 
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
+			return applicationContext;
+		};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@Test
@@ -101,23 +91,22 @@ public class ClientCachePropertiesIntegrationTests extends IntegrationTestsSuppo
 			.withProperty("spring.data.gemfire.pool.server-group", "TestGroup")
 			.withProperty("spring.data.gemfire.pool.default.subscription-redundancy", 2);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestClientCacheConfiguration.class);
+		newApplicationContext(testPropertySource, TestClientCacheConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("mockPdxSerializer")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("mockPdxSerializer")).isTrue();
 
 		ClientCacheFactoryBean testClientCacheFactoryBean =
-			this.applicationContext.getBean("&gemfireCache", ClientCacheFactoryBean.class);
+			getBean("&gemfireCache", ClientCacheFactoryBean.class);
 
 		assertThat(testClientCacheFactoryBean).isNotNull();
 		assertThat(testClientCacheFactoryBean.isUseBeanFactoryLocator()).isFalse();
 
-		ClientCache testClientCache = this.applicationContext.getBean("gemfireCache", ClientCache.class);
+		ClientCache testClientCache = getBean("gemfireCache", ClientCache.class);
 
 		assertThat(testClientCache).isNotNull();
 
-		PdxSerializer mockPdxSerializer = this.applicationContext.getBean("mockPdxSerializer", PdxSerializer.class);
+		PdxSerializer mockPdxSerializer = getBean("mockPdxSerializer", PdxSerializer.class);
 
 		assertThat(mockPdxSerializer).isNotNull();
 		assertThat(testClientCache).isNotNull();
@@ -202,24 +191,22 @@ public class ClientCachePropertiesIntegrationTests extends IntegrationTestsSuppo
 			.withProperty("spring.data.gemfire.pdx.persistent", true)
 			.withProperty("spring.data.gemfire.pdx.read-serialized", true);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestDynamicClientCacheConfiguration.class);
+		newApplicationContext(testPropertySource, TestDynamicClientCacheConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("mockPdxSerializer")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("mockPdxSerializer")).isTrue();
 
-		ClientCacheFactoryBean clientCacheFactoryBean =
-			this.applicationContext.getBean("&gemfireCache", ClientCacheFactoryBean.class);
+		ClientCacheFactoryBean clientCacheFactoryBean = getBean("&gemfireCache", ClientCacheFactoryBean.class);
 
 		assertThat(clientCacheFactoryBean).isNotNull();
 
-		ClientCache clientCache = this.applicationContext.getBean("gemfireCache", ClientCache.class);
+		ClientCache clientCache = getBean("gemfireCache", ClientCache.class);
 
 		assertThat(clientCache).isNotNull();
 
-		PdxSerializer mockPdxSerializer = this.applicationContext.getBean("mockPdxSerializer", PdxSerializer.class);
+		PdxSerializer mockPdxSerializer = getBean("mockPdxSerializer", PdxSerializer.class);
 
-		SocketFactory mockSocketFactory = this.applicationContext.getBean("mockSocketFactory", SocketFactory.class);
+		SocketFactory mockSocketFactory = getBean("mockSocketFactory", SocketFactory.class);
 
 		assertThat(mockPdxSerializer).isNotNull();
 		assertThat(mockSocketFactory).isNotNull();

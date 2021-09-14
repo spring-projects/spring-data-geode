@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -29,6 +27,9 @@ import org.springframework.data.gemfire.util.SpringUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Element;
+
 /**
  * Bean definition parser for the &lt;gfe:cache-server&lt; SDG XML namespace (XSD) element.
  *
@@ -39,6 +40,8 @@ import org.springframework.util.xml.DomUtils;
  * @since 1.1.0
  */
 class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
+
+	private final AtomicInteger cacheServerIdentifier = new AtomicInteger(0);
 
 	/**
 	 * {@inheritDoc}
@@ -53,8 +56,10 @@ class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
 	 */
 	@Override
 	protected boolean isEligibleAttribute(Attr attribute, ParserContext parserContext) {
-		return (super.isEligibleAttribute(attribute, parserContext) && !"groups".equals(attribute.getName())
-			&& !"cache-ref".equals(attribute.getName()));
+
+		return super.isEligibleAttribute(attribute, parserContext)
+			&& !"groups".equals(attribute.getName())
+			&& !"cache-ref".equals(attribute.getName());
 	}
 
 	/**
@@ -62,6 +67,7 @@ class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
 	 */
 	@Override
 	protected void postProcess(BeanDefinitionBuilder builder, Element element) {
+
 		String cacheRefAttribute = element.getAttribute(ParsingUtils.CACHE_REF_ATTRIBUTE_NAME);
 
 		builder.addPropertyReference("cache", SpringUtils.defaultIfEmpty(
@@ -76,11 +82,12 @@ class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
 		parseSubscription(element, builder);
 	}
 
-	/* (non-Javadoc) */
 	private void parseSubscription(Element element, BeanDefinitionBuilder builder) {
+
 		Element subscriptionConfigElement = DomUtils.getChildElementByTagName(element, "subscription-config");
 
 		if (subscriptionConfigElement != null) {
+
 			ParsingUtils.setPropertyValue(subscriptionConfigElement, builder, "capacity", "subscriptionCapacity");
 			ParsingUtils.setPropertyValue(subscriptionConfigElement, builder, "disk-store", "subscriptionDiskStore");
 
@@ -96,10 +103,20 @@ class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
 	 * {@inheritDoc}
 	 */
 	@Override
+	protected boolean shouldGenerateIdAsFallback() {
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
-		throws BeanDefinitionStoreException {
+			throws BeanDefinitionStoreException {
 
 		String name = super.resolveId(element, definition, parserContext);
-		return (StringUtils.hasText(name) ? name : "gemfireServer");
+
+		return StringUtils.hasText(name) ? name
+			: String.format("gemfireServer%d", cacheServerIdentifier.incrementAndGet());
 	}
 }

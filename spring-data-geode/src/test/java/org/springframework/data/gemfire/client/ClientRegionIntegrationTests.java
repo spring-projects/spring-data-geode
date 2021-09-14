@@ -22,15 +22,16 @@ import javax.annotation.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -42,13 +43,13 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class ClientRegionIntegrationTests extends IntegrationTestsSupport {
 
@@ -57,11 +58,19 @@ public class ClientRegionIntegrationTests extends IntegrationTestsSupport {
 
 	@Test
 	public void clientRegionUsesDefaultPoolWhenUnspecified() {
+
+		assertThat(this.example).isNotNull();
+		assertThat(this.example.getName()).isEqualTo(GemfireUtils.toRegionName("Example"));
+		assertThat(this.example.getFullPath()).isEqualTo(GemfireUtils.toRegionPath("Example"));
+		assertThat(this.example.getAttributes()).isNotNull();
+		assertThat(this.example.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
 		assertThat(this.example.getAttributes().getPoolName()).isNull();
+
+		// NOTE: A null Pool name implies the use of the Apache Geode DEFAULT Pool.
+
 	}
 
 	@ClientCacheApplication
-	@EnableGemFireMockObjects
 	static class ClientRegionConfiguration {
 
 		@Bean("Example")

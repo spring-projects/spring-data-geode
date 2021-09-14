@@ -26,7 +26,8 @@ import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.distributed.ServerLauncher.ServerState;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.util.SpringUtils;
 
 /**
  * Integration Tests {@link SpringServerLauncherCacheProvider} class.
@@ -44,18 +45,15 @@ import org.springframework.data.gemfire.GemfireUtils;
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.data.gemfire.support.SpringServerLauncherCacheProvider
  */
-public class SpringServerLauncherCacheProviderIntegrationTests {
+public class SpringServerLauncherCacheProviderIntegrationTests extends IntegrationTestsSupport {
 
 	@After
 	public void tearDown() {
 
-		System.clearProperty(gemfireName());
-		SpringContextBootstrappingInitializer.getApplicationContext().close();
-		GemfireUtils.closeClientCache();
-	}
+		SpringUtils.safeDoOperation(() ->
+			closeApplicationContext(SpringContextBootstrappingInitializer.getApplicationContext()));
 
-	private String gemfireName() {
-		return GemfireUtils.GEMFIRE_PREFIX + GemfireUtils.NAME_PROPERTY_NAME;
+		SpringContextBootstrappingInitializer.destroy();
 	}
 
 	@Test
@@ -66,7 +64,7 @@ public class SpringServerLauncherCacheProviderIntegrationTests {
 		ServerLauncher.Builder builder = new ServerLauncher.Builder();
 
 		builder.setSpringXmlLocation(springXmlLocation);
-		builder.setMemberName("membername");
+		builder.setMemberName("TestMemberName");
 		builder.setDisableDefaultServer(true);
 
 		ServerLauncher launcher = builder.build();
@@ -81,6 +79,7 @@ public class SpringServerLauncherCacheProviderIntegrationTests {
 		Cache cache = applicationContext.getBean(Cache.class);
 
 		assertThat(cache).isNotNull();
+		assertThat(cache.getName()).isEqualTo("TestMemberName");
 		assertThat(cache.getResourceManager().getCriticalHeapPercentage()).isEqualTo(55.0f);
 
 		state = launcher.stop();

@@ -24,16 +24,13 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.client.Pool;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.TestUtils;
 import org.springframework.data.gemfire.client.PoolAdapter;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -47,17 +44,14 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.client.PoolFactoryBean
  * @see org.springframework.data.gemfire.config.xml.PoolParser
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "pool-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	private ApplicationContext applicationContext;
 
 	private void assertConnectionEndpoint(ConnectionEndpointList connectionEndpoints,
 			String expectedHost, int expectedPort) {
@@ -83,10 +77,10 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void gemfirePoolIsConfiguredProperly() throws Exception {
 
-		assertThat(applicationContext.containsBean("gemfirePool")).isTrue();
-		assertThat(applicationContext.containsBean("gemfire-pool")).isTrue();
+		assertThat(requireApplicationContext().containsBean("gemfirePool")).isTrue();
+		assertThat(requireApplicationContext().containsBean("gemfire-pool")).isTrue();
 
-		PoolFactoryBean poolFactoryBean = applicationContext.getBean("&gemfirePool", PoolFactoryBean.class);
+		PoolFactoryBean poolFactoryBean = requireApplicationContext().getBean("&gemfirePool", PoolFactoryBean.class);
 
 		ConnectionEndpointList locators = TestUtils.readField("locators", poolFactoryBean);
 
@@ -96,9 +90,9 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void simplePoolIsConfiguredProperly() throws Exception {
 
-		assertThat(applicationContext.containsBean("simple")).isTrue();
+		assertThat(requireApplicationContext().containsBean("simple")).isTrue();
 
-		PoolFactoryBean poolFactoryBean = applicationContext.getBean("&simple", PoolFactoryBean.class);
+		PoolFactoryBean poolFactoryBean = requireApplicationContext().getBean("&simple", PoolFactoryBean.class);
 
 		ConnectionEndpointList servers = TestUtils.readField("servers", poolFactoryBean);
 
@@ -112,9 +106,9 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void locatorPoolIsConfiguredProperly() throws Exception {
 
-		assertThat(applicationContext.containsBean("locator")).isTrue();
+		assertThat(requireApplicationContext().containsBean("locator")).isTrue();
 
-		PoolFactoryBean poolFactoryBean = applicationContext.getBean("&locator", PoolFactoryBean.class);
+		PoolFactoryBean poolFactoryBean = requireApplicationContext().getBean("&locator", PoolFactoryBean.class);
 
 		ConnectionEndpointList locators = TestUtils.readField("locators", poolFactoryBean);
 
@@ -134,9 +128,9 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void serverPoolIsConfiguredProperly() throws Exception {
 
-		assertThat(applicationContext.containsBean("server")).isTrue();
+		assertThat(requireApplicationContext().containsBean("server")).isTrue();
 
-		PoolFactoryBean poolFactoryBean = applicationContext.getBean("&server", PoolFactoryBean.class);
+		PoolFactoryBean poolFactoryBean = requireApplicationContext().getBean("&server", PoolFactoryBean.class);
 		Pool pool = poolFactoryBean.getPool();
 
 		assertThat(pool).isInstanceOf(PoolAdapter.class);
@@ -175,9 +169,9 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void locatorsPoolIsConfiguredProperly() throws Exception {
 
-		assertThat(applicationContext.containsBean("locators")).isTrue();
+		assertThat(requireApplicationContext().containsBean("locators")).isTrue();
 
-		PoolFactoryBean poolFactoryBean = applicationContext.getBean("&locators", PoolFactoryBean.class);
+		PoolFactoryBean poolFactoryBean = requireApplicationContext().getBean("&locators", PoolFactoryBean.class);
 
 		ConnectionEndpointList locators = TestUtils.readField("locators", poolFactoryBean);
 
@@ -195,9 +189,9 @@ public class PoolNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void serversPoolIsConfiguredProperly() throws Exception {
 
-		assertThat(applicationContext.containsBean("servers")).isTrue();
+		assertThat(requireApplicationContext().containsBean("servers")).isTrue();
 
-		PoolFactoryBean poolFactoryBean = applicationContext.getBean("&servers", PoolFactoryBean.class);
+		PoolFactoryBean poolFactoryBean = requireApplicationContext().getBean("&servers", PoolFactoryBean.class);
 
 		ConnectionEndpointList servers = TestUtils.readField("servers", poolFactoryBean);
 

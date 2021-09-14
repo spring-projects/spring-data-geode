@@ -15,17 +15,12 @@
  */
 package org.springframework.data.gemfire.config.xml;
 
-import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 
-import java.io.File;
-
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,16 +40,13 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.compression.Compressor;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.SimpleCacheListener;
 import org.springframework.data.gemfire.SimpleObjectSizer;
 import org.springframework.data.gemfire.TestUtils;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.client.Interest;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 
@@ -69,41 +61,53 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.xml.ClientRegionParser
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
- * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "client-ns.xml", initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Autowired
-	private ApplicationContext applicationContext;
+	private void assertInterest(boolean expectedDurable, boolean expectedReceiveValues,
 
-	@AfterClass
-	public static void tearDown() {
-		stream(nullSafeArray(new File(".").list((dir, name) -> name.startsWith("BACKUP")), String.class))
-			.forEach(fileName -> new File(fileName).delete());
+		InterestResultPolicy expectedPolicy, Interest<Object> actualInterest) {
+
+		assertThat(actualInterest).isNotNull();
+		assertThat(actualInterest.isDurable()).isEqualTo(expectedDurable);
+		assertThat(actualInterest.isReceiveValues()).isEqualTo(expectedReceiveValues);
+		assertThat(actualInterest.getPolicy()).isEqualTo(expectedPolicy);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Interest getInterestWithKey(String key, Interest... interests) {
+
+		for (Interest interest : interests) {
+			if (interest.getKey().equals(key)) {
+				return interest;
+			}
+		}
+
+		return null;
 	}
 
 	@Test
-	public void testBeanNames() {
+	public void beanNamesAreCorrect() {
 
-		assertThat(applicationContext.containsBean("SimpleRegion")).isTrue();
-		assertThat(applicationContext.containsBean("Publisher")).isTrue();
-		assertThat(applicationContext.containsBean("ComplexRegion")).isTrue();
-		assertThat(applicationContext.containsBean("PersistentRegion")).isTrue();
-		assertThat(applicationContext.containsBean("OverflowRegion")).isTrue();
-		assertThat(applicationContext.containsBean("Compressed")).isTrue();
+		assertThat(requireApplicationContext().containsBean("SimpleRegion")).isTrue();
+		assertThat(requireApplicationContext().containsBean("Publisher")).isTrue();
+		assertThat(requireApplicationContext().containsBean("ComplexRegion")).isTrue();
+		assertThat(requireApplicationContext().containsBean("PersistentRegion")).isTrue();
+		assertThat(requireApplicationContext().containsBean("OverflowRegion")).isTrue();
+		assertThat(requireApplicationContext().containsBean("Compressed")).isTrue();
 	}
 
 	@Test
-	public void testSimpleClientRegion() {
+	public void simpleClientRegionConfigurationIsCorrect() {
 
-		assertThat(applicationContext.containsBean("simple")).isTrue();
+		assertThat(requireApplicationContext().containsBean("simple")).isTrue();
 
-		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
+		Region<?, ?> simple = requireApplicationContext().getBean("simple", Region.class);
 
 		assertThat(simple).as("The 'SimpleRegion' Client Region was not properly configured and initialized!")
 			.isNotNull();
@@ -115,12 +119,12 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void testPublishingClientRegion() throws Exception {
+	public void publishingClientRegionConfigurationIsCorrect() throws Exception {
 
-		assertThat(applicationContext.containsBean("empty")).isTrue();
+		assertThat(requireApplicationContext().containsBean("empty")).isTrue();
 
-		ClientRegionFactoryBean emptyClientRegionFactoryBean = applicationContext
-			.getBean("&empty", ClientRegionFactoryBean.class);
+		ClientRegionFactoryBean emptyClientRegionFactoryBean =
+			requireApplicationContext().getBean("&empty", ClientRegionFactoryBean.class);
 
 		assertThat(emptyClientRegionFactoryBean).isNotNull();
 		assertThat(TestUtils.<Object>readField("dataPolicy", emptyClientRegionFactoryBean)).isEqualTo(DataPolicy.EMPTY);
@@ -131,12 +135,12 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void testComplexClientRegion() throws Exception {
+	public void complexClientRegionConfigurationIsCorrect() throws Exception {
 
-		assertThat(applicationContext.containsBean("complex")).isTrue();
+		assertThat(requireApplicationContext().containsBean("complex")).isTrue();
 
-		ClientRegionFactoryBean complexClientRegionFactoryBean = applicationContext
-			.getBean("&complex", ClientRegionFactoryBean.class);
+		ClientRegionFactoryBean complexClientRegionFactoryBean =
+			requireApplicationContext().getBean("&complex", ClientRegionFactoryBean.class);
 
 		assertThat(complexClientRegionFactoryBean).isNotNull();
 
@@ -144,7 +148,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 		assertThat(ObjectUtils.isEmpty(cacheListeners)).isFalse();
 		assertThat(cacheListeners.length).isEqualTo(2);
-		assertThat(applicationContext.getBean("c-listener")).isSameAs(cacheListeners[0]);
+		assertThat(requireApplicationContext().getBean("c-listener")).isSameAs(cacheListeners[0]);
 		assertThat(cacheListeners[1] instanceof SimpleCacheListener).isTrue();
 		assertThat(cacheListeners[1]).isNotSameAs(cacheListeners[0]);
 
@@ -160,11 +164,11 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void testPersistentClientRegion() {
+	public void persistentClientRegionConfigurationIsCorrect() {
 
-		assertThat(applicationContext.containsBean("persistent")).isTrue();
+		assertThat(requireApplicationContext().containsBean("persistent")).isTrue();
 
-		Region<?, ?> persistent = applicationContext.getBean("persistent", Region.class);
+		Region<?, ?> persistent = requireApplicationContext().getBean("persistent", Region.class);
 
 		assertThat(persistent)
 			.describedAs("The 'PersistentRegion' Region was not properly configured and initialized!")
@@ -182,12 +186,12 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void testOverflowClientRegion() throws Exception {
+	public void overflowClientRegionConfigurationIsCorrect() throws Exception {
 
-		assertThat(applicationContext.containsBean("overflow")).isTrue();
+		assertThat(requireApplicationContext().containsBean("overflow")).isTrue();
 
-		ClientRegionFactoryBean overflowClientRegionFactoryBean = applicationContext
-			.getBean("&overflow", ClientRegionFactoryBean.class);
+		ClientRegionFactoryBean overflowClientRegionFactoryBean =
+			requireApplicationContext().getBean("&overflow", ClientRegionFactoryBean.class);
 
 		assertThat(overflowClientRegionFactoryBean).isNotNull();
 		assertThat(TestUtils.<Object>readField("diskStoreName", overflowClientRegionFactoryBean)).isEqualTo("diskStore");
@@ -209,12 +213,12 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 	}
 
 	@Test
-	public void testClientRegionWithCacheLoaderAndCacheWriter() throws Exception {
+	public void clientRegionWithCacheLoaderAndCacheWriterConfigurationIsCorrect() throws Exception {
 
-		assertThat(applicationContext.containsBean("loadWithWrite")).isTrue();
+		assertThat(requireApplicationContext().containsBean("loadWithWrite")).isTrue();
 
 		ClientRegionFactoryBean<?, ?> factory =
-			applicationContext.getBean("&loadWithWrite", ClientRegionFactoryBean.class);
+			requireApplicationContext().getBean("&loadWithWrite", ClientRegionFactoryBean.class);
 
 		assertThat(factory).isNotNull();
 		assertThat(TestUtils.<Object>readField("name", factory)).isEqualTo("LoadedFullOfWrites");
@@ -224,11 +228,11 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 	}
 
 	@Test
-	public void testCompressedReplicateRegion() {
+	public void compressedReplicateRegionConfigurationIsCorrect() {
 
-		assertThat(applicationContext.containsBean("Compressed")).isTrue();
+		assertThat(requireApplicationContext().containsBean("Compressed")).isTrue();
 
-		Region<?, ?> compressed = applicationContext.getBean("Compressed", Region.class);
+		Region<?, ?> compressed = requireApplicationContext().getBean("Compressed", Region.class);
 
 		assertThat(compressed).as("The 'Compressed' Client Region was not properly configured and initialized!")
 			.isNotNull();
@@ -238,21 +242,25 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 		assertThat(compressed.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.EMPTY);
 		assertThat(compressed.getAttributes().getPoolName()).isEqualTo("gemfire-pool");
 		assertThat(compressed.getAttributes().getCompressor() instanceof TestCompressor)
-			.as(String.format("Expected 'TestCompressor'; but was '%1$s'!",
-				ObjectUtils.nullSafeClassName(compressed.getAttributes().getCompressor()))).isTrue();
+			.describedAs(String.format("Expected 'TestCompressor'; but was '%s'!",
+				ObjectUtils.nullSafeClassName(compressed.getAttributes().getCompressor())))
+			.isTrue();
 		assertThat(compressed.getAttributes().getCompressor().toString()).isEqualTo("STD");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testClientRegionWithAttributes() {
+	public void clientRegionWithAttributesConfigurationIsCorrect() {
 
-		assertThat(applicationContext.containsBean("client-with-attributes")).isTrue();
+		assertThat(requireApplicationContext().containsBean("client-with-attributes")).isTrue();
 
-		Region<Long, String> clientRegion = applicationContext.getBean("client-with-attributes", Region.class);
+		Region<Long, String> clientRegion =
+			requireApplicationContext().getBean("client-with-attributes", Region.class);
 
 		assertThat(clientRegion)
-			.as("The 'client-with-attributes' Client Region was not properly configured and initialized!").isNotNull();
+			.describedAs("The 'client-with-attributes' Client Region was not properly configured and initialized!")
+			.isNotNull();
+
 		assertThat(clientRegion.getName()).isEqualTo("client-with-attributes");
 		assertThat(clientRegion.getFullPath()).isEqualTo(Region.SEPARATOR + "client-with-attributes");
 		assertThat(clientRegion.getAttributes()).isNotNull();
@@ -270,12 +278,12 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testClientRegionWithRegisteredInterests() throws Exception {
+	public void clientRegionWithRegisteredInterestsConfigurationIsCorrect() throws Exception {
 
-		assertThat(applicationContext.containsBean("client-with-interests")).isTrue();
+		assertThat(requireApplicationContext().containsBean("client-with-interests")).isTrue();
 
 		ClientRegionFactoryBean<?, ?> factoryBean =
-			applicationContext.getBean("&client-with-interests", ClientRegionFactoryBean.class);
+			requireApplicationContext().getBean("&client-with-interests", ClientRegionFactoryBean.class);
 
 		assertThat(factoryBean).isNotNull();
 
@@ -287,7 +295,8 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 		assertInterest(true, false, InterestResultPolicy.KEYS, getInterestWithKey(".*", interests));
 		assertInterest(true, false, InterestResultPolicy.KEYS_VALUES, getInterestWithKey("keyPrefix.*", interests));
 
-		Region<Object, Object> mockClientRegion = applicationContext.getBean("client-with-interests", Region.class);
+		Region<Object, Object> mockClientRegion =
+			requireApplicationContext().getBean("client-with-interests", Region.class);
 
 		assertThat(mockClientRegion).isNotNull();
 
@@ -296,27 +305,6 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 		verify(mockClientRegion, times(1)).registerInterestRegex(eq("keyPrefix.*"),
 			eq(InterestResultPolicy.KEYS_VALUES), eq(true), eq(false));
-	}
-
-	private void assertInterest(boolean expectedDurable, boolean expectedReceiveValues,
-			InterestResultPolicy expectedPolicy, Interest<Object> actualInterest) {
-
-		assertThat(actualInterest).isNotNull();
-		assertThat(actualInterest.isDurable()).isEqualTo(expectedDurable);
-		assertThat(actualInterest.isReceiveValues()).isEqualTo(expectedReceiveValues);
-		assertThat(actualInterest.getPolicy()).isEqualTo(expectedPolicy);
-	}
-
-	@SuppressWarnings("rawtypes")
-	private Interest getInterestWithKey(String key, Interest... interests) {
-
-		for (Interest interest : interests) {
-			if (interest.getKey().equals(key)) {
-				return interest;
-			}
-		}
-
-		return null;
 	}
 
 	public static final class TestCacheLoader implements CacheLoader<Object, Object> {

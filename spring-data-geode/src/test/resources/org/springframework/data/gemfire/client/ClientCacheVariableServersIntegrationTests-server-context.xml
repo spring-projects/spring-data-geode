@@ -20,11 +20,9 @@
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
-	<!-- TODO: CacheServer bean definition is being overridden -->
 	<gfe:cache-server bind-address="${test.cache.server.host.one:localhost}" port="${test.cache.server.port.one}"
 					  max-connections="1"/>
 
-	<!-- TODO: CacheServer bean definition is being overridden -->
 	<gfe:cache-server bind-address="${test.cache.server.host.two:localhost}" port="${test.cache.server.port.two}"
 					  max-connections="1"/>
 

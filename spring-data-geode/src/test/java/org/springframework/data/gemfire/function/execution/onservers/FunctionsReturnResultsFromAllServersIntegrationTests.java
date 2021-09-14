@@ -26,8 +26,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.execute.Function;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.gemfire.config.annotation.CacheServerApplication;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
@@ -40,16 +41,20 @@ import org.springframework.data.gemfire.tests.integration.ForkingClientServerInt
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
+ * Integration Tests testing the return values from {@link Function} executions.
+ *
  * @author Patrick Johnson
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.execute.Function
  * @see org.springframework.data.gemfire.function.annotation.GemfireFunction
  * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions
  * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctions
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  */
 @SuppressWarnings("unused")
 @RunWith(SpringRunner.class)
@@ -70,21 +75,22 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Forkin
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
-		final int port1 = findAvailablePort();
+		final int port1 = findAndReserveAvailablePort();
 
 		gemfireServer1 = run(MetricsFunctionServerConfiguration.class,
 				String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, port1));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, port1);
 
-		final int port2 = findAvailablePort();
+		final int port2 = findAndReserveAvailablePort();
 
 		gemfireServer2 = run(MetricsFunctionServerConfiguration.class,
 				String.format("-D%s=%d", GEMFIRE_CACHE_SERVER_PORT_PROPERTY, port2));
 
 		waitForServerToStart(DEFAULT_HOSTNAME, port2);
 
-		System.setProperty(GEMFIRE_POOL_SERVERS_PROPERTY, String.format("%s[%d],%s[%d]", DEFAULT_HOSTNAME, port1, DEFAULT_HOSTNAME, port2));
+		System.setProperty(GEMFIRE_POOL_SERVERS_PROPERTY,
+			String.format("%s[%d],%s[%d]", DEFAULT_HOSTNAME, port1, DEFAULT_HOSTNAME, port2));
 	}
 
 	@AfterClass
@@ -113,7 +119,6 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Forkin
 
 	@ClientCacheApplication
 	@EnableGemfireFunctionExecutions(basePackageClasses = AllServersAdminFunctions.class)
-	@EnableTransactionManagement
 	static class TestConfiguration { }
 
 	@CacheServerApplication
@@ -121,11 +126,7 @@ public class FunctionsReturnResultsFromAllServersIntegrationTests extends Forkin
 	public static class MetricsFunctionServerConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-					new AnnotationConfigApplicationContext(MetricsFunctionServerConfiguration.class);
-
-			applicationContext.registerShutdownHook();
+			runSpringApplication(MetricsFunctionServerConfiguration.class, args);
 		}
 
 		@GemfireFunction(id = "GetAllMetricsFunction", hasResult = true)

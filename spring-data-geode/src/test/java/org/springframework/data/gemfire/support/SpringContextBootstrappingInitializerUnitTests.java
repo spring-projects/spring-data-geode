@@ -88,12 +88,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 
 	@After
 	public void tearDown() {
-
-		SpringContextBootstrappingInitializer.applicationContext = null;
-		SpringContextBootstrappingInitializer.contextRefreshedEvent = null;
-		SpringContextBootstrappingInitializer.setBeanClassLoader(null);
-		SpringContextBootstrappingInitializer.unregister(TestAppConfigOne.class);
-		SpringContextBootstrappingInitializer.unregister(TestAppConfigTwo.class);
+		SpringContextBootstrappingInitializer.destroy();
 	}
 
 	@Test
@@ -205,7 +200,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 		SpringContextBootstrappingInitializer initializer = spy(new SpringContextBootstrappingInitializer() {
 
 			@Override
-			ConfigurableApplicationContext createApplicationContext(String[] configLocations) {
+			ConfigurableApplicationContext newApplicationContext(String[] configLocations) {
 
 				return ObjectUtils.isEmpty(configLocations)
 					? mockAnnotationApplicationContext
@@ -241,7 +236,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 		SpringContextBootstrappingInitializer initializer = spy(new SpringContextBootstrappingInitializer() {
 
 			@Override
-			ConfigurableApplicationContext createApplicationContext(String[] configLocations) {
+			ConfigurableApplicationContext newApplicationContext(String[] configLocations) {
 
 				return ObjectUtils.isEmpty(configLocations)
 					? mockAnnotationApplicationContext
@@ -273,7 +268,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 		SpringContextBootstrappingInitializer initializer = new SpringContextBootstrappingInitializer() {
 
 			@Override
-			ConfigurableApplicationContext createApplicationContext(final String[] configLocations) {
+			ConfigurableApplicationContext newApplicationContext(final String[] configLocations) {
 
 				return ObjectUtils.isEmpty(configLocations)
 					? mockAnnotationApplicationContext
@@ -532,7 +527,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 		SpringContextBootstrappingInitializer initializer = spy(new SpringContextBootstrappingInitializer() {
 
 			@Override
-			protected ConfigurableApplicationContext createApplicationContext(String[] configLocations) {
+			protected ConfigurableApplicationContext newApplicationContext(String[] configLocations) {
 				return mockApplicationContext;
 			}
 		});
@@ -813,8 +808,8 @@ public class SpringContextBootstrappingInitializerUnitTests {
 			assertThat(SpringContextBootstrappingInitializer.contextRefreshedEvent).isNull();
 			assertUnnotified(testApplicationListener);
 
-			ContextRefreshedEvent mockContextRefreshedEvent = mock(ContextRefreshedEvent.class,
-				"MockContextRefreshedEvent");
+			ContextRefreshedEvent mockContextRefreshedEvent =
+				mock(ContextRefreshedEvent.class, "MockContextRefreshedEvent");
 
 			new SpringContextBootstrappingInitializer().onApplicationEvent(mockContextRefreshedEvent);
 
@@ -897,8 +892,8 @@ public class SpringContextBootstrappingInitializerUnitTests {
 			assertUnnotified(testApplicationListenerTwo);
 			assertUnnotified(testApplicationListenerThree);
 
-			ContextRefreshedEvent mockContextRefreshedEvent = mock(ContextRefreshedEvent.class,
-				"MockContextRefreshedEvent");
+			ContextRefreshedEvent mockContextRefreshedEvent =
+				mock(ContextRefreshedEvent.class,"MockContextRefreshedEvent");
 
 			new SpringContextBootstrappingInitializer().onApplicationEvent(mockContextRefreshedEvent);
 
@@ -920,13 +915,15 @@ public class SpringContextBootstrappingInitializerUnitTests {
 		TestApplicationListener testApplicationListener = new TestApplicationListener("TestApplicationListener");
 
 		try {
-			testApplicationListener = SpringContextBootstrappingInitializer.unregister(
-				SpringContextBootstrappingInitializer.register(testApplicationListener));
+
+			testApplicationListener = SpringContextBootstrappingInitializer.
+				unregister(SpringContextBootstrappingInitializer.register(testApplicationListener));
 
 			assertUnnotified(testApplicationListener);
 
-			new SpringContextBootstrappingInitializer().onApplicationEvent(mock(ContextRefreshedEvent.class,
-				"MockContextRefreshedEvent"));
+			ContextRefreshedEvent mockEvent = mock(ContextRefreshedEvent.class,"MockContextRefreshedEvent");
+
+			new SpringContextBootstrappingInitializer().onApplicationEvent(mockEvent);
 
 			assertUnnotified(testApplicationListener);
 		}
@@ -940,8 +937,8 @@ public class SpringContextBootstrappingInitializerUnitTests {
 
 		assertThat(SpringContextBootstrappingInitializer.contextRefreshedEvent).isNull();
 
-		TestApplicationListener testApplicationListener = new TestApplicationListener(
-			"testNotifyOnExistingContextRefreshedEventBeforeApplicationContextExists");
+		TestApplicationListener testApplicationListener =
+			new TestApplicationListener("testNotifyOnExistingContextRefreshedEventBeforeApplicationContextExists");
 
 		try {
 			testApplicationListener = SpringContextBootstrappingInitializer.register(testApplicationListener);
@@ -959,8 +956,8 @@ public class SpringContextBootstrappingInitializerUnitTests {
 
 		new SpringContextBootstrappingInitializer().onApplicationEvent(testContextRefreshedEvent);
 
-		TestApplicationListener testApplicationListener = new TestApplicationListener(
-			"testNotifyOnExistingContextRefreshedEventAfterContextRefreshed");
+		TestApplicationListener testApplicationListener =
+			new TestApplicationListener("testNotifyOnExistingContextRefreshedEventAfterContextRefreshed");
 
 		try {
 			testApplicationListener = SpringContextBootstrappingInitializer.register(testApplicationListener);
@@ -979,16 +976,17 @@ public class SpringContextBootstrappingInitializerUnitTests {
 
 		SpringContextBootstrappingInitializer initializer = new SpringContextBootstrappingInitializer();
 
-		TestApplicationListener testApplicationListenerOne = new TestApplicationListener(
-			"testOnApplicationEventAndNotifyOnExistingContextRefreshedEvent.1");
+		TestApplicationListener testApplicationListenerOne =
+			new TestApplicationListener("testOnApplicationEventAndNotifyOnExistingContextRefreshedEvent.1");
 
-		TestApplicationListener testApplicationListenerTwo = new TestApplicationListener(
-			"testOnApplicationEventAndNotifyOnExistingContextRefreshedEvent.2");
+		TestApplicationListener testApplicationListenerTwo =
+			new TestApplicationListener("testOnApplicationEventAndNotifyOnExistingContextRefreshedEvent.2");
 
-		TestApplicationListener testApplicationListenerThree = new TestApplicationListener(
-			"testOnApplicationEventAndNotifyOnExistingContextRefreshedEvent.3");
+		TestApplicationListener testApplicationListenerThree =
+			new TestApplicationListener("testOnApplicationEventAndNotifyOnExistingContextRefreshedEvent.3");
 
 		try {
+
 			testApplicationListenerOne = SpringContextBootstrappingInitializer.register(testApplicationListenerOne);
 
 			assertUnnotified(testApplicationListenerOne);
@@ -1061,7 +1059,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 
 		private final String name;
 
-		public TestApplicationListener(final String name) {
+		public TestApplicationListener(String name) {
 			this.name = name;
 		}
 
@@ -1078,7 +1076,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 		}
 
 		@Override
-		public void onApplicationEvent(final ContextRefreshedEvent event) {
+		public void onApplicationEvent(ContextRefreshedEvent event) {
 			this.actualEvent = event;
 			this.notified = true;
 		}

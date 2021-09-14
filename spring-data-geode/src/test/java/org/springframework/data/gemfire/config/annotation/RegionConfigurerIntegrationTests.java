@@ -28,8 +28,6 @@ import org.junit.Test;
 
 import org.apache.geode.cache.GemFireCache;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -42,7 +40,7 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.util.ReflectionUtils;
 
@@ -56,17 +54,14 @@ import org.springframework.util.ReflectionUtils;
  * @see org.springframework.data.gemfire.PeerRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.RegionConfigurer
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.1.0
  */
-public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class RegionConfigurerIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void tearDown() {
-		closeApplicationContext(this.applicationContext);
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
 	}
 
@@ -84,15 +79,6 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 			.orElseGet(Collections::emptySet);
 	}
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
-
-		applicationContext.registerShutdownHook();
-
-		return applicationContext;
-	}
-
 	private void assertRegionConfigurerInvocations(Iterable<String> actualRegionBeanNames,
 			String... expectedRegionBeanNames) {
 
@@ -104,53 +90,45 @@ public class RegionConfigurerIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void clientRegionConfigurersCalledSuccessfully() {
 
-		this.applicationContext = newApplicationContext(ClientTestConfiguration.class);
+		newApplicationContext(ClientTestConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("Test")).isTrue();
-		assertThat(this.applicationContext.containsBean("Sessions")).isTrue();
-		assertThat(this.applicationContext.containsBean("GenericRegionEntity")).isTrue();
-		assertThat(this.applicationContext.containsBean("testRegionConfigurerOne")).isTrue();
-		assertThat(this.applicationContext.containsBean("testRegionConfigurerTwo")).isTrue();
-		assertThat(this.applicationContext.containsBean("testRegionConfigurerThree")).isTrue();
+		assertThat(containsBean("Test")).isTrue();
+		assertThat(containsBean("Sessions")).isTrue();
+		assertThat(containsBean("GenericRegionEntity")).isTrue();
+		assertThat(containsBean("testRegionConfigurerOne")).isTrue();
+		assertThat(containsBean("testRegionConfigurerTwo")).isTrue();
+		assertThat(containsBean("testRegionConfigurerThree")).isTrue();
 
-		assertRegionConfigurerInvocations(
-			this.applicationContext.getBean("testRegionConfigurerOne", TestRegionConfigurer.class),
+		assertRegionConfigurerInvocations(getBean("testRegionConfigurerOne", TestRegionConfigurer.class),
 			"GenericRegionEntity", "Sessions");
 
-		assertRegionConfigurerInvocations(
-			this.applicationContext.getBean("testRegionConfigurerTwo", TestRegionConfigurer.class),
+		assertRegionConfigurerInvocations(getBean("testRegionConfigurerTwo", TestRegionConfigurer.class),
 			"GenericRegionEntity", "Sessions");
 
-		assertRegionConfigurerInvocations(
-			resolveBeanNames(this.applicationContext.getBean("testRegionConfigurerThree", RegionConfigurer.class)),
-			"GenericRegionEntity", "Sessions");
+		assertRegionConfigurerInvocations(resolveBeanNames(getBean("testRegionConfigurerThree",
+				RegionConfigurer.class)), "GenericRegionEntity", "Sessions");
 	}
 
 	@Test
 	public void peerRegionConfigurersCalledSuccessfully() {
 
-		this.applicationContext = newApplicationContext(PeerTestConfiguration.class);
+		newApplicationContext(PeerTestConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("Test")).isTrue();
-		assertThat(this.applicationContext.containsBean("GenericRegionEntity")).isTrue();
-		assertThat(this.applicationContext.containsBean("Customers")).isTrue();
-		assertThat(this.applicationContext.containsBean("testRegionConfigurerOne")).isTrue();
-		assertThat(this.applicationContext.containsBean("testRegionConfigurerTwo")).isTrue();
-		assertThat(this.applicationContext.containsBean("testRegionConfigurerThree")).isTrue();
+		assertThat(containsBean("Test")).isTrue();
+		assertThat(containsBean("GenericRegionEntity")).isTrue();
+		assertThat(containsBean("Customers")).isTrue();
+		assertThat(containsBean("testRegionConfigurerOne")).isTrue();
+		assertThat(containsBean("testRegionConfigurerTwo")).isTrue();
+		assertThat(containsBean("testRegionConfigurerThree")).isTrue();
 
-		assertRegionConfigurerInvocations(
-			this.applicationContext.getBean("testRegionConfigurerOne", TestRegionConfigurer.class),
+		assertRegionConfigurerInvocations(getBean("testRegionConfigurerOne", TestRegionConfigurer.class),
 			"Customers", "GenericRegionEntity");
 
-		assertRegionConfigurerInvocations(
-			this.applicationContext.getBean("testRegionConfigurerTwo", TestRegionConfigurer.class),
+		assertRegionConfigurerInvocations(getBean("testRegionConfigurerTwo", TestRegionConfigurer.class),
 			"Customers", "GenericRegionEntity");
 
-		assertRegionConfigurerInvocations(
-			resolveBeanNames(this.applicationContext.getBean("testRegionConfigurerThree", RegionConfigurer.class)),
-			"Customers", "GenericRegionEntity");
+		assertRegionConfigurerInvocations(resolveBeanNames(getBean("testRegionConfigurerThree",
+				RegionConfigurer.class)),"Customers", "GenericRegionEntity");
 	}
 
 	@SuppressWarnings("unused")

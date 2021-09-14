@@ -31,8 +31,8 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
@@ -69,9 +69,14 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 
 	@BeforeClass
 	public static void startGeodeServer() throws Exception {
+
+		org.springframework.core.io.Resource trustedKeystore = new ClassPathResource("trusted.keystore");
+
 		startGemFireServer(GeodeServerTestConfiguration.class,
-			String.format("-Dgemfire.name=%s", asApplicationName(EnableSslConfigurationIntegrationTests.class)),
-			String.format("-Djavax.net.ssl.keyStore=%s", System.getProperty("javax.net.ssl.keyStore")));
+			String.format("-Dgemfire.name=%s", asApplicationName(EnableSslConfigurationIntegrationTests.class).concat("Server")),
+			String.format("-Djavax.net.ssl.keyStore=%s", trustedKeystore.getFile().getAbsolutePath()));
+
+		System.setProperty("javax.net.ssl.keyStore", trustedKeystore.getFile().getAbsolutePath());
 	}
 
 	@Test
@@ -111,11 +116,7 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
-
-			applicationContext.registerShutdownHook();
+			runSpringApplication(GeodeServerTestConfiguration.class, args);
 		}
 
 		@Bean
@@ -135,7 +136,6 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 
 			echoRegion.setCache(gemfireCache);
 			echoRegion.setCacheLoader(echoCacheLoader());
-			echoRegion.setClose(false);
 			echoRegion.setPersistent(false);
 
 			return echoRegion;
@@ -152,8 +152,8 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 				}
 
 				@Override
-				public void close() {
-				}
+				public void close() { }
+
 			};
 		}
 	}

@@ -27,8 +27,6 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -38,7 +36,7 @@ import org.springframework.data.gemfire.repository.sample.Animal;
 import org.springframework.data.gemfire.repository.sample.Plant;
 import org.springframework.data.gemfire.repository.sample.PlantRepository;
 import org.springframework.data.gemfire.repository.sample.RabbitRepository;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.repository.Repository;
@@ -56,28 +54,23 @@ import org.springframework.data.repository.Repository;
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.data.repository.Repository
  * @see <a href="https://github.com/spring-projects/spring-data-gemfire/pull/55">PR-55</a>
  * @since 1.4.0
  */
 @SuppressWarnings("unused")
-public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTests extends IntegrationTestsSupport {
-
-	private static ConfigurableApplicationContext newApplicationContext(Class<?> testConfiguration) {
-		return new AnnotationConfigApplicationContext(testConfiguration);
-	}
+public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTests
+		extends SpringApplicationContextIntegrationTestsSupport {
 
 	@SuppressWarnings("rawtypes")
-	private void withTestConfigurationExpectIllegalArgumentExceptionWithMessage(Class<?> testConfiguration,
+	private void usingTestConfigurationExpectIllegalArgumentExceptionWithMessage(Class<?> testConfiguration,
 			Class<? extends Repository> repositoryType, Supplier<String> exceptionMessage) {
 
 		try {
-
-			ConfigurableApplicationContext applicationContext = newApplicationContext(testConfiguration);
-
-			assertThat(applicationContext.getBean(repositoryType)).isNotNull();
+			newApplicationContext(testConfiguration);
+			assertThat(getBean(repositoryType)).isNotNull();
 		}
 		catch (BeanCreationException expected) {
 
@@ -91,7 +84,7 @@ public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTe
 	@Test(expected = IllegalArgumentException.class)
 	public void withRegionUsingStringKeyAndRepositoryUsingLongId() {
 
-		withTestConfigurationExpectIllegalArgumentExceptionWithMessage(
+		usingTestConfigurationExpectIllegalArgumentExceptionWithMessage(
 			TestIncompatibleRegionKeyRepositoryIdTypeConfiguration.class,
 			RabbitRepository.class,
 			() -> String.format("Region [/Rabbits] requires keys of type [%1$s], but Repository [%2$s] declared an id of type [%3$s]",
@@ -101,7 +94,7 @@ public class IncompatibleRegionKeyRepositoryIdAndEntityIdRepositoryIntegrationTe
 	@Test(expected = IllegalArgumentException.class)
 	public void withRepositoryUsingStringIdAndEntityUsingLongId() {
 
-		withTestConfigurationExpectIllegalArgumentExceptionWithMessage(
+		usingTestConfigurationExpectIllegalArgumentExceptionWithMessage(
 			TestIncompatibleRepositoryIdEntityIdTypeConfiguration.class,
 			PlantRepository.class,
 			() -> String.format("Repository [%1$s] declared an id of type [%2$s], but entity [%3$s] has an id of type [%4$s]",

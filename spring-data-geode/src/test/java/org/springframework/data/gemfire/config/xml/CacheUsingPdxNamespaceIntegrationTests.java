@@ -22,43 +22,36 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.pdx.PdxSerializer;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFactoryPostProcessor;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests with test case testing the SDG XML namespace configuration metadata when PDX is configured
- * in Apache Geode.
+ * Integration Tests testing SDG XML namespace configuration metadata when PDX is configured in Apache Geode.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.pdx.PdxSerializer
+ * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFactoryPostProcessor
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.3.3
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "cache-using-pdx-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class CacheUsingPdxNamespaceIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	private ApplicationContext applicationContext;
 
 	@Test
 	public void testApplicationContextHasPdxDiskStoreAwareBeanFactoryPostProcessor() {
 
 		PdxDiskStoreAwareBeanFactoryPostProcessor postProcessor =
-			applicationContext.getBean(PdxDiskStoreAwareBeanFactoryPostProcessor.class);
+			requireApplicationContext().getBean(PdxDiskStoreAwareBeanFactoryPostProcessor.class);
 
 		// NOTE the postProcessor reference will not be null as the ApplicationContext.getBean(:Class) method (getting
 		// a bean by Class type) will throw a NoSuchBeanDefinitionException if no bean of type
@@ -71,14 +64,16 @@ public class CacheUsingPdxNamespaceIntegrationTests extends IntegrationTestsSupp
 	@Test
 	public void testCachePdxConfiguration() {
 
-		CacheFactoryBean cacheFactoryBean = applicationContext.getBean("&gemfireCache", CacheFactoryBean.class);
+		CacheFactoryBean cacheFactoryBean =
+			requireApplicationContext().getBean("&gemfireCache", CacheFactoryBean.class);
 
 		assertThat(cacheFactoryBean).isNotNull();
 		assertThat(cacheFactoryBean.getPdxDiskStoreName()).isEqualTo("pdxStore");
 		assertThat(Boolean.TRUE.equals(cacheFactoryBean.getPdxPersistent())).isTrue();
 		assertThat(Boolean.TRUE.equals(cacheFactoryBean.getPdxReadSerialized())).isTrue();
 
-		PdxSerializer autoSerializer = applicationContext.getBean("autoSerializer", PdxSerializer.class);
+		PdxSerializer autoSerializer =
+			requireApplicationContext().getBean("autoSerializer", PdxSerializer.class);
 
 		assertThat(autoSerializer).isNotNull();
 		assertThat(cacheFactoryBean.getPdxSerializer()).isSameAs(autoSerializer);

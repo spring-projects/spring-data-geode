@@ -21,21 +21,20 @@ import static org.mockito.Mockito.mock;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.lucene.LuceneService;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -47,7 +46,10 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean;
-import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Integration Tests for {@link IndexConfigurer}.
@@ -57,21 +59,26 @@ import org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireM
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.lucene.LuceneIndex
  * @see org.apache.geode.cache.query.Index
+ * @see org.springframework.context.ApplicationContext
  * @see org.springframework.data.gemfire.IndexFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.IndexConfigurer
  * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
- * @see org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class IndexConfigurerIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration
+public class IndexConfigurerIntegrationTests extends IntegrationTestsSupport {
 
-	private static ConfigurableApplicationContext applicationContext;
+	@Autowired
+	private ApplicationContext applicationContext;
 
-	@BeforeClass
-	public static void setup() {
-
-		applicationContext = newApplicationContext(TestConfiguration.class);
+	@Before
+	public void setup() {
 
 		assertThat(applicationContext).isNotNull();
 		assertThat(applicationContext.containsBean("CustomersFirstNameFunctionalIdx")).isTrue();
@@ -83,20 +90,8 @@ public class IndexConfigurerIntegrationTests {
 		assertThat(applicationContext.containsBean("TitleLuceneIdx")).isTrue();
 	}
 
-	@AfterClass
-	public static void tearDown() {
-		Optional.ofNullable(applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
-
-	/* (non-Javadoc) */
-	private static ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		return applicationContext;
-	}
-
-	/* (non-Javadoc) */
 	private void assertIndexConfigurerInvocations(TestIndexConfigurer indexConfigurer, String... indexBeanNames) {
+
 		assertThat(indexConfigurer).isNotNull();
 		assertThat(indexConfigurer).contains(indexBeanNames);
 		assertThat(indexConfigurer).hasSize(indexBeanNames.length);
@@ -121,7 +116,6 @@ public class IndexConfigurerIntegrationTests {
 	}
 
 	@PeerCacheApplication
-	@EnableIndexing
 	@EnableEntityDefinedRegions(basePackageClasses = NonEntity.class,
 		excludeFilters = {
 			@ComponentScan.Filter(type = FilterType.ANNOTATION,
@@ -130,6 +124,8 @@ public class IndexConfigurerIntegrationTests {
 				classes = CollocatedPartitionRegionEntity.class)
 		}
 	)
+	@EnableIndexing
+	@EnableGemFireMockObjects
 	static class TestConfiguration {
 
 		@Bean("LoyalCustomers")
@@ -145,11 +141,6 @@ public class IndexConfigurerIntegrationTests {
 		}
 
 		@Bean
-		GemFireMockObjectsBeanPostProcessor testBeanPostProcessor() {
-			return new GemFireMockObjectsBeanPostProcessor();
-		}
-
-		@Bean
 		BeanPostProcessor indexFactoryBeanReplacingBeanPostProcessor() {
 
 			return new BeanPostProcessor() {
@@ -158,6 +149,7 @@ public class IndexConfigurerIntegrationTests {
 				public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
 					if (bean instanceof LuceneIndexFactoryBean) {
+
 						LuceneIndexFactoryBean luceneIndexFactoryBean = (LuceneIndexFactoryBean) bean;
 						LuceneService mockLuceneService = mock(LuceneService.class);
 						LuceneIndex mockLuceneIndex = mock(LuceneIndex.class);

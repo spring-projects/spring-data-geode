@@ -18,8 +18,7 @@ package org.springframework.data.gemfire;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.util.Optional;
-
+import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.DataPolicy;
@@ -44,7 +43,6 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
  * @since 1.4.0
  * @link https://jira.spring.io/browse/SGF-204
  */
-// TODO: slow test; can this test use mocks?
 public class RegionLookupIntegrationTests extends IntegrationTestsSupport {
 
 	private void assertNoRegionLookup(String configLocation) {
@@ -52,36 +50,41 @@ public class RegionLookupIntegrationTests extends IntegrationTestsSupport {
 		ConfigurableApplicationContext applicationContext = null;
 
 		try {
-			applicationContext = createApplicationContext(configLocation);
+			applicationContext = newApplicationContext(configLocation);
 			fail("Spring ApplicationContext should have thrown a BeanCreationException caused by a RegionExistsException!");
 		}
 		catch (BeanCreationException expected) {
 
-			assertThat(expected.getCause() instanceof RegionExistsException).as(expected.getMessage()).isTrue();
+			assertThat(expected.getCause() instanceof RegionExistsException)
+				.describedAs(expected.getMessage())
+				.isTrue();
 
 			throw (RegionExistsException) expected.getCause();
+
 		}
 		finally {
 			closeApplicationContext(applicationContext);
 		}
 	}
 
-	private ConfigurableApplicationContext createApplicationContext(String configLocation) {
+	private ConfigurableApplicationContext newApplicationContext(String configLocation) {
 		return new ClassPathXmlApplicationContext(configLocation);
 	}
 
-	private void closeApplicationContext(ConfigurableApplicationContext applicationContext) {
-		Optional.ofNullable(applicationContext).ifPresent(ConfigurableApplicationContext::close);
+	@After
+	public void cleanupAfterTests() {
+		destroyAllGemFireMockObjects();
 	}
 
 	@Test
-	public void testAllowRegionBeanDefinitionOverrides() {
+	public void allowRegionBeanDefinitionOverrides() {
 
 		ConfigurableApplicationContext applicationContext = null;
 
 		try {
-			applicationContext = createApplicationContext(
-				"/org/springframework/data/gemfire/allowRegionBeanDefinitionOverridesTest.xml");
+
+			applicationContext =
+				newApplicationContext("/org/springframework/data/gemfire/allowRegionBeanDefinitionOverridesTest.xml");
 
 			assertThat(applicationContext).isNotNull();
 			assertThat(applicationContext.containsBean("regionOne")).isTrue();
@@ -108,47 +111,88 @@ public class RegionLookupIntegrationTests extends IntegrationTestsSupport {
 	}
 
 	@Test(expected = RegionExistsException.class)
-	public void testNoDuplicateRegionDefinitions() {
-		assertNoRegionLookup("/org/springframework/data/gemfire/noDuplicateRegionDefinitionsTest.xml");
-	}
-
-	@Test(expected = RegionExistsException.class)
-	public void testNoClientRegionLookups() {
+	public void noClientRegionLookups() {
 		assertNoRegionLookup("/org/springframework/data/gemfire/noClientRegionLookupTest.xml");
 	}
 
 	@Test(expected = RegionExistsException.class)
-	public void testNoClientSubRegionLookups() {
+	public void noClientSubRegionLookups() {
 		assertNoRegionLookup("/org/springframework/data/gemfire/noClientSubRegionLookupTest.xml");
 	}
 
 	@Test(expected = RegionExistsException.class)
-	public void testNoLocalRegionLookups() {
+	public void noDuplicateRegionDefinitions() {
+		assertNoRegionLookup("/org/springframework/data/gemfire/noDuplicateRegionDefinitionsTest.xml");
+	}
+
+	@Test(expected = RegionExistsException.class)
+	public void noLocalRegionLookups() {
 		assertNoRegionLookup("/org/springframework/data/gemfire/noLocalRegionLookupTest.xml");
 	}
 
 	@Test(expected = RegionExistsException.class)
-	public void testNoPartitionRegionLookups() {
+	public void noPartitionRegionLookups() {
 		assertNoRegionLookup("/org/springframework/data/gemfire/noPartitionRegionLookupTest.xml");
 	}
 
 	@Test(expected = RegionExistsException.class)
-	public void testNoReplicateRegionLookups() {
+	public void noReplicateRegionLookups() {
 		assertNoRegionLookup("/org/springframework/data/gemfire/noReplicateRegionLookupTest.xml");
 	}
 
 	@Test(expected = RegionExistsException.class)
-	public void testNoSubRegionLookups() {
+	public void noSubRegionLookups() {
 		assertNoRegionLookup("/org/springframework/data/gemfire/noSubRegionLookupTest.xml");
 	}
 
 	@Test
-	public void testEnableRegionLookups() {
+	public void withEnableClientRegionLookups() {
 
 		ConfigurableApplicationContext applicationContext = null;
 
 		try {
-			applicationContext = createApplicationContext("/org/springframework/data/gemfire/enableRegionLookupsTest.xml");
+
+			applicationContext =
+				newApplicationContext("/org/springframework/data/gemfire/enableClientRegionLookupsTest.xml");
+
+			assertThat(applicationContext).isNotNull();
+			assertThat(applicationContext.containsBean("NativeClientRegion")).isTrue();
+			assertThat(applicationContext.containsBean("NativeClientParentRegion")).isTrue();
+			assertThat(applicationContext.containsBean("/NativeClientParentRegion/NativeClientChildRegion")).isTrue();
+
+			Region<?, ?> nativeClientRegion = applicationContext.getBean("NativeClientRegion", Region.class);
+
+			assertThat(nativeClientRegion).isNotNull();
+			assertThat(nativeClientRegion.getName()).isEqualTo("NativeClientRegion");
+			assertThat(nativeClientRegion.getFullPath()).isEqualTo("/NativeClientRegion");
+			assertThat(nativeClientRegion.getAttributes()).isNotNull();
+			assertThat(nativeClientRegion.getAttributes().getCloningEnabled()).isFalse();
+			assertThat(nativeClientRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+
+			Region<?, ?> nativeClientChildRegion =
+				applicationContext.getBean("/NativeClientParentRegion/NativeClientChildRegion", Region.class);
+
+			assertThat(nativeClientChildRegion).isNotNull();
+			assertThat(nativeClientChildRegion.getName()).isEqualTo("NativeClientChildRegion");
+			assertThat(nativeClientChildRegion.getFullPath())
+				.isEqualTo("/NativeClientParentRegion/NativeClientChildRegion");
+			assertThat(nativeClientChildRegion.getAttributes()).isNotNull();
+			assertThat(nativeClientChildRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+		}
+		finally {
+			closeApplicationContext(applicationContext);
+		}
+	}
+
+	@Test
+	public void withEnableRegionLookups() {
+
+		ConfigurableApplicationContext applicationContext = null;
+
+		try {
+
+			applicationContext =
+				newApplicationContext("/org/springframework/data/gemfire/enableRegionLookupsTest.xml");
 
 			assertThat(applicationContext).isNotNull();
 			assertThat(applicationContext.containsBean("NativeLocalRegion")).isTrue();
@@ -223,44 +267,6 @@ public class RegionLookupIntegrationTests extends IntegrationTestsSupport {
 			assertThat(springReplicateRegion.getFullPath()).isEqualTo("/SpringReplicateRegion");
 			assertThat(springReplicateRegion.getAttributes()).isNotNull();
 			assertThat(springReplicateRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.REPLICATE);
-		}
-		finally {
-			closeApplicationContext(applicationContext);
-		}
-	}
-
-	@Test
-	public void testEnableClientRegionLookups() {
-
-		ConfigurableApplicationContext applicationContext = null;
-
-		try {
-
-			applicationContext = createApplicationContext("/org/springframework/data/gemfire/enableClientRegionLookupsTest.xml");
-
-			assertThat(applicationContext).isNotNull();
-			assertThat(applicationContext.containsBean("NativeClientRegion")).isTrue();
-			assertThat(applicationContext.containsBean("NativeClientParentRegion")).isTrue();
-			assertThat(applicationContext.containsBean("/NativeClientParentRegion/NativeClientChildRegion")).isTrue();
-
-			Region<?, ?> nativeClientRegion = applicationContext.getBean("NativeClientRegion", Region.class);
-
-			assertThat(nativeClientRegion).isNotNull();
-			assertThat(nativeClientRegion.getName()).isEqualTo("NativeClientRegion");
-			assertThat(nativeClientRegion.getFullPath()).isEqualTo("/NativeClientRegion");
-			assertThat(nativeClientRegion.getAttributes()).isNotNull();
-			assertThat(nativeClientRegion.getAttributes().getCloningEnabled()).isFalse();
-			assertThat(nativeClientRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
-
-			Region<?, ?> nativeClientChildRegion =
-				applicationContext.getBean("/NativeClientParentRegion/NativeClientChildRegion", Region.class);
-
-			assertThat(nativeClientChildRegion).isNotNull();
-			assertThat(nativeClientChildRegion.getName()).isEqualTo("NativeClientChildRegion");
-			assertThat(nativeClientChildRegion.getFullPath())
-				.isEqualTo("/NativeClientParentRegion/NativeClientChildRegion");
-			assertThat(nativeClientChildRegion.getAttributes()).isNotNull();
-			assertThat(nativeClientChildRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
 		}
 		finally {
 			closeApplicationContext(applicationContext);

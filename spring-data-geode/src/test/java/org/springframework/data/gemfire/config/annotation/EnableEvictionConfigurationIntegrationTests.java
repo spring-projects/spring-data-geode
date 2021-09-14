@@ -52,7 +52,7 @@ public class EnableEvictionConfigurationIntegrationTests extends SpringApplicati
 	private static final String GEMFIRE_LOG_LEVEL = "error";
 
 	@After
-	public void tearDown() {
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
 	}
 

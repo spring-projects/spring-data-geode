@@ -10,6 +10,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
+		<prop key="name">EnableClientRegionLookupsTest</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

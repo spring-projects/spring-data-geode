@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.cache;
 
 import java.util.concurrent.Callable;
@@ -35,6 +34,7 @@ import org.springframework.util.Assert;
  * @see org.springframework.cache.Cache
  * @see org.apache.geode.cache.Region
  */
+@SuppressWarnings("rawtypes")
 public class GemfireCache implements Cache {
 
 	private final Region region;
@@ -115,9 +115,10 @@ public class GemfireCache implements Cache {
 	 * @see org.apache.geode.cache.Region#get(Object)
 	 */
 	public ValueWrapper get(Object key) {
+
 		Object value = getNativeCache().get(key);
 
-		return (value != null ? new SimpleValueWrapper(value) : null);
+		return value != null ? new SimpleValueWrapper(value) : null;
 	}
 
 	/**
@@ -132,6 +133,7 @@ public class GemfireCache implements Cache {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(Object key, Class<T> type) {
+
 		Object value = getNativeCache().get(key);
 
 		if (value != null && type != null && !type.isInstance(value)) {
@@ -160,6 +162,7 @@ public class GemfireCache implements Cache {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(Object key, Callable<T> valueLoader) {
+
 		T value = (T) get(key, Object.class);
 
 		if (value == null) {
@@ -191,6 +194,7 @@ public class GemfireCache implements Cache {
 	 */
 	@SuppressWarnings("unchecked")
 	public void put(Object key, Object value) {
+
 		if (value != null) {
 			getNativeCache().put(key, value);
 		}
@@ -207,6 +211,7 @@ public class GemfireCache implements Cache {
 	 */
 	@SuppressWarnings("unchecked")
 	public ValueWrapper putIfAbsent(Object key, Object value) {
+
 		Object existingValue = getNativeCache().putIfAbsent(key, value);
 
 		return (existingValue != null ? new SimpleValueWrapper(existingValue) : null);

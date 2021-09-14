@@ -18,19 +18,14 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Optional;
-
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.SocketFactory;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
@@ -42,46 +37,25 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.junit.Test
  * @see org.mockito.Mockito
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.4.0
  */
 @SuppressWarnings("unused")
-public class ClientCacheConfigurationIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
-
-		return applicationContext;
-	}
+public class ClientCacheConfigurationIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@Test
 	public void clientCacheDefaultPoolWithCustomSocketFactory() {
 
-		this.applicationContext =
-			newApplicationContext(ClientCacheDefaultPoolWithCustomSocketFactoryConfiguration.class);
+		newApplicationContext(ClientCacheDefaultPoolWithCustomSocketFactoryConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-
-		ClientCache clientCache = this.applicationContext.getBean(ClientCache.class);
+		ClientCache clientCache = getBean(ClientCache.class);
 
 		assertThat(clientCache).isNotNull();
 
 		Pool defaultPool = clientCache.getDefaultPool();
 
-		SocketFactory mockSocketFactory = this.applicationContext.getBean("mockSocketFactory", SocketFactory.class);
+		SocketFactory mockSocketFactory = getBean("mockSocketFactory", SocketFactory.class);
 
 		assertThat(defaultPool).isNotNull();
 		assertThat(defaultPool.getName()).isEqualTo("DEFAULT");
@@ -93,12 +67,9 @@ public class ClientCacheConfigurationIntegrationTests extends IntegrationTestsSu
 	@Test
 	public void clientCacheDefaultPoolWithDefaultSocketFactory() {
 
-		this.applicationContext =
-			newApplicationContext(ClientCacheDefaultPoolWithDefaultSocketFactoryConfiguration.class);
+		newApplicationContext(ClientCacheDefaultPoolWithDefaultSocketFactoryConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-
-		ClientCache clientCache = this.applicationContext.getBean(ClientCache.class);
+		ClientCache clientCache = getBean(ClientCache.class);
 
 		assertThat(clientCache).isNotNull();
 

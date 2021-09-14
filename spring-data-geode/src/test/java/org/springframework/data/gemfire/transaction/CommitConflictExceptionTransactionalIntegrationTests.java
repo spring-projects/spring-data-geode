@@ -42,6 +42,7 @@ import org.springframework.data.gemfire.config.annotation.EnableEntityDefinedReg
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Integration tests asserting the proper configuration and behavior of Apache Geode/Pivotal GemFire
+ * Integration Tests asserting the proper configuration and behavior of Apache Geode/Pivotal GemFire
  * cache Transactions inside a Spring application context when using SDG to configure
  * the {@link CacheTransactionManager}.
  *
@@ -72,6 +73,7 @@ import lombok.RequiredArgsConstructor;
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
  * @see org.springframework.data.gemfire.repository.config.EnableGemfireRepositories
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
@@ -80,7 +82,7 @@ import lombok.RequiredArgsConstructor;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class CommitConflictExceptionTransactionalIntegrationTests {
+public class CommitConflictExceptionTransactionalIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private CustomerService customerService;

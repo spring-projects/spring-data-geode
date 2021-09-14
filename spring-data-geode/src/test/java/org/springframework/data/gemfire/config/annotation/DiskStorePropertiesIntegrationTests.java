@@ -17,20 +17,18 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.DiskStoreFactory;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -43,34 +41,26 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.apache.geode.cache.DiskStoreFactory
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStore
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.mock.env.MockPropertySource
  * @since 2.0.0
  */
-public class DiskStorePropertiesIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
+public class DiskStorePropertiesIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
 			Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer = applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+			MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+			propertySources.addFirst(testPropertySource);
 
-		applicationContext.registerShutdownHook();
-		applicationContext.register(annotatedClasses);
-		applicationContext.refresh();
+			return applicationContext;
+		};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@SuppressWarnings("all")
@@ -102,12 +92,11 @@ public class DiskStorePropertiesIntegrationTests extends IntegrationTestsSupport
 			.withProperty("spring.data.gemfire.disk.store.time-interval", 500L)
 			.withProperty("spring.data.gemfire.disk.store.NonExistingDiskStore.time-interval", 30000L);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestDiskStoreConfiguration.class);
+		newApplicationContext(testPropertySource, TestDiskStoreConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("TestDiskStore")).isTrue();
+		assertThat(containsBean("TestDiskStore")).isTrue();
 
-		DiskStore testDiskStore = this.applicationContext.getBean("TestDiskStore", DiskStore.class);
+		DiskStore testDiskStore = getBean("TestDiskStore", DiskStore.class);
 
 		assertThat(testDiskStore).isNotNull();
 		assertThat(testDiskStore.getName()).isEqualTo("TestDiskStore");
@@ -145,19 +134,18 @@ public class DiskStorePropertiesIntegrationTests extends IntegrationTestsSupport
 			.withProperty("spring.data.gemfire.disk.store.TestDiskStoreTwo.time-interval", 250L)
 			.withProperty("spring.data.gemfire.disk.store.TestDiskStoreTwo.write-buffer-size", 65535);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestDiskStoresConfiguration.class);
+		newApplicationContext(testPropertySource, TestDiskStoresConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("TestDiskStoreOne")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestDiskStoreTwo")).isTrue();
+		assertThat(containsBean("TestDiskStoreOne")).isTrue();
+		assertThat(containsBean("TestDiskStoreTwo")).isTrue();
 
-		DiskStore testDiskStoreOne = this.applicationContext.getBean("TestDiskStoreOne", DiskStore.class);
+		DiskStore testDiskStoreOne = getBean("TestDiskStoreOne", DiskStore.class);
 
 		assertDiskStore(testDiskStoreOne, "TestDiskStoreOne", true, false,
 			60, 90.0f, 75.0f, 512L,
 			1024, 500L, 16384);
 
-		DiskStore testDiskStoreTwo = this.applicationContext.getBean("TestDiskStoreTwo", DiskStore.class);
+		DiskStore testDiskStoreTwo = getBean("TestDiskStoreTwo", DiskStore.class);
 
 		assertDiskStore(testDiskStoreTwo, "TestDiskStoreTwo", true, false,
 			75, 95.0f, 80.0f, 2048L,

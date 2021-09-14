@@ -51,6 +51,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.GemfireOperations
  * @see org.springframework.data.gemfire.serialization.json.JSONRegionAdvice
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see com.fasterxml.jackson.databind.ObjectMapper
@@ -60,9 +61,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 
-	// TODO figure out why auto-proxying the Region for JSON support prevents the GemfireTemplate from being "auto-wired",
-	// as a GemfireTemplate rather than GemfireOperations, resulting in a NoSuchBeanDefinitionException thrown by the
-	// Spring container?
+	private static String toJson(Object bean) {
+
+		try {
+			return new ObjectMapper().writeValueAsString(bean);
+		}
+		catch (JsonProcessingException cause) {
+			throw newIllegalArgumentException(cause, "Failed to convert object [%s] into JSON", bean);
+		}
+	}
+
 	@Autowired
 	private GemfireOperations template;
 
@@ -71,17 +79,7 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 
 	@Before
 	public void setup() {
-		jsonRegion.clear();
-	}
-
-	private static String toJson(Object bean) {
-
-		try {
-			return new ObjectMapper().writeValueAsString(bean);
-		}
-		catch (JsonProcessingException cause) {
-			throw newIllegalArgumentException(cause, "Failed to convert object (%1$s) into JSON", bean);
-		}
+		this.jsonRegion.clear();
 	}
 
 	@Test

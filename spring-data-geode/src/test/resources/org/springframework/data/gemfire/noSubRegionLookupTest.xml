@@ -10,7 +10,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">springGemFireNoSubRegionLookupTest</prop>
+		<prop key="name">NoSubRegionLookupTest</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

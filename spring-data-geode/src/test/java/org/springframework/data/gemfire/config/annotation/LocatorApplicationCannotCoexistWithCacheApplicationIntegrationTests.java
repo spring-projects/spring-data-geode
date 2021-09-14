@@ -19,9 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 
-import java.util.Optional;
-
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.GemFireCache;
@@ -29,10 +26,8 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.distributed.Locator;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
@@ -50,43 +45,26 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.springframework.data.gemfire.config.annotation.LocatorApplicationConfiguration
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
-public class LocatorApplicationCannotCoexistWithCacheApplicationIntegrationTests extends IntegrationTestsSupport {
+public class LocatorApplicationCannotCoexistWithCacheApplicationIntegrationTests
+		extends SpringApplicationContextIntegrationTestsSupport {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
-
-		return applicationContext;
-	}
 
 	private void testCacheAndLocatorApplication(Class<?> testConfiguration) {
 
 		try {
 
-			this.applicationContext = newApplicationContext(testConfiguration);
-			this.applicationContext.getBean(GemFireCache.class);
-			this.applicationContext.getBean(Locator.class);
+			newApplicationContext(testConfiguration);
+			getBean(GemFireCache.class);
+			getBean(Locator.class);
 
 			fail("Caches and Locators cannot coexist!");
+
 		}
 		catch (BeanDefinitionStoreException expected) {
 

@@ -130,7 +130,7 @@ public class SimpleGemfireRepositoryRegionDeleteAllIntegrationTests extends Fork
 	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
-			runSpringApplication(GeodeServerTestConfiguration.class);
+			runSpringApplication(GeodeServerTestConfiguration.class, args);
 		}
 
 		@Bean("Users")

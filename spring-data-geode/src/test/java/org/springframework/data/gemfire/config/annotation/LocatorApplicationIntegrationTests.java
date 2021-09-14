@@ -31,6 +31,7 @@ import org.apache.geode.distributed.Locator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -52,6 +53,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 2.2.0
  */
 @RunWith(SpringRunner.class)
+@ContextConfiguration
 @SuppressWarnings("unused")
 public class LocatorApplicationIntegrationTests extends IntegrationTestsSupport {
 
@@ -76,6 +78,10 @@ public class LocatorApplicationIntegrationTests extends IntegrationTestsSupport 
 
 		Cache peerCache = null;
 
+		assertThat(distributedSystemProperties.getProperty("locators"))
+			.describedAs("Locators was [%s]", distributedSystemProperties.getProperty("locators"))
+			.isNotEmpty();
+
 		try {
 			peerCache = new CacheFactory()
 				.set("name", LocatorApplicationIntegrationTests.class.getSimpleName())
@@ -83,6 +89,7 @@ public class LocatorApplicationIntegrationTests extends IntegrationTestsSupport 
 				.set("cache-xml-file", distributedSystemProperties.getProperty("cache-xml-file"))
 				.set("jmx-manager", distributedSystemProperties.getProperty("jmx-manager"))
 				.set("locators", distributedSystemProperties.getProperty("locators"))
+				//.set("locators", "localhost[0]") // This locators configuration setting causes the test to fail
 				.set("log-file", distributedSystemProperties.getProperty("log-file"))
 				.set("log-level", distributedSystemProperties.getProperty("log-level"))
 				.create();

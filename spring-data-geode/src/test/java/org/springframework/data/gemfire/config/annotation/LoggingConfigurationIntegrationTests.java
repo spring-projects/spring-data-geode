@@ -31,10 +31,9 @@ import org.junit.Test;
 import org.apache.geode.cache.GemFireCache;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.data.gemfire.GemFireProperties;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.util.StringUtils;
@@ -51,36 +50,23 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.core.env.PropertiesPropertySource
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableLogging
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.util.PropertiesBuilder
  * @since 1.9.0
  */
-public class LoggingConfigurationIntegrationTests extends IntegrationTestsSupport {
+public class LoggingConfigurationIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private final AtomicReference<Properties> propertiesReference = new AtomicReference<>(null);
 
-	private ConfigurableApplicationContext applicationContext;
-
-	@Before
-	public void setup() {
-
+	@Before @After
+	public void setupAndTearDown() {
 		this.propertiesReference.set(null);
-
-		deleteLogFiles();
-	}
-
-	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
 		deleteLogFiles();
 	}
 
 	private void assertGemFireCacheLogLevelAndLogFile(String logLevel, String logFile) {
 
-		GemFireCache gemfireCache = this.applicationContext.getBean(GemFireCache.class);
+		GemFireCache gemfireCache = getBean(GemFireCache.class);
 
 		logFile = StringUtils.hasText(logFile) ? logFile : "";
 
@@ -104,23 +90,15 @@ public class LoggingConfigurationIntegrationTests extends IntegrationTestsSuppor
 		Arrays.stream(ArrayUtils.nullSafeArray(files, File.class)).forEach(File::delete);
 	}
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
+	@Override
+	protected ConfigurableApplicationContext processBeforeRefresh(ConfigurableApplicationContext applicationContext) {
 
 		Optional.ofNullable(this.propertiesReference.get())
 			.ifPresent(properties -> applicationContext.getEnvironment()
 				.getPropertySources()
 				.addFirst(new PropertiesPropertySource("Test Properties", properties)));
 
-		applicationContext.refresh();
-
-		this.applicationContext = applicationContext;
-
-		return applicationContext;
+		return super.processBeforeRefresh(applicationContext);
 	}
 
 	private void with(Properties properties) {

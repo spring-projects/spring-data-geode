@@ -19,10 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 
-import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.distributed.Locator;
@@ -30,12 +29,11 @@ import org.apache.geode.distributed.Locator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.LocatorFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.lang.Nullable;
 import org.springframework.mock.env.MockPropertySource;
@@ -48,39 +46,31 @@ import org.springframework.mock.env.MockPropertySource;
  * @see java.util.Properties
  * @see org.junit.Test
  * @see org.apache.geode.distributed.Locator
-\ * @see org.springframework.core.env.PropertySource
+ * @see org.springframework.context.ConfigurableApplicationContext
+ * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.LocatorFactoryBean
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.mock.env.MockPropertySource
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
-public class LocatorApplicationPropertiesIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-	}
+public class LocatorApplicationPropertiesIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-			Class<?>... annotatedClasses) {
+		Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer =
+			applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+				MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+				propertySources.addFirst(testPropertySource);
 
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
+				return applicationContext;
+			};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@Test
@@ -94,9 +84,9 @@ public class LocatorApplicationPropertiesIntegrationTests extends IntegrationTes
 			.withProperty("spring.data.gemfire.locator.port", 54321)
 			.withProperty("spring.data.gemfire.locators", "host1[1234],host2[6789]");
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestConfiguration.class);
+		newApplicationContext(testPropertySource, TestConfiguration.class);
 
-		LocatorFactoryBean locatorFactoryBean = this.applicationContext.getBean(LocatorFactoryBean.class);
+		LocatorFactoryBean locatorFactoryBean = getBean(LocatorFactoryBean.class);
 
 		assertThat(locatorFactoryBean).isNotNull();
 		assertThat(locatorFactoryBean.getBindAddress().orElse(null)).isEqualTo("10.120.240.32");

@@ -25,6 +25,7 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 
 /**
  * Integration Tests for client {@link Region} bean definition with both {@literal data-policy}(i.e. {@link DataPolicy})
@@ -36,16 +37,17 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientRegionShortcut
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
+ * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @since 1.3.3
  */
-public class ClientRegionUsingDataPolicyAndShortcutIntegrationTests {
+public class ClientRegionUsingDataPolicyAndShortcutIntegrationTests extends IntegrationTestsSupport {
 
 	@Test(expected = BeanDefinitionParsingException.class)
 	public void testClientRegionBeanDefinitionWithDataPolicyAndShortcut() {
 
 		try {
-			new ClassPathXmlApplicationContext(
-				"/org/springframework/data/gemfire/config/xml/client-region-using-datapolicy-and-shortcut.xml");
+			new ClassPathXmlApplicationContext(getContextXmlFileLocation(ClientRegionUsingDataPolicyAndShortcutIntegrationTests.class));
 		}
 		catch (BeanDefinitionParsingException expected) {
 

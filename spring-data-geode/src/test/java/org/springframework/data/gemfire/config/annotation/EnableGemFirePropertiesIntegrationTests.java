@@ -20,20 +20,19 @@ import static org.mockito.Mockito.mock;
 
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.pdx.PdxSerializer;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.CacheFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
@@ -52,41 +51,35 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @see org.springframework.core.env.PropertySource
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
 @SuppressWarnings("rawtypes")
-public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSupport {
+public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return newApplicationContext(null, annotatedClasses);
+	@Override
+	protected ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
+		return newApplicationContext((PropertySource<?>) null, annotatedClasses);
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-			Class<?>... annotatedClasses) {
+		Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer =
+			testPropertySource != null ? applicationContext -> {
+				Optional.ofNullable(testPropertySource).ifPresent(it -> {
 
-		Optional.ofNullable(testPropertySource).ifPresent(it -> {
+					MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-			MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+					propertySources.addFirst(testPropertySource);
+				});
 
-			propertySources.addFirst(testPropertySource);
-		});
+				return applicationContext;
+			}
+				: Function.identity();
 
-		applicationContext.registerShutdownHook();
-		applicationContext.register(annotatedClasses);
-		applicationContext.refresh();
-
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@Test
@@ -105,13 +98,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.security.log.level", "info")
 			.withProperty("spring.data.gemfire.security.properties-file", "/path/to/security.properties");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestAuthGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestAuthGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -141,13 +132,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.service.http.ssl-require-authentication", "true")
 			.withProperty("spring.data.gemfire.service.http.dev-rest-api.start", "true");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestHttpGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestHttpGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -168,13 +157,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.locator.host", "10.64.32.16")
 			.withProperty("spring.data.gemfire.locator.port", "11235");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestLocatorGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestLocatorGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -194,13 +181,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.logging.log-file-size-limit", "10")
 			.withProperty("spring.data.gemfire.logging.level", "info");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestLoggingGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestLoggingGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -226,13 +211,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.manager.start", "true")
 			.withProperty("spring.data.gemfire.manager.update-rate", "1000");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestManagerGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestManagerGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -257,13 +240,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.service.memcached.port", "2468")
 			.withProperty("spring.data.gemfire.service.memcached.protocol", "BINARY");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestMemcachedServerGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestMemcachedServerGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -278,16 +259,14 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 	@Test
 	public void nameAndGroupsAnnotationBasedGemFirePropertiesConfiguration() {
 
-		this.applicationContext =
-			newApplicationContext(TestNameAndGroupsAnnotationBasedGemFirePropertiesConfiguration.class);
+		newApplicationContext(TestNameAndGroupsAnnotationBasedGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("gemfireProperties")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireProperties")).isTrue();
 
 		//Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -307,13 +286,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
 			.withProperty("spring.data.gemfire.cache.off-heap.memory-size", "1024g");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestOffHeapGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestOffHeapGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -334,14 +311,12 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.pdx.read-serialized", "true")
 			.withProperty("spring.data.gemfire.pdx.serializer-bean-name", "mockPdxSerializer");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestPdxGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestPdxGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("mockPdxSerializer")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("mockPdxSerializer")).isTrue();
 
-		CacheFactoryBean gemfireCache = this.applicationContext.getBean("&gemfireCache", CacheFactoryBean.class);
+		CacheFactoryBean gemfireCache = getBean("&gemfireCache", CacheFactoryBean.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getPdxDiskStoreName()).isEqualTo("TestDiskStore");
@@ -349,7 +324,7 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 		assertThat(gemfireCache.getPdxPersistent()).isTrue();
 		assertThat(gemfireCache.getPdxReadSerialized()).isTrue();
 
-		PdxSerializer mockPdxSerializer = this.applicationContext.getBean("mockPdxSerializer", PdxSerializer.class);
+		PdxSerializer mockPdxSerializer = getBean("mockPdxSerializer", PdxSerializer.class);
 
 		assertThat(mockPdxSerializer).isNotNull();
 		assertThat(gemfireCache.getPdxSerializer()).isEqualTo(mockPdxSerializer);
@@ -362,13 +337,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.service.redis.bind-address", "10.16.8.4")
 			.withProperty("spring.data.gemfire.service.redis.port", "13579");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestRedisServerGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestRedisServerGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -390,13 +363,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.security.postprocessor.class-name", "example.security.PostProcessor")
 			.withProperty("spring.data.gemfire.security.shiro.ini-resource-path", "/path/to/shiro.ini");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestSecurityGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestSecurityGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -414,13 +385,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 	@Test
 	public void serializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration() {
 
-		this.applicationContext =
-			newApplicationContext(TestSerializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration.class);
+		newApplicationContext(TestSerializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireProperties")).isTrue();
+		assertThat(containsBean("gemfireProperties")).isTrue();
 
-		Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
+		Properties gemfireProperties = getBean("gemfireProperties", Properties.class);
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.containsKey("serializable-object-filter")).isTrue();
@@ -446,14 +415,12 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.security.ssl.truststore.type", "PKCS11")
 			.withProperty("spring.data.gemfire.security.ssl.web-require-authentication", "true");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestSslGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestSslGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("gemfireProperties")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireProperties")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -490,13 +457,11 @@ public class EnableGemFirePropertiesIntegrationTests extends IntegrationTestsSup
 			.withProperty("spring.data.gemfire.stats.enable-time-statistics", "true")
 			.withProperty("spring.data.gemfire.stats.sample-rate", "100");
 
-		this.applicationContext =
-			newApplicationContext(testPropertySource, TestStatisticsGemFirePropertiesConfiguration.class);
+		newApplicationContext(testPropertySource, TestStatisticsGemFirePropertiesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
 
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();

@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.After;
 import org.junit.Test;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.data.gemfire.util.PropertiesBuilder;
 
 /**
  * Unit Tests for {@link LazyWiringDeclarableSupport}.
@@ -58,12 +60,12 @@ public class LazyWiringDeclarableSupportUnitTests {
 	}
 
 	private static Properties createParameters(String parameter, String value) {
+		return PropertiesBuilder.create().setProperty(parameter, value).build();
+	}
 
-		Properties parameters = new Properties();
-
-		parameters.setProperty(parameter, value);
-
-		return parameters;
+	@After
+	public void tearDown() {
+		SpringContextBootstrappingInitializer.destroy();
 	}
 
 	@Test
@@ -445,6 +447,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 
 		@Override
 		void doInit(BeanFactory beanFactory, Properties parameters) {
+
 			this.actualBeanFactory = beanFactory;
 			this.actualParameters = parameters;
 			this.initialized = true;

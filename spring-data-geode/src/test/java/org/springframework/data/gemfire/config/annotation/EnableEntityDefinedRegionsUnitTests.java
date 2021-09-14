@@ -25,7 +25,6 @@ import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeList
 import static org.springframework.data.gemfire.util.RegionUtils.toRegionPath;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
@@ -45,8 +44,6 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.client.Pool;
 
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -64,7 +61,7 @@ import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.MockObjectsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
@@ -86,21 +83,15 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.springframework.data.gemfire.mapping.annotation.ReplicateRegion
  * @see org.springframework.data.gemfire.mapping.annotation.ReplicateRegion
  * @see org.springframework.data.gemfire.tests.mock.MockObjectsSupport
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 @SuppressWarnings({ "unchecked", "unused" })
-public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class EnableEntityDefinedRegionsUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
 	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
 		destroyAllGemFireMockObjects();
 	}
 
@@ -171,9 +162,9 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	private void assertUndefinedRegions(String... regionBeanNames) {
 
 		stream(nullSafeArray(regionBeanNames, String.class)).forEach(regionBeanName ->
-			assertThat(this.applicationContext.containsBean(regionBeanName)).isFalse());
+			assertThat(containsBean(regionBeanName)).isFalse());
 
-		assertThat(this.applicationContext.getBeansOfType(Region.class)).hasSize(11 - length(regionBeanNames));
+		assertThat(getBeansOfType(Region.class)).hasSize(11 - length(regionBeanNames));
 	}
 
 	private FixedPartitionAttributes findFixedPartitionAttributes(PartitionAttributes<?, ?> partitionAttributes,
@@ -193,28 +184,18 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 		return null;
 	}
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
-
-		applicationContext.registerShutdownHook();
-
-		return applicationContext;
-	}
-
 	@Test
 	public void entityClientRegionsDefined() {
 
-		this.applicationContext = newApplicationContext(ClientPersistentEntitiesConfiguration.class);
+		newApplicationContext(ClientPersistentEntitiesConfiguration.class);
 
-		Region<String, ClientRegionEntity> sessions = this.applicationContext.getBean("Sessions", Region.class);
+		Region<String, ClientRegionEntity> sessions = getBean("Sessions", Region.class);
 
 		assertRegion(sessions, "Sessions", String.class, ClientRegionEntity.class);
 		assertRegionAttributes(sessions.getAttributes(), DataPolicy.NORMAL,
 			null, true, false, null, null);
 
-		Region<Long, GenericRegionEntity> genericRegionEntity =
-			this.applicationContext.getBean("GenericRegionEntity", Region.class);
+		Region<Long, GenericRegionEntity> genericRegionEntity = getBean("GenericRegionEntity", Region.class);
 
 		assertRegion(genericRegionEntity, "GenericRegionEntity", Long.class, GenericRegionEntity.class);
 		assertRegionAttributes(genericRegionEntity.getAttributes(), DataPolicy.EMPTY,
@@ -228,15 +209,14 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityClientRegionsDefinedWithCustomConfiguration() {
 
-		this.applicationContext = newApplicationContext(ClientPersistentEntitiesWithCustomConfiguration.class);
+		newApplicationContext(ClientPersistentEntitiesWithCustomConfiguration.class);
 
-		Region<Object, Object> sessions = this.applicationContext.getBean("Sessions", Region.class);
+		Region<Object, Object> sessions = getBean("Sessions", Region.class);
 
 		assertRegionWithAttributes(sessions, "Sessions", DataPolicy.NORMAL,
 			null, true, false, null, null);
 
-		Region<Object, Object> genericRegionEntity =
-			this.applicationContext.getBean("GenericRegionEntity", Region.class);
+		Region<Object, Object> genericRegionEntity = getBean("GenericRegionEntity", Region.class);
 
 		assertRegionWithAttributes(genericRegionEntity, "GenericRegionEntity", DataPolicy.NORMAL,
 			null, true, false, "TestPool", null);
@@ -249,38 +229,33 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityClientRegionsDefinedWithServerRegionMappingAnnotations() {
 
-		this.applicationContext =
-			newApplicationContext(ClientPersistentEntitiesWithServerRegionMappingAnnotationsConfiguration.class);
+		newApplicationContext(ClientPersistentEntitiesWithServerRegionMappingAnnotationsConfiguration.class);
 
-		Region<String, ClientRegionEntity> sessions = this.applicationContext.getBean("Sessions", Region.class);
+		Region<String, ClientRegionEntity> sessions = getBean("Sessions", Region.class);
 
 		assertRegion(sessions, "Sessions", String.class, ClientRegionEntity.class);
 		assertRegionAttributes(sessions.getAttributes(), DataPolicy.NORMAL,
 			null, true, false, null, null);
 
-		Region<Long, GenericRegionEntity> genericRegionEntity =
-			this.applicationContext.getBean("GenericRegionEntity", Region.class);
+		Region<Long, GenericRegionEntity> genericRegionEntity = getBean("GenericRegionEntity", Region.class);
 
 		assertRegion(genericRegionEntity, "GenericRegionEntity", Long.class, GenericRegionEntity.class);
 		assertRegionAttributes(genericRegionEntity.getAttributes(), DataPolicy.EMPTY,
 			null, true, false, null, null);
 
-		Region<String, LocalRegionEntity> localRegionEntity =
-			this.applicationContext.getBean("LocalRegionEntity", Region.class);
+		Region<String, LocalRegionEntity> localRegionEntity = getBean("LocalRegionEntity", Region.class);
 
 		assertRegion(localRegionEntity, "LocalRegionEntity", String.class, LocalRegionEntity.class);
 		assertRegionAttributes(localRegionEntity.getAttributes(), DataPolicy.EMPTY,
 			null, true, false, null, null);
 
-		Region<Long, PartitionRegionEntity> customers =
-			this.applicationContext.getBean("Customers", Region.class);
+		Region<Long, PartitionRegionEntity> customers = getBean("Customers", Region.class);
 
 		assertRegion(customers, "Customers", Long.class, PartitionRegionEntity.class);
 		assertRegionAttributes(customers.getAttributes(), DataPolicy.EMPTY,
 			null, true, false, null, null);
 
-		Region<Object, ReplicateRegionEntity> accounts =
-			this.applicationContext.getBean("Accounts", Region.class);
+		Region<Object, ReplicateRegionEntity> accounts = getBean("Accounts", Region.class);
 
 		assertRegion(accounts, "Accounts", Object.class, ReplicateRegionEntity.class);
 		assertRegionAttributes(accounts.getAttributes(), DataPolicy.EMPTY,
@@ -293,9 +268,9 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityPeerPartitionRegionsDefined() {
 
-		this.applicationContext = newApplicationContext(PeerPartitionRegionPersistentEntitiesConfiguration.class);
+		newApplicationContext(PeerPartitionRegionPersistentEntitiesConfiguration.class);
 
-		Region<Object, Object> customers = this.applicationContext.getBean("Customers", Region.class);
+		Region<Object, Object> customers = getBean("Customers", Region.class);
 
 		assertRegionWithAttributes(customers, "Customers", DataPolicy.PERSISTENT_PARTITION, null,
 			true, false, null, Scope.DISTRIBUTED_NO_ACK);
@@ -306,12 +281,12 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 		assertFixedPartitionAttributes(findFixedPartitionAttributes(customers.getAttributes().getPartitionAttributes(),
 			"two"), "two", false, 21);
 
-		Region<Object, Object> contactEvents = this.applicationContext.getBean("ContactEvents", Region.class);
+		Region<Object, Object> contactEvents = getBean("ContactEvents", Region.class);
 
 		assertRegionWithAttributes(contactEvents, "ContactEvents", DataPolicy.PERSISTENT_PARTITION,
 			"mockDiskStore", false, true, null, Scope.DISTRIBUTED_NO_ACK);
 		assertPartitionAttributes(contactEvents.getAttributes().getPartitionAttributes(), "Customers",
-			this.applicationContext.getBean("mockPartitionResolver", PartitionResolver.class), 2);
+			getBean("mockPartitionResolver", PartitionResolver.class), 2);
 
 		assertUndefinedRegions("ClientRegionEntity", "Sessions", "CollocatedPartitionRegionEntity",
 			"GenericRegionEntity", "LocalRegionEntity", "NonEntity", "PartitionRegionEntity", "ReplicateRegionEntity",
@@ -322,7 +297,7 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	public void entityPartitionRegionAlreadyDefinedThrowsRegionExistsException() {
 
 		try {
-			this.applicationContext = newApplicationContext(ExistingPartitionRegionPersistentEntitiesConfiguration.class);
+			newApplicationContext(ExistingPartitionRegionPersistentEntitiesConfiguration.class);
 		}
 		catch (BeanCreationException expected) {
 
@@ -336,9 +311,9 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityReplicateRegionAlreadyDefinedIgnoresEntityDefinedRegionDefinition() {
 
-		this.applicationContext = newApplicationContext(ExistingReplicateRegionPersistentEntitiesConfiguration.class);
+		newApplicationContext(ExistingReplicateRegionPersistentEntitiesConfiguration.class);
 
-		Region<Object, Object> accounts = this.applicationContext.getBean("Accounts", Region.class);
+		Region<Object, Object> accounts = getBean("Accounts", Region.class);
 
 		assertRegionWithAttributes(accounts, "Accounts", DataPolicy.REPLICATE,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
@@ -347,27 +322,26 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityServerRegionsDefined() {
 
-		this.applicationContext = newApplicationContext(ServerPersistentEntitiesConfiguration.class);
+		newApplicationContext(ServerPersistentEntitiesConfiguration.class);
 
-		Region<Object, Object> accounts = this.applicationContext.getBean("Accounts", Region.class);
+		Region<Object, Object> accounts = getBean("Accounts", Region.class);
 
 		assertRegionWithAttributes(accounts, "Accounts", DataPolicy.REPLICATE,
 			null, true, false, null, Scope.DISTRIBUTED_ACK);
 
-		Region<Object, Object> customers = this.applicationContext.getBean("Customers", Region.class);
+		Region<Object, Object> customers = getBean("Customers", Region.class);
 
 		assertRegionWithAttributes(customers, "Customers", DataPolicy.PERSISTENT_PARTITION,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
 		assertPartitionAttributes(customers.getAttributes().getPartitionAttributes(), null,
 			null, 1);
 
-		Region<Object, Object> localRegionEntity = this.applicationContext.getBean("LocalRegionEntity", Region.class);
+		Region<Object, Object> localRegionEntity = getBean("LocalRegionEntity", Region.class);
 
 		assertRegionWithAttributes(localRegionEntity, "LocalRegionEntity", DataPolicy.NORMAL,
 			null, true, false, null, Scope.LOCAL);
 
-		Region<Object, Object> genericRegionEntity =
-			this.applicationContext.getBean("GenericRegionEntity", Region.class);
+		Region<Object, Object> genericRegionEntity = getBean("GenericRegionEntity", Region.class);
 
 		assertRegionWithAttributes(genericRegionEntity, "GenericRegionEntity", DataPolicy.PARTITION,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
@@ -379,26 +353,24 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityServerRegionsDefinedWithCustomConfiguration() {
 
-		this.applicationContext = newApplicationContext(ServerPersistentEntitiesWithCustomConfiguration.class);
+		newApplicationContext(ServerPersistentEntitiesWithCustomConfiguration.class);
 
-		Region<Object, Object> accounts = this.applicationContext.getBean("Sessions", Region.class);
+		Region<Object, Object> accounts = getBean("Sessions", Region.class);
 
 		assertRegionWithAttributes(accounts, "Sessions", DataPolicy.REPLICATE,
 			null, true, false, null, Scope.DISTRIBUTED_ACK);
 
-		Region<Object, Object> genericRegionEntity =
-			this.applicationContext.getBean("GenericRegionEntity", Region.class);
+		Region<Object, Object> genericRegionEntity = getBean("GenericRegionEntity", Region.class);
 
 		assertRegionWithAttributes(genericRegionEntity, "GenericRegionEntity", DataPolicy.REPLICATE,
 			null, true, false, null, Scope.DISTRIBUTED_ACK);
 
-		Region<Object, Object> localRegionEntity =
-			this.applicationContext.getBean("LocalRegionEntity", Region.class);
+		Region<Object, Object> localRegionEntity = getBean("LocalRegionEntity", Region.class);
 
 		assertRegionWithAttributes(localRegionEntity, "LocalRegionEntity", DataPolicy.NORMAL,
 			null, true, false, null, Scope.LOCAL);
 
-		Region<Object, Object> customers = this.applicationContext.getBean("Customers", Region.class);
+		Region<Object, Object> customers = getBean("Customers", Region.class);
 
 		assertRegionWithAttributes(customers, "Customers", DataPolicy.PERSISTENT_PARTITION,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
@@ -410,22 +382,19 @@ public class EnableEntityDefinedRegionsUnitTests extends IntegrationTestsSupport
 	@Test
 	public void entityServerRegionsDefinedWithClientRegionMappingAnnotations() {
 
-		this.applicationContext =
-			newApplicationContext(ServerPersistentEntitiesWithClientRegionMappingAnnotationsConfiguration.class);
+		newApplicationContext(ServerPersistentEntitiesWithClientRegionMappingAnnotationsConfiguration.class);
 
-		Region<Object, Object> sessions = this.applicationContext.getBean("Sessions", Region.class);
+		Region<Object, Object> sessions = getBean("Sessions", Region.class);
 
 		assertRegionWithAttributes(sessions, "Sessions", DataPolicy.PARTITION,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
 
-		Region<Object, Object> genericRegionEntity =
-			this.applicationContext.getBean("GenericRegionEntity", Region.class);
+		Region<Object, Object> genericRegionEntity = getBean("GenericRegionEntity", Region.class);
 
 		assertRegionWithAttributes(genericRegionEntity, "GenericRegionEntity", DataPolicy.PARTITION,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);
 
-		Region<Object, Object> customers =
-			this.applicationContext.getBean("Customers", Region.class);
+		Region<Object, Object> customers = getBean("Customers", Region.class);
 
 		assertRegionWithAttributes(customers, "Customers", DataPolicy.PERSISTENT_PARTITION,
 			null, true, false, null, Scope.DISTRIBUTED_NO_ACK);

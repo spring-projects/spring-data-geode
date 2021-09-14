@@ -37,7 +37,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.support.DisableBeanDefinitionOverridingApplicationContextInitializer;
-import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -57,7 +58,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.context.annotation.Import
  * @see org.springframework.context.annotation.Profile
  * @see org.springframework.data.gemfire.GemFireProperties
- * @see org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @see <a href="https://stackoverflow.com/questions/69202828/error-bean-definition-overriding-clientgemfirepropertiesconfigurer">Error - Bean Definition Overriding - ClientGemFirePropertiesConfigurer</a>
@@ -67,10 +69,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 //@ActiveProfiles("incorrect-test-configuration")
 @ContextConfiguration(initializers = DisableBeanDefinitionOverridingApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegrationTests {
-
-	@Autowired
-	private ConfigurableApplicationContext applicationContext;
+public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private GemFireCache cache;
@@ -78,9 +77,9 @@ public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegratio
 	@Before
 	public void assertApplicationContextBeanDefinitionOverridingIsDisabled() {
 
-		assertThat(this.applicationContext).isNotNull();
+		ConfigurableApplicationContext applicationContext = requireApplicationContext();
 
-		ConfigurableListableBeanFactory beanFactory = this.applicationContext.getBeanFactory();
+		ConfigurableListableBeanFactory beanFactory = applicationContext.getBeanFactory();
 
 		assertThat(beanFactory).isInstanceOf(DefaultListableBeanFactory.class);
 
@@ -90,14 +89,15 @@ public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegratio
 			.map(beanName -> applicationContext.getBeanFactory().getBeanDefinition(beanName))
 			.map(BeanDefinition::getBeanClassName)
 			.filter(beanClassName -> String.valueOf(beanClassName).contains("ClientGemFirePropertiesConfigurer"))
-			.count()).isEqualTo(2);	}
+			.count()).isEqualTo(2);
+	}
 
 	@Test
 	public void gemfireCacheSecurityAndSslConfigurationIsCorrect() {
 
 		assertThat(this.cache).isNotNull();
-		//assertThat(this.cache.getName())
-		//	.isEqualTo(UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegrationTests.class.getSimpleName());
+		assertThat(this.cache.getName())
+			.isEqualTo(UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegrationTests.class.getSimpleName());
 
 		DistributedSystem distributedSystem = this.cache.getDistributedSystem();
 

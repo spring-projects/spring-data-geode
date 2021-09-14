@@ -44,7 +44,7 @@ import org.xml.sax.SAXParseException;
 public class SubRegionWithInvalidDataPolicyTest extends IntegrationTestsSupport {
 
 	@Test(expected = XmlBeanDefinitionStoreException.class)
-	public void testSubRegionBeanDefinitionWithInconsistentDataPolicy() {
+	public void subRegionBeanDefinitionWithInconsistentDataPolicyThrowsException() {
 
 		try {
 			new ClassPathXmlApplicationContext(
@@ -52,7 +52,7 @@ public class SubRegionWithInvalidDataPolicyTest extends IntegrationTestsSupport 
 		}
 		catch (XmlBeanDefinitionStoreException expected) {
 
-			assertThat(expected.getCause() instanceof SAXParseException).isTrue();
+			assertThat(expected.getCause()).isInstanceOf(SAXParseException.class);
 			assertThat(expected.getCause().getMessage().contains("PERSISTENT_PARTITION")).isTrue();
 
 			throw expected;
@@ -60,7 +60,7 @@ public class SubRegionWithInvalidDataPolicyTest extends IntegrationTestsSupport 
 	}
 
 	@Test(expected = BeanCreationException.class)
-	public void testSubRegionBeanDefinitionWithInvalidDataPolicyPersistentSettings() {
+	public void subRegionBeanDefinitionWithInvalidDataPolicyAndPersistentSettingsThrowsException() {
 
 		try {
 			new ClassPathXmlApplicationContext(
@@ -68,10 +68,9 @@ public class SubRegionWithInvalidDataPolicyTest extends IntegrationTestsSupport 
 		}
 		catch (BeanCreationException expected) {
 
-			assertThat(expected.getMessage().contains("Error creating bean with name '/Parent/Child'")).isTrue();
-			assertThat(expected.getCause() instanceof IllegalArgumentException).isTrue();
-			assertThat(expected.getCause().getMessage())
-				.isEqualTo("Data Policy [REPLICATE] is not valid when persistent is true");
+			assertThat(expected).hasMessageContaining("Error creating bean with name '/Parent/Child'");
+			assertThat(expected).hasCauseInstanceOf(IllegalArgumentException.class);
+			assertThat(expected.getCause()).hasMessage("Data Policy [REPLICATE] is not valid when persistent is true");
 
 			throw expected;
 		}

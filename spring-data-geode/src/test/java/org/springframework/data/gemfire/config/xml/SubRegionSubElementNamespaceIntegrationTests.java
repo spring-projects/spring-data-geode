@@ -30,11 +30,8 @@ import org.apache.geode.cache.asyncqueue.AsyncEvent;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -47,19 +44,15 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.junit.Test
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.3.3
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "subregionsubelement-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	private ApplicationContext applicationContext;
 
 	@Resource(name = "/Customers/Accounts")
 	private Region<?, ?> customersAccountsRegion;
@@ -88,7 +81,7 @@ public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTes
 	@Test
 	public void testOrderItemsSubRegionGatewaySender() {
 
-		Region<?, ?> orderItemsRegion = applicationContext.getBean("/Orders/Items", Region.class);
+		Region<?, ?> orderItemsRegion = requireApplicationContext().getBean("/Orders/Items", Region.class);
 
 		assertThat(orderItemsRegion).isNotNull();
 		assertThat(orderItemsRegion.getAttributes()).isNotNull();

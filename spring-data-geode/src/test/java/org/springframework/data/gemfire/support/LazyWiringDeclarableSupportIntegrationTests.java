@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +33,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.support.DataSourceAdapter;
+import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
@@ -52,14 +54,17 @@ import org.springframework.util.Assert;
 @SuppressWarnings("unused")
 public class LazyWiringDeclarableSupportIntegrationTests extends IntegrationTestsSupport {
 
+	private static Properties createParameters(String parameter, String value) {
+		return PropertiesBuilder.create().setProperty(parameter, value).build();
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		SpringContextBootstrappingInitializer.destroy();
+	}
+
 	@Autowired
 	private ApplicationContext applicationContext;
-
-	private static Properties createParameters(String parameter, String value) {
-		Properties parameters = new Properties();
-		parameters.setProperty(parameter, value);
-		return parameters;
-	}
 
 	@Test
 	public void autoWiringSuccessful() {
@@ -93,6 +98,7 @@ public class LazyWiringDeclarableSupportIntegrationTests extends IntegrationTest
 	public void autoWiringWithNonExistingBeanTemplateThrowsIllegalArgumentException() {
 
 		try {
+
 			TestDeclarable declarable = new TestDeclarable();
 
 			declarable.init(createParameters(TEMPLATE_BEAN_NAME_PROPERTY, "nonExistingBeanTemplate"));
@@ -116,17 +122,17 @@ public class LazyWiringDeclarableSupportIntegrationTests extends IntegrationTest
 		@Autowired
 		private User user;
 
-		public final void setDataSource(DataSource dataSource) {
+		public void setDataSource(DataSource dataSource) {
 			this.dataSource = dataSource;
 		}
 
-		DataSource getDataSource() {
-			return dataSource;
+		public DataSource getDataSource() {
+			return this.dataSource;
 		}
 
-		protected User getUser() {
-			Assert.state(user != null, "A reference to the User was not properly configured");
-			return user;
+		User getUser() {
+			Assert.state(this.user != null, "A reference to the User was not properly configured");
+			return this.user;
 		}
 	}
 }

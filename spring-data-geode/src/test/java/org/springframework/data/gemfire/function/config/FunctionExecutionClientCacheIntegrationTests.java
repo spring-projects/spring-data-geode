@@ -28,8 +28,6 @@ import org.apache.geode.cache.execute.FunctionException;
 import org.apache.geode.cache.execute.ResultCollector;
 import org.apache.geode.distributed.DistributedMember;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -47,23 +45,20 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.execute.Execution
  * @see org.apache.geode.cache.execute.Function
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ClientCacheTestConfiguration.class)
+@ContextConfiguration(classes = FunctionExecutionClientCacheIntegrationTests.ClientCacheTestConfiguration.class)
 public class FunctionExecutionClientCacheIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	ApplicationContext applicationContext;
 
 	@Test
 	public void contextCreated() {
 
-		ClientCache cache = this.applicationContext.getBean("gemfireCache", ClientCache.class);
+		ClientCache cache = requireApplicationContext().getBean("gemfireCache", ClientCache.class);
 
-		Pool pool = this.applicationContext.getBean("gemfirePool", Pool.class);
+		Pool pool = requireApplicationContext().getBean("gemfirePool", Pool.class);
 
 		assertThat(pool.getName()).isEqualTo("gemfirePool");
 		assertThat(cache.getDefaultPool().getLocators().isEmpty()).isTrue();
@@ -72,29 +67,31 @@ public class FunctionExecutionClientCacheIntegrationTests extends IntegrationTes
 		assertThat(pool.getServers().size()).isEqualTo(1);
 		assertThat(cache.getDefaultPool().getServers().get(0)).isEqualTo(pool.getServers().get(0));
 
-		Region<?, ?> region = this.applicationContext.getBean("r1", Region.class);
+		Region<?, ?> region = requireApplicationContext().getBean("r1", Region.class);
 
 		assertThat(region.getName()).isEqualTo("r1");
 		assertThat(region.getAttributes()).isNotNull();
 		assertThat(region.getAttributes().getPoolName()).isNull();
 
-		GemfireOnServerFunctionTemplate template = this.applicationContext.getBean(GemfireOnServerFunctionTemplate.class);
+		GemfireOnServerFunctionTemplate template = requireApplicationContext().getBean(GemfireOnServerFunctionTemplate.class);
 
-		assertThat(template.getResultCollector() instanceof MyResultCollector).isTrue();
+		assertThat(template.getResultCollector()).isInstanceOf(MyResultCollector.class);
+	}
+
+	@Configuration
+	@ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionClientCacheIntegrationTests-context.xml")
+	@EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.three")
+	@SuppressWarnings("unused")
+	static class ClientCacheTestConfiguration {
+
+		@Bean
+		MyResultCollector myResultCollector() {
+			return new MyResultCollector();
+		}
 	}
 }
 
-@Configuration
-@ImportResource("/org/springframework/data/gemfire/function/config/FunctionExecutionCacheClientTests-context.xml")
-@EnableGemfireFunctionExecutions(basePackages = "org.springframework.data.gemfire.function.config.three")
-@SuppressWarnings("unused")
-class ClientCacheTestConfiguration {
 
-	@Bean
-	MyResultCollector myResultCollector() {
-		return new MyResultCollector();
-	}
-}
 
 @SuppressWarnings("rawtypes")
 class MyResultCollector implements ResultCollector {

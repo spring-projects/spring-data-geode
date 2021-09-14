@@ -137,10 +137,7 @@ public abstract class AbstractConfigurableCacheFactoryBean extends AbstractBasic
 	 */
 	@SuppressWarnings("unused")
 	protected boolean isCacheXmlPresent() {
-
-		Resource cacheXml = getCacheXml();
-
-		return cacheXml != null && cacheXml.exists();
+		return getOptionalCacheXml().filter(Resource::exists).isPresent();
 	}
 
 	/**
@@ -154,10 +151,7 @@ public abstract class AbstractConfigurableCacheFactoryBean extends AbstractBasic
 	 * @see java.io.File
 	 */
 	protected boolean isCacheXmlResolvableAsAFile() {
-
-		Resource cacheXml = getCacheXml();
-
-		return cacheXml != null && cacheXml.isFile();
+		return getOptionalCacheXml().filter(Resource::isFile).isPresent();
 	}
 
 	/**
@@ -234,6 +228,17 @@ public abstract class AbstractConfigurableCacheFactoryBean extends AbstractBasic
 		}
 	}
 
+	/**
+	 * Determine whether to use the {@link GemfireBeanFactoryLocator}.
+	 *
+	 * This method really determines whether the {@link GemfireBeanFactoryLocator} is enabled and required to configure
+	 * native Apache Geode configuration metadata ({@literal cache.xml}).
+	 *
+	 * @return a boolean value indicating whether to use the {@link GemfireBeanFactoryLocator}.
+	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
+	 * @see #getOptionalBeanFactoryLocator()
+	 * @see #isUseBeanFactoryLocator()
+	 */
 	private boolean useBeanFactoryLocator() {
 		return isUseBeanFactoryLocator() && !getOptionalBeanFactoryLocator().isPresent();
 	}

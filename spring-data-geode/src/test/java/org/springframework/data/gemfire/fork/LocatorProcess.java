@@ -17,6 +17,7 @@ package org.springframework.data.gemfire.fork;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,7 @@ import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.tests.process.ProcessUtils;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.tests.util.ThreadUtils;
+import org.springframework.data.gemfire.util.ArrayUtils;
 
 /**
  * The {@link LocatorProcess} class is a main Java class that is used fork and launch an Apache Geode {@link Locator}
@@ -149,6 +151,9 @@ public class LocatorProcess {
 			if (locator != null) {
 				locator.stop();
 			}
+
+			Arrays.stream(ArrayUtils.nullSafeArray(FileSystemUtils.WORKING_DIRECTORY.listFiles((dir, name) -> name.startsWith("vf.gf") && name.endsWith(".pid")), File.class))
+				.forEach(File::delete);
 		}));
 	}
 

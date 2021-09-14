@@ -35,6 +35,26 @@ import org.junit.Test;
 public class ConnectionEndpointUnitTests {
 
 	@Test
+	public void fromHostAndPort() {
+
+		ConnectionEndpoint connectionEndpoint = ConnectionEndpoint.from("testhost", 1234);
+
+		assertThat(connectionEndpoint).isNotNull();
+		assertThat(connectionEndpoint.getHost()).isEqualTo("testhost");
+		assertThat(connectionEndpoint.getPort()).isEqualTo(1234);
+	}
+
+	@Test
+	public void fromPort() {
+
+		ConnectionEndpoint connectionEndpoint = ConnectionEndpoint.from(4321);
+
+		assertThat(connectionEndpoint).isNotNull();
+		assertThat(connectionEndpoint.getHost()).isEqualTo(ConnectionEndpoint.DEFAULT_HOST);
+		assertThat(connectionEndpoint.getPort()).isEqualTo(4321);
+	}
+
+	@Test
 	public void fromInetSocketAddress() {
 
 		InetSocketAddress socketAddress = new InetSocketAddress("localhost", 1234);

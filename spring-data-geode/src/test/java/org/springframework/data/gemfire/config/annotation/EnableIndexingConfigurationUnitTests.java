@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
@@ -55,7 +54,6 @@ import org.apache.geode.cache.query.QueryService;
 import org.apache.lucene.analysis.Analyzer;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -68,6 +66,7 @@ import org.springframework.data.gemfire.config.annotation.test.entities.GenericR
 import org.springframework.data.gemfire.config.annotation.test.entities.LocalRegionEntity;
 import org.springframework.data.gemfire.config.annotation.test.entities.NonEntity;
 import org.springframework.data.gemfire.config.annotation.test.entities.ReplicateRegionEntity;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -90,10 +89,11 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.data.gemfire.config.annotation.IndexConfiguration
  * @see org.springframework.data.gemfire.mapping.annotation.Indexed
  * @see org.springframework.data.gemfire.mapping.annotation.LuceneIndexed
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @since 1.9.0
  */
 @SuppressWarnings({ "rawtypes", "unused" })
-public class EnableIndexingConfigurationUnitTests {
+public class EnableIndexingConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private static final Set<Index> indexes = Collections.synchronizedSet(new HashSet<>());
 
@@ -125,14 +125,8 @@ public class EnableIndexingConfigurationUnitTests {
 		return null;
 	}
 
-	private ConfigurableApplicationContext applicationContext;
-
 	@After
 	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
 		indexes.clear();
 	}
 
@@ -154,22 +148,13 @@ public class EnableIndexingConfigurationUnitTests {
 		assertThat(index.getType()).isEqualTo(indexType.getGemfireIndexType());
 	}
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
-
-		applicationContext.registerShutdownHook();
-
-		return applicationContext;
-	}
-
 	@Test
 	public void persistentEntityIndexesAreCreated() {
 
-		this.applicationContext = newApplicationContext(IndexingEnabledWithIndexedPersistentEntityConfiguration.class);
+		newApplicationContext(IndexingEnabledWithIndexedPersistentEntityConfiguration.class);
 
-		assertLuceneIndexes(this.applicationContext);
-		assertOqlIndexes(this.applicationContext);
+		assertLuceneIndexes(requireApplicationContext());
+		assertOqlIndexes(requireApplicationContext());
 	}
 
 	private void assertLuceneIndexes(ConfigurableApplicationContext applicationContext) {
@@ -198,10 +183,9 @@ public class EnableIndexingConfigurationUnitTests {
 	@Test
 	public void persistentEntityIndexesAreNotCreated() {
 
-		this.applicationContext =
-			newApplicationContext(IndexingNotEnabledWithIndexedPersistentEntityConfiguration.class);
+		newApplicationContext(IndexingNotEnabledWithIndexedPersistentEntityConfiguration.class);
 
-		Map<String, Index> indexes = this.applicationContext.getBeansOfType(Index.class);
+		Map<String, Index> indexes = getBeansOfType(Index.class);
 
 		assertThat(indexes).isNotNull();
 		assertThat(indexes).isEmpty();
@@ -210,10 +194,9 @@ public class EnableIndexingConfigurationUnitTests {
 	@Test
 	public void indexAnnotatedEntityPropertyIsIgnoredWithExistingIndexHavingSameDefinition() {
 
-		this.applicationContext =
-			newApplicationContext(IndexAnnotatedEntityPropertyIsIgnoredWithExistingIndexHavingSameDefinitionConfiguration.class);
+		newApplicationContext(IndexAnnotatedEntityPropertyIsIgnoredWithExistingIndexHavingSameDefinitionConfiguration.class);
 
-		Index firstNameIndex = this.applicationContext.getBean("LoyalCustomersFirstNameFunctionalIdx", Index.class);
+		Index firstNameIndex = getBean("LoyalCustomersFirstNameFunctionalIdx", Index.class);
 
 		assertOqlIndex(firstNameIndex, "LoyalCustomersFirstNameFunctionalIdx",
 			"first_name", "/LoyalCustomers", IndexType.FUNCTIONAL);
@@ -224,10 +207,9 @@ public class EnableIndexingConfigurationUnitTests {
 	@Test
 	public void indexAnnotatedEntityPropertyIsIgnoredWithExistingIndexHavingSameName() {
 
-		this.applicationContext =
-			newApplicationContext(IndexAnnotatedEntityPropertyIsIgnoredWithExistingIndexHavingSameNameConfiguration.class);
+		newApplicationContext(IndexAnnotatedEntityPropertyIsIgnoredWithExistingIndexHavingSameNameConfiguration.class);
 
-		Index lastNameIndex = this.applicationContext.getBean("LastNameIdx", Index.class);
+		Index lastNameIndex = getBean("LastNameIdx", Index.class);
 
 		assertOqlIndex(lastNameIndex, "LastNameIdx", "last_name", "/People", IndexType.HASH);
 	}

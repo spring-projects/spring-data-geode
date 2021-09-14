@@ -27,6 +27,7 @@ import static org.springframework.data.gemfire.util.ArrayUtils.asArray;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.Executor;
 
+import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.GemFireCache;
@@ -45,7 +46,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -60,10 +60,9 @@ import org.springframework.data.gemfire.repository.config.EnableGemfireRepositor
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactoryBean;
 import org.springframework.data.gemfire.test.model.Person;
 import org.springframework.data.gemfire.test.repo.PersonRepository;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.GemFireMockObjectsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.data.gemfire.tests.util.IOUtils;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ErrorHandler;
@@ -93,45 +92,37 @@ import lombok.Data;
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.1
  */
-public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTestsSupport {
+public class EnableContinuousQueriesConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
+	@After
+	public void tearDown() {
+		destroyAllGemFireMockObjects();
 	}
 
 	@Test
 	public void continuousQueryListenerContainerConfigurationIsCorrect() {
 
-		ConfigurableApplicationContext applicationContext =
-			newApplicationContext(TestContinuousQueryListenerContainerConfiguration.class);
+		newApplicationContext(TestContinuousQueryListenerContainerConfiguration.class);
 
-		try {
+		ErrorHandler mockErrorHandler = getBean("mockErrorHandler", ErrorHandler.class);
 
-			ErrorHandler mockErrorHandler = applicationContext.getBean("mockErrorHandler", ErrorHandler.class);
+		Executor mockTaskExecutor = getBean("mockTaskExecutor", Executor.class);
 
-			Executor mockTaskExecutor = applicationContext.getBean("mockTaskExecutor", Executor.class);
+		Pool mockPool = getBean("mockPool", Pool.class);
 
-			Pool mockPool = applicationContext.getBean("mockPool", Pool.class);
+		QueryService mockQueryService = getBean("mockQueryService", QueryService.class);
 
-			QueryService mockQueryService = applicationContext.getBean("mockQueryService", QueryService.class);
+		assertThat(containsBean("continuousQueryListenerContainer")).isTrue();
 
-			assertThat(applicationContext.containsBean("continuousQueryListenerContainer")).isTrue();
+		ContinuousQueryListenerContainer container =
+			getBean("continuousQueryListenerContainer", ContinuousQueryListenerContainer.class);
 
-			ContinuousQueryListenerContainer container =
-				applicationContext.getBean("continuousQueryListenerContainer",
-					ContinuousQueryListenerContainer.class);
-
-			assertThat(container).isNotNull();
-			assertThat(container.getErrorHandler().orElse(null)).isEqualTo(mockErrorHandler);
-			assertThat(container.getPhase()).isEqualTo(1);
-			assertThat(container.getPoolName()).isEqualTo(mockPool.getName());
-			assertThat(container.getQueryService()).isEqualTo(mockQueryService);
-			assertThat(container.getTaskExecutor()).isEqualTo(mockTaskExecutor);
-		}
-		finally {
-			IOUtils.close(applicationContext);
-			GemFireMockObjectsSupport.destroy();
-		}
+		assertThat(container).isNotNull();
+		assertThat(container.getErrorHandler().orElse(null)).isEqualTo(mockErrorHandler);
+		assertThat(container.getPhase()).isEqualTo(1);
+		assertThat(container.getPoolName()).isEqualTo(mockPool.getName());
+		assertThat(container.getQueryService()).isEqualTo(mockQueryService);
+		assertThat(container.getTaskExecutor()).isEqualTo(mockTaskExecutor);
 	}
 
 	private void testRegisterAndExecuteContinuousQuery(Class<?>... annotatedClasses) throws Exception {
@@ -139,6 +130,7 @@ public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTe
 		ConfigurableApplicationContext applicationContext = newApplicationContext(annotatedClasses);
 
 		try {
+
 			assertThat(applicationContext).isNotNull();
 			assertThat(applicationContext.containsBean("DEFAULT")).isTrue();
 
@@ -164,8 +156,8 @@ public class EnableContinuousQueriesConfigurationUnitTests extends IntegrationTe
 			verify(mockCqQuery, times(1)).execute();
 		}
 		finally {
-			IOUtils.close(applicationContext);
-			GemFireMockObjectsSupport.destroy();
+			closeApplicationContext(applicationContext);
+			destroyAllGemFireMockObjects();
 		}
 	}
 

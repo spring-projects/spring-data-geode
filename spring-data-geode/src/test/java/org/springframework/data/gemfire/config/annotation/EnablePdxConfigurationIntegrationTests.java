@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Test;
 
@@ -27,17 +25,14 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.pdx.PdxSerializer;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.DiskStoreFactoryBean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
@@ -49,53 +44,40 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.springframework.data.gemfire.config.annotation.EnablePdx
  * @see org.springframework.data.gemfire.config.annotation.PdxConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
-public class EnablePdxConfigurationIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	private ConfigurableApplicationContext applicationContext;
+public class EnablePdxConfigurationIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
 	}
 
 	@Test
 	public void regionBeanDefinitionDependsOnPdxDiskStoreBean() {
 
-		this.applicationContext = newApplicationContext(TestEnablePdxWithDiskStoreConfiguration.class);
+		newApplicationContext(TestEnablePdxWithDiskStoreConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("MockPdxSerializer")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestDiskStore")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestRegion")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("MockPdxSerializer")).isTrue();
+		assertThat(containsBean("TestDiskStore")).isTrue();
+		assertThat(containsBean("TestRegion")).isTrue();
 
-		CacheFactoryBean gemfireCache = this.applicationContext.getBean("&gemfireCache", CacheFactoryBean.class);
+		CacheFactoryBean gemfireCache = getBean("&gemfireCache", CacheFactoryBean.class);
 
 		assertThat(gemfireCache).isNotNull();
-		assertThat(gemfireCache.getPdxSerializer())
-			.isEqualTo(this.applicationContext.getBean("MockPdxSerializer", PdxSerializer.class));
+		assertThat(gemfireCache.getPdxSerializer()).isEqualTo(getBean("MockPdxSerializer", PdxSerializer.class));
 
 		BeanDefinition testDiskStoreBeanDefinition =
-			this.applicationContext.getBeanFactory().getBeanDefinition("TestDiskStore");
+			requireApplicationContext().getBeanFactory().getBeanDefinition("TestDiskStore");
 
 		assertThat(testDiskStoreBeanDefinition).isNotNull();
 		assertThat(testDiskStoreBeanDefinition.getDependsOn()).isNullOrEmpty();
 
 		BeanDefinition testRegionBeanDefinition =
-			this.applicationContext.getBeanFactory().getBeanDefinition("TestRegion");
+			requireApplicationContext().getBeanFactory().getBeanDefinition("TestRegion");
 
 		assertThat(testRegionBeanDefinition).isNotNull();
 		assertThat(testRegionBeanDefinition.getDependsOn()).containsExactly("TestDiskStore");
@@ -104,26 +86,25 @@ public class EnablePdxConfigurationIntegrationTests extends IntegrationTestsSupp
 	@Test
 	public void regionBeanDefinitionHasNoDependencies() {
 
-		this.applicationContext = newApplicationContext(TestEnablePdxConfigurationWithNoDiskStoreConfiguration.class);
+		newApplicationContext(TestEnablePdxConfigurationWithNoDiskStoreConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestDiskStore")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestRegion")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("TestDiskStore")).isTrue();
+		assertThat(containsBean("TestRegion")).isTrue();
 
-		CacheFactoryBean gemfireCache = this.applicationContext.getBean("&gemfireCache", CacheFactoryBean.class);
+		CacheFactoryBean gemfireCache = getBean("&gemfireCache", CacheFactoryBean.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getPdxSerializer()).isInstanceOf(MappingPdxSerializer.class);
 
 		BeanDefinition testDiskStoreBeanDefinition =
-			this.applicationContext.getBeanFactory().getBeanDefinition("TestDiskStore");
+			requireApplicationContext().getBeanFactory().getBeanDefinition("TestDiskStore");
 
 		assertThat(testDiskStoreBeanDefinition).isNotNull();
 		assertThat(testDiskStoreBeanDefinition.getDependsOn()).isNullOrEmpty();
 
 		BeanDefinition testRegionBeanDefinition =
-			this.applicationContext.getBeanFactory().getBeanDefinition("TestRegion");
+			requireApplicationContext().getBeanFactory().getBeanDefinition("TestRegion");
 
 		assertThat(testRegionBeanDefinition).isNotNull();
 		assertThat(testRegionBeanDefinition.getDependsOn()).isNullOrEmpty();

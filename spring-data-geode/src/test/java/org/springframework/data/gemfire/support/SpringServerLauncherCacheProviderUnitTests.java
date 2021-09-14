@@ -17,7 +17,9 @@ package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,7 +34,8 @@ import org.apache.geode.distributed.ServerLauncher;
 import org.apache.geode.distributed.ServerLauncherCacheProvider;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.util.PropertiesBuilder;
 
 /**
  * Unit Tests testing the contract and functionality of the {@link SpringServerLauncherCacheProvider} class.
@@ -43,7 +46,9 @@ import org.springframework.data.gemfire.GemfireUtils;
  * @author Dan Smith
  * @author John Blum
  * @see org.junit.Test
+ * @see org.mockito.Mock
  * @see org.mockito.Mockito
+ * @see org.mockito.Spy
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.distributed.ServerLauncher
  * @see org.apache.geode.distributed.ServerLauncherCacheProvider
@@ -51,22 +56,15 @@ import org.springframework.data.gemfire.GemfireUtils;
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.data.gemfire.support.SpringServerLauncherCacheProvider
  */
-public class SpringServerLauncherCacheProviderUnitTests {
-
-	private String gemfireName() {
-		return (GemfireUtils.GEMFIRE_PREFIX + GemfireUtils.NAME_PROPERTY_NAME);
-	}
+public class SpringServerLauncherCacheProviderUnitTests extends IntegrationTestsSupport {
 
 	private Properties singletonProperties(String propertyName, String propertyValue) {
-		Properties properties = new Properties();
-		properties.setProperty(propertyName, propertyValue);
-		return properties;
+		return PropertiesBuilder.create().setProperty(propertyName, propertyValue).build();
 	}
 
 	@After
 	public void tearDown() {
-		System.clearProperty(gemfireName());
-		SpringContextBootstrappingInitializer.applicationContext = null;
+		SpringContextBootstrappingInitializer.destroy();
 	}
 
 	@Test
@@ -85,16 +83,13 @@ public class SpringServerLauncherCacheProviderUnitTests {
 
 		final SpringContextBootstrappingInitializer initializer = mock(SpringContextBootstrappingInitializer.class);
 
-		SpringServerLauncherCacheProvider provider = new SpringServerLauncherCacheProvider() {
+		SpringServerLauncherCacheProvider provider = spy(new SpringServerLauncherCacheProvider());
 
-			@Override
-			public SpringContextBootstrappingInitializer newSpringContextBootstrappingInitializer() {
-				return initializer;
-			}
-		};
+		doReturn(initializer).when(provider).newSpringContextBootstrappingInitializer();
 
-		Properties expectedParameters = singletonProperties(
-			SpringContextBootstrappingInitializer.CONTEXT_CONFIG_LOCATIONS_PARAMETER, "test-context.xml");
+		Properties expectedParameters =
+			singletonProperties(SpringContextBootstrappingInitializer.CONTEXT_CONFIG_LOCATIONS_PARAMETER,
+				"test-context.xml");
 
 		assertThat(provider.createCache(null, mockServerLauncher)).isEqualTo(mockCache);
 

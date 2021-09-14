@@ -33,7 +33,6 @@ import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -126,11 +125,7 @@ public class ConcurrentClientTransactionalDataAccessWithRollbackIntegrationTests
 	static class TestGeodeServerConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(TestGeodeServerConfiguration.class);
-
-			applicationContext.registerShutdownHook();
+			runSpringApplication(TestGeodeServerConfiguration.class, args);
 		}
 	}
 

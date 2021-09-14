@@ -20,9 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.EntryEvent;
@@ -35,13 +34,12 @@ import org.apache.geode.cache.wan.GatewaySender;
 import org.apache.geode.cache.wan.GatewayTransportFilter;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -49,45 +47,40 @@ import org.springframework.mock.env.MockPropertySource;
  * Tests for {@link EnableGatewaySenders} and {@link EnableGatewaySender}.
  *
  * @author Udo Kohlmeyer
+ * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.wan.GatewaySender
  * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.data.gemfire.config.annotation.EnableGatewaySender
+ * @see org.springframework.data.gemfire.config.annotation.EnableGatewaySenders
  * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySendersConfiguration
  * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfigurer
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @see org.springframework.data.gemfire.wan.GatewaySenderFactoryBean
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
-public class GatewaySenderConfigurerTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void shutdown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
+public class GatewaySenderConfigurerTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
 			Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer =
+			applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+				MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+				propertySources.addFirst(testPropertySource);
 
-		applicationContext.registerShutdownHook();
-		applicationContext.register(annotatedClasses);
-		applicationContext.refresh();
+				return applicationContext;
+			};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@Test
@@ -104,11 +97,10 @@ public class GatewaySenderConfigurerTests extends IntegrationTestsSupport {
 		testPropertySource.setProperty("spring.data.gemfire.gateway.sender.TestGatewaySender2.socket-read-timeout", 4000);
 		testPropertySource.setProperty("spring.data.gemfire.gateway.sender.socket-buffer-size", 16384);
 
-		this.applicationContext = newApplicationContext(testPropertySource,
-			BaseGatewaySenderTestConfiguration.class,
+		newApplicationContext(testPropertySource, BaseGatewaySenderTestConfiguration.class,
 			TestTwoGatewaySenderConfigurersBasic.class);
 
-		Map<String, GatewaySender> beansOfType = this.applicationContext.getBeansOfType(GatewaySender.class);
+		Map<String, GatewaySender> beansOfType = getBeansOfType(GatewaySender.class);
 
 		String[] senders = new String[] { "TestGatewaySender", "TestGatewaySender2" };
 
@@ -117,7 +109,7 @@ public class GatewaySenderConfigurerTests extends IntegrationTestsSupport {
 
 		for (String sender : senders) {
 
-			GatewaySender gatewaySender = this.applicationContext.getBean(sender, GatewaySender.class);
+			GatewaySender gatewaySender = getBean(sender, GatewaySender.class);
 
 			assertThat(gatewaySender.isManualStart()).isEqualTo(false);
 			assertThat(gatewaySender.getRemoteDSId()).isEqualTo(2);
@@ -137,8 +129,8 @@ public class GatewaySenderConfigurerTests extends IntegrationTestsSupport {
 
 			assertThat(gatewaySender.getGatewayTransportFilters().size()).isEqualTo(0);
 
-			Region<?, ?> region1 = this.applicationContext.getBean("Region1", Region.class);
-			Region<?, ?> region2 = this.applicationContext.getBean("Region2", Region.class);
+			Region<?, ?> region1 = getBean("Region1", Region.class);
+			Region<?, ?> region2 = getBean("Region2", Region.class);
 
 			assertThat(region1.getAttributes().getGatewaySenderIds())
 				.containsExactlyInAnyOrder("TestGatewaySender", "TestGatewaySender2");

@@ -20,7 +20,7 @@
 	</util:properties>
 
 	<gfe:cache cache-xml-location="/non-cluster-config-cache.xml" properties-ref="gemfireProperties"
-			   use-bean-factory-locator="false" use-cluster-configuration="false"/>
+			   use-cluster-configuration="false"/>
 
 	<!-- Should throw an Exception! -->
 	<gfe:lookup-region id="ClusterConfigRegion"/>

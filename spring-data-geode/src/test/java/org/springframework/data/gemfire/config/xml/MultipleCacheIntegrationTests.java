@@ -23,6 +23,7 @@ import org.apache.geode.cache.Region;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.util.SpringUtils;
 
 /**
  * Integration Tests for multiple Apache Geode {@link GemFireCache caches}.
@@ -43,28 +44,42 @@ public class MultipleCacheIntegrationTests extends IntegrationTestsSupport {
 	@Test
 	public void testMultipleCaches() {
 
-		String configLocation = "/org/springframework/data/gemfire/config/xml/MultipleCacheTest-context.xml";
+		String configLocation = getContextXmlFileLocation(MultipleCacheIntegrationTests.class);
 
-		ConfigurableApplicationContext context1 = new ClassPathXmlApplicationContext(configLocation);
-		ConfigurableApplicationContext context2 = new ClassPathXmlApplicationContext(configLocation);
+		ConfigurableApplicationContext applicationContextOne = null;
+		ConfigurableApplicationContext applicationContextTwo = null;
 
-		Cache cache1 = context1.getBean(Cache.class);
-		Cache cache2 = context2.getBean(Cache.class);
+		try {
 
-		assertThat(cache1).isNotNull();
-		assertThat(cache2).isSameAs(cache1);
+			applicationContextOne = new ClassPathXmlApplicationContext(configLocation);
+			applicationContextTwo = new ClassPathXmlApplicationContext(configLocation);
 
-		Region<?, ?> region1 = context1.getBean(Region.class);
-		Region<?, ?> region2 = context2.getBean(Region.class);
+			Cache cacheOne = applicationContextOne.getBean(Cache.class);
+			Cache cacheTwo = applicationContextTwo.getBean(Cache.class);
 
-		assertThat(region1).isNotNull();
-		assertThat(region2).isSameAs(region1);
-		assertThat(cache1.isClosed()).isFalse();
-		assertThat(region1.isDestroyed()).isFalse();
+			assertThat(cacheOne).isNotNull();
+			assertThat(cacheTwo).isSameAs(cacheOne);
 
-		context1.close();
+			Region<?, ?> regionOne = applicationContextOne.getBean(Region.class);
+			Region<?, ?> regionTwo = applicationContextTwo.getBean(Region.class);
 
-		assertThat(cache1.isClosed()).isFalse();
-		assertThat(region1.isDestroyed()).as("region was destroyed").isFalse();
+			assertThat(regionOne).isNotNull();
+			assertThat(regionTwo).isSameAs(regionOne);
+			assertThat(cacheOne.isClosed()).isFalse();
+			assertThat(regionOne.isDestroyed()).isFalse();
+
+			applicationContextOne.close();
+
+			assertThat(cacheOne.isClosed()).isFalse();
+			assertThat(regionOne.isDestroyed()).describedAs("Region was destroyed").isFalse();
+		}
+		finally {
+
+			final ConfigurableApplicationContext applicationContextOneRef = applicationContextOne;
+			final ConfigurableApplicationContext applicationContextTwoRef = applicationContextTwo;
+
+			SpringUtils.safeDoOperation(() -> closeApplicationContext(applicationContextOneRef));
+			SpringUtils.safeDoOperation(() -> closeApplicationContext(applicationContextTwoRef));
+		}
 	}
 }

@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,6 +42,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("apache-geode-client")
 @ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
+@DirtiesContext
 public class ApacheShiroIniSecurityIntegrationTests extends AbstractGeodeSecurityIntegrationTests {
 
 	protected static final String SHIRO_INI_CONFIGURATION_PROFILE = "shiro-ini-configuration";

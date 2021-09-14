@@ -33,49 +33,43 @@ import org.apache.geode.cache.partition.PartitionListener;
 import org.apache.geode.cache.partition.PartitionListenerAdapter;
 import org.apache.geode.compression.Compressor;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 import org.springframework.data.gemfire.SimpleCacheListener;
 import org.springframework.data.gemfire.SimplePartitionResolver;
 import org.springframework.data.gemfire.TestUtils;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ObjectUtils;
 
 /**
- * Integration Tests for the Partitioned Region XML namespace configuration metadata.
+ * Integration Tests for {@link DataPolicy#PARTITION} {@link Region} SDG XML namespace configuration metadata.
  *
  * @author Costin Leau
  * @author David Turanski
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.DataPolicy#PARTITION
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.PartitionedRegionFactoryBean
  * @see org.springframework.data.gemfire.config.xml.PartitionedRegionParser
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "partitioned-ns.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTestsSupport {
-
-	@Autowired
-	private ApplicationContext applicationContext;
 
 	@Test
 	public void testSimplePartitionRegion() {
 
-		assertThat(applicationContext.containsBean("simple")).isTrue();
+		assertThat(requireApplicationContext().containsBean("simple")).isTrue();
 
-		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
+		Region<?, ?> simple = requireApplicationContext().getBean("simple", Region.class);
 
 		assertThat(simple).isNotNull();
 		assertThat(simple.getName()).isEqualTo("simple");
@@ -88,19 +82,20 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@SuppressWarnings("rawtypes")
 	public void testOptionsPartitionRegion() throws Exception {
 
-		assertThat(applicationContext.containsBean("options")).isTrue();
-		assertThat(applicationContext.containsBean("redundant")).isTrue();
+		assertThat(requireApplicationContext().containsBean("options")).isTrue();
+		assertThat(requireApplicationContext().containsBean("redundant")).isTrue();
 
-		Region<?, ?> options = applicationContext.getBean("options", Region.class);
+		Region<?, ?> options = requireApplicationContext().getBean("options", Region.class);
 
 		assertThat(options).isNotNull();
-		assertThat(options.getAttributes()).isNotNull();
 		assertThat(options.getName()).isEqualTo("redundant");
+		assertThat(options.getAttributes()).isNotNull();
 		assertThat(options.getAttributes().getOffHeap()).isTrue();
 
-		PeerRegionFactoryBean optionsRegionFactoryBean = applicationContext.getBean("&options", PeerRegionFactoryBean.class);
+		PeerRegionFactoryBean optionsRegionFactoryBean =
+			requireApplicationContext().getBean("&options", PeerRegionFactoryBean.class);
 
-		assertThat(optionsRegionFactoryBean instanceof PartitionedRegionFactoryBean).isTrue();
+		assertThat(optionsRegionFactoryBean).isInstanceOf(PartitionedRegionFactoryBean.class);
 		assertThat(TestUtils.<Object>readField("scope", optionsRegionFactoryBean)).isNull();
 		assertThat(TestUtils.<Object>readField("name", optionsRegionFactoryBean)).isEqualTo("redundant");
 		assertThat(TestUtils.<Object>readField("scope", optionsRegionFactoryBean)).isNull();
@@ -123,21 +118,22 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@SuppressWarnings("rawtypes")
 	public void testComplexPartitionRegion() throws Exception {
 
-		assertThat(applicationContext.containsBean("complex")).isTrue();
+		assertThat(requireApplicationContext().containsBean("complex")).isTrue();
 
-		PeerRegionFactoryBean complexRegionFactoryBean = applicationContext.getBean("&complex", PeerRegionFactoryBean.class);
+		PeerRegionFactoryBean complexRegionFactoryBean =
+			requireApplicationContext().getBean("&complex", PeerRegionFactoryBean.class);
 
 		CacheListener[] cacheListeners = TestUtils.readField("cacheListeners", complexRegionFactoryBean);
 
 		assertThat(ObjectUtils.isEmpty(cacheListeners)).isFalse();
 		assertThat(cacheListeners.length).isEqualTo(2);
-		assertThat(applicationContext.getBean("c-listener")).isSameAs(cacheListeners[0]);
-		assertThat(cacheListeners[1] instanceof SimpleCacheListener).isTrue();
+		assertThat(requireApplicationContext().getBean("c-listener")).isSameAs(cacheListeners[0]);
+		assertThat(cacheListeners[1]).isInstanceOf(SimpleCacheListener.class);
 
 		assertThat(TestUtils.<Object>readField("cacheLoader", complexRegionFactoryBean))
-			.isSameAs(applicationContext.getBean("c-loader"));
+			.isSameAs(requireApplicationContext().getBean("c-loader"));
 		assertThat(TestUtils.<Object>readField("cacheWriter", complexRegionFactoryBean))
-			.isSameAs(applicationContext.getBean("c-writer"));
+			.isSameAs(requireApplicationContext().getBean("c-writer"));
 
 		RegionAttributes complexRegionAttributes = TestUtils.readField("attributes", complexRegionFactoryBean);
 
@@ -156,17 +152,19 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@Test
 	public void testCompressedPartitionRegion() {
 
-		assertThat(applicationContext.containsBean("compressed")).isTrue();
+		assertThat(requireApplicationContext().containsBean("compressed")).isTrue();
 
-		Region<?, ?> compressed = applicationContext.getBean("compressed", Region.class);
+		Region<?, ?> compressed = requireApplicationContext().getBean("compressed", Region.class);
 
-		assertThat(compressed).as("The 'compressed' PARTITION Region was not properly configured and initialized!")
+		assertThat(compressed)
+			.describedAs("The 'compressed' PARTITION Region was not properly configured and initialized!")
 			.isNotNull();
+
 		assertThat(compressed.getName()).isEqualTo("compressed");
 		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "compressed");
 		assertThat(compressed.getAttributes()).isNotNull();
 		assertThat(compressed.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.PARTITION);
-		assertThat(compressed.getAttributes().getCompressor() instanceof TestCompressor).isTrue();
+		assertThat(compressed.getAttributes().getCompressor()).isInstanceOf(TestCompressor.class);
 		assertThat(compressed.getAttributes().getCompressor().toString()).isEqualTo("testCompressor");
 	}
 
@@ -174,7 +172,8 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@SuppressWarnings("rawtypes")
 	public void testFixedPartitionRegion() throws Exception {
 
-		PeerRegionFactoryBean fixedRegionFactoryBean = applicationContext.getBean("&fixed", PeerRegionFactoryBean.class);
+		PeerRegionFactoryBean fixedRegionFactoryBean =
+			requireApplicationContext().getBean("&fixed", PeerRegionFactoryBean.class);
 
 		assertThat(fixedRegionFactoryBean).isNotNull();
 
@@ -199,12 +198,14 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@Test
 	public void testMultiplePartitionListeners() {
 
-		assertThat(applicationContext.containsBean("listeners")).isTrue();
+		assertThat(requireApplicationContext().containsBean("listeners")).isTrue();
 
-		Region<?, ?> listeners = applicationContext.getBean("listeners", Region.class);
+		Region<?, ?> listeners = requireApplicationContext().getBean("listeners", Region.class);
 
-		assertThat(listeners).as("The 'listeners' PARTITION Region was not properly configured and initialized!")
+		assertThat(listeners)
+			.describedAs("The 'listeners' PARTITION Region was not properly configured and initialized!")
 			.isNotNull();
+
 		assertThat(listeners.getName()).isEqualTo("listeners");
 		assertThat(listeners.getFullPath()).isEqualTo(Region.SEPARATOR + "listeners");
 		assertThat(listeners.getAttributes()).isNotNull();
@@ -219,7 +220,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 		List<String> expectedNames = Arrays.asList("X", "Y", "Z", "ABC");
 
 		for (PartitionListener listener : listenersPartitionAttributes.getPartitionListeners()) {
-			assertThat(listener instanceof TestPartitionListener).isTrue();
+			assertThat(listener).isInstanceOf(TestPartitionListener.class);
 			assertThat(expectedNames.contains(listener.toString())).isTrue();
 		}
 	}
@@ -227,12 +228,14 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 	@Test
 	public void testSinglePartitionListeners() {
 
-		assertThat(applicationContext.containsBean("listenerRef")).isTrue();
+		assertThat(requireApplicationContext().containsBean("listenerRef")).isTrue();
 
-		Region<?, ?> listeners = applicationContext.getBean("listenerRef", Region.class);
+		Region<?, ?> listeners = requireApplicationContext().getBean("listenerRef", Region.class);
 
-		assertThat(listeners).as("The 'listenerRef' PARTITION Region was not properly configured and initialized!")
+		assertThat(listeners)
+			.describedAs("The 'listenerRef' PARTITION Region was not properly configured and initialized!")
 			.isNotNull();
+
 		assertThat(listeners.getName()).isEqualTo("listenerRef");
 		assertThat(listeners.getFullPath()).isEqualTo(Region.SEPARATOR + "listenerRef");
 		assertThat(listeners.getAttributes()).isNotNull();
@@ -243,7 +246,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 		assertThat(listenersPartitionAttributes).isNotNull();
 		assertThat(listenersPartitionAttributes.getPartitionListeners()).isNotNull();
 		assertThat(listenersPartitionAttributes.getPartitionListeners().length).isEqualTo(1);
-		assertThat(listenersPartitionAttributes.getPartitionListeners()[0] instanceof TestPartitionListener).isTrue();
+		assertThat(listenersPartitionAttributes.getPartitionListeners()[0]).isInstanceOf(TestPartitionListener.class);
 		assertThat(listenersPartitionAttributes.getPartitionListeners()[0].toString()).isEqualTo("ABC");
 	}
 
@@ -251,7 +254,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
@@ -275,7 +278,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 
 		private String name;
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 

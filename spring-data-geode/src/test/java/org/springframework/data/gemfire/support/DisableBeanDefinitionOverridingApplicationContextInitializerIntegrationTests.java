@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.context.ApplicationContextInitializer
  * @see org.springframework.context.ConfigurableApplicationContext
  * @see org.springframework.data.gemfire.support.DisableBeanDefinitionOverridingApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.6.0
@@ -44,7 +46,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(initializers = DisableBeanDefinitionOverridingApplicationContextInitializer.class)
 @SuppressWarnings("unused")
-public class DisableBeanDefinitionOverridingApplicationContextInitializerIntegrationTests {
+public class DisableBeanDefinitionOverridingApplicationContextInitializerIntegrationTests
+		extends IntegrationTestsSupport {
 
 	@Autowired
 	private ConfigurableApplicationContext applicationContext;

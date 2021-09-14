@@ -32,6 +32,7 @@ import org.springframework.lang.NonNull;
  * Abstract base class encapsulating logic to resolve or create a {@link GemFireCache} instance.
  *
  * @author John Blum
+ * @see java.util.Optional
  * @see java.util.Properties
  * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.distributed.DistributedMember
@@ -85,24 +86,25 @@ public abstract class AbstractResolvableCacheFactoryBean extends AbstractConfigu
 	@SuppressWarnings("deprecation")
 	private void logCacheInitialization() {
 
-		getOptionalCache().ifPresent(cache -> {
+		getOptionalCache()
+			.filter(cache -> isInfoLoggingEnabled())
+			.ifPresent(cache -> {
 
-			Optional.ofNullable(cache.getDistributedSystem())
-				.map(DistributedSystem::getDistributedMember)
-				.ifPresent(member -> {
+				logInfo(() -> String.format("%1$s %2$s version [%3$s] Cache [%4$s]", this.cacheResolutionMessagePrefix,
+					apacheGeodeProductName(), apacheGeodeVersion(), cache.getName()));
 
-					String message = "Connected to Distributed System [%1$s] as Member [%2$s] in Group(s) [%3$s]"
-						+ " with Role(s) [%4$s] on Host [%5$s] having PID [%6$d]";
+				Optional.ofNullable(cache.getDistributedSystem())
+					.map(DistributedSystem::getDistributedMember)
+					.ifPresent(member -> {
 
-					logInfo(() -> String.format(message,
-						cache.getDistributedSystem().getName(), member.getId(), member.getGroups(),
-						member.getRoles(), member.getHost(), member.getProcessId()));
-				});
+						String message = "Connected to Distributed System [%1$s] as Member [%2$s] in Group(s) [%3$s]"
+							+ " with Role(s) [%4$s] on Host [%5$s] having PID [%6$d]";
 
-			logInfo(() -> String.format("%1$s %2$s version [%3$s] Cache [%4$s]", this.cacheResolutionMessagePrefix,
-				apacheGeodeProductName(), apacheGeodeVersion(), cache.getName()));
-
-		});
+						logInfo(() -> String.format(message,
+							cache.getDistributedSystem().getName(), member.getId(), member.getGroups(),
+							member.getRoles(), member.getHost(), member.getProcessId()));
+					});
+			});
 	}
 
 	/**

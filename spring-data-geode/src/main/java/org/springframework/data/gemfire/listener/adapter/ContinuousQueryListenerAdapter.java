@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.listener.adapter;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,9 +26,6 @@ import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.query.CqQuery;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.gemfire.listener.ContinuousQueryListener;
@@ -37,6 +33,9 @@ import org.springframework.data.gemfire.listener.GemfireListenerExecutionFailedE
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Event listener adapter that delegates the handling of messages to target listener methods via reflection,
@@ -182,10 +181,13 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 	public void onEvent(CqEvent event) {
 
 		try {
+
+			Object delegate = getDelegate();
+
 			// Determine whether the delegate is a ContinuousQueryListener implementation;
 			// If so, this adapter will simply act as a pass-through
-			if (this.delegate != this && this.delegate instanceof ContinuousQueryListener) {
-				((ContinuousQueryListener) this.delegate).onEvent(event);
+			if (delegate != this && delegate instanceof ContinuousQueryListener) {
+				((ContinuousQueryListener) delegate).onEvent(event);
 			}
 			// Else, find the listener method handler reflectively
 			else {
@@ -224,6 +226,7 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 	 * @see #getListenerMethodName
 	 */
 	protected void invokeListenerMethod(CqEvent event, String methodName) {
+
 		try {
 			this.invoker.invoke(event);
 		}
@@ -233,7 +236,7 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 			}
 			else {
 				throw new GemfireListenerExecutionFailedException(
-					String.format("Listener method [%s] threw Exception...", methodName), cause.getTargetException());
+					String.format("Listener method [%s] threw Exception", methodName), cause.getTargetException());
 			}
 		}
 		catch (Throwable cause) {
@@ -242,7 +245,7 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 		}
 	}
 
-	private class MethodInvoker {
+	private static class MethodInvoker {
 
 		private final Object delegate;
 
@@ -258,61 +261,59 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 			ReflectionUtils.doWithMethods(delegateType, method -> {
 				ReflectionUtils.makeAccessible(method);
 				this.methods.add(method);
-			}, method -> isValidEventMethodSignature(method, methodName));
+			}, method -> isValidEventHandlerMethodSignature(method, methodName));
 
 			Assert.isTrue(!this.methods.isEmpty(), String.format("Cannot find a suitable method named [%1$s#%2$s];"
 				+ " Is the method public and does it have the proper arguments?",
 					delegateType.getName(), methodName));
 		}
 
-		@SuppressWarnings("all")
-		private boolean isValidEventMethodSignature(Method method, String methodName) {
-
-			if (isEventHandlerMethod(method, methodName)) {
-
-				Class<?>[] parameterTypes = method.getParameterTypes();
-
-				int objects = 0;
-				int operations = 0;
-
-				if (parameterTypes.length > 0) {
-					for (Class<?> parameterType : parameterTypes) {
-						if (Object.class.equals(parameterType)) {
-							if (++objects > 2) {
-								return false;
-							}
-						}
-						else if (Operation.class.equals(parameterType)) {
-							if (++operations > 2) {
-								return false;
-							}
-						}
-						else if (byte[].class.equals(parameterType)) {
-						}
-						else if (CqEvent.class.equals(parameterType)) {
-						}
-						else if (CqQuery.class.equals(parameterType)) {
-						}
-						else if (Throwable.class.equals(parameterType)) {
-						}
-						else {
-							return false;
-						}
-					}
-
-					return true;
-				}
-			}
-
-			return false;
+		private boolean isValidEventHandlerMethodSignature(Method method, String methodName) {
+			return isValidEventHandlerMethodWithName(method, methodName)
+				&& isValidEventHandlerMethodWithSignature(method);
 		}
 
-		private boolean isEventHandlerMethod(Method method, String methodName) {
+		private boolean isValidEventHandlerMethodWithName(Method method, String methodName) {
 
 			return Optional.ofNullable(method)
 				.filter(it -> Modifier.isPublic(it.getModifiers()))
 				.filter(it -> method.getName().equals(methodName))
 				.isPresent();
+		}
+
+		@SuppressWarnings("all")
+		private boolean isValidEventHandlerMethodWithSignature(Method method) {
+
+			Class<?>[] parameterTypes = method.getParameterTypes();
+
+			int objects = 0;
+			int operations = 0;
+
+			if (parameterTypes.length > 0) {
+				for (Class<?> parameterType : parameterTypes) {
+					if (Object.class.equals(parameterType)) {
+						if (++objects > 2) {
+							return false;
+						}
+					}
+					else if (Operation.class.equals(parameterType)) {
+						if (++operations > 2) {
+							return false;
+						}
+					}
+					else if (byte[].class.equals(parameterType)) { }
+					else if (CqEvent.class.equals(parameterType)) { }
+					else if (CqQuery.class.equals(parameterType)) { }
+					else if (Throwable.class.equals(parameterType)) { }
+					else {
+						return false;
+					}
+				}
+
+				return true;
+			}
+
+			return false;
 		}
 
 		void invoke(CqEvent event) throws IllegalAccessException, InvocationTargetException {
@@ -336,11 +337,11 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 				Class<?> parameterType = parameterTypes[index];
 
 				if (Object.class.equals(parameterType)) {
-					args[index] = (value ? event.getNewValue() : event.getKey());
+					args[index] = value ? event.getNewValue() : event.getKey();
 					value = true;
 				}
 				else if (Operation.class.equals(parameterType)) {
-					args[index] = (query ? event.getQueryOperation() : event.getBaseOperation());
+					args[index] = query ? event.getQueryOperation() : event.getBaseOperation();
 					query = true;
 				}
 				else if (byte[].class.equals(parameterType)) {

@@ -18,6 +18,7 @@ package org.springframework.data.gemfire.support;
 import java.net.InetSocketAddress;
 
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -45,13 +46,38 @@ public class ConnectionEndpoint implements Cloneable, Comparable<ConnectionEndpo
 	private final String host;
 
 	/**
-	 * Converts the InetSocketAddress into a ConnectionEndpoint.
+	 * Factory method used to construct a new {@link ConnectionEndpoint} with the given {@link Integer port}
+	 * listening on the default host.
 	 *
-	 * @param socketAddress the InetSocketAddress used to construct and initialize the ConnectionEndpoint.
-	 * @return a ConnectionEndpoint representing the InetSocketAddress.
+	 * @param port {@link Integer port} of the {@link ConnectionEndpoint}.
+	 * @return a new {@link ConnectionEndpoint} with the given {@link Integer port} listening on the default host.
+	 * @see #from(String, int)
+	 */
+	public static @NonNull ConnectionEndpoint from(int port) {
+		return from(DEFAULT_HOST, port);
+	}
+
+	/**
+	 * Factory method used to construct a new {@link ConnectionEndpoint} for the given {@link String host}
+	 * and {@link Integer port}.
+	 *
+	 * @param host {@link String host} of the {@link ConnectionEndpoint}.
+	 * @param port {@link Integer port} of the {@link ConnectionEndpoint}.
+	 * @return a new {@link ConnectionEndpoint} with the given {@link String host} and {@link Integer port}.
+	 */
+	public static @NonNull ConnectionEndpoint from(String host, int port) {
+		return new ConnectionEndpoint(host, port);
+	}
+
+	/**
+	 * Factory method used to convert the given {@link InetSocketAddress} into a {@link ConnectionEndpoint}.
+	 *
+	 * @param socketAddress {@link InetSocketAddress} used to construct, configure and initialize
+	 * the {@link ConnectionEndpoint}.
+	 * @return a {@link ConnectionEndpoint} representing the {@link InetSocketAddress}.
 	 * @see java.net.InetSocketAddress
 	 */
-	public static ConnectionEndpoint from(InetSocketAddress socketAddress) {
+	public static @NonNull ConnectionEndpoint from(@NonNull InetSocketAddress socketAddress) {
 		return new ConnectionEndpoint(socketAddress.getHostString(), socketAddress.getPort());
 	}
 

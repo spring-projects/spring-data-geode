@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.support;
 
 import java.util.Properties;
@@ -40,14 +39,17 @@ import org.springframework.util.Assert;
  * a Spring {@link ApplicationContext}.
  *
  * @author John Blum
+ * @see java.util.Properties
+ * @see org.apache.geode.cache.CacheCallback
+ * @see org.apache.geode.cache.Declarable
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.DisposableBean
+ * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationListener
  * @see org.springframework.context.event.ContextRefreshedEvent
  * @see org.springframework.data.gemfire.support.SpringContextBootstrappingInitializer
  * @see org.springframework.data.gemfire.support.WiringDeclarableSupport
- * @see org.apache.geode.cache.Declarable
  * @since 1.3.4
  */
 @SuppressWarnings("unused")
@@ -91,8 +93,10 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see #isInitialized()
 	 */
 	protected void assertInitialized() {
-		Assert.state(isInitialized(), String.format(
-			"This Declarable object [%s] has not been properly configured and initialized", getClass().getName()));
+
+		Assert.state(isInitialized(),
+			String.format("This Declarable object [%s] has not been properly configured and initialized",
+				getClass().getName()));
 	}
 
 	/**
@@ -108,8 +112,10 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see #isNotInitialized()
 	 */
 	protected void assertUninitialized() {
-		Assert.state(isNotInitialized(), String.format(
-			"This Declarable object [%s] has already been configured and initialized", getClass().getName()));
+
+		Assert.state(isNotInitialized(),
+			String.format("This Declarable object [%s] has already been configured and initialized",
+				getClass().getName()));
 	}
 
 	/**
@@ -150,6 +156,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 */
 	@Override
 	public final void init(Properties parameters) {
+
 		setParameters(parameters);
 
 		try {
@@ -176,8 +183,9 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see java.util.Properties
 	 */
 	synchronized void doInit(BeanFactory beanFactory, Properties parameters) {
-		this.initialized = (isInitialized() || configureThis(beanFactory,
-			parameters.getProperty(TEMPLATE_BEAN_NAME_PROPERTY)));
+
+		this.initialized = isInitialized()
+			|| configureThis(beanFactory, parameters.getProperty(TEMPLATE_BEAN_NAME_PROPERTY));
 
 		doPostInit(parameters);
 	}
@@ -192,8 +200,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see #doInit(BeanFactory, Properties)
 	 * @see java.util.Properties
 	 */
-	protected void doPostInit(Properties parameters) {
-	}
+	protected void doPostInit(Properties parameters) { }
 
 	/**
 	 * Null-safe operation to return the parameters passed to this {@link Declarable} object when created by GemFire
@@ -204,8 +211,10 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see java.util.Properties
 	 */
 	protected Properties nullSafeGetParameters() {
-		Properties parameters = parametersReference.get();
-		return (parameters != null ? parameters : new Properties());
+
+		Properties parameters = this.parametersReference.get();
+
+		return parameters != null ? parameters : new Properties();
 	}
 
 	/**
@@ -216,7 +225,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see java.util.Properties
 	 */
 	protected void setParameters(Properties parameters) {
-		parametersReference.set(parameters);
+		this.parametersReference.set(parameters);
 	}
 
 	/**
@@ -232,10 +241,11 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	@Override
 	@SuppressWarnings("all")
 	public final void onApplicationEvent(ContextRefreshedEvent event) {
+
 		ApplicationContext applicationContext = event.getApplicationContext();
 
-		Assert.isTrue(applicationContext instanceof ConfigurableApplicationContext, String.format(
-			"The Spring ApplicationContext [%s] must be an instance of ConfigurableApplicationContext",
+		Assert.isTrue(applicationContext instanceof ConfigurableApplicationContext,
+			String.format("The Spring ApplicationContext [%s] must be an instance of ConfigurableApplicationContext",
 				applicationContext));
 
 		ConfigurableListableBeanFactory beanFactory =
@@ -255,6 +265,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 */
 	@Override
 	public void destroy() throws Exception {
+
 		SpringContextBootstrappingInitializer.unregister(this);
 		setParameters(null);
 		this.initialized = false;

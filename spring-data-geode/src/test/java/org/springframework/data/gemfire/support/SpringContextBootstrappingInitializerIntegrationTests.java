@@ -16,24 +16,22 @@
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
@@ -71,77 +69,27 @@ import org.springframework.util.Assert;
 @SuppressWarnings("unused")
 public class SpringContextBootstrappingInitializerIntegrationTests extends IntegrationTestsSupport {
 
-	private static final long CACHE_CLOSE_TIMEOUT = TimeUnit.SECONDS.toMillis(15);
-
-	private static final Object MUTEX_LOCK = new Object();
-
-	protected static final String GEMFIRE_LOCATORS = "localhost[11235]";
 	protected static final String GEMFIRE_LOG_LEVEL = "error";
 	protected static final String GEMFIRE_JMX_MANAGER = "true";
 	protected static final String GEMFIRE_JMX_MANAGER_PORT = "1199";
 	protected static final String GEMFIRE_JMX_MANAGER_START = "true";
-	protected static final String GEMFIRE_MCAST_PORT = "0";
 	protected static final String GEMFIRE_NAME = SpringContextBootstrappingInitializerIntegrationTests.class.getSimpleName();
 	protected static final String GEMFIRE_START_LOCATORS = "localhost[11235]";
 
-	@Before
-	public void setup() {
-
-		try {
-
-			long timeout = System.currentTimeMillis() + CACHE_CLOSE_TIMEOUT;
-
-			while (CacheFactory.getAnyInstance() != null && System.currentTimeMillis() < timeout) {
-				synchronized (MUTEX_LOCK) {
-					try {
-						MUTEX_LOCK.wait(500L);
-					}
-					catch (InterruptedException ignore) { }
-				}
-			}
-
-			fail(String.format("The Cache instance was not properly closed in the allotted timeout of %d seconds%n",
-				TimeUnit.MILLISECONDS.toSeconds(CACHE_CLOSE_TIMEOUT)));
-		}
-		catch (CacheClosedException ignore) { }
+	@AfterClass
+	public static void cleanupAfterTests() {
+		SpringContextBootstrappingInitializer.destroy();
 	}
 
-	@After
-	public void tearDown() {
+	@Before @After
+	public void testSetupAndTearDown() {
 
-		SpringContextBootstrappingInitializer.getApplicationContext().close();
+		SpringUtils.safeDoOperation(() ->
+			closeApplicationContext(SpringContextBootstrappingInitializer.getApplicationContext()));
+
 		UserDataStoreCacheLoader.INSTANCE.set(null);
-		tearDownCache();
-	}
 
-	private void tearDownCache() {
-
-		try {
-
-			Cache cache = CacheFactory.getAnyInstance();
-
-			if (cache != null) {
-
-				cache.close();
-
-				// Now, wait for the Apache Geode or Pivotal GemFire Hog to shutdown, OIY!
-				synchronized (MUTEX_LOCK) {
-
-					SpringUtils.safeRunOperation(() -> {
-						while (!cache.isClosed()) {
-							MUTEX_LOCK.wait(500L);
-						}
-					});
-
-					MUTEX_LOCK.notifyAll();
-				}
-			}
-		}
-		catch (CacheClosedException ignore) {
-			// CacheClosedExceptions happen when the Cache reference returned by GemFireCacheImpl.getInstance()
-			// inside the CacheFactory.getAnyInstance() is null, or the Cache is already closed with calling
-			// Cache.close();
-		}
+		closeAnyGemFireCache();
 	}
 
 	@SuppressWarnings("all")
@@ -151,14 +99,19 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 			.set("name", GEMFIRE_NAME)
 			.set("log-level", GEMFIRE_LOG_LEVEL)
 			.set("cache-xml-file", cacheXmlFile)
-			//.set("start-locator", GEMFIRE_LOCATORS)
+			//.set("start-locator", GEMFIRE_START_LOCATORS)
 			//.set("jmx-manager", GEMFIRE_JMX_MANAGER)
 			//.set("jmx-manager-port", GEMFIRE_JMX_MANAGER_PORT)
 			//.set("jmx-manager-start", GEMFIRE_JMX_MANAGER_START)
 			.create();
 
-		assertThat(gemfireCache).as("The GemFire Cache was not properly created and initialized!").isNotNull();
-		assertThat(gemfireCache.isClosed()).as("The GemFire Cache is closed!").isFalse();
+		assertThat(gemfireCache)
+			.describedAs("GemFireCache was not properly created and initialized")
+			.isNotNull();
+
+		assertThat(gemfireCache.isClosed())
+			.describedAs("GemFireCache is closed")
+			.isFalse();
 
 		Set<Region<?, ?>> rootRegions = gemfireCache.rootRegions();
 
@@ -205,7 +158,7 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 	}
 
 	@Test
-	public void testSpringContextBootstrappingInitializerUsingAnnotatedClasses() {
+	public void springContextBootstrappingInitializerUsingAnnotatedClassesIsCorrect() {
 
 		SpringContextBootstrappingInitializer.register(TestAppConfig.class);
 
@@ -221,13 +174,13 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 	}
 
 	@Test
-	public void testSpringContextBootstrappingInitializerUsingBasePackages() {
+	public void springContextBootstrappingInitializerUsingXmlWithBasePackages() {
 		doSpringContextBootstrappingInitializationTest(
 			"cache-with-spring-context-bootstrap-initializer-using-base-packages.xml");
 	}
 
 	@Test
-	public void testSpringContextBootstrappingInitializerUsingContextConfigLocations() {
+	public void springContextBootstrappingInitializerUsingXmlWithContextConfigLocations() {
 		doSpringContextBootstrappingInitializationTest(
 			"cache-with-spring-context-bootstrap-initializer.xml");
 	}
@@ -264,19 +217,19 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 		@Autowired
 		private DataSource userDataSource;
 
-		protected static User createUser(String username) {
+		static User createUser(String username) {
 			return createUser(username, true, Instant.now(), String.format("%1$s@xcompay.com", username));
 		}
 
-		protected static User createUser(String username, Boolean active) {
+		static User createUser(String username, Boolean active) {
 			return createUser(username, active, Instant.now(), String.format("%1$s@xcompay.com", username));
 		}
 
-		protected static User createUser(String username, Boolean active, Instant since) {
+		static User createUser(String username, Boolean active, Instant since) {
 			return createUser(username, active, since, String.format("%1$s@xcompay.com", username));
 		}
 
-		protected static User createUser(String username, Boolean active, Instant since, String email) {
+		static User createUser(String username, Boolean active, Instant since, String email) {
 
 			User user = new User(username);
 
@@ -306,13 +259,19 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 					getClass().getName()));
 		}
 
-		protected DataSource getDataSource() {
+		DataSource getDataSource() {
 			return this.userDataSource;
 		}
 
 		@Override
 		public void close() {
 			this.userDataSource = null;
+		}
+
+		@Override
+		public void destroy() throws Exception {
+			super.destroy();
+			INSTANCE.set(null);
 		}
 
 		@Override

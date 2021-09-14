@@ -33,6 +33,7 @@ import org.apache.geode.security.ResourcePermission;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -54,6 +55,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("apache-geode-client")
 @ContextConfiguration(classes = AbstractGeodeSecurityIntegrationTests.GeodeClientConfiguration.class)
+@DirtiesContext
 public class ApacheGeodeSecurityManagerSecurityIntegrationTests extends AbstractGeodeSecurityIntegrationTests {
 
 	protected static final String GEODE_SECURITY_MANAGER_PROPERTY_CONFIGURATION_PROFILE =

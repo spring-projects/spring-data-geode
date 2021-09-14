@@ -25,8 +25,7 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.FunctionService;
 
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -41,25 +40,24 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.execute.FunctionContext
  * @see org.apache.geode.cache.execute.FunctionService
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations="function-service-ns.xml",
-	initializers= GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class FunctionServiceNamespaceIntegrationTests extends IntegrationTestsSupport {
 
 	@Test
-	public void testFunctionsRegistered() {
+	public void functionsAreRegistered() {
 
 		assertThat(FunctionService.getRegisteredFunctions().size()).isEqualTo(2);
 		assertThat(FunctionService.getFunction("function1")).isNotNull();
 		assertThat(FunctionService.getFunction("function2")).isNotNull();
 	}
 
-	public static class Function1 implements Function<Object> {
+	public static class FunctionOne implements Function<Object> {
 
 		@Override
 		public void execute(FunctionContext functionContext) { }
@@ -70,7 +68,7 @@ public class FunctionServiceNamespaceIntegrationTests extends IntegrationTestsSu
 		}
 	}
 
-	public static class Function2 implements Function<Object> {
+	public static class FunctionTwo implements Function<Object> {
 
 		@Override
 		public void execute(FunctionContext functionContext) { }

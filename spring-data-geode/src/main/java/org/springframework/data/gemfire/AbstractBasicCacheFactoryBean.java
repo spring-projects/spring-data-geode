@@ -620,7 +620,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	protected boolean isNotClosed(@Nullable GemFireCache cache) {
-		return cache == null || !cache.isClosed();
+		return cache != null && !cache.isClosed();
 	}
 
 	/**

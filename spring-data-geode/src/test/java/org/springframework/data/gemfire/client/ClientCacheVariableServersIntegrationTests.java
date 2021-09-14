@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,9 +37,9 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
-import org.apache.geode.cache.client.PoolManager;
 import org.apache.geode.cache.server.CacheServer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -52,8 +53,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Integration Tests testing the use of variable {@literal servers} attribute on &lt;gfe:pool/&lt; in SDG XML Namespace
- * configuration metadata when connecting a client and server.
+ * Integration Tests for the use of the variable {@literal servers} attribute on &lt;gfe:pool/&lt; element
+ * in SDG XML Namespace configuration metadata when connecting a client and server.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -91,9 +92,11 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 
 	@AfterClass
 	public static void cleanup() {
-		System.clearProperty("test.cache.server.port.one");
-		System.clearProperty("test.cache.server.port.two");
+		Arrays.asList("test.cache.server.port.one", "test.cache.server.port.two").forEach(System::clearProperty);
 	}
+
+	@Autowired
+	private Pool serverPool;
 
 	@Resource(name = "Example")
 	private Region<String, Integer> example;
@@ -101,16 +104,13 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 	@Before
 	public void setup() {
 
+		assertThat(this.serverPool).isNotNull();
+		assertThat(this.serverPool.getName()).isEqualTo("serverPool");
+		assertThat(this.serverPool.getServers()).hasSize(3);
 		assertThat(this.example).isNotNull();
 		assertThat(this.example.getName()).isEqualTo("Example");
 		assertThat(this.example.getAttributes()).isNotNull();
 		assertThat(this.example.getAttributes().getPoolName()).isEqualTo("serverPool");
-
-		Pool pool = PoolManager.find("serverPool");
-
-		assertThat(pool).isNotNull();
-		assertThat(pool.getName()).isEqualTo("serverPool");
-		assertThat(pool.getServers()).hasSize(3);
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 		private static final AtomicInteger cacheMissCounter = new AtomicInteger(0);
 
 		@Override
-		public Integer load(final LoaderHelper<String, Integer> helper) throws CacheLoaderException {
+		public Integer load(LoaderHelper<String, Integer> helper) throws CacheLoaderException {
 			return cacheMissCounter.incrementAndGet();
 		}
 
@@ -147,10 +147,10 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 			Map<String, CacheServer> cacheServers =
 				CollectionUtils.nullSafeMap(applicationContext.getBeansOfType(CacheServer.class));
 
-			for (CacheServer cacheServer : cacheServers.values()) {
-				logger.info("CacheServer host:port [{}:{}]%n",
-					cacheServer.getBindAddress(), cacheServer.getPort());
-			}
+			assertThat(cacheServers).hasSize(3);
+
+			cacheServers.values().forEach(cacheServer -> logger.info("CacheServer host:port [{}:{}]%n",
+				cacheServer.getBindAddress(), cacheServer.getPort()));
 		}
 	}
 }

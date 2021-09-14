@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.net.InetSocketAddress;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.client.ClientCache;
@@ -29,11 +29,10 @@ import org.apache.geode.cache.client.PoolFactory;
 import org.apache.geode.cache.client.SocketFactory;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.mock.env.MockPropertySource;
 
@@ -50,34 +49,27 @@ import org.springframework.mock.env.MockPropertySource;
  * @see org.springframework.data.gemfire.config.annotation.AddPoolsConfiguration
  * @see org.springframework.data.gemfire.config.annotation.EnablePool
  * @see org.springframework.data.gemfire.config.annotation.EnablePools
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.0
  */
 @SuppressWarnings("unused")
-public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		closeApplicationContext(this.applicationContext);
-	}
+public class PoolPropertiesIntegrationTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-			Class<?>... annotatedClasses) {
+		Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer =
+			applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+				MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+				propertySources.addFirst(testPropertySource);
 
-		applicationContext.registerShutdownHook();
-		applicationContext.register(annotatedClasses);
-		applicationContext.refresh();
+				return applicationContext;
+			};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	private void assertPool(Pool pool, int freeConnectionTimeout, long idleTimeout, int loadConditioningInterval,
@@ -130,15 +122,14 @@ public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
 			.withProperty("spring.data.gemfire.pool.subscription-enabled", true)
 			.withProperty("spring.data.gemfire.pool.TestPool.subscription-redundancy", 2);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestPoolConfiguration.class);
+		newApplicationContext(testPropertySource, TestPoolConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestPool")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("TestPool")).isTrue();
 
-		Pool testPool = this.applicationContext.getBean("TestPool", Pool.class);
+		Pool testPool = getBean("TestPool", Pool.class);
 
-		SocketFactory mockSocketFactory = this.applicationContext.getBean("mockSocketFactory", SocketFactory.class);
+		SocketFactory mockSocketFactory = getBean("mockSocketFactory", SocketFactory.class);
 
 		assertThat(testPool).isNotNull();
 		assertThat(mockSocketFactory).isNotNull();
@@ -236,21 +227,20 @@ public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.subscription-redundancy", 4)
 			.withProperty("spring.data.gemfire.pool.TestPoolTwo.thread-local-connections", true);
 
-		this.applicationContext = newApplicationContext(testPropertySource, TestPoolsConfiguration.class);
+		newApplicationContext(testPropertySource, TestPoolsConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestPoolOne")).isTrue();
-		assertThat(this.applicationContext.containsBean("TestPoolTwo")).isTrue();
+		assertThat(containsBean("gemfireCache")).isTrue();
+		assertThat(containsBean("TestPoolOne")).isTrue();
+		assertThat(containsBean("TestPoolTwo")).isTrue();
 
-		ClientCache gemfireCache = this.applicationContext.getBean(ClientCache.class);
+		ClientCache gemfireCache = getBean(ClientCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 
 		Pool defaultPool = gemfireCache.getDefaultPool();
 
-		SocketFactory mockSocketFactoryOne = this.applicationContext.getBean("mockSocketFactoryOne", SocketFactory.class);
-		SocketFactory mockSocketFactoryTwo = this.applicationContext.getBean("mockSocketFactoryTwo", SocketFactory.class);
+		SocketFactory mockSocketFactoryOne = getBean("mockSocketFactoryOne", SocketFactory.class);
+		SocketFactory mockSocketFactoryTwo = getBean("mockSocketFactoryTwo", SocketFactory.class);
 
 		assertThat(mockSocketFactoryOne).isNotNull();
 		assertThat(mockSocketFactoryTwo).isNotNull();
@@ -263,7 +253,7 @@ public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
 			true, 300000, 3,
 			true);
 
-		Pool testPoolOne = this.applicationContext.getBean("TestPoolOne", Pool.class);
+		Pool testPoolOne = getBean("TestPoolOne", Pool.class);
 
 		assertPool(testPoolOne, 30000, 300000L, 120000,
 			500, 50, true, "TestPoolOne", 5000L,
@@ -272,7 +262,7 @@ public class PoolPropertiesIntegrationTests extends IntegrationTestsSupport {
 			true, 180000, 2,
 			true);
 
-		Pool testPoolTwo = this.applicationContext.getBean("TestPoolTwo", Pool.class);
+		Pool testPoolTwo = getBean("TestPoolTwo", Pool.class);
 
 		assertPool(testPoolTwo, 20000, 15000L, 60000,
 			1000, 100, true, "TestPoolTwo", 20000L,

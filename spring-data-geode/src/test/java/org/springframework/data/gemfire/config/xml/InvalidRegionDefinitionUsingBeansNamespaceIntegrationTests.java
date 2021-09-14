@@ -23,6 +23,7 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 import org.springframework.data.gemfire.RegionAttributesFactoryBean;
@@ -38,6 +39,7 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
  *
  * @author John Blum
  * @see org.junit.Test
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.PeerRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
@@ -46,13 +48,15 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
 public class InvalidRegionDefinitionUsingBeansNamespaceIntegrationTests extends IntegrationTestsSupport {
 
 	private static final String CONFIG_LOCATION =
-		"org/springframework/data/gemfire/config/xml/InvalidDataPolicyPersistentAttributeSettingsBeansNamespaceTest.xml";
+		"org/springframework/data/gemfire/config/xml/InvalidDataPolicyPersistentAttributeSettingsBeansNamespaceIntegrationTests.xml";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidDataPolicyPersistentAttributeSettings() {
 
+		ConfigurableApplicationContext applicationContext = null;
+
 		try {
-			new ClassPathXmlApplicationContext(CONFIG_LOCATION);
+			applicationContext = new ClassPathXmlApplicationContext(CONFIG_LOCATION);
 		}
 		catch (BeanCreationException expected) {
 
@@ -61,6 +65,9 @@ public class InvalidRegionDefinitionUsingBeansNamespaceIntegrationTests extends 
 				.isEqualTo("Data Policy [REPLICATE] is not valid when persistent is true");
 
 			throw (IllegalArgumentException) expected.getCause();
+		}
+		finally {
+			closeApplicationContext(applicationContext);
 		}
 	}
 

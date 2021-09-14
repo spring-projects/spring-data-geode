@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:gfe="http://www.springframework.org/schema/geode"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+	   	http://www.springframework.org/schema/geode https://www.springframework.org/schema/geode/spring-geode.xsd
+		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
+">
+
+	<util:properties id="gemfireProperties">
+		<prop key="name">FunctionExecutionClientCacheIntegrationTests</prop>
+		<prop key="log-level">error</prop>
+	</util:properties>
+
+	<gfe:client-cache properties-ref="gemfireProperties"/>
+
+	<gfe:pool>
+		<gfe:server host="localhost" port="12345"/>
+	</gfe:pool>
+
+	<gfe:client-region id="r1"/>
+
+</beans>

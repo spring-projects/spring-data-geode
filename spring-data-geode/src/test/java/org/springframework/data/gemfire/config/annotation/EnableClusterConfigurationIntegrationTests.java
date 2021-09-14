@@ -31,7 +31,6 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -179,11 +178,7 @@ public class EnableClusterConfigurationIntegrationTests extends ForkingClientSer
 	static class GeodeServerTestConfiguration {
 
 		public static void main(String[] args) {
-
-			AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(GeodeServerTestConfiguration.class);
-
-			applicationContext.registerShutdownHook();
+			runSpringApplication(GeodeServerTestConfiguration.class, args);
 		}
 
 		@Bean

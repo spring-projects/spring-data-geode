@@ -54,6 +54,9 @@ import org.slf4j.LoggerFactory;
  * is not invoked until after GemFire creates and initializes the GemFire {@link Cache} for use.
  *
  * @author John Blum
+ * @see java.util.Properties
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.Declarable
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationListener
  * @see org.springframework.context.ConfigurableApplicationContext
@@ -62,14 +65,12 @@ import org.slf4j.LoggerFactory;
  * @see org.springframework.context.event.ApplicationEventMulticaster
  * @see org.springframework.context.support.ClassPathXmlApplicationContext
  * @see org.springframework.core.io.DefaultResourceLoader
- * @see org.apache.geode.cache.Cache
- * @see org.apache.geode.cache.Declarable
  * @link https://gemfire.docs.pivotal.io/latest/userguide/index.html#basic_config/the_cache/setting_cache_initializer.html
  * @link https://jira.springsource.org/browse/SGF-248
  * @since 1.4.0
  */
 @SuppressWarnings("unused")
-public class SpringContextBootstrappingInitializer implements Declarable, ApplicationListener<ApplicationContextEvent> {
+public class SpringContextBootstrappingInitializer implements ApplicationListener<ApplicationContextEvent>, Declarable {
 
 	public static final String BASE_PACKAGES_PARAMETER = "basePackages";
 	public static final String CONTEXT_CONFIG_LOCATIONS_PARAMETER = "contextConfigLocations";
@@ -120,6 +121,21 @@ public class SpringContextBootstrappingInitializer implements Declarable, Applic
 		}
 		else {
 			throw new IllegalStateException("A Spring ApplicationContext has already been initialized");
+		}
+	}
+
+	/**
+	 * Destroy the state of the {@link SpringContextBootstrappingInitializer}.
+	 */
+	public static void destroy() {
+
+		beanClassLoaderReference.set(null);
+		applicationContext = null;
+		contextRefreshedEvent = null;
+		registeredAnnotatedClasses.clear();
+
+		synchronized (applicationEventNotifier) {
+			applicationEventNotifier.removeAllListeners();
 		}
 	}
 
@@ -258,7 +274,7 @@ public class SpringContextBootstrappingInitializer implements Declarable, Applic
 	 * before using the context.
 	 * @throws IllegalArgumentException if both the basePackages and configLocation parameter arguments
 	 * are null or empty.
-	 * @see #createApplicationContext(String[])
+	 * @see #newApplicationContext(String[])
 	 * @see org.springframework.context.annotation.AnnotationConfigApplicationContext
 	 * @see org.springframework.context.annotation.AnnotationConfigApplicationContext#scan(String...)
 	 * @see org.springframework.context.support.ClassPathXmlApplicationContext
@@ -272,12 +288,12 @@ public class SpringContextBootstrappingInitializer implements Declarable, Applic
 
 		Class<?>[] annotatedClasses = registeredAnnotatedClasses.toArray(new Class<?>[0]);
 
-		ConfigurableApplicationContext applicationContext = createApplicationContext(configLocations);
+		ConfigurableApplicationContext applicationContext = newApplicationContext(configLocations);
 
 		return scanBasePackages(registerAnnotatedClasses(applicationContext, annotatedClasses), basePackages);
 	}
 
-	ConfigurableApplicationContext createApplicationContext(String[] configLocations) {
+	ConfigurableApplicationContext newApplicationContext(String[] configLocations) {
 
 		return ObjectUtils.isEmpty(configLocations)
 			? new AnnotationConfigApplicationContext()
@@ -430,8 +446,9 @@ public class SpringContextBootstrappingInitializer implements Declarable, Applic
 					String[] contextConfigLocationsArray = StringUtils.delimitedListToStringArray(
 						StringUtils.trimWhitespace(contextConfigLocations), COMMA_DELIMITER, CHARS_TO_DELETE);
 
-					ConfigurableApplicationContext localApplicationContext = refreshApplicationContext(
-						initApplicationContext(createApplicationContext(basePackagesArray, contextConfigLocationsArray)));
+					ConfigurableApplicationContext localApplicationContext =
+						refreshApplicationContext(initApplicationContext(createApplicationContext(basePackagesArray,
+							contextConfigLocationsArray)));
 
 					Assert.state(localApplicationContext.isRunning(), String.format(
 						"The Spring ApplicationContext (%1$s) failed to be properly initialized with the context config files (%2$s) or base packages (%3$s)!",
@@ -461,10 +478,7 @@ public class SpringContextBootstrappingInitializer implements Declarable, Applic
 	 * @see org.springframework.context.ApplicationContext#getId()
 	 */
 	String nullSafeGetApplicationContextId(ApplicationContext applicationContext) {
-
-		return applicationContext != null
-			? applicationContext.getId()
-			: null;
+		return applicationContext != null ? applicationContext.getId() : null;
 	}
 
 	/**

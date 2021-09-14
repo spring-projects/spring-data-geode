@@ -9,12 +9,14 @@
         http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
+	<bean class="org.springframework.data.gemfire.tests.mock.beans.factory.config.GemFireMockObjectsBeanPostProcessor"/>
+
 	<util:properties id="gemfireProperties">
 		<prop key="name">AllowBeanDefinitionOverridesTest</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
-	<gfe:cache properties-ref="gemfireProperties" use-bean-factory-locator="false"/>
+	<gfe:cache properties-ref="gemfireProperties"/>
 
 	<gfe:replicated-region id="regionOne" name="AppDataRegion" persistent="false"
 						   multicast-enabled="true" scope="distributed-no-ack"

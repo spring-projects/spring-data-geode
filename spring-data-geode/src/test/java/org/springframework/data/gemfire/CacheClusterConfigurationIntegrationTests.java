@@ -48,13 +48,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.fork.LocatorProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.tests.util.FileUtils;
 import org.springframework.data.gemfire.tests.util.ThrowableUtils;
 import org.springframework.data.gemfire.tests.util.ZipUtils;
 import org.springframework.data.gemfire.util.ArrayUtils;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 
+import org.assertj.core.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +75,11 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unused")
 public class CacheClusterConfigurationIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
+	private static final int ASSERTJ_MAX_STACK_TRACE_ELEMENTS = 500;
+
 	private static File locatorWorkingDirectory;
 
+	// The List of Strings represents each line of the Locator process output (System.out).
 	private static final List<String> locatorProcessOutput = Collections.synchronizedList(new ArrayList<>());
 
 	private static final Logger logger = LoggerFactory.getLogger(CacheClusterConfigurationIntegrationTests.class);
@@ -100,7 +104,7 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 		@Override
 		protected void finished(Description description) {
 
-			if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
+			if (Arrays.asList("config", "debug", "info").contains(LOG_LEVEL.toLowerCase())) {
 				try {
 					FileUtils.write(new File(locatorWorkingDirectory.getParent(),
 						String.format("%s-clusterconfiglocator.log", description.getMethodName())),
@@ -117,13 +121,14 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 			try {
 
 				String locatorProcessOutputString = StringUtils.collectionToDelimitedString(locatorProcessOutput,
-					FileUtils.LINE_SEPARATOR, String.format("[%1$s] - ", description.getMethodName()), "");
+					FileUtils.LINE_SEPARATOR, String.format("[%s] - ", description.getMethodName()), "");
 
 				locatorProcessOutputString = StringUtils.hasText(locatorProcessOutputString)
 					? locatorProcessOutputString
 					: locatorProcess.readLogFile();
 
 				return locatorProcessOutputString;
+
 			}
 			catch (IOException cause) {
 				throw newRuntimeException(cause, "Failed to read the contents of the Locator process log file");
@@ -132,57 +137,57 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 	};
 
 	@BeforeClass
-	@SuppressWarnings("all")
+	public static void configureAssertJ() {
+		Assertions.setMaxStackTraceElementsDisplayed(ASSERTJ_MAX_STACK_TRACE_ELEMENTS);
+	}
+
+	@BeforeClass
 	public static void startLocator() throws IOException {
 
-		int availablePort = findAvailablePort();
+		int locatorPort = findAndReserveAvailablePort();
 
-		String locatorName = "ClusterConfigLocator";
+		String locatorName = String.format("ClusterConfigLocator-%d", System.currentTimeMillis());
 
-		locatorWorkingDirectory =
-			createDirectory(new File(System.getProperty("java.io.tmpdir"), locatorName.toLowerCase()));
+		locatorWorkingDirectory = createDirectory(new File(FileSystemUtils.WORKING_DIRECTORY, locatorName.toLowerCase()));
 
-		ZipUtils.unzip(new ClassPathResource("/cluster_config.zip"), locatorWorkingDirectory);
+		ZipUtils.unzip(new ClassPathResource("cluster_config.zip"), locatorWorkingDirectory);
 
 		List<String> arguments = new ArrayList<>();
 
-		arguments.add("-Dgemfire.name=" + locatorName);
-		arguments.add("-Dlog4j.geode.log.level=error");
-		arguments.add("-Dlogback.log.level=error");
+		arguments.add(String.format("-Dgemfire.name=%s", locatorName));
+		arguments.add(String.format("-Dlog4j.geode.log.level=%s", LOG_LEVEL));
+		arguments.add(String.format("-Dlogback.log.level=%s", LOG_LEVEL));
 		arguments.add("-Dspring.data.gemfire.enable-cluster-configuration=true");
 		arguments.add("-Dspring.data.gemfire.load-cluster-configuration=true");
-		arguments.add(String.format("-Dgemfire.log-level=%s", LOG_LEVEL));
 		arguments.add(String.format("-Dgemfire.log-file=%s", LOG_FILE));
-		arguments.add(String.format("-Dspring.data.gemfire.locator.port=%d", availablePort));
+		arguments.add(String.format("-Dgemfire.log-level=%s", LOG_LEVEL));
+		arguments.add(String.format("-Dspring.data.gemfire.locator.port=%d", locatorPort));
 
-		locatorProcess = run(locatorWorkingDirectory, LocatorProcess.class,
-			arguments.toArray(new String[arguments.size()]));
-
+		locatorProcess = run(locatorWorkingDirectory, LocatorProcess.class, arguments.toArray(new String[0]));
 		locatorProcess.register(input -> locatorProcessOutput.add(input));
-
 		locatorProcess.registerShutdownHook();
 
-		waitForServerToStart("localhost", availablePort);
+		waitForServerToStart("localhost", locatorPort);
 
-		System.setProperty("spring.data.gemfire.locator.port", String.valueOf(availablePort));
+		System.setProperty("spring.data.gemfire.locator.port", String.valueOf(locatorPort));
 	}
 
 	@AfterClass
 	public static void stopLocator() {
 
-		locatorProcess.shutdown();
+		stop(locatorProcess);
 
 		System.clearProperty("spring.data.gemfire.locator.port");
-
-		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			FileSystemUtils.deleteRecursively(locatorWorkingDirectory);
-		}
 
 		FilenameFilter logFileFilter = (directory, name) -> name.endsWith(".log");
 
 		File[] logFiles = ArrayUtils.nullSafeArray(locatorWorkingDirectory.listFiles(logFileFilter), File.class);
 
 		Arrays.stream(logFiles).forEach(File::delete);
+
+		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
+			FileSystemUtils.deleteRecursive(locatorWorkingDirectory);
+		}
 	}
 
 	private Region<?, ?> assertRegion(Region<?, ?> actualRegion, String expectedRegionName) {
@@ -192,8 +197,10 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 	private Region<?, ?> assertRegion(Region<?, ?> actualRegion, String expectedRegionName,
 			String expectedRegionFullPath) {
 
-		assertThat(actualRegion).as(String.format("The [%s] was not properly configured and initialized!",
-			expectedRegionName)).isNotNull();
+		assertThat(actualRegion)
+			.describedAs("The [%s] was not properly configured and initialized!", expectedRegionName)
+			.isNotNull();
+
 		assertThat(actualRegion.getName()).isEqualTo(expectedRegionName);
 		assertThat(actualRegion.getFullPath()).isEqualTo(expectedRegionFullPath);
 
@@ -254,12 +261,14 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 			DataPolicy.NORMAL, Scope.LOCAL);
 	}
 
-	@Test
+	@Test(expected = BeanCreationException.class)
 	public void localConfigurationTest() {
+
+		ConfigurableApplicationContext applicationContext = null;
 
 		try {
 
-			newApplicationContext(getLocation("cacheUsingLocalConfigurationIntegrationTest.xml"));
+			applicationContext = newApplicationContext(getLocation("cacheUsingLocalConfigurationIntegrationTest.xml"));
 
 			fail("Loading the 'cacheUsingLocalOnlyConfigurationIntegrationTest.xml' Spring ApplicationContext"
 				+ " configuration file should have resulted in an Exception due to the Region lookup on"
@@ -272,6 +281,11 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 			assertThat(expected.getCause().getMessage()
 				.matches("Region \\[ClusterConfigRegion\\] in Cache \\[.*\\] not found"))
 				.as(String.format("Message was [%s]", expected.getMessage())).isTrue();
+
+			throw expected;
+		}
+		finally {
+			closeApplicationContext(applicationContext);
 		}
 	}
 }

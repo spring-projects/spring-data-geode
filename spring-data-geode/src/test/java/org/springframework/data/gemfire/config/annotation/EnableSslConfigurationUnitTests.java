@@ -19,16 +19,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
@@ -43,47 +42,36 @@ import org.springframework.util.StringUtils;
  * @see org.apache.geode.cache.GemFireCache
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
  * @see org.springframework.data.gemfire.config.annotation.SslConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.1.0
  */
-public class EnableSslConfigurationUnitTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
+public class EnableSslConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
 			Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer = applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+			MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+			propertySources.addFirst(testPropertySource);
 
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
+			return applicationContext;
+		};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	@Test
 	public void sslAnnotationBasedConfigurationIsCorrect() {
 
-		this.applicationContext = newApplicationContext(new MockPropertySource("TestPropertySource"),
-			SslAnnotationBasedConfiguration.class);
+		newApplicationContext(new MockPropertySource("TestPropertySource"), SslAnnotationBasedConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache"));
-		assertThat(this.applicationContext.containsBean("gemfireProperties"));
+		assertThat(containsBean("gemfireCache"));
+		assertThat(containsBean("gemfireProperties"));
 
-		ClientCacheFactoryBean clientCache =
-			this.applicationContext.getBean("&gemfireCache", ClientCacheFactoryBean.class);
+		ClientCacheFactoryBean clientCache = getBean("&gemfireCache", ClientCacheFactoryBean.class);
 
 		assertThat(clientCache).isNotNull();
 
@@ -128,14 +116,12 @@ public class EnableSslConfigurationUnitTests extends IntegrationTestsSupport {
 			.withProperty("spring.data.gemfire.security.ssl.use-default-context", "true")
 			.withProperty("spring.data.gemfire.security.ssl.web-require-authentication", "true");
 
-		this.applicationContext = newApplicationContext(testPropertySource, SslPropertyBasedConfiguration.class);
+		newApplicationContext(testPropertySource, SslPropertyBasedConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache"));
-		assertThat(this.applicationContext.containsBean("gemfireProperties"));
+		assertThat(containsBean("gemfireCache"));
+		assertThat(containsBean("gemfireProperties"));
 
-		ClientCacheFactoryBean clientCache =
-			this.applicationContext.getBean("&gemfireCache", ClientCacheFactoryBean.class);
+		ClientCacheFactoryBean clientCache = getBean("&gemfireCache", ClientCacheFactoryBean.class);
 
 		assertThat(clientCache).isNotNull();
 

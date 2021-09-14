@@ -31,7 +31,6 @@ import org.apache.geode.DataSerializable;
 import org.apache.geode.Instantiator;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -49,16 +48,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration("simple-config.xml")
+@ContextConfiguration
 @SuppressWarnings("unused")
 public class WiringInstantiatorIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
-	private ApplicationContext applicationContext;
-
-	@Autowired
 	private WiringInstantiator instantiator;
-
 
 	public static class AnnotatedBean implements DataSerializable {
 
@@ -121,8 +116,8 @@ public class WiringInstantiatorIntegrationTests extends IntegrationTestsSupport 
 		assertThat(bean.point).isNotNull();
 		assertThat(bean.shape).isNotNull();
 
-		assertThat(applicationContext.getBean("point")).isSameAs(bean.point);
-		assertThat(applicationContext.getBean("area")).isSameAs(bean.shape);
+		assertThat(requireApplicationContext().getBean("point")).isSameAs(bean.point);
+		assertThat(requireApplicationContext().getBean("area")).isSameAs(bean.shape);
 	}
 
 	@Test
@@ -131,7 +126,7 @@ public class WiringInstantiatorIntegrationTests extends IntegrationTestsSupport 
 		WiringInstantiator instantiator2 =
 			new WiringInstantiator(new AsmInstantiatorGenerator().getInstantiator(TemplateWiringBean.class, 99));
 
-		instantiator2.setBeanFactory(applicationContext.getAutowireCapableBeanFactory());
+		instantiator2.setBeanFactory(requireApplicationContext().getAutowireCapableBeanFactory());
 		instantiator2.afterPropertiesSet();
 
 		Object instance = instantiator2.newInstance();
@@ -142,12 +137,15 @@ public class WiringInstantiatorIntegrationTests extends IntegrationTestsSupport 
 		assertThat(bean.point).isNull();
 		assertThat(bean.beans).isNotNull();
 
-		assertThat(applicationContext.getBean("beans")).isSameAs(bean.beans);
+		assertThat(requireApplicationContext().getBean("beans")).isSameAs(bean.beans);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void testInstantiatorFactoryBean() {
-		@SuppressWarnings("unchecked")
-		List<Instantiator> list = (List<Instantiator>) applicationContext.getBean("instantiator-factory");
+
+		List<Instantiator> list =
+			(List<Instantiator>) requireApplicationContext().getBean("instantiator-factory", List.class);
+
 		assertThat(list).isNotNull();
 		assertThat(list.size()).isEqualTo(2);
 	}

@@ -32,6 +32,7 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -57,14 +58,20 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 
 		List<String> arguments = new ArrayList<String>();
 
-		arguments.add(String.format("-Dgemfire.name=%1$s",
-			ClientCacheSecurityIntegrationTests.class.getSimpleName().concat("Server")));
+		org.springframework.core.io.Resource trustedKeystore = new ClassPathResource("trusted.keystore");
 
-		arguments.add(String.format("-Djavax.net.ssl.keyStore=%1$s", System.getProperty("javax.net.ssl.keyStore")));
+		//System.err.printf("trusted.keystore file is located at [%s]%n", trustedKeystore.getFile().getAbsolutePath());
+
+		arguments.add(String.format("-Dgemfire.name=%s",
+			asApplicationName(ClientCacheSecurityIntegrationTests.class).concat("Server")));
+
+		arguments.add(String.format("-Djavax.net.ssl.keyStore=%s", trustedKeystore.getFile().getAbsolutePath()));
 
 		arguments.add(getServerContextXmlFileLocation(ClientCacheSecurityIntegrationTests.class));
 
 		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
+
+		System.setProperty("javax.net.ssl.keyStore", trustedKeystore.getFile().getAbsolutePath());
 	}
 
 	@Resource(name = "Example")

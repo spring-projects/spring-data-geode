@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
-import org.junit.After;
 import org.junit.Test;
 
 import org.apache.geode.cache.Cache;
@@ -28,10 +28,9 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.mock.env.MockPropertySource;
 import org.springframework.util.StringUtils;
@@ -53,21 +52,14 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.core.env.PropertySource
  * @see org.springframework.data.gemfire.config.annotation.EnableSsl
  * @see org.springframework.data.gemfire.config.annotation.SslConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @since 2.2.0
  */
-public class EnableSslConfigurationDefaultContextIntegrationTests extends IntegrationTestsSupport {
+@SuppressWarnings("rawtypes")
+public class EnableSslConfigurationDefaultContextIntegrationTests
+		extends SpringApplicationContextIntegrationTestsSupport {
 
 	private static final String GEMFIRE_LOG_LEVEL = "error";
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-	}
 
 	private void assertGemFirePropertiesCorrectlySet(Properties gemfireProperties) {
 
@@ -90,19 +82,18 @@ public class EnableSslConfigurationDefaultContextIntegrationTests extends Integr
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-			Class<?>... annotatedClasses) {
+		Class<?>... annotatedClasses) {
 
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer = applicationContext -> {
 
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+			MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-		propertySources.addFirst(testPropertySource);
+			propertySources.addFirst(testPropertySource);
 
-		applicationContext.register(annotatedClasses);
-		applicationContext.registerShutdownHook();
-		applicationContext.refresh();
+			return applicationContext;
+		};
 
-		return applicationContext;
+		return newApplicationContext(applicationContextInitializer, annotatedClasses);
 	}
 
 	private PropertySource setSpringDataGemFireProperties() {
@@ -129,15 +120,13 @@ public class EnableSslConfigurationDefaultContextIntegrationTests extends Integr
 	@Test
 	public void sslAnnotationBasedClientConfigurationIsCorrect() {
 
-		this.applicationContext = newApplicationContext(new MockPropertySource("TestPropertySource"),
+		newApplicationContext(new MockPropertySource("TestPropertySource"),
 			SslAnnotationBasedClientConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache"));
-		assertThat(this.applicationContext.containsBean("gemfireProperties"));
+		assertThat(containsBean("gemfireCache"));
+		assertThat(containsBean("gemfireProperties"));
 
-		GemFireCache clientCache =
-				this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache clientCache = getBean("gemfireCache", GemFireCache.class);
 
 		//Get Properties from GemFire
 		Properties gemfireProperties = clientCache.getDistributedSystem().getProperties();
@@ -152,14 +141,12 @@ public class EnableSslConfigurationDefaultContextIntegrationTests extends Integr
 
 		PropertySource testPropertySource = setSpringDataGemFireProperties();
 
-		this.applicationContext = newApplicationContext(testPropertySource, SslPropertyBasedClientConfiguration.class);
+		newApplicationContext(testPropertySource, SslPropertyBasedClientConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache"));
-		assertThat(this.applicationContext.containsBean("gemfireProperties"));
+		assertThat(containsBean("gemfireCache"));
+		assertThat(containsBean("gemfireProperties"));
 
-		GemFireCache clientCache =
-				this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache clientCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(clientCache).isNotNull();
 
@@ -193,16 +180,14 @@ public class EnableSslConfigurationDefaultContextIntegrationTests extends Integr
 	@Test
 	public void sslAnnotationBasedPeerConfigurationIsCorrect(){
 
-		this.applicationContext =
-			newApplicationContext(new MockPropertySource("TestPropertySource"),
-				SslAnnotationBasedPeerConfiguration.class);
+		newApplicationContext(new MockPropertySource("TestPropertySource"),
+			SslAnnotationBasedPeerConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache"));
-		assertThat(this.applicationContext.containsBean("gemfireProperties"));
+		assertThat(containsBean("gemfireCache"));
+		assertThat(containsBean("gemfireProperties"));
 
-		GemFireCache peerCache =
-				this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache peerCache = getBean("gemfireCache", GemFireCache.class);
+
 		assertThat(peerCache).isNotNull();
 
 		Properties gemfireProperties = peerCache.getDistributedSystem().getProperties();
@@ -215,14 +200,12 @@ public class EnableSslConfigurationDefaultContextIntegrationTests extends Integr
 
 		PropertySource testPropertySource = setSpringDataGemFireProperties();
 
-		this.applicationContext = newApplicationContext(testPropertySource, SslPropertyBasedPeerConfiguration.class);
+		newApplicationContext(testPropertySource, SslPropertyBasedPeerConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("gemfireCache"));
-		assertThat(this.applicationContext.containsBean("gemfireProperties"));
+		assertThat(containsBean("gemfireCache"));
+		assertThat(containsBean("gemfireProperties"));
 
-		GemFireCache peerCache =
-				this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache peerCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(peerCache).isNotNull();
 

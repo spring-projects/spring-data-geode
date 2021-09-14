@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
@@ -27,8 +26,6 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.control.ResourceManager;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -37,7 +34,7 @@ import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.test.model.Person;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
@@ -49,25 +46,15 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.config.annotation.EnableOffHeap
  * @see org.springframework.data.gemfire.config.annotation.OffHeapConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 2.0.2
  */
-public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
+public class EnableOffHeapConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	@After
-	public void tearDown() {
-
-		Optional.ofNullable(this.applicationContext)
-			.ifPresent(ConfigurableApplicationContext::close);
-
+	public void cleanupAfterTests() {
 		destroyAllGemFireMockObjects();
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-		return new AnnotationConfigApplicationContext(annotatedClasses);
 	}
 
 	private void assertRegionOffHeap(Region<?, ?> region, String regionName, boolean offHeapEnabled) {
@@ -82,11 +69,9 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 	@Test
 	public void offHeapCriticalAndEvictionMemoryPercentagesConfiguredProperly() {
 
-		this.applicationContext = newApplicationContext(OffHeapCriticalAndEvictionMemoryPercentagesConfiguration.class);
+		newApplicationContext(OffHeapCriticalAndEvictionMemoryPercentagesConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -106,11 +91,9 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 	@Test
 	public void offHeapConfiguredForAllRegions() {
 
-		this.applicationContext = newApplicationContext(EnableOffHeapForAllRegionsConfiguration.class);
+		newApplicationContext(EnableOffHeapForAllRegionsConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -120,20 +103,17 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 
 		Arrays.asList("People", "ExampleLocalRegion", "ExamplePartitionRegion", "ExampleReplicateRegion")
 			.forEach(regionName -> {
-				assertThat(this.applicationContext.containsBean(regionName)).isTrue();
-				assertRegionOffHeap(this.applicationContext.getBean(regionName, Region.class),
-					regionName, true);
+				assertThat(containsBean(regionName)).isTrue();
+				assertRegionOffHeap(getBean(regionName, Region.class), regionName, true);
 			});
 	}
 
 	@Test
 	public void offHeapConfiguredForSelectRegions() {
 
-		this.applicationContext = newApplicationContext(EnableOffHeapForSelectRegionsConfiguration.class);
+		newApplicationContext(EnableOffHeapForSelectRegionsConfiguration.class);
 
-		assertThat(this.applicationContext).isNotNull();
-
-		GemFireCache gemfireCache = this.applicationContext.getBean("gemfireCache", GemFireCache.class);
+		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
 		assertThat(gemfireCache).isNotNull();
 		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
@@ -143,9 +123,9 @@ public class EnableOffHeapConfigurationUnitTests extends IntegrationTestsSupport
 
 		Arrays.asList("People", "ExampleLocalRegion", "ExamplePartitionRegion", "ExampleReplicateRegion")
 			.forEach(regionName -> {
-				assertThat(this.applicationContext.containsBean(regionName)).isTrue();
-				assertRegionOffHeap(this.applicationContext.getBean(regionName, Region.class),
-					regionName, Arrays.asList("People", "ExamplePartitionRegion").contains(regionName));
+				assertThat(containsBean(regionName)).isTrue();
+				assertRegionOffHeap(getBean(regionName, Region.class), regionName,
+					Arrays.asList("People", "ExamplePartitionRegion").contains(regionName));
 			});
 	}
 

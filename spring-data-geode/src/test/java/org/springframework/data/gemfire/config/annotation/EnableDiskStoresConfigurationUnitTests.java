@@ -19,19 +19,15 @@ package org.springframework.data.gemfire.config.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.After;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
 import org.apache.geode.cache.DiskStore;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
 
 /**
@@ -45,21 +41,14 @@ import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockO
  * @see org.springframework.data.gemfire.config.annotation.EnableDiskStores
  * @see org.springframework.data.gemfire.config.annotation.DiskStoreConfiguration
  * @see org.springframework.data.gemfire.config.annotation.DiskStoresConfiguration
- * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.integration.SpringApplicationContextIntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
  * @since 1.9.0
  */
 @SuppressWarnings("unused")
-public class EnableDiskStoresConfigurationUnitTests extends IntegrationTestsSupport {
+public class EnableDiskStoresConfigurationUnitTests extends SpringApplicationContextIntegrationTestsSupport {
 
 	private static final AtomicInteger MOCK_ID = new AtomicInteger(0);
-
-	private ConfigurableApplicationContext applicationContext;
-
-	@After
-	public void tearDown() {
-		Optional.ofNullable(this.applicationContext).ifPresent(ConfigurableApplicationContext::close);
-	}
 
 	private void assertDiskStore(DiskStore diskStore, String name, boolean allowForceCompaction, boolean autoCompact,
 			int compactionThreshold, float diskUsageCriticalPercentage, float diskUsageWarningPercentage,
@@ -110,15 +99,6 @@ public class EnableDiskStoresConfigurationUnitTests extends IntegrationTestsSupp
 		}
 	}
 
-	private ConfigurableApplicationContext newApplicationContext(Class<?>... annotatedClasses) {
-
-		ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(annotatedClasses);
-
-		applicationContext.registerShutdownHook();
-
-		return applicationContext;
-	}
-
 	private File newFile(String location) {
 		return new File(location);
 	}
@@ -126,9 +106,9 @@ public class EnableDiskStoresConfigurationUnitTests extends IntegrationTestsSupp
 	@Test
 	public void enableSingleDiskStore() {
 
-		this.applicationContext = newApplicationContext(SingleDiskStoreConfiguration.class);
+		newApplicationContext(SingleDiskStoreConfiguration.class);
 
-		DiskStore testDiskStore = this.applicationContext.getBean("TestDiskStore", DiskStore.class);
+		DiskStore testDiskStore = getBean("TestDiskStore", DiskStore.class);
 
 		assertDiskStore(testDiskStore, "TestDiskStore", true, true, 75, 95.0f, 75.0f, 8192L, 100, 2000L, 65536);
 		assertDiskStoreDirectoryLocations(testDiskStore, newFile("/absolute/path/to/gemfire/disk/directory"),
@@ -139,13 +119,13 @@ public class EnableDiskStoresConfigurationUnitTests extends IntegrationTestsSupp
 	@Test
 	public void enableMultipleDiskStores() {
 
-		this.applicationContext = newApplicationContext(MultipleDiskStoresConfiguration.class);
+		newApplicationContext(MultipleDiskStoresConfiguration.class);
 
-		DiskStore testDiskStoreOne = this.applicationContext.getBean("TestDiskStoreOne", DiskStore.class);
+		DiskStore testDiskStoreOne = getBean("TestDiskStoreOne", DiskStore.class);
 
 		assertDiskStore(testDiskStoreOne, "TestDiskStoreOne", false, true, 75, 99.0f, 90.0f, 2048L, 100, 1000L, 32768);
 
-		DiskStore testDiskStoreTwo = this.applicationContext.getBean("TestDiskStoreTwo", DiskStore.class);
+		DiskStore testDiskStoreTwo = getBean("TestDiskStoreTwo", DiskStore.class);
 
 		assertDiskStore(testDiskStoreTwo, "TestDiskStoreTwo", true, true, 85, 99.0f, 90.0f, 4096L, 0, 1000L, 32768);
 	}
