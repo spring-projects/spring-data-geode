@@ -19,7 +19,6 @@ package org.springframework.data.gemfire.serialization.json;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -57,7 +56,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
-@SuppressWarnings({ "unchecked", "unused" })
+@SuppressWarnings({ "unused" })
 public class JSONRegionAdviceIntegrationTests {
 
 	// TODO figure out why auto-proxying the Region for JSON support prevents the GemfireTemplate from being "auto-wired",
@@ -67,7 +66,7 @@ public class JSONRegionAdviceIntegrationTests {
 	private GemfireOperations template;
 
 	@Resource(name = "JsonRegion")
-	private Region jsonRegion;
+	private Region<Object, Object> jsonRegion;
 
 	@Before
 	public void setup() {
@@ -99,7 +98,6 @@ public class JSONRegionAdviceIntegrationTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void putAll() {
 
 		Map<String, String> map = MapBuilder.<String, String>newMapBuilder()
@@ -109,14 +107,14 @@ public class JSONRegionAdviceIntegrationTests {
 
 		this.jsonRegion.putAll(map);
 
-		Map<String, String> results = this.jsonRegion.getAll(Arrays.asList("key1", "key2"));
+		Map<Object, Object> results = this.jsonRegion.getAll(Arrays.asList("key1", "key2"));
 
 		assertEquals("{\"hello1\":\"world1\"}", results.get("key1"));
 		assertEquals("{\"hello2\":\"world2\"}", results.get("key2"));
 	}
 
 	@Test
-	public void objectToJSon() throws IOException {
+	public void objectToJSon() {
 
 		Person davidTuranski = new Person(1L, "David", "Turanski");
 
