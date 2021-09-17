@@ -17,7 +17,7 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -28,14 +28,15 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.distributed.DistributedSystem;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.gemfire.GemFireProperties;
+import org.springframework.data.gemfire.support.DisableBeanDefinitionOverridingApplicationContextInitializer;
 import org.springframework.data.gemfire.test.mock.annotation.EnableGemFireMockObjects;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -64,8 +65,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 //@ActiveProfiles("incorrect-test-configuration")
-@ContextConfiguration(initializers = UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegrationTests
-	.DisableBeanDefinitionOverridingApplicationContextInitializer.class)
+@ContextConfiguration(initializers = DisableBeanDefinitionOverridingApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegrationTests {
 
@@ -83,8 +83,14 @@ public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegratio
 		ConfigurableListableBeanFactory beanFactory = this.applicationContext.getBeanFactory();
 
 		assertThat(beanFactory).isInstanceOf(DefaultListableBeanFactory.class);
+
 		assertThat(((DefaultListableBeanFactory) beanFactory).isAllowBeanDefinitionOverriding()).isFalse();
-	}
+
+		assertThat(Arrays.stream(applicationContext.getBeanDefinitionNames())
+			.map(beanName -> applicationContext.getBeanFactory().getBeanDefinition(beanName))
+			.map(BeanDefinition::getBeanClassName)
+			.filter(beanClassName -> String.valueOf(beanClassName).contains("ClientGemFirePropertiesConfigurer"))
+			.count()).isEqualTo(2);	}
 
 	@Test
 	public void gemfireCacheSecurityAndSslConfigurationIsCorrect() {
@@ -101,9 +107,15 @@ public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegratio
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties).isNotEmpty();
+
 		assertThat(gemfireProperties.getProperty(GemFireProperties.SECURITY_MANAGER.getName()))
 			.isEqualTo(String.valueOf(TestSecurityManager.class));
-		assertThat(gemfireProperties.getProperty(GemFireProperties.SSL_KEYSTORE.getName())).isEqualTo("/path/to/test/keystore.jks");
+
+		assertThat(gemfireProperties.getProperty(GemFireProperties.SSL_KEYSTORE.getName()))
+			.isEqualTo("/path/to/test/keystore.jks");
+
+		assertThat(gemfireProperties.getProperty(GemFireProperties.SSL_KEYSTORE_PASSWORD.getName()))
+			.isEqualTo("p@55w0rd");
 	}
 
 	@EnableGemFireMockObjects
@@ -118,20 +130,4 @@ public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegratio
 	@Profile("incorrect-test-configuration")
 	static class IncorrectTestConfiguration { }
 
-	public static final class DisableBeanDefinitionOverridingApplicationContextInitializer
-			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-		/**
-		 * @inheritDoc
-		 */
-		@Override
-		public void initialize(ConfigurableApplicationContext applicationContext) {
-
-			Optional.ofNullable(applicationContext)
-				.map(ConfigurableApplicationContext::getBeanFactory)
-				.filter(DefaultListableBeanFactory.class::isInstance)
-				.map(DefaultListableBeanFactory.class::cast)
-				.ifPresent(beanFactory -> beanFactory.setAllowBeanDefinitionOverriding(false));
-		}
-	}
 }
