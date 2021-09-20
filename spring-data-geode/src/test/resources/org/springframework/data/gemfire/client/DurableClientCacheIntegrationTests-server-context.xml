@@ -16,16 +16,16 @@
 	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">DurableClientCacheIntegrationTestServer</prop>
+		<prop key="name">DurableClientCacheIntegrationTestsServer</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
 	<gfe:cache-server bind-address="${spring.data.gemfire.cache.server.host:localhost}"
-					  port="${spring.data.gemfire.cache.server.port}"/>
+					  port="${spring.data.gemfire.cache.server.port:40404}"/>
 
-	<gfe:replicated-region id="Example" persistent="false" initial-capacity="11" load-factor="0.75"
+	<gfe:replicated-region id="Example" persistent="false"
 						   key-constraint="java.lang.String" value-constraint="java.lang.Integer"/>
 
 	<!-- The GemfireTemplate bean definition is required to trigger the creation of the actual '/Example' Region bean

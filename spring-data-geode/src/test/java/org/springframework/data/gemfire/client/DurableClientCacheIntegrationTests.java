@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 
@@ -38,9 +40,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
-import org.apache.geode.cache.CacheClosedException;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.EntryEvent;
+import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientCacheFactory;
@@ -51,11 +53,8 @@ import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -90,7 +89,7 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 	private static List<Integer> regionCacheListenerEventValues =
 		Collections.synchronizedList(new ArrayList<Integer>());
 
-	private static final String CLIENT_CACHE_INTERESTS_RESULT_POLICY =
+	private static final String CLIENT_CACHE_INTEREST_RESULT_POLICY =
 		DurableClientCacheIntegrationTests.class.getName().concat(".interests-result-policy");
 
 	private static final String DURABLE_CLIENT_TIMEOUT =
@@ -121,9 +120,6 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 	}
 
 	@Autowired
-	private ConfigurableApplicationContext applicationContext;
-
-	@Autowired
 	private ClientCache clientCache;
 
 	@Resource(name = "Example")
@@ -149,7 +145,7 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 	public void tearDown() {
 
 		if (dirtiesContext()) {
-			forceCloseClientCache(this.clientCache);
+			closeClientCache(this.clientCache, true);
 			runClientCacheProducer();
 			setSystemProperties();
 		}
@@ -157,34 +153,25 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 		regionCacheListenerEventValues.clear();
 	}
 
-	private void forceCloseClientCache(ClientCache clientCache) {
+	private void closeClientCache(ClientCache clientCache, boolean keepAlive) {
 
-		if (clientCache != null) {
+		Function<GemFireCache, GemFireCache> cacheClosingFunction = cacheToClose -> {
+			((ClientCache) cacheToClose).close(keepAlive);
+			return cacheToClose;
+		};
 
-			long timeout = System.currentTimeMillis() + 5000L;
-
-			try {
-				while (timeout > System.currentTimeMillis() && !clientCache.isClosed()) {
-
-					clientCache.close(true);
-
-					try {
-						synchronized (clientCache) {
-							TimeUnit.MILLISECONDS.timedWait(clientCache, 1000L);
-						}
-					}
-					catch (InterruptedException ignore) { }
-				}
-			}
-			catch (CacheClosedException ignore) { }
+		if (Objects.nonNull(clientCache)) {
+			closeGemFireCacheWaitOnCacheClosedEvent(() -> clientCache, cacheClosingFunction,
+				TimeUnit.SECONDS.toMillis(5L));
 		}
 	}
 
 	private void runClientCacheProducer() {
 
-		try {
+		ClientCache clientCache = null;
 
-			ClientCache clientCache = new ClientCacheFactory()
+		try {
+			clientCache = new ClientCacheFactory()
 				.addPoolServer(SERVER_HOST, Integer.getInteger(GEMFIRE_CACHE_SERVER_PORT_PROPERTY))
 				.set("name", "ClientCacheProducer")
 				.set("log-level", "error")
@@ -198,13 +185,13 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 			exampleRegion.put("five", 5);
 		}
 		finally {
-			GemfireUtils.closeClientCache();
+			closeClientCache(clientCache, false);
 		}
 	}
 
 	private void setSystemProperties() {
 
-		System.setProperty(CLIENT_CACHE_INTERESTS_RESULT_POLICY, InterestResultPolicyType.NONE.name());
+		System.setProperty(CLIENT_CACHE_INTEREST_RESULT_POLICY, InterestResultPolicyType.NONE.name());
 		System.setProperty(DURABLE_CLIENT_TIMEOUT, "600");
 	}
 
@@ -243,19 +230,18 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 
 		AtomicInteger counter = new AtomicInteger(0);
 
-		ThreadUtils.timedWait(15000L, 500L, () -> {
+		waitOn(() -> {
 
-			// "Remind" the stupid, fucking GemFire Server we are still waiting!!!
 			if (counter.incrementAndGet() % 3 == 0) {
 				//log("NOTIFIED!%n");
 				this.clientCache.readyForEvents();
 			}
 
-
 			//log("WAITING...%n");
 
 			return regionCacheListenerEventValues.size() < 2;
-		});
+
+		}, TimeUnit.SECONDS.toMillis(15L), 500L);
 	}
 
 	@Test
@@ -275,9 +261,7 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 
 		waitForRegionEntryEvents();
 
-		assertThat(regionCacheListenerEventValues.size()).isEqualTo(2);
 		assertThat(regionCacheListenerEventValues).containsExactly(4, 5);
-		assertThat(this.example.isEmpty()).isTrue();
 	}
 
 	public static class ClientCacheBeanPostProcessor implements BeanPostProcessor {

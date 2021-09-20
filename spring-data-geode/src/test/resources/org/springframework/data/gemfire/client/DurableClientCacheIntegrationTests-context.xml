@@ -20,7 +20,7 @@
 			${org.springframework.data.gemfire.client.DurableClientCacheIntegrationTests.interests-result-policy:KEYS_VALUES}
 		</prop>
 		<prop key="gemfire.cache.server.host">localhost</prop>
-		<prop key="gemfire.cache.server.port">${spring.data.gemfire.cache.server.port}</prop>
+		<prop key="gemfire.cache.server.port">${spring.data.gemfire.cache.server.port:40404}</prop>
 	</util:properties>
 
 	<context:property-placeholder properties-ref="clientProperties"/>
