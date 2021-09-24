@@ -131,11 +131,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-<<<<<<< HEAD
 						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
-=======
-						docker.image('adoptopenjdk/openjdk17:latest').inside('-v $HOME:/tmp/jenkins-home') {
->>>>>>> Upgrade to JDK 17.
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
@@ -171,7 +167,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk17:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pci,distribute ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
