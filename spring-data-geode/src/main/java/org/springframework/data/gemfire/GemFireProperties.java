@@ -101,7 +101,6 @@ public enum GemFireProperties {
 	REDUNDANCY_ZONE(ConfigurationProperties.REDUNDANCY_ZONE, String.class),
 	REDIS_ENABLED(ConfigurationProperties.REDIS_ENABLED, Boolean.class),
 	REDIS_BIND_ADDRESS(ConfigurationProperties.REDIS_BIND_ADDRESS, String.class),
-	REDIS_PASSWORD(ConfigurationProperties.REDIS_PASSWORD, String.class),
 	REDIS_PORT(ConfigurationProperties.REDIS_PORT, Integer.class, 0),
 	REMOTE_LOCATORS(ConfigurationProperties.REMOTE_LOCATORS, String.class),
 	REMOVE_UNRESPONSIVE_CLIENT(ConfigurationProperties.REMOVE_UNRESPONSIVE_CLIENT, Boolean.class, false),
