@@ -12,7 +12,7 @@ pipeline {
 	}
 
 	stages {
-		stage("test: baseline (jdk17)") {
+		stage("test: baseline (Java 17)") {
 			when {
 				beforeAgent(true)
 				anyOf {
@@ -30,7 +30,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk17:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
@@ -64,7 +64,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk17:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
@@ -100,7 +100,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk17:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image('openjdk:17-bullseye').inside('-v $HOME:/tmp/jenkins-home') {
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pci,distribute ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
