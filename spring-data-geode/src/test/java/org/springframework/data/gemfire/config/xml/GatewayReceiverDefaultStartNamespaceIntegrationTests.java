@@ -17,13 +17,13 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean;
@@ -51,12 +51,13 @@ import org.springframework.util.StringUtils;
  */
 @ActiveProfiles("defaultStart")
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "GatewayReceiverNamespaceTest-context.xml",
+@ContextConfiguration(locations = "GatewayReceiverNamespaceIntegrationTests-context.xml",
 	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @SuppressWarnings("unused")
 public class GatewayReceiverDefaultStartNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "&Default")
+	@Autowired
+	@Qualifier("&Default")
 	private GatewayReceiverFactoryBean defaultGatewayReceiverFactory;
 
 	@Test

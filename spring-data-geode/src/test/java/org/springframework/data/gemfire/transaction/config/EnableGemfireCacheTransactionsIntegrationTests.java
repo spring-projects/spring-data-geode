@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.transaction.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,6 +24,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
@@ -59,14 +58,15 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("unused")
 public class EnableGemfireCacheTransactionsIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "Example")
-	private Region<Object, Object> example;
-
 	@Autowired
 	private GemFireCache gemfireCache;
 
 	@Autowired
 	private GemfireTransactionManager transactionManager;
+
+	@Autowired
+	@Qualifier("Example")
+	private Region<Object, Object> example;
 
 	@Autowired
 	private TestTransactionalService transactionalService;
@@ -75,6 +75,8 @@ public class EnableGemfireCacheTransactionsIntegrationTests extends IntegrationT
 	public void transactionManagerIsConfigured() {
 
 		assertThat(this.gemfireCache).isNotNull();
+		assertThat(this.gemfireCache.getName()).isEqualTo("EnableGemfireCacheTransactionsIntegrationTests");
+		assertThat(this.gemfireCache.getRegion("Example")).isNotNull();
 		assertThat(this.transactionManager).isNotNull();
 		assertThat(this.transactionManager.getCache()).isSameAs(this.gemfireCache);
 	}
@@ -82,20 +84,22 @@ public class EnableGemfireCacheTransactionsIntegrationTests extends IntegrationT
 	@Test
 	public void doInTransactionCommits() {
 
-		assertThat(example).isNotNull();
-		assertThat(example).isEmpty();
-		assertThat(transactionalService.doInTransactionCommits(1, "pass")).isTrue();
-		assertThat(example).hasSize(1);
-		assertThat(example).containsKey(1);
-		assertThat(example.get(1)).isEqualTo("pass");
+		assertThat(this.example).isNotNull();
+		assertThat(this.example).isEmpty();
+		assertThat(this.transactionalService.doInTransactionCommits(1, "pass")).isTrue();
+		assertThat(this.example).hasSize(1);
+		assertThat(this.example).containsKey(1);
+		assertThat(this.example.get(1)).isEqualTo("pass");
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void doInTransactionRollsback() {
 
 		try {
-			assertThat(example).doesNotContainKey(2);
-			transactionalService.doInTransactionRollsBack(2, "fail");
+			assertThat(this.example).isNotNull();
+			assertThat(this.example).doesNotContainKey(2);
+
+			this.transactionalService.doInTransactionRollsBack(2, "fail");
 		}
 		catch (RuntimeException expected) {
 			assertThat(expected).hasMessage("test");
@@ -119,7 +123,6 @@ public class EnableGemfireCacheTransactionsIntegrationTests extends IntegrationT
 			LocalRegionFactoryBean<Object, Object> example = new LocalRegionFactoryBean<>();
 
 			example.setCache(gemFireCache);
-			example.setClose(false);
 			example.setPersistent(false);
 
 			return example;
@@ -135,7 +138,8 @@ public class EnableGemfireCacheTransactionsIntegrationTests extends IntegrationT
 	@SuppressWarnings("all")
 	static class TestTransactionalService {
 
-		@Resource(name = "Example")
+		@Autowired
+		@Qualifier("Example")
 		private Region<Object, Object> example;
 
 		@Transactional

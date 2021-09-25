@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.function.Function;
-
-import javax.transaction.Transactional;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import edu.umd.cs.mtc.TestFramework;
@@ -32,6 +31,7 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.CacheTransactionManager;
 import org.apache.geode.cache.CommitConflictException;
+import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,23 +45,26 @@ import org.springframework.data.gemfire.repository.support.GemfireRepositoryFact
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import lombok.Data;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
- * Integration Tests asserting the proper configuration and behavior of Apache Geode/Pivotal GemFire
- * cache Transactions inside a Spring application context when using SDG to configure
- * the {@link CacheTransactionManager}.
+ * Integration Tests asserting the proper configuration and behavior of Apache Geode {@link GemFireCache} Transactions
+ * within the context of the Spring container when using SDG to configure the {@link CacheTransactionManager}.
  *
  * Specifically, this test asserts that 2 concurrent threads modifying the same entity inside a cache transaction
- * leads to a {@link CommitConflictException}.
+ * leading to a {@link CommitConflictException}.
  *
  * @author John Blum
  * @see java.util.function.Function
@@ -70,13 +73,18 @@ import lombok.RequiredArgsConstructor;
  * @see org.junit.Test
  * @see org.apache.geode.cache.CacheTransactionManager
  * @see org.apache.geode.cache.CommitConflictException
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.springframework.context.annotation.Bean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheApplication
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
+ * @see org.springframework.data.gemfire.mapping.annotation.Region
  * @see org.springframework.data.gemfire.repository.config.EnableGemfireRepositories
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.transaction.config.EnableGemfireCacheTransactions
+ * @see org.springframework.stereotype.Service
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
+ * @see org.springframework.transaction.annotation.Transactional
  * @since 2.2.0
  */
 @RunWith(SpringRunner.class)
@@ -85,22 +93,35 @@ import lombok.RequiredArgsConstructor;
 public class CommitConflictExceptionTransactionalIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
-	private CustomerService customerService;
+	private GemFireCache cache;
+
+	@Autowired
+	private AutomatedTellerMachine atm;
+
+	@Test
+	public void cacheTransactionManagementIsConfigured() {
+
+		assertThat(this.cache).isNotNull();
+		assertThat(this.cache.getName()).isEqualTo("CommitConflictExceptionTransactionalIntegrationTests");
+		assertThat(this.cache.getCopyOnRead()).isTrue();
+		assertThat(this.cache.getCacheTransactionManager()).isNotNull();
+	}
 
 	@Test
 	public void concurrentTransactionalThreadsCauseCommitConflictException() throws Throwable {
-		TestFramework.runOnce(new TransactionalCommitConflictMultithreadedTestCase(this.customerService));
+		TestFramework.runOnce(new TransactionalCommitConflictMultithreadedTestCase(this.atm));
 	}
 
 	static class TransactionalCommitConflictMultithreadedTestCase extends MultithreadedTestCase {
 
-		private final CustomerService customerService;
+		@Getter(AccessLevel.PROTECTED)
+		private final AutomatedTellerMachine atm;
 
-		TransactionalCommitConflictMultithreadedTestCase(CustomerService customerService) {
+		TransactionalCommitConflictMultithreadedTestCase(AutomatedTellerMachine atm) {
 
-			Assert.notNull(customerService, "CustomerService is required");
+			Assert.notNull(atm, "The ATM must not be null");
 
-			this.customerService = customerService;
+			this.atm = atm;
 		}
 
 		@Override
@@ -108,29 +129,29 @@ public class CommitConflictExceptionTransactionalIntegrationTests extends Integr
 
 			super.initialize();
 
-			Customer jonDoe = this.customerService.save(Customer.newCustomer(1L, "Jon Doe"));
-			Customer jonDoeLoaded = this.customerService.findById(jonDoe.getId());
+			Account account = getAtm().save(Account.open(1).deposit(BigDecimal.valueOf(100.0d)));
+			Account accountLoaded = getAtm().findByAccountNumber(account.getNumber());
 
-			assertThat(jonDoeLoaded).isEqualTo(jonDoe);
+			assertThat(accountLoaded).isEqualTo(account);
 		}
 
 		public void thread1() {
 
 			assertTick(0);
 
-			Thread.currentThread().setName("Customer Processing Thread One");
+			Thread.currentThread().setName("Account Processing Thread One");
 
-			this.customerService.process(1L, customer -> {
+			getAtm().process(1, account -> {
 
-				assertThat(customer.getId()).isEqualTo(1L);
-				assertThat(customer.getName()).isEqualTo("Jon Doe");
+				assertThat(account.getNumber()).isEqualTo(1);
+				assertThat(account.getBalance()).isEqualTo(BigDecimal.valueOf(100.0d));
 
-				customer.setName("Pie Doe");
+				account.withdrawal(BigDecimal.valueOf(50.0d));
 
 				waitForTick(2);
 				assertTick(2);
 
-				return customer;
+				return account;
 
 			}, Function.identity());
 		}
@@ -139,24 +160,24 @@ public class CommitConflictExceptionTransactionalIntegrationTests extends Integr
 
 			assertTick(0);
 
-			Thread.currentThread().setName("Customer Processing Thread Two");
+			Thread.currentThread().setName("Account Processing Thread Two");
 
 			waitForTick(1);
 			assertTick(1);
 
 			try {
 
-				this.customerService.process(1L, customer -> {
+				getAtm().process(1, account -> {
 
-					assertThat(customer.getId()).isEqualTo(1L);
-					assertThat(customer.getName()).isEqualTo("Jon Doe");
+					assertThat(account.getNumber()).isEqualTo(1);
+					assertThat(account.getBalance()).isEqualTo(BigDecimal.valueOf(100.0d));
 
-					customer.setName("Sour Doe");
+					account.withdrawal(BigDecimal.valueOf(75.0d));
 
 					waitForTick(3);
 					assertTick(3);
 
-					return customer;
+					return account;
 
 				}, Function.identity());
 
@@ -172,87 +193,128 @@ public class CommitConflictExceptionTransactionalIntegrationTests extends Integr
 		@Override
 		public void finish() {
 
-			Customer customer = this.customerService.findById(1L);
+			Account account = getAtm().findByAccountNumber(1);
 
-			assertThat(customer).isNotNull();
-			assertThat(customer.getId()).isEqualTo(1L);
-			assertThat(customer.getName()).isEqualTo("Pie Doe");
+			assertThat(account).isNotNull();
+			assertThat(account.getNumber()).isEqualTo(1);
+			assertThat(account.getBalance()).isEqualTo(BigDecimal.valueOf(50.0d));
 		}
 	}
 
-	@ClientCacheApplication(logLevel = "error")
-	@EnableEntityDefinedRegions(
-		basePackageClasses = Customer.class,
-		clientRegionShortcut = ClientRegionShortcut.LOCAL
-	)
+	@ClientCacheApplication(name = "CommitConflictExceptionTransactionalIntegrationTests")
+	@EnableEntityDefinedRegions(basePackageClasses = Account.class, clientRegionShortcut = ClientRegionShortcut.LOCAL)
 	@EnableGemfireCacheTransactions
 	static class TestConfiguration {
 
 		@Bean
-		GemfireRepositoryFactoryBean<CustomerRepository, Customer, Long> customerRepositoryFactoryBean() {
+		GemfireRepositoryFactoryBean<AccountRepository, Account, Integer> accountRepository() {
 
-			GemfireRepositoryFactoryBean<CustomerRepository, Customer, Long> customerRepositoryFactoryBean
-				= new GemfireRepositoryFactoryBean<>(CustomerRepository.class);
+			GemfireRepositoryFactoryBean<AccountRepository, Account, Integer> accountRepository
+				= new GemfireRepositoryFactoryBean<>(AccountRepository.class);
 
-			customerRepositoryFactoryBean.setGemfireMappingContext(new GemfireMappingContext());
+			accountRepository.setGemfireMappingContext(new GemfireMappingContext());
 
-			return customerRepositoryFactoryBean;
+			return accountRepository;
 		}
 
 		@Bean
-		CustomerService customerService(CustomerRepository customerRepository) {
-			return new CustomerService(customerRepository);
+		AutomatedTellerMachine automatedTellerMachine(AccountRepository accountRepository) {
+			return new AutomatedTellerMachine(accountRepository);
 		}
 	}
 
-	@Data
+	@Getter
+	@ToString
 	@EqualsAndHashCode
-	@Region("Customers")
-	@RequiredArgsConstructor(staticName = "newCustomer")
-	static class Customer implements Serializable {
+	@Region("Accounts")
+	@RequiredArgsConstructor(staticName = "open")
+	static class Account implements Serializable {
 
-		@NonNull @Id
-		private Long id;
+		@Id @lombok.NonNull
+		private final Integer number;
 
-		@NonNull
-		private String name;
+		private BigDecimal balance = BigDecimal.valueOf(0.0d);
 
+		public synchronized Account deposit(@NonNull BigDecimal value) {
+
+			this.balance = Optional.ofNullable(value)
+				.map(BigDecimal::abs)
+				.map(this.balance::add)
+				.orElse(this.balance);
+
+			return this;
+		}
+
+		public synchronized @NonNull Account withdrawal(@NonNull BigDecimal value) {
+
+			this.balance = Optional.ofNullable(value)
+				.map(BigDecimal::abs)
+				.map(this::verifyWithdrawal)
+				.map(this.balance::subtract)
+				.orElse(this.balance);
+
+			return this;
+		}
+
+		private BigDecimal verifyWithdrawal(@NonNull BigDecimal value) {
+
+			Assert.state(getBalance().compareTo(value) >= 0,
+				String.format("Withdrawal [%1$s] cannot exceed balance [%2$s]", value, getBalance()));
+
+			return value;
+		}
 	}
 
-	public interface CustomerRepository extends CrudRepository<Customer, Long> { }
+	public interface AccountRepository extends CrudRepository<Account, Integer> { }
 
 	@Service
-	public static class CustomerService {
+	public static class AutomatedTellerMachine {
 
-		private final CustomerRepository customerRepository;
+		@Getter(AccessLevel.PROTECTED)
+		private final AccountRepository accountRepository;
 
-		public CustomerService(CustomerRepository customerRepository) {
-
-			Assert.notNull(customerRepository, "CustomerRepository is required");
-
-			this.customerRepository = customerRepository;
+		public AutomatedTellerMachine(@NonNull AccountRepository accountRepository) {
+			Assert.notNull(accountRepository, "AccountRepository must not be null");
+			this.accountRepository = accountRepository;
 		}
 
-		protected Customer findById(Long id) {
+		@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+		public @NonNull Account findByAccountNumber(@NonNull Integer accountNumber) {
 
-			Assert.notNull(id, "ID is required");
-
-			return this.customerRepository.findById(id)
-				.orElseThrow(() -> newIllegalStateException("No Customer with ID [%d] was found", id));
+			return getAccountRepository().findById(accountNumber)
+				.orElseThrow(() -> newIllegalStateException("Failed to find Account by number [%d]", accountNumber));
 		}
 
 		@Transactional
-		public Customer process(Long id, Function<Customer, Customer> beforeSave,
-				Function<Customer, Customer> afterSave) {
+		public @NonNull Account process(@NonNull Integer accountNumber, @NonNull Function<Account, Account> beforeSave,
+				@NonNull Function<Account, Account> afterSave) {
 
-			return afterSave.apply(save(beforeSave.apply(findById(id))));
+			return afterSave.apply(save(beforeSave.apply(findByAccountNumber(accountNumber))));
 		}
 
-		protected Customer save(Customer customer) {
+		@Transactional(propagation = Propagation.REQUIRED)
+		public @NonNull Account save(@NonNull Account account) {
 
-			Assert.notNull(customer, "Customer is required");
+			Assert.notNull(account, "Account must not be null");
 
-			return this.customerRepository.save(customer);
+			return getAccountRepository().save(account);
+		}
+	}
+
+	static class OverdraftException extends RuntimeException {
+
+		public OverdraftException() { }
+
+		public OverdraftException(String message) {
+			super(message);
+		}
+
+		public OverdraftException(Throwable cause) {
+			super(cause);
+		}
+
+		public OverdraftException(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 }

@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,6 +33,8 @@ import org.apache.geode.cache.wan.GatewayEventSubstitutionFilter;
 import org.apache.geode.cache.wan.GatewayQueueEvent;
 import org.apache.geode.cache.wan.GatewaySender;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -59,13 +59,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("all")
 public class AsyncEventQueueNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "TestAsyncEventQueue")
+	@Autowired
+	@Qualifier("TestAsyncEventQueue")
 	private AsyncEventQueue asyncEventQueue;
 
-	@Resource(name = "TestAsyncEventQueueWithFilters")
+	@Autowired
+	@Qualifier("TestAsyncEventQueueWithFilters")
 	private AsyncEventQueue asyncEventQueueWithFilters;
 
-	@Resource(name = "TestPausedAsyncEventQueue")
+	@Autowired
+	@Qualifier("TestPausedAsyncEventQueue")
 	private AsyncEventQueue pausedAsyncEventQueue;
 
 	@Test

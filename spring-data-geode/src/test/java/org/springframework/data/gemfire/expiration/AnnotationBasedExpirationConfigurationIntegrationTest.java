@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +74,8 @@ public class AnnotationBasedExpirationConfigurationIntegrationTest extends Integ
 	@Autowired
 	private ExpirationAttributes defaultExpirationAttributes;
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<Object, Object> example;
 
 	@Before

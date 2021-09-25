@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.config.xml;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,6 +27,8 @@ import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -53,16 +53,20 @@ import org.springframework.util.Assert;
 @SuppressWarnings("unused")
 public class RegionExpirationAttributesNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "ReplicateExample")
+	@Autowired
+	@Qualifier("ReplicateExample")
 	private Region<?, ?> replicateExample;
 
-	@Resource(name = "PreloadedExample")
+	@Autowired
+	@Qualifier("PreloadedExample")
 	private Region<?, ?> preloadedExample;
 
-	@Resource(name = "PartitionExample")
+	@Autowired
+	@Qualifier("PartitionExample")
 	private Region<?, ?> partitionExample;
 
-	@Resource(name = "LocalExample")
+	@Autowired
+	@Qualifier("LocalExample")
 	private Region<?, ?> localExample;
 
 	private void assertRegionMetaData(final Region<?, ?> region, final String regionName, final DataPolicy dataPolicy) {

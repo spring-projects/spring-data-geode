@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.gemfire.search.lucene.ProjectingLuceneOperations;
@@ -59,7 +58,8 @@ public class EnableLuceneIndexingConfigurationIntegrationTests extends Integrati
 	@Autowired
 	private ProjectingLuceneOperations luceneTemplate;
 
-	@Resource(name = "Books")
+	@Autowired
+	@Qualifier("Books")
 	private Region<Long, Book> books;
 
 	@Before

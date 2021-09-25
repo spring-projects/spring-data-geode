@@ -22,14 +22,14 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.InterestResultPolicy;
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.annotation.Bean;
@@ -67,10 +67,12 @@ public class CachingDefinedRegionsRegistersInterestsIntegrationTests extends Int
 	private static final Interest testInterest =
 		new Interest<>("TestKey", InterestResultPolicy.KEYS_VALUES, false, true);
 
-	@Resource(name = "CacheOne")
+	@Autowired
+	@Qualifier("CacheOne")
 	private Region cacheOne;
 
-	@Resource(name = "CacheTwo")
+	@Autowired
+	@Qualifier("CacheTwo")
 	private Region cacheTwo;
 
 	@Test

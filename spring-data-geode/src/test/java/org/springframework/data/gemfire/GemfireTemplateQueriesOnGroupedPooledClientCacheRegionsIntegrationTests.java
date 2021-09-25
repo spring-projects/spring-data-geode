@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,6 +48,7 @@ import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.objects.geode.cache.RegionDataInitializingPostProcessor;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.context.ContextConfiguration;
@@ -331,23 +329,6 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			runSpringApplication(GemFireCacheServerOneConfiguration.class, args);
 		}
 
-		@Resource(name = "Cats")
-		private org.apache.geode.cache.Region<String, Cat> cats;
-
-		private Cat save(Cat cat) {
-			cats.put(cat.getName(), cat);
-			return cat;
-		}
-
-		@PostConstruct
-		public void postConstruct() {
-			save(Cat.newCat("Grey"));
-			save(Cat.newCat("Patchit"));
-			save(Cat.newCat("Tyger"));
-			save(Cat.newCat("Molly"));
-			save(Cat.newCat("Sammy"));
-		}
-
 		@Override
 		String groups() {
 			return "serverOne";
@@ -359,14 +340,26 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 		}
 
 		@Bean(name = "Cats")
-		LocalRegionFactoryBean catsRegion(GemFireCache gemfireCache) {
+		LocalRegionFactoryBean<String, Cat> catsRegion(GemFireCache gemfireCache) {
 
-			LocalRegionFactoryBean catsRegion = new LocalRegionFactoryBean();
+			LocalRegionFactoryBean<String, Cat> catsRegion = new LocalRegionFactoryBean();
 
 			catsRegion.setCache(gemfireCache);
 			catsRegion.setPersistent(false);
 
 			return catsRegion;
+		}
+
+		@Bean
+		RegionDataInitializingPostProcessor<Cat> catsRegionDataInitializer() {
+
+			return RegionDataInitializingPostProcessor.<Cat>withRegion("Cats")
+				.useAsEntityIdentifier(Cat::getName)
+				.store(Cat.newCat("Grey"))
+				.store(Cat.newCat("Patchit"))
+				.store(Cat.newCat("Tyger"))
+				.store(Cat.newCat("Molly"))
+				.store(Cat.newCat("Sammy"));
 		}
 	}
 
@@ -376,20 +369,6 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 
 		public static void main(String[] args) {
 			runSpringApplication(GemFireCacheServerTwoConfiguration.class, args);
-		}
-
-		@Resource(name = "Dogs")
-		private org.apache.geode.cache.Region<String, Dog> dogs;
-
-		private Dog save(Dog dog) {
-			dogs.put(dog.getName(), dog);
-			return dog;
-		}
-
-		@PostConstruct
-		public void postConstruct() {
-			save(Dog.newDog("Spuds"));
-			save(Dog.newDog("Maha"));
 		}
 
 		@Override
@@ -406,6 +385,15 @@ public class GemfireTemplateQueriesOnGroupedPooledClientCacheRegionsIntegrationT
 			dogsRegion.setPersistent(false);
 
 			return dogsRegion;
+		}
+
+		@Bean
+		RegionDataInitializingPostProcessor<Dog> dogsRegionDataInitializer() {
+
+			return RegionDataInitializingPostProcessor.<Dog>withRegion("Dogs")
+				.useAsEntityIdentifier(Dog::getName)
+				.store(Dog.newDog("Spuds"))
+				.store(Dog.newDog("Maha"));
 		}
 	}
 }

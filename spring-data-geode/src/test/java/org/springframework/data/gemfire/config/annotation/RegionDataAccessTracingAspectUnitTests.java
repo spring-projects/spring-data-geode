@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Resource;
-
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.BeforeClass;
@@ -33,6 +31,8 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect;
@@ -82,7 +82,8 @@ public class RegionDataAccessTracingAspectUnitTests extends IntegrationTestsSupp
 		TestAppender.getInstance().clear();
 	}
 
-	@Resource(name = "ClientRegion")
+	@Autowired
+	@Qualifier("ClientRegion")
 	private Region<Object, Object> region;
 
 	private Runnable regionCallbackArgument(AtomicBoolean called) {

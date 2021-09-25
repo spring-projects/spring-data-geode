@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,6 +30,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.ServerProcess;
@@ -91,13 +90,16 @@ public class GemFireDataSourceIntegrationTest extends ForkingClientServerIntegra
 	@Autowired
 	private ClientCache gemfireClientCache;
 
-	@Resource(name = "ClientOnlyRegion")
+	@Autowired
+	@Qualifier("ClientOnlyRegion")
 	private Region clientOnlyRegion;
 
-	@Resource(name = "ClientServerRegion")
+	@Autowired
+	@Qualifier("ClientServerRegion")
 	private Region clientServerRegion;
 
-	@Resource(name = "ServerOnlyRegion")
+	@Autowired
+	@Qualifier("ServerOnlyRegion")
 	private Region serverOnlyRegion;
 
 	@SuppressWarnings("unchecked")

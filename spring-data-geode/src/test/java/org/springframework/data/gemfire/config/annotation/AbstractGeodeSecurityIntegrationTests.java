@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,6 +47,7 @@ import org.apache.geode.security.NotAuthorizedException;
 import org.apache.geode.security.ResourcePermission;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
@@ -124,7 +124,8 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 		System.clearProperty(GEODE_SECURITY_PROFILE_PROPERTY);
 	}
 
-	@Resource(name = "Echo")
+	@Autowired
+	@Qualifier("Echo")
 	private Region<String, String> echo;
 
 	@Test

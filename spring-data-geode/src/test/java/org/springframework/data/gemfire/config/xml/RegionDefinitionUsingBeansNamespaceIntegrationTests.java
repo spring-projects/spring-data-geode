@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,6 +26,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 import org.springframework.data.gemfire.TestUtils;
@@ -61,10 +60,12 @@ public class RegionDefinitionUsingBeansNamespaceIntegrationTests extends Integra
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<?, ?> example;
 
-	@Resource(name = "AnotherExample")
+	@Autowired
+	@Qualifier("AnotherExample")
 	private Region<?, ?> anotherExample;
 
 	@Test

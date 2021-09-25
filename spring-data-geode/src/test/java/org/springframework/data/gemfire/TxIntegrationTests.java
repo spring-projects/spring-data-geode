@@ -19,11 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,10 +49,12 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("unused")
 public class TxIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "rollback-region")
+	@Autowired
+	@Qualifier("rollback-region")
 	private Map<String, String> rollbackRegion;
 
-	@Resource(name = "commit-region")
+	@Autowired
+	@Qualifier("commit-region")
 	private Map<String, String> commitRegion;
 
 	private boolean txCommit = false;

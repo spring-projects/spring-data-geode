@@ -19,14 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Properties;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
@@ -54,7 +53,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class SpringJavaConfiguredClientCacheIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "&clientCache")
+	@Autowired
+	@Qualifier("&clientCache")
 	private ClientCacheFactoryBean clientCacheFactoryBean;
 
 	@Autowired

@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 
-import javax.annotation.Resource;
-
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +32,7 @@ import org.apache.geode.cache.PartitionResolver;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
@@ -62,7 +61,8 @@ public class TemplatePersistentPartitionRegionNamespaceIntegrationTests extends 
 	@Autowired
 	private DiskStore exampleDataStore;
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<?, ?> example;
 
 	@After

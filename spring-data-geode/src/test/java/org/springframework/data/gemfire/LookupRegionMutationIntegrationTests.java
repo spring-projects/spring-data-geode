@@ -24,8 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,6 +48,8 @@ import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -73,7 +73,8 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("unused")
 public class LookupRegionMutationIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<?, ?> example;
 
 	private void assertCacheListeners(CacheListener<?, ?>[] cacheListeners,

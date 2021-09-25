@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -74,13 +72,16 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 	@Autowired
 	private ClientCache cache;
 
-	@Resource(name = "LocalRegion")
+	@Autowired
+	@Qualifier("LocalRegion")
 	private Region<?, ?> localClientProxyRegion;
 
-	@Resource(name = "PartitionRegion")
+	@Autowired
+	@Qualifier("PartitionRegion")
 	private Region<?, ?> partitionClientProxyRegion;
 
-	@Resource(name = "ReplicateRegion")
+	@Autowired
+	@Qualifier("ReplicateRegion")
 	private Region<?, ?> replicateClientProxyRegion;
 
 	private void assertRegion(Region<?, ?> region, String expectedName) {

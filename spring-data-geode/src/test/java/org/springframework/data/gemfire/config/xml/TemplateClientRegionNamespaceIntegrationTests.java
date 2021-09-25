@@ -20,8 +20,6 @@ import static org.junit.Assume.assumeNotNull;
 
 import java.util.Arrays;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,6 +38,8 @@ import org.apache.geode.cache.util.CacheListenerAdapter;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 import org.apache.geode.cache.util.ObjectSizer;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -63,7 +63,8 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("unused")
 public class TemplateClientRegionNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "TemplateBasedClientRegion")
+	@Autowired
+	@Qualifier("TemplateBasedClientRegion")
 	private Region<Integer, Object> templateBasedClientRegion;
 
 	private void assertCacheListeners(Region<?, ?> region, String... expectedNames) {

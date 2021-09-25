@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +36,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -91,7 +90,8 @@ public class GemfireTemplateIntegrationTests extends IntegrationTestsSupport {
 	@Autowired
 	private GemfireTemplate usersTemplate;
 
-	@Resource(name = "Users")
+	@Autowired
+	@Qualifier("Users")
 	private Region<String, User> users;
 
 	private static User newUser(String username) {
@@ -453,12 +453,11 @@ public class GemfireTemplateIntegrationTests extends IntegrationTestsSupport {
 		}
 
 		@Bean(name = "Users")
-		LocalRegionFactoryBean<Object, Object> usersRegion(GemFireCache gemfireCache) {
+		LocalRegionFactoryBean<String, User> usersRegion(GemFireCache gemfireCache) {
 
-			LocalRegionFactoryBean<Object, Object> usersRegion = new LocalRegionFactoryBean<>();
+			LocalRegionFactoryBean<String, User> usersRegion = new LocalRegionFactoryBean<>();
 
 			usersRegion.setCache(gemfireCache);
-			usersRegion.setClose(false);
 			usersRegion.setPersistent(false);
 
 			return usersRegion;

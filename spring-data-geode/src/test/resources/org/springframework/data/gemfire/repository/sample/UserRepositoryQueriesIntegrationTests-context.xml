@@ -14,7 +14,7 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">UserRepositoryQueriesIntegrationTest</prop>
+		<prop key="name">UserRepositoryQueriesIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 

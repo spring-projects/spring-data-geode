@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +30,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -92,7 +91,8 @@ public class CompoundCachePutCacheEvictIntegrationTests extends IntegrationTests
 	@Autowired
 	private EmployeeService employeeService;
 
-	@Resource(name = "Employees")
+	@Autowired
+	@Qualifier("Employees")
 	private org.apache.geode.cache.Region<Long, Employee> employeesRegion;
 
 	private void assertNoEmployeeInDepartment(Department department) {

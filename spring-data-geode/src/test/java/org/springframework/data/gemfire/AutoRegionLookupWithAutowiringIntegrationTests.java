@@ -17,8 +17,6 @@ package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,6 +24,7 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
@@ -87,16 +86,20 @@ public class AutoRegionLookupWithAutowiringIntegrationTests extends IntegrationT
 	@Component
 	public static final class TestComponent {
 
-		@Resource(name = "NativePartitionedRegion")
+		@Autowired
+		@Qualifier("NativePartitionedRegion")
 		Region<?, ?> nativePartitionedRegion;
 
-		@Resource(name = "NativeReplicateParent")
+		@Autowired
+		@Qualifier("NativeReplicateParent")
 		Region<?, ?> nativeReplicateParent;
 
-		@Resource(name = "/NativeReplicateParent/NativeReplicateChild")
+		@Autowired
+		@Qualifier("/NativeReplicateParent/NativeReplicateChild")
 		Region<?, ?> nativeReplicateChild;
 
-		@Resource(name = "/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild")
+		@Autowired
+		@Qualifier("/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild")
 		Region<?, ?> nativeReplicateGrandchild;
 
 	}

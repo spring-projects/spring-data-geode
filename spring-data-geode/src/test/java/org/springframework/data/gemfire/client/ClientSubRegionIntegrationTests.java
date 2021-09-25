@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +25,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
@@ -59,16 +58,20 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 	@Autowired
 	private ClientCache clientCache;
 
-	@Resource(name = "parentTemplate")
+	@Autowired
+	@Qualifier("parentTemplate")
 	private GemfireTemplate parentTemplate;
 
-	@Resource(name = "childTemplate")
+	@Autowired
+	@Qualifier("childTemplate")
 	private GemfireTemplate childTemplate;
 
-	@Resource(name = "Parent")
+	@Autowired
+	@Qualifier("Parent")
 	private Region<?, ?> parent;
 
-	@Resource(name = "/Parent/Child")
+	@Autowired
+	@Qualifier("/Parent/Child")
 	private Region<?, ?> child;
 
 	private void assertRegion(Region<?, ?> region, String name) {

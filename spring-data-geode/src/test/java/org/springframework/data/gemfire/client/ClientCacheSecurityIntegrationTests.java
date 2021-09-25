@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +30,8 @@ import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
@@ -74,7 +74,8 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 		System.setProperty("javax.net.ssl.keyStore", trustedKeystore.getFile().getAbsolutePath());
 	}
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<String, String> example;
 
 	@Test

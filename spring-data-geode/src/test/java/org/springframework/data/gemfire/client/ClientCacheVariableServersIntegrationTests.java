@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,6 +38,7 @@ import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.server.CacheServer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -98,7 +97,8 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 	@Autowired
 	private Pool serverPool;
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<String, Integer> example;
 
 	@Before

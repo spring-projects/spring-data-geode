@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.repository.Wrapper;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,9 +54,9 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.4.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration("subregionRepository.xml")
+@ContextConfiguration
 @SuppressWarnings("unused")
-public class SubRegionRepositoryIntegrationTest extends IntegrationTestsSupport {
+public class SubRegionRepositoryIntegrationTests extends IntegrationTestsSupport {
 
 	private static final Map<String, RootUser> ADMIN_USER_DATA = new HashMap<>(5, 0.90f);
 
@@ -94,13 +93,16 @@ public class SubRegionRepositoryIntegrationTest extends IntegrationTestsSupport 
 	@Autowired
 	private ProgrammerRepository programmersRepo;
 
-	@Resource(name = "/Users/Programmers")
+	@Autowired
+	@Qualifier("/Users/Programmers")
 	private Region<String, Programmer> programmers;
 
-	@Resource(name = "/Local/Admin/Users")
+	@Autowired
+	@Qualifier("/Local/Admin/Users")
 	private Region<String, RootUser> adminUsers;
 
-	@Resource(name = "/Local/Guest/Users")
+	@Autowired
+	@Qualifier("/Local/Guest/Users")
 	private Region<String, GuestUser> guestUsers;
 
 	@Autowired

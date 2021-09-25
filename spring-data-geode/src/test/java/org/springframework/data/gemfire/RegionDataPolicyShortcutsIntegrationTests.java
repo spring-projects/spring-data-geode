@@ -17,8 +17,6 @@ package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,6 +26,8 @@ import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.data.gemfire.util.RegionUtils;
@@ -52,28 +52,36 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "LocalWithDataPolicy")
+	@Autowired
+	@Qualifier("LocalWithDataPolicy")
 	private Region<?, ?> localWithDataPolicy;
 
-	@Resource(name = "LocalWithShortcut")
+	@Autowired
+	@Qualifier("LocalWithShortcut")
 	private Region<?, ?> localWithShortcut;
 
-	@Resource(name = "PartitionWithDataPolicy")
+	@Autowired
+	@Qualifier("PartitionWithDataPolicy")
 	private Region<?, ?> partitionWithDataPolicy;
 
-	@Resource(name = "PartitionWithShortcut")
+	@Autowired
+	@Qualifier("PartitionWithShortcut")
 	private Region<?, ?> partitionWithShortcut;
 
-	@Resource(name = "ReplicateWithDataPolicy")
+	@Autowired
+	@Qualifier("ReplicateWithDataPolicy")
 	private Region<?, ?> replicateWithDataPolicy;
 
-	@Resource(name = "ReplicateWithShortcut")
+	@Autowired
+	@Qualifier("ReplicateWithShortcut")
 	private Region<?, ?> replicateWithShortcut;
 
-	@Resource(name = "ShortcutDefaults")
+	@Autowired
+	@Qualifier("ShortcutDefaults")
 	private Region<?, ?> shortcutDefaults;
 
-	@Resource(name = "ShortcutOverrides")
+	@Autowired
+	@Qualifier("ShortcutOverrides")
 	private Region<?, ?> shortcutOverrides;
 
 	@Test

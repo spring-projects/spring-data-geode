@@ -19,13 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -49,10 +49,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class GatewayReceiverManualStartIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "Auto")
+	@Autowired
+	@Qualifier("Auto")
 	private GatewayReceiver autoGatewayReceiver;
 
-	@Resource(name = "Manual")
+	@Autowired
+	@Qualifier("Manual")
 	private GatewayReceiver manualGatewayReceiver;
 
 	private void assertGreaterThanEqualToLessThanEqualTo(String message,

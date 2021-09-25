@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,6 +39,8 @@ import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.CqEvent;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,7 +89,8 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 		startGemFireServer(GeodeServerTestConfiguration.class);
 	}
 
-	@Resource(name = "TemperatureReadings")
+	@Autowired
+	@Qualifier("TemperatureReadings")
 	private Region<Long, TemperatureReading> temperatureReadings;
 
 	@Before

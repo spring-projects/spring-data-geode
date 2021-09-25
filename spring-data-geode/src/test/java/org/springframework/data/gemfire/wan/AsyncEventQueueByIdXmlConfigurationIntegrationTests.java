@@ -20,8 +20,6 @@ import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,6 +33,7 @@ import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
@@ -87,7 +86,8 @@ public class AsyncEventQueueByIdXmlConfigurationIntegrationTests extends Forking
 		stop(geodeServer);
 	}
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<?, ?> example;
 
 	@Test

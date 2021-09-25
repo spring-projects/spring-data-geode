@@ -19,17 +19,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
-import javax.annotation.Resource;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.DiskStore;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -48,18 +47,28 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.3.4
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "diskstore-using-propertyplaceholders-config.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class DiskStoreBeanUsingPropertyPlaceholdersIntegrationTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private DiskStore testDataStore;
 
-	@Resource(name="diskStoreConfiguration")
-	private Map<String, Object> diskStoreConfiguration;
+	@Autowired
+	@Qualifier("diskStoreConfiguration")
+	private Map<Object, Object> diskStoreConfiguration;
 
-	private Object getExpectedValue(final String propertyPlaceholderName) {
+	@Before
+	public void assertDiskStoreConfiguration() {
+
+		//System.err.printf("Map of Type [%s]%n", ObjectUtils.nullSafeClassName(this.diskStoreConfiguration));
+		//System.err.printf("Map with Contents [%s]%n", this.diskStoreConfiguration);
+		assertThat(this.diskStoreConfiguration).isNotNull();
+		assertThat(String.valueOf(this.diskStoreConfiguration.get("allowForceCompaction"))).isEqualTo("false");
+		assertThat(String.valueOf(this.diskStoreConfiguration.get("writeBufferSize"))).isEqualTo("65536");
+	}
+
+	private Object getExpectedValue(String propertyPlaceholderName) {
 		return this.diskStoreConfiguration.get(propertyPlaceholderName);
 	}
 

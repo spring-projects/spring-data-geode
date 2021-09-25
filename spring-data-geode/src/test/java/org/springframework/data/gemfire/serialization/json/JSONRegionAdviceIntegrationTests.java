@@ -22,8 +22,6 @@ import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newI
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,6 +33,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.test.support.MapBuilder;
@@ -74,7 +73,8 @@ public class JSONRegionAdviceIntegrationTests extends IntegrationTestsSupport {
 	@Autowired
 	private GemfireOperations template;
 
-	@Resource(name = "JsonRegion")
+	@Autowired
+	@Qualifier("JsonRegion")
 	private Region<Object, Object> jsonRegion;
 
 	@Before

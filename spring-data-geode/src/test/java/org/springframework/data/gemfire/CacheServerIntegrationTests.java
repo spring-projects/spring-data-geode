@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,6 +26,7 @@ import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.server.CacheServer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -64,7 +63,7 @@ public class CacheServerIntegrationTests extends IntegrationTestsSupport {
 		path.delete();
 	}
 
-	@Resource(name = "testCacheServer")
+	@Autowired
 	private CacheServer cacheServer;
 
 	@BeforeClass

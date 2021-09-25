@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +28,8 @@ import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
@@ -64,7 +64,8 @@ public class EnableSslConfigurationIntegrationTests extends ForkingClientServerI
 
 	private static ProcessWrapper gemfireServer;
 
-	@Resource(name = "Echo")
+	@Autowired
+	@Qualifier("Echo")
 	private Region<String, String> echo;
 
 	@BeforeClass

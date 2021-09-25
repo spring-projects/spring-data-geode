@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,6 +54,7 @@ import org.apache.geode.cache.util.ObjectSizer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanIsAbstractException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
@@ -83,22 +82,28 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Resource(name = "NonTemplateBasedReplicateRegion")
+	@Autowired
+	@Qualifier("NonTemplateBasedReplicateRegion")
 	private Region<Integer, String> nonTemplateBasedReplicateRegion;
 
-	@Resource(name = "TemplateBasedReplicateRegion")
+	@Autowired
+	@Qualifier("TemplateBasedReplicateRegion")
 	private Region<String, Object> templateBasedReplicateRegion;
 
-	@Resource(name = "/TemplateBasedReplicateRegion/TemplateBasedReplicateSubRegion")
+	@Autowired
+	@Qualifier("/TemplateBasedReplicateRegion/TemplateBasedReplicateSubRegion")
 	private Region<Integer, String> templateBasedReplicateSubRegion;
 
-	@Resource(name = "TemplateBasedReplicateRegionNoOverrides")
+	@Autowired
+	@Qualifier("TemplateBasedReplicateRegionNoOverrides")
 	private Region<String, Object> templateBasedReplicateRegionNoOverrides;
 
-	@Resource(name = "TemplateBasedPartitionRegion")
+	@Autowired
+	@Qualifier("TemplateBasedPartitionRegion")
 	private Region<Date, Object> templateBasedPartitionRegion;
 
-	@Resource(name = "TemplateBasedLocalRegion")
+	@Autowired
+	@Qualifier("TemplateBasedLocalRegion")
 	private Region<Long, String> templateBasedLocalRegion;
 
 	private void assertAsyncEventQueues(Region<?, ?> region, String... expectedNames) {

@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +29,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
@@ -78,7 +77,8 @@ public class SimpleGemfireRepositoryRegionDeleteAllIntegrationTests extends Fork
 		startGemFireServer(GeodeServerTestConfiguration.class, "-Dspring.profiles.active=partition");
 	}
 
-	@Resource(name = "Users")
+	@Autowired
+	@Qualifier("Users")
 	private Region<Integer, User> users;
 
 	@Autowired

@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,6 +34,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.util.CacheWriterAdapter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -66,7 +65,8 @@ public class ClientRegionWithCacheLoaderCacheWriterIntegrationTests extends Inte
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Resource(name = "localAppDataRegion")
+	@Autowired
+	@Qualifier("localAppDataRegion")
 	private Region<Integer, Integer> localAppData;
 
 	@Test

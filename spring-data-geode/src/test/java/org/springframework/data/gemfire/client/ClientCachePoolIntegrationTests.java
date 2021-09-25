@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +28,8 @@ import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,7 +60,8 @@ public class ClientCachePoolIntegrationTests extends ForkingClientServerIntegrat
 			getServerContextXmlFileLocation(ClientCachePoolIntegrationTests.class));
 	}
 
-	@Resource(name = "Factorials")
+	@Autowired
+	@Qualifier("Factorials")
 	private Region<Long, Long> factorials;
 
 	@Test

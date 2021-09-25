@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,6 +26,8 @@ import org.apache.geode.cache.EvictionAlgorithm;
 import org.apache.geode.cache.EvictionAttributes;
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -51,22 +51,28 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class RegionEvictionAttributesNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "One")
+	@Autowired
+	@Qualifier("One")
 	private Region<?, ?> one;
 
-	@Resource(name = "Two")
+	@Autowired
+	@Qualifier("Two")
 	private Region<?, ?> two;
 
-	@Resource(name = "Three")
+	@Autowired
+	@Qualifier("Three")
 	private Region<?, ?> three;
 
-	@Resource(name = "Four")
+	@Autowired
+	@Qualifier("Four")
 	private Region<?, ?> four;
 
-	@Resource(name = "Five")
+	@Autowired
+	@Qualifier("Five")
 	private Region<?, ?> five;
 
-	@Resource(name = "Six")
+	@Autowired
+	@Qualifier("Six")
 	private Region<?, ?> six;
 
 	@Test

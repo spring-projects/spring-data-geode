@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,6 +32,8 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.Pool;
 import org.apache.geode.cache.client.PoolManager;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -68,7 +68,8 @@ public class ClientCacheVariableLocatorsIntegrationTests extends ForkingClientSe
 			getServerContextXmlFileLocation(ClientCacheVariableLocatorsIntegrationTests.class));
 	}
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<String, Integer> example;
 
 	@Before

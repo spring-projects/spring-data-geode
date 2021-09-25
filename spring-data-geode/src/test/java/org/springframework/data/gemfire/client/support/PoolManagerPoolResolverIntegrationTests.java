@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.client.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,10 +74,12 @@ public class PoolManagerPoolResolverIntegrationTests extends IntegrationTestsSup
 
 	private final PoolResolver poolResolver = new PoolManagerPoolResolver();
 
-	@Resource(name = "RegionWithDefaultPool")
+	@Autowired
+	@Qualifier("RegionWithDefaultPool")
 	private Region<?, ?> regionWithDefaultPool;
 
-	@Resource(name = "RegionWithSwimmingPool")
+	@Autowired
+	@Qualifier("RegionWithSwimmingPool")
 	private Region<?, ?> regionWithSwimmingPool;
 
 	@Before

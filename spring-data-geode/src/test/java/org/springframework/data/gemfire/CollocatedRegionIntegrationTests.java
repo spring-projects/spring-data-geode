@@ -17,16 +17,15 @@ package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -43,15 +42,16 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.3.3
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(value = "colocated-region.xml",
-	initializers = GemFireMockObjectsApplicationContextInitializer.class)
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class CollocatedRegionIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "colocatedRegion")
+	@Autowired
+	@Qualifier("colocatedRegion")
 	private Region<?, ?> colocatedRegion;
 
-	@Resource(name = "sourceRegion")
+	@Autowired
+	@Qualifier("sourceRegion")
 	private Region<?, ?> sourceRegion;
 
 	protected static void assertRegionExists(String expectedRegionName, Region<?, ?> region) {

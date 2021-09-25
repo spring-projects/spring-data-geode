@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +25,8 @@ import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.Scope;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -50,13 +50,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class LocalRegionWithEvictionPolicyActionNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "LocalDestroy")
+	@Autowired
+	@Qualifier("LocalDestroy")
 	private Region<?, ?> localDestroyRegion;
 
-	@Resource(name = "None")
+	@Autowired
+	@Qualifier("None")
 	private Region<?, ?> noneRegion;
 
-	@Resource(name = "Overflow")
+	@Autowired
+	@Qualifier("Overflow")
 	private Region<?, ?> overflowRegion;
 
 	@Test

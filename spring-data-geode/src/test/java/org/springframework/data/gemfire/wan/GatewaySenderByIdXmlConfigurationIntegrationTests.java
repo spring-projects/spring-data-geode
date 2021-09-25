@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,6 +31,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.wan.GatewaySender;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
@@ -85,7 +84,8 @@ public class GatewaySenderByIdXmlConfigurationIntegrationTests extends ForkingCl
 		stop(geodeServer);
 	}
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<?, ?> example;
 
 	@Test

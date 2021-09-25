@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.wan;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,10 +28,12 @@ import org.apache.geode.cache.asyncqueue.AsyncEventListener;
 import org.apache.geode.cache.asyncqueue.AsyncEventQueue;
 import org.apache.geode.cache.wan.GatewaySender;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.lang.Nullable;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -45,25 +45,30 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
  * @see org.apache.geode.cache.wan.GatewaySender
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.0.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class RegionsWithAsyncEventQueuesAndGatewaySendersUnitTests extends IntegrationTestsSupport {
 
-	@Resource(name = "TemplateBasedLocalRegion")
+	@Autowired
+	@Qualifier("TemplateBasedLocalRegion")
 	private Region<?, ?> templateBasedLocalRegion;
 
-	@Resource(name = "LocalRegion")
+	@Autowired
+	@Qualifier("LocalRegion")
 	private Region<?, ?> localRegion;
 
-	@Resource(name = "PartitionRegion")
+	@Autowired
+	@Qualifier("PartitionRegion")
 	private Region<?, ?> partitionRegion;
 
-	@Resource(name = "ReplicateRegion")
+	@Autowired
+	@Qualifier("ReplicateRegion")
 	private Region<?, ?> replicateRegion;
 
 	private void assertRegion(Region<?, ?> region, String name, DataPolicy dataPolicy) {

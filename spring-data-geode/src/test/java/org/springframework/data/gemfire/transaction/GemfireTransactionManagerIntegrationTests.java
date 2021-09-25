@@ -18,8 +18,6 @@ package org.springframework.data.gemfire.transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +25,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
@@ -60,7 +59,8 @@ import org.springframework.util.Assert;
 @SuppressWarnings("unused")
 public class GemfireTransactionManagerIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<Object, Object> example;
 
 	@Autowired

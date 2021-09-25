@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-import javax.annotation.Resource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,6 +50,7 @@ import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
@@ -122,7 +121,8 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 	@Autowired
 	private ClientCache clientCache;
 
-	@Resource(name = "Example")
+	@Autowired
+	@Qualifier("Example")
 	private Region<String, Integer> example;
 
 	@Before

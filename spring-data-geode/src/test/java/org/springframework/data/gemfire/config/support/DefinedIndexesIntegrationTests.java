@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +92,8 @@ public class DefinedIndexesIntegrationTests extends IntegrationTestsSupport {
 	@Qualifier("NameIdx")
 	private Index name;
 
-	@Resource(name = "People")
+	@Autowired
+	@Qualifier("People")
 	private Region<Long, Person> people;
 
 	protected static Person put(Region<Long, Person> people, Person person) {

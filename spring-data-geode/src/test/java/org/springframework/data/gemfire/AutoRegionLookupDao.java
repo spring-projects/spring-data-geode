@@ -17,11 +17,11 @@ package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.dao.support.DaoSupport;
 import org.springframework.stereotype.Repository;
@@ -46,16 +46,20 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 public class AutoRegionLookupDao extends DaoSupport {
 
-	@Resource(name = "NativePartitionedRegion")
+	@Autowired
+	@Qualifier("NativePartitionedRegion")
 	private Region<?, ?> nativePartitionedRegion;
 
-	@Resource(name = "NativeReplicateParent")
+	@Autowired
+	@Qualifier("NativeReplicateParent")
 	private Region<?, ?> nativeReplicateParent;
 
-	@Resource(name = "/NativeReplicateParent/NativeReplicateChild")
+	@Autowired
+	@Qualifier("/NativeReplicateParent/NativeReplicateChild")
 	private Region<?, ?> nativeReplicateChild;
 
-	@Resource(name = "/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild")
+	@Autowired
+	@Qualifier("/NativeReplicateParent/NativeReplicateChild/NativeReplicateGrandchild")
 	private Region<?, ?> nativeReplicateGrandchild;
 
 	protected static void assertRegionMetaData(Region<?, ?> region, String expectedName, DataPolicy expectedDataPolicy) {

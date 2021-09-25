@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.repository.Query;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -67,7 +66,8 @@ public class UsingQueryAnnotationExtensionsInUserRepositoryIntegrationTests exte
 		return users;
 	}
 
-	@Resource(name = "Users")
+	@Autowired
+	@Qualifier("Users")
 	private Region<String, User> users;
 
 	@Autowired

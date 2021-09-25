@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +32,7 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Bean;
@@ -74,16 +73,20 @@ public class CachingDefinedRegionsUsesCacheConfigCacheNamesIntegrationTests exte
 	@Autowired
 	private TestCacheableService service;
 
-	@Resource(name = "A")
+	@Autowired
+	@Qualifier("A")
 	private Region<Object, Object> a;
 
-	@Resource(name = "B")
+	@Autowired
+	@Qualifier("B")
 	private Region<Object, Object> b;
 
-	@Resource(name = "C")
+	@Autowired
+	@Qualifier("C")
 	private Region<Object, Object> c;
 
-	@Resource(name = "D")
+	@Autowired
+	@Qualifier("D")
 	private Region<Object, Object> d;
 
 	@Before

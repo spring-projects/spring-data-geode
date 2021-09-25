@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,6 +24,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.gemfire.IndexFactoryBean;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
@@ -42,10 +41,12 @@ public class IndexNamespaceIntegrationTests extends IntegrationTestsSupport {
 	@Autowired
 	private ApplicationContext applicationContext;
 
-	@Resource(name = "basic")
+	@Autowired
+	@Qualifier("basic")
 	private Index basic;
 
-	@Resource(name = "complex")
+	@Autowired
+	@Qualifier("complex")
 	private Index complex;
 
 	@Test

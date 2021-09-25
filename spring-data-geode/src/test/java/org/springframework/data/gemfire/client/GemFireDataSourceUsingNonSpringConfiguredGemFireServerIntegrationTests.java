@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.junit.AfterClass;
@@ -36,6 +35,7 @@ import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.distributed.ServerLauncher;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.GemfireUtils;
@@ -147,13 +147,16 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 	@Autowired
 	private ClientCache gemfireClientCache;
 
-	@Resource(name = "LocalRegion")
+	@Autowired
+	@Qualifier("LocalRegion")
 	private Region localRegion;
 
-	@Resource(name = "ServerRegion")
+	@Autowired
+	@Qualifier("ServerRegion")
 	private Region serverRegion;
 
-	@Resource(name = "AnotherServerRegion")
+	@Autowired
+	@Qualifier("AnotherServerRegion")
 	private Region anotherServerRegion;
 
 	@SuppressWarnings("unchecked")

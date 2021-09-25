@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import javax.annotation.Resource;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +31,7 @@ import org.apache.geode.cache.query.CqListener;
 import org.apache.geode.cache.query.CqQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.TestUtils;
 import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.ContinuousQueryListener;
@@ -76,10 +75,12 @@ public class ContinuousQueryListenerContainerNamespaceIntegrationTests
 	@Autowired
 	private ContinuousQueryListenerContainer container;
 
-	@Resource(name = "testErrorHandler")
+	@Autowired
+	@Qualifier("testErrorHandler")
 	private ErrorHandler testErrorHandler;
 
-	@Resource(name = "testTaskExecutor")
+	@Autowired
+	@Qualifier("testTaskExecutor")
 	private Executor testTaskExecutor;
 
 	@Test

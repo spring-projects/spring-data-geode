@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +25,8 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 import org.apache.geode.cache.query.Index;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.gemfire.GemfireUtils;
@@ -58,13 +58,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class EnableOqlIndexingConfigurationIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "People")
+	@Autowired
+	@Qualifier("People")
 	private Region<Long, Person> people;
 
-	@Resource(name = "PeopleIdKeyIdx")
+	@Autowired
+	@Qualifier("PeopleIdKeyIdx")
 	private Index personIdKeyIndex;
 
-	@Resource(name = "PeopleLastNameFunctionalIdx")
+	@Autowired
+	@Qualifier("PeopleLastNameFunctionalIdx")
 	private Index personLastNameHashIndex;
 
 	@Test

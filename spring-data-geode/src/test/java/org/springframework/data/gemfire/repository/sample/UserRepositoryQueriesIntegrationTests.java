@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,11 +46,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.3.3
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration("userRepositoryQueriesIntegrationTest.xml")
+@ContextConfiguration
 @SuppressWarnings("unused")
 public class UserRepositoryQueriesIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "Users")
+	@Autowired
+	@Qualifier("Users")
 	@SuppressWarnings("rawtypes")
 	private Region users;
 

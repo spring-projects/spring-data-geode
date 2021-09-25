@@ -25,8 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.annotation.Resource;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +34,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.snapshot.SnapshotFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.gemfire.repository.sample.Person;
@@ -80,16 +79,20 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
 
-	@Resource(name = "Doe")
+	@Autowired
+	@Qualifier("Doe")
 	private Region<Long, Person> doe;
 
-	@Resource(name = "EveryoneElse")
+	@Autowired
+	@Qualifier("EveryoneElse")
 	private Region<Long, Person> everyoneElse;
 
-	@Resource(name = "Handy")
+	@Autowired
+	@Qualifier("Handy")
 	private Region<Long, Person> handy;
 
-	@Resource(name = "People")
+	@Autowired
+	@Qualifier("People")
 	private Region<Long, Person> people;
 
 	@BeforeClass

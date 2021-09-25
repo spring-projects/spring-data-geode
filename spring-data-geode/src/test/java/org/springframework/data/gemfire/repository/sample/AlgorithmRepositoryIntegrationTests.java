@@ -17,14 +17,13 @@ package org.springframework.data.gemfire.repository.sample;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -51,7 +50,8 @@ public class AlgorithmRepositoryIntegrationTests extends IntegrationTestsSupport
 	@Autowired
 	private AlgorithmRepository algorithmRepo;
 
-	@Resource(name = "Algorithms")
+	@Autowired
+	@Qualifier("Algorithms")
 	private Region<?, ?> algorithmsRegion;
 
 	@Test

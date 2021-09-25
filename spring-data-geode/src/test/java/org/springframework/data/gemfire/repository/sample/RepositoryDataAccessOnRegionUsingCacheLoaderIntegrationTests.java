@@ -20,8 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.Optional;
 
-import javax.annotation.Resource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +33,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
@@ -70,7 +69,8 @@ public class RepositoryDataAccessOnRegionUsingCacheLoaderIntegrationTests extend
 	@Autowired
 	private PersonRepository personRepository;
 
-	@Resource(name = "simple")
+	@Autowired
+	@Qualifier("simple")
 	private Region<Long, Person> people;
 
 	@Before

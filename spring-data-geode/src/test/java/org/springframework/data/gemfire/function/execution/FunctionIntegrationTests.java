@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,6 +28,8 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.annotation.RegionData;
@@ -62,7 +62,8 @@ public class FunctionIntegrationTests extends ForkingClientServerIntegrationTest
 			getServerContextXmlFileLocation(FunctionIntegrationTests.class));
 	}
 
-	@Resource(name = "TestRegion")
+	@Autowired
+	@Qualifier("TestRegion")
 	private Region<String, Integer> region;
 
 	@Before

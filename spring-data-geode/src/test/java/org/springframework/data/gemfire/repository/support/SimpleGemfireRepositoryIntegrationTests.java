@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +32,7 @@ import org.apache.geode.cache.query.SelectResults;
 import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -75,7 +74,8 @@ public class SimpleGemfireRepositoryIntegrationTests extends IntegrationTestsSup
 	@Autowired
 	private GemfireTemplate template;
 
-	@Resource(name = "People")
+	@Autowired
+	@Qualifier("People")
 	private Region<?, ?> people;
 
 	private RegionClearListener regionClearListener;

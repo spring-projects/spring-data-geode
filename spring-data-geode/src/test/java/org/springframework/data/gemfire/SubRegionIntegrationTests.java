@@ -17,8 +17,6 @@ package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +31,7 @@ import org.apache.geode.cache.Scope;
 import org.apache.geode.cache.SubscriptionAttributes;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -58,10 +57,12 @@ public class SubRegionIntegrationTests extends IntegrationTestsSupport {
 	@Autowired
 	private Cache cache;
 
-	@Resource(name = "Customers")
+	@Autowired
+	@Qualifier("Customers")
 	private Region customers;
 
-	@Resource(name = "/Customers/Accounts")
+	@Autowired
+	@Qualifier("/Customers/Accounts")
 	private Region accounts;
 
 	@Test

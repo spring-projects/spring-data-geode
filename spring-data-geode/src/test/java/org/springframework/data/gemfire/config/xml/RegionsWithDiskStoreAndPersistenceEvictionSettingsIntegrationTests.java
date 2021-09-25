@@ -17,8 +17,6 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +25,8 @@ import org.apache.geode.cache.DiskStore;
 import org.apache.geode.cache.EvictionAction;
 import org.apache.geode.cache.Region;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -49,16 +49,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class RegionsWithDiskStoreAndPersistenceEvictionSettingsIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "NotPersistentNoOverflowRegion")
+	@Autowired
+	@Qualifier("NotPersistentNoOverflowRegion")
 	private Region<?, ?> notPersistentNoOverflowRegion;
 
-	@Resource(name = "NotPersistentOverflowRegion")
+	@Autowired
+	@Qualifier("NotPersistentOverflowRegion")
 	private Region<?, ?> notPersistentOverflowRegion;
 
-	@Resource(name = "PersistentNoOverflowRegion")
+	@Autowired
+	@Qualifier("PersistentNoOverflowRegion")
 	private Region<?, ?> persistentNoOverflowRegion;
 
-	@Resource(name = "PersistentOverflowRegion")
+	@Autowired
+	@Qualifier("PersistentOverflowRegion")
 	private Region<?, ?> persistentOverflowRegion;
 
 	@Test

@@ -17,13 +17,13 @@ package org.springframework.data.gemfire.config.xml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.wan.GatewayReceiver;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.context.GemFireMockObjectsApplicationContextInitializer;
 import org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean;
@@ -49,20 +49,22 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @since 1.5.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = "GatewayReceiverNamespaceTest-context.xml",
+@ContextConfiguration(locations = "GatewayReceiverNamespaceIntegrationTests-context.xml",
 	initializers = GemFireMockObjectsApplicationContextInitializer.class)
 @ActiveProfiles("manualStart")
 @SuppressWarnings("unused")
 public class GatewayReceiverManualStartNamespaceIntegrationTests extends IntegrationTestsSupport {
 
-	@Resource(name = "&Manual")
+	@Autowired
+	@Qualifier("&Manual")
 	private GatewayReceiverFactoryBean manualGatewayReceiverFactory;
 
 	@Test
 	public void testManual() throws Exception {
 
 		assertThat(this.manualGatewayReceiverFactory)
-			.as("The 'Manual' GatewayReceiverFactoryBean was not properly configured and initialized!").isNotNull();
+			.describedAs("The 'Manual' GatewayReceiverFactoryBean was not properly configured and initialized!")
+			.isNotNull();
 
 		GatewayReceiver manualGatewayReceiver = this.manualGatewayReceiverFactory.getObject();
 
