@@ -163,7 +163,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 
 		private CacheListener<Long, TemperatureReading> temperatureReadingCounterListener() {
 
-			return new CacheListenerAdapter<Long, TemperatureReading>() {
+			return new CacheListenerAdapter<>() {
 
 				@Override
 				public void afterCreate(EntryEvent<Long, TemperatureReading> event) {
@@ -198,7 +198,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 
 		private CacheLoader<Long, TemperatureReading> temperatureReadingsLoader() {
 
-			return new CacheLoader<Long, TemperatureReading>() {
+			return new CacheLoader<>() {
 
 				@Override
 				public TemperatureReading load(LoaderHelper<Long, TemperatureReading> helper) throws CacheLoaderException {

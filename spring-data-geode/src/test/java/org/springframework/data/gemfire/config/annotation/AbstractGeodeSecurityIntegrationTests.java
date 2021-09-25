@@ -248,7 +248,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 		CacheLoader<String, String> echoCacheLoader() {
 
-			return new CacheLoader<String, String>() {
+			return new CacheLoader<>() {
 
 				@Override
 				public String load(LoaderHelper<String, String> helper) throws CacheLoaderException {
