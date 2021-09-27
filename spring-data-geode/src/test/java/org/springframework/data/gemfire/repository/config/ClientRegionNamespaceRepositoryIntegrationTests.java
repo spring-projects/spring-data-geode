@@ -19,10 +19,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.repository.GemfireRepository;
+import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.objects.geode.cache.RegionDataInitializingPostProcessor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -40,7 +44,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.test.context.junit4.SpringRunner
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@ContextConfiguration(locations = "ClientRegionNamespaceRepositoryIntegrationTests-context.xml")
 @SuppressWarnings("unused")
 public class ClientRegionNamespaceRepositoryIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
@@ -58,5 +62,18 @@ public class ClientRegionNamespaceRepositoryIntegrationTests extends ForkingClie
 
 		assertThat(this.repository.count()).isEqualTo(2);
 		assertThat(this.repository.findAll()).hasSize(2);
+	}
+
+	@Configuration
+	static class TestConfiguration {
+
+		@Bean
+		RegionDataInitializingPostProcessor<Person> peopleRegionDataInitializer() {
+
+			return RegionDataInitializingPostProcessor.<Person>withRegion("simple")
+				.useAsEntityIdentifier(Person::getId)
+				.store(new Person(1L, "First1", "Last1"))
+				.store(new Person(2L, "First2", "Last2"));
+		}
 	}
 }

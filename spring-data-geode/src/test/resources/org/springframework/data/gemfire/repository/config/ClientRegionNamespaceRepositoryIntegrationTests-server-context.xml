@@ -11,6 +11,7 @@
 		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
+	<context:annotation-config/>
 	<context:property-placeholder/>
 
 	<util:properties id="gemfireProperties">
@@ -24,8 +25,6 @@
 
 	<gfe:replicated-region id="People" name="simple"/>
 
-	<bean class="org.springframework.data.gemfire.repository.sample.RegionPopulator">
-		<property name="region" ref="People"/>
-	</bean>
+	<bean class="org.springframework.data.gemfire.repository.config.ClientRegionNamespaceRepositoryIntegrationTests$TestConfiguration"/>
 
 </beans>
