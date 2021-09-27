@@ -31,11 +31,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.ProcessBean;
-import javax.inject.Qualifier;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.ProcessBean;
+import jakarta.inject.Qualifier;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,13 +47,14 @@ import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.repository.GemfireRepository;
 
 /**
- * The GemfireRepositoryExtensionTest class is a test suite of unit tests testing the contract and proper functionality
- * of the {@link GemfireRepositoryExtension} class in a Java EE CDI context.
+ * Integration Tests for the {@link GemfireRepositoryExtension} class and functionality in a Java EE CDI context.
  *
  * @author John Blum
- * @see javax.enterprise.inject.spi.Bean
+ * @see jakarta.enterprise.inject.spi.Bean
+ * @see jakarta.enterprise.inject.spi.BeanManager
  * @see org.junit.Test
  * @see org.mockito.Mockito
+ * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.mapping.GemfireMappingContext
  * @see org.springframework.data.gemfire.repository.GemfireRepository
  * @see org.springframework.data.gemfire.repository.cdi.GemfireRepositoryExtension

@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
 import java.lang.annotation.Annotation;
@@ -24,9 +23,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 
 import org.apache.geode.cache.Region;
 
@@ -51,6 +50,7 @@ import org.springframework.data.repository.config.CustomRepositoryImplementation
  * @see org.apache.geode.cache.Region
  * @since 1.8.0
  */
+@SuppressWarnings("rawtypes")
 class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 
 	static final GemfireMappingContext DEFAULT_GEMFIRE_MAPPING_CONTEXT = new GemfireMappingContext();
@@ -61,8 +61,6 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 
 	private final Set<Bean<Region>> regionBeans;
 
-	/* (non-Javadoc) */
-	@SuppressWarnings("unchecked")
 	GemfireRepositoryBean(BeanManager beanManager, Class<T> repositoryType, Set<Annotation> qualifiers,
 			CustomRepositoryImplementationDetector detector, Bean<GemfireMappingContext> gemfireMappingContextBean,
 			Set<Bean<Region>> regionBeans) {
@@ -77,17 +75,17 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 	/**
 	 * Returns an instance of the given {@link Bean} from the container.
 	 *
-	 * @param <S> the actual class type of the {@link Bean}.
+	 * @param <S> the actual {@link Type class type} of the {@link Bean}.
 	 * @param bean the {@link Bean} defining the instance to create.
 	 * @param type the expected component type of the instance created from the {@link Bean}.
 	 * @return an instance of the given {@link Bean}.
-	 * @see javax.enterprise.inject.spi.BeanManager#getReference(Bean, Type, CreationalContext)
+	 * @see javax.enterprise.inject.spi.BeanManager#getReference(javax.enterprise.inject.spi.Bean, Type, javax.enterprise.context.spi.CreationalContext)
 	 * @see javax.enterprise.inject.spi.Bean
 	 * @see java.lang.reflect.Type
 	 */
 	@SuppressWarnings("unchecked")
 	protected <S> S getDependencyInstance(Bean<S> bean, Type type) {
-		return (S) beanManager.getReference(bean, type, beanManager.createCreationalContext(bean));
+		return (S) this.beanManager.getReference(bean, type, this.beanManager.createCreationalContext(bean));
 	}
 
 	/**
@@ -101,12 +99,13 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 	 * @see javax.enterprise.inject.spi.Bean#getTypes()
 	 * @see java.lang.Class
 	 */
-	@SuppressWarnings("unchecked")
 	protected <S> Type resolveType(Bean<S> bean, Class<S> targetType) {
+
 		for (Type type : bean.getTypes()) {
+
 			Type assignableType = (type instanceof ParameterizedType ? ((ParameterizedType) type).getRawType() : type);
 
-			if (assignableType instanceof Class && targetType.isAssignableFrom((Class) assignableType)) {
+			if (assignableType instanceof Class && targetType.isAssignableFrom((Class<?>) assignableType)) {
 				return type;
 			}
 		}
@@ -116,9 +115,9 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 				targetType, bean));
 	}
 
-	/* (non-Javadoc) */
 	Iterable<Region<?, ?>> resolveGemfireRegions() {
-		Set<Region<?, ?>> regions = new HashSet<Region<?, ?>>(regionBeans.size());
+
+		Set<Region<?, ?>> regions = new HashSet<>(regionBeans.size());
 
 		for (Bean<Region> regionBean : regionBeans) {
 			regions.add(getDependencyInstance(regionBean, resolveType(regionBean, Region.class)));
@@ -127,14 +126,12 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 		return regions;
 	}
 
-	/* (non-Javadoc) */
 	GemfireMappingContext resolveGemfireMappingContext() {
 		return (gemfireMappingContextBean != null
 			? getDependencyInstance(gemfireMappingContextBean, GemfireMappingContext.class)
 				: DEFAULT_GEMFIRE_MAPPING_CONTEXT);
 	}
 
-	/* (non-Javadoc) */
 	GemfireRepositoryFactory newGemfireRepositoryFactory() {
 		return new GemfireRepositoryFactory(resolveGemfireRegions(), resolveGemfireMappingContext());
 	}

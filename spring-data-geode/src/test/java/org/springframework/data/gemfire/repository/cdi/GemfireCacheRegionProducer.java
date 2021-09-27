@@ -14,14 +14,14 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
+import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
@@ -30,14 +30,15 @@ import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.util.Assert;
 
 /**
- * The GemfireCacheRegionProducer class is an application scoped CDI context bean that is responsible
- * for creating the GemFire Cache "People" Region used to store {@link Person} instances.
+ * The {@link GemfireCacheRegionProducer} class is an application scoped CDI context bean that is responsible
+ * for creating the {@link GemFireCache} {@literal People} {@link Region} used to store {@link Person} instances.
  *
  * @author John Blum
- * @see javax.enterprise.context.ApplicationScoped
- * @see javax.enterprise.inject.Produces
+ * @see jakarta.enterprise.context.ApplicationScoped
+ * @see jakarta.enterprise.inject.Produces
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.CacheFactory
+ * @see org.apache.geode.cache.GemFireCache
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.RegionFactory
  * @since 1.8.0

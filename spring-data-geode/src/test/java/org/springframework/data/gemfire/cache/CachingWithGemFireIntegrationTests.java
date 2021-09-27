@@ -14,15 +14,13 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import jakarta.annotation.PostConstruct;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.apache.geode.cache.Region;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ActiveProfiles;
@@ -60,11 +59,12 @@ public class CachingWithGemFireIntegrationTests extends IntegrationTestsSupport 
 	@Autowired
 	private NamedNumbersService namedNumbersService;
 
-	@Resource(name = "NamedNumbersRegion")
+	@Autowired
+	@Qualifier("NamedNumbersRegion")
 	private Region<String, Integer> namedNumbersRegion;
 
 	@Test(expected = NullPointerException.class)
-	public void testRegionCacheHit() {
+	public void regionCacheHitIsCorrect() {
 
 		assertThat(namedNumbersRegion.get("eleven")).isNull();
 		assertThat(namedNumbersRegion.containsKey("eleven")).isFalse();
@@ -87,7 +87,7 @@ public class CachingWithGemFireIntegrationTests extends IntegrationTestsSupport 
 	}
 
 	@Test
-	public void testRegionCaching() {
+	public void regionCachingIsCorrect() {
 
 		assertThat(namedNumbersService.wasCacheMiss()).isFalse();
 		assertThat(namedNumbersService.get("one").intValue()).isEqualTo(1);

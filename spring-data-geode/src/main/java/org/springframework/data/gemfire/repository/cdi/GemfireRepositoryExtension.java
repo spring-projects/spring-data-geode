@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
 import java.lang.annotation.Annotation;
@@ -25,20 +24,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.ProcessBean;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.ProcessBean;
 
 import org.apache.geode.cache.Region;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.repository.cdi.CdiRepositoryBean;
 import org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The GemfireRepositoryExtension class...
@@ -47,18 +46,17 @@ import org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport;
  * @see org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport
  * @since 1.8.0
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "rawtypes", "unused" })
 public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	final Map<Set<Annotation>, Bean<GemfireMappingContext>> mappingContexts = new HashMap<>();
 
 	final Set<Bean<Region>> regionBeans = new HashSet<>();
 
-	/* (non-Javadoc) */
 	public GemfireRepositoryExtension() {
-		logger.info("Activating CDI extension for Spring Data GemFire Repositories");
+		logger.info("Activating CDI extension for Spring Data Geode Repositories");
 	}
 
 	/**
@@ -67,8 +65,8 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 	 *
 	 * @param <X> class type of the bean instance.
 	 * @param processBean annotated type as defined by CDI.
-	 * @see javax.enterprise.inject.spi.ProcessBean
-	 * @see javax.enterprise.event.Observes
+	 * @see jakarta.enterprise.inject.spi.ProcessBean
+	 * @see jakarta.enterprise.event.Observes
 	 */
 	@SuppressWarnings("unchecked")
 	<X> void processBean(@Observes ProcessBean<X> processBean) {
@@ -107,9 +105,9 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 	 * Repository beans are associated to the appropriate GemfireMappingContexts based on their qualifiers.
 	 *
 	 * @param beanManager the BeanManager instance.
-	 * @see javax.enterprise.inject.spi.AfterBeanDiscovery
-	 * @see javax.enterprise.inject.spi.BeanManager
-	 * @see javax.enterprise.event.Observes
+	 * @see jakarta.enterprise.inject.spi.AfterBeanDiscovery
+	 * @see jakarta.enterprise.inject.spi.BeanManager
+	 * @see jakarta.enterprise.event.Observes
 	 */
 	void afterBeanDiscovery(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
@@ -130,15 +128,14 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 		}
 	}
 
-	/* (non-Javadoc) */
 	<T> CdiRepositoryBean<T> createRepositoryBean(BeanManager beanManager, Class<T> repositoryType,
 			Set<Annotation> qualifiers) {
 
-		// Determine the GemfireMappingContext bean that matches the qualifiers of the Repository.
-		Bean<GemfireMappingContext> gemfireMappingContextBean = mappingContexts.get(qualifiers);
+		// Determine the GemfireMappingContext bean matching the qualifiers of the Repository.
+		Bean<GemfireMappingContext> gemfireMappingContextBean = this.mappingContexts.get(qualifiers);
 
-		// Construct and return a GemFire Repository bean.
-		return new GemfireRepositoryBean<T>(beanManager, repositoryType, qualifiers, getCustomImplementationDetector(),
-			gemfireMappingContextBean, regionBeans);
+		// Construct and return a GemfireRepositoryBean.
+		return new GemfireRepositoryBean<>(beanManager, repositoryType, qualifiers, getCustomImplementationDetector(),
+			gemfireMappingContextBean, this.regionBeans);
 	}
 }
