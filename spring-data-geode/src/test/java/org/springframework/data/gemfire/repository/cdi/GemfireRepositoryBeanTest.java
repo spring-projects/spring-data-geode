@@ -34,9 +34,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -278,7 +278,7 @@ public class GemfireRepositoryBeanTest {
 		final AtomicBoolean repositoryProxyPostProcessed = new AtomicBoolean(false);
 
 		GemfireRepositoryBean<PersonRepository> repositoryBean =
-			new GemfireRepositoryBean<PersonRepository>(this.mockBeanManager, PersonRepository.class,
+			new GemfireRepositoryBean<>(this.mockBeanManager, PersonRepository.class,
 				Collections.emptySet(), newCustomRepositoryImplementationDetector(), null,
 					CollectionUtils.asSet(mockRegionBean))
 		{

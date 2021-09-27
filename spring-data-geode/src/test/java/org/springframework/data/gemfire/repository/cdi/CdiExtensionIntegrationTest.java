@@ -18,8 +18,8 @@ package org.springframework.data.gemfire.repository.cdi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.enterprise.inject.se.SeContainer;
-import javax.enterprise.inject.se.SeContainerInitializer;
+import jakarta.enterprise.inject.se.SeContainer;
+import jakarta.enterprise.inject.se.SeContainerInitializer;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

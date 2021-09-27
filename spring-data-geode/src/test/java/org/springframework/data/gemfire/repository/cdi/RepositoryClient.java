@@ -14,21 +14,20 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.util.Assert;
 
 /**
- * The RepositoryClient class is a user/consumer of the {@link SamplePersonRepository} bean in a CDI context.
+ * {@link RepositoryClient} is a user/consumer of the {@link SamplePersonRepository} bean in a CDI context.
  *
  * @author John Blum
- * @see javax.inject.Inject
+ * @see jakarta.inject.Inject
  * @see org.springframework.data.gemfire.repository.cdi.SamplePersonRepository
  * @since 1.8.0
  */

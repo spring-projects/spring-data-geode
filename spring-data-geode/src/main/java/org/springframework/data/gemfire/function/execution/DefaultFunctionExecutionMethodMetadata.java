@@ -14,7 +14,6 @@ package org.springframework.data.gemfire.function.execution;
 
 import java.lang.reflect.Method;
 
-
 /**
  * @author David Turanski
  *
@@ -22,18 +21,19 @@ import java.lang.reflect.Method;
 class DefaultFunctionExecutionMethodMetadata extends FunctionExecutionMethodMetadata<MethodMetadata>  {
 
 	/**
-	 * @param serviceInterface
+	 * Constructs a new instance of {@link DefaultFunctionExecutionMethodMetadata} initialized with
+	 * the {@link org.apache.geode.cache.execute.Function} {@link org.apache.geode.cache.execute.Execution}
+	 * {@link Class interface}.
+	 *
+	 * @param serviceInterface {@link org.apache.geode.cache.execute.Function}
+	 * {@link org.apache.geode.cache.execute.Execution} {@link Class interface}.
 	 */
 	public DefaultFunctionExecutionMethodMetadata(Class<?> serviceInterface) {
 		super(serviceInterface);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionMethodMetadata#newMetadataInstance(java.lang.reflect.Method)
-	 */
 	@Override
 	protected MethodMetadata newMetadataInstance(Method method) {
 		return new MethodMetadata(method);
 	}
-
 }
