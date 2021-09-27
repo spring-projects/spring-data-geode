@@ -94,7 +94,7 @@ public class GatewaySenderFactoryBean extends AbstractWANComponentFactoryBean<Ga
 
 	private List<GatewaySenderConfigurer> gatewaySenderConfigurers = Collections.emptyList();
 
-	// TODO: Come of with better association and remove.
+	// TODO: Come up with better association and remove.
 	private List<String> regions = new ArrayList<>();
 
 	private String diskStoreReference;

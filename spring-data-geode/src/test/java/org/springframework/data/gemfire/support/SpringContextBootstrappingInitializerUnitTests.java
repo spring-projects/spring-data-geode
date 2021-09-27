@@ -1048,9 +1048,6 @@ public class SpringContextBootstrappingInitializerUnitTests {
 	@Configuration
 	protected static class TestAppConfigTwo { }
 
-	// TODO add additional multi-threaded test cases once MultithreadedTC test framework is added to the SDP project
-	// in order to properly test concurrency of notification and registration during Spring ApplicationContext creation.
-
 	protected static class TestApplicationListener implements ApplicationListener<ContextRefreshedEvent> {
 
 		private volatile boolean notified = false;

@@ -26,19 +26,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate.FollowRedirectsSimpleClientHttpRequestFactory;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.ClusterSchemaObjectInitializer;
 import static org.springframework.data.gemfire.config.annotation.ClusterConfigurationConfiguration.SchemaObjectContext;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
@@ -57,9 +55,9 @@ import org.springframework.data.gemfire.config.admin.remote.FunctionGemfireAdmin
 import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
 import org.springframework.data.gemfire.config.schema.support.ComposableSchemaObjectCollector;
 import org.springframework.data.gemfire.config.schema.support.ComposableSchemaObjectDefiner;
+import org.springframework.data.gemfire.tests.util.ReflectionUtils;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -83,42 +81,14 @@ import org.springframework.web.client.RestTemplate;
 public class EnableClusterConfigurationUnitTests {
 
 	@After
-	public void tearDown() {
+	public void cleanupAfterEachTest() {
 		System.clearProperty(ClusterConfigurationConfiguration.HTTP_FOLLOW_REDIRECTS_PROPERTY);
 	}
 
-	// TODO: Replace with STDG!
 	private <T> ClusterConfigurationConfiguration autowire(ClusterConfigurationConfiguration target,
 			String fieldName, T dependency) throws NoSuchFieldException {
 
-		return Optional.ofNullable(ReflectionUtils.findField(target.getClass(), fieldName))
-			.map(field -> {
-				ReflectionUtils.makeAccessible(field);
-				return field;
-			})
-			.map(field -> {
-				ReflectionUtils.setField(field, target, dependency);
-				return target;
-			})
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> T getFieldValue(Object target, String fieldName) throws NoSuchFieldException {
-
-		Field field = ReflectionUtils.findField(target.getClass(), fieldName);
-
-		return Optional.ofNullable(field)
-			.map(it -> {
-				ReflectionUtils.makeAccessible(it);
-				return field;
-			})
-			.map(it -> (T) ReflectionUtils.getField(it, target))
-			.orElseThrow(() ->
-				new NoSuchFieldException(String.format("Field with name [%s] was not found on Object of type [%s]",
-					fieldName, target.getClass().getName())));
+		return ReflectionUtils.setField(target, fieldName, dependency);
 	}
 
 	@Test
@@ -454,7 +424,7 @@ public class EnableClusterConfigurationUnitTests {
 		assertThat(configuration.resolveClientHttpRequestInterceptors(true))
 			.isEqualTo(clientHttpRequestInterceptors);
 
-		verifyZeroInteractions(mockBeanFactory);
+		verifyNoMoreInteractions(mockBeanFactory);
 	}
 
 	@Test
@@ -505,7 +475,7 @@ public class EnableClusterConfigurationUnitTests {
 		assertThat(clientHttpRequestInterceptors).isNotNull();
 		assertThat(clientHttpRequestInterceptors).isEmpty();
 
-		verifyZeroInteractions(mockBeanFactory);
+		verifyNoMoreInteractions(mockBeanFactory);
 	}
 
 	@Test
@@ -533,7 +503,7 @@ public class EnableClusterConfigurationUnitTests {
 
 		assertThat(operations).isInstanceOf(FunctionGemfireAdminTemplate.class);
 
-		verifyZeroInteractions(mockClientCache);
+		verifyNoMoreInteractions(mockClientCache);
 	}
 
 	@Test
@@ -562,7 +532,7 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).isEmpty();
@@ -573,9 +543,10 @@ public class EnableClusterConfigurationUnitTests {
 
 		assertThat(clientHttpRequestFactory.isFollowRedirects()).isFalse();
 
-		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(false));
 		verify(configuration, times(1)).resolveRestTemplateConfigurers();
+
+		verifyNoMoreInteractions(mockClientCache);
 	}
 
 	@Test
@@ -603,7 +574,7 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).isEmpty();
@@ -614,9 +585,10 @@ public class EnableClusterConfigurationUnitTests {
 
 		assertThat(clientHttpRequestFactory.isFollowRedirects()).isTrue();
 
-		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(false));
 		verify(configuration, times(1)).resolveRestTemplateConfigurers();
+
+		verifyNoMoreInteractions(mockClientCache);
 	}
 
 	@Test
@@ -652,20 +624,21 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		RestTemplate restTemplate = getFieldValue(template, "restTemplate");
+		RestTemplate restTemplate = ReflectionUtils.getFieldValue(template, "restTemplate");
 
 		assertThat(restTemplate).isNotNull();
 		assertThat(restTemplate.getInterceptors()).containsExactly(mockInterceptorOne, mockInterceptorTwo);
 		assertThat(restTemplate.getRequestFactory()).isInstanceOf(InterceptingClientHttpRequestFactory.class);
 
 		FollowRedirectsSimpleClientHttpRequestFactory clientHttpRequestFactory =
-			getFieldValue(restTemplate.getRequestFactory(), "requestFactory");
+			ReflectionUtils.getFieldValue(restTemplate.getRequestFactory(), "requestFactory");
 
 		assertThat(clientHttpRequestFactory.isFollowRedirects()).isTrue();
 
-		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(true));
 		verify(configuration, times(1)).resolveRestTemplateConfigurers();
+
+		verifyNoMoreInteractions(mockClientCache);
 	}
 
 	@Test
@@ -696,11 +669,12 @@ public class EnableClusterConfigurationUnitTests {
 
 		RestHttpGemfireAdminTemplate template = (RestHttpGemfireAdminTemplate) operations;
 
-		assertThat(this.<String>getFieldValue(template, "managementRestApiUrl"))
+		assertThat(ReflectionUtils.<String>getFieldValue(template, "managementRestApiUrl"))
 			.isEqualTo("https://skullbox/gemfire/v1");
 
-		verifyZeroInteractions(mockClientCache);
 		verify(configuration, times(1)).resolveClientHttpRequestInterceptors(eq(false));
 		verify(configuration, times(1)).resolveRestTemplateConfigurers();
+
+		verifyNoMoreInteractions(mockClientCache);
 	}
 }

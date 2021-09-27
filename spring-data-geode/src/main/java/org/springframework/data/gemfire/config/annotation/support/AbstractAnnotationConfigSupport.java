@@ -107,33 +107,39 @@ public abstract class AbstractAnnotationConfigSupport
 	private final Logger log;
 
 	/**
-	 * Determines whether the given {@link Number} has value.  The {@link Number} is valuable
-	 * if it is not {@literal null} and is not equal to 0.0d.
+	 * Determines whether the given {@link Number} has value.
+	 *
+	 * The {@link Number} is considered valuable if it is not {@literal null} and is not equal to {@literal 0.0d}.
 	 *
 	 * @param value {@link Number} to evaluate.
 	 * @return a boolean value indicating whether the given {@link Number} has value.
+	 * @see java.lang.Number
 	 */
 	public static boolean hasValue(@Nullable Number value) {
-		return Optional.ofNullable(value).filter(it -> it.doubleValue() != 0.0d).isPresent();
+		return value != null && value.doubleValue() != 0.0d;
 	}
 
 	/**
-	 * Determines whether the given {@link Object} has value.  The {@link Object} is valuable
-	 * if it is not {@literal null}.
+	 * Determines whether the given {@link Object} has value.
+	 *
+	 * The {@link Object} is considered valuable if it is not {@literal null}.
 	 *
 	 * @param value {@link Object} to evaluate.
 	 * @return a boolean value indicating whether the given {@link Object} has value.
+	 * @see java.lang.Object
 	 */
 	public static boolean hasValue(@Nullable Object value) {
 		return value != null;
 	}
 
 	/**
-	 * Determines whether the given {@link String} has value.  The {@link String} is valuable
-	 * if it is not {@literal null} or empty.
+	 * Determines whether the given {@link String} has value.
+	 *
+	 * The {@link String} is considered valuable if it is not {@literal null} and not {@literal empty}.
 	 *
 	 * @param value {@link String} to evaluate.
 	 * @return a boolean value indicating whether the given {@link String} is valuable.
+	 * @see java.lang.String
 	 */
 	public static boolean hasValue(@Nullable String value) {
 		return StringUtils.hasText(value);
@@ -154,6 +160,7 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param beanFactory reference to the Spring {@link BeanFactory}.
 	 * @see org.springframework.beans.factory.BeanFactory
 	 * @see #newEvaluationContext(BeanFactory)
+	 * @see #newLog()
 	 */
 	public AbstractAnnotationConfigSupport(@Nullable BeanFactory beanFactory) {
 
