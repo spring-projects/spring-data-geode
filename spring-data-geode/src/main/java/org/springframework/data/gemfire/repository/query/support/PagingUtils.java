@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  * @see java.util.Collection
  * @see org.springframework.data.domain.Page
  * @see org.springframework.data.domain.Pageable
- * @see org.springframework.data.repository.support.PageableExecutionUtils
+ * @see org.springframework.data.repository.query.QueryMethod
  * @since 2.4.0
  */
 public abstract class PagingUtils {

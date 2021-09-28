@@ -87,7 +87,7 @@ public @interface EnableHttpService {
 	 *
 	 * To enable SSL communications for the HTTP service, use the {@link EnableSsl} annotation and set the
 	 * {@link EnableSsl#components()} to contain
-	 * {@link org.springframework.data.gemfire.config.annotation.EnableSsl.Component#HTTP}.
+	 * {@link org.springframework.data.gemfire.config.annotation.EnableSsl.Component#WEB}.
 	 *
 	 * Defaults to {@literal false}.
 	 *

@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import java.lang.annotation.Documented;
@@ -26,17 +25,15 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.type.AnnotationMetadata;
 
 /**
  * The {@link EnablePdx} annotation marks a Spring {@link Configuration @Configuration} annotated {@link Class}
- * to enable the Pivotal GemFire/Apache Geode PDX features and functionality in this peer cache, cluster member
- * or cache client application.
+ * to enable the Apache Geode PDX features and functionality in this peer cache, cluster member or cache client
+ * application.
  *
  * @author John Blum
  * @see java.lang.annotation.Annotation
  * @see org.springframework.context.annotation.Import
- * @see org.springframework.data.gemfire.config.annotation.AbstractCacheConfiguration#configurePdx(AnnotationMetadata)
  * @see org.springframework.data.gemfire.config.annotation.PdxConfiguration
  * @since 1.9.0
  */

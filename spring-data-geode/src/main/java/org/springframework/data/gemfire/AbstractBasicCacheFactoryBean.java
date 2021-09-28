@@ -379,7 +379,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * By default, returns {@link GemFireCache} {@link Class}.
 	 *
 	 * @return {@link GemFireCache} {@link Class} by default.
-	 * @see org.apache.geode.cache.GemFireCache#getClass()
+	 * @see org.apache.geode.cache.GemFireCache
 	 * @see #getObjectType()
 	 * @see java.lang.Class
 	 */

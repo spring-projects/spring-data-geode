@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
 
 /**
  * {@link GemfireRepositoryQuery} using plain {@link String} based OQL queries.
- * <p>
+ *
  * @author Oliver Gierke
  * @author David Turanski
  * @author John Blum

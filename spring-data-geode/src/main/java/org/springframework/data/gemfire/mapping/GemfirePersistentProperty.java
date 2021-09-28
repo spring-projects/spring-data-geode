@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import static org.springframework.data.gemfire.util.CollectionUtils.asSet;
@@ -54,7 +53,6 @@ public class GemfirePersistentProperty extends AnnotationBasedPersistentProperty
 	 * @see org.springframework.data.mapping.PersistentProperty
 	 * @see org.springframework.data.mapping.model.Property
 	 * @see org.springframework.data.mapping.model.SimpleTypeHolder
-	 * @see AnnotationBasedPersistentProperty(Property, PersistentEntity, SimpleTypeHolder)
 	 */
 	public GemfirePersistentProperty(Property property, PersistentEntity<?, GemfirePersistentProperty> owner,
 			SimpleTypeHolder simpleTypeHolder) {

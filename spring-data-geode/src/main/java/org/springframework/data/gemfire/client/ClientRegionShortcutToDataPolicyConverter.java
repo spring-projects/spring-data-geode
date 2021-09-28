@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.client;
 
 import java.util.Optional;
@@ -42,7 +41,7 @@ public class ClientRegionShortcutToDataPolicyConverter implements Converter<Clie
 	/**
 	 * Converts the given {@link ClientRegionShortcut} into a corresponding {@link DataPolicy}.
 	 *
-	 * @param regionShortcut {@link ClientRegionShortcut} to convert.
+	 * @param clientRegionShortcut {@link ClientRegionShortcut} to convert.
 	 * @return a corresponding {@link DataPolicy} for the given {@link ClientRegionShortcut}.
 	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 * @see org.apache.geode.cache.DataPolicy
