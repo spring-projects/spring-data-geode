@@ -19,14 +19,27 @@ import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newI
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newUnsupportedOperationException;
 
 import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionFactory;
+import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.Scope;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.Assert;
 
 /**
+ * Spring {@link FactoryBean} used to create a {@link RegionShortcut#LOCAL} {@literal peer} {@link GemFireCache}
+ * {@link Region}.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.DataPolicy
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.RegionFactory
+ * @see org.apache.geode.cache.RegionShortcut#LOCAL
+ * @see org.springframework.data.gemfire.PeerRegionFactoryBean
  */
 public class LocalRegionFactoryBean<K, V> extends PeerRegionFactoryBean<K, V> {
 
