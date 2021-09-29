@@ -71,11 +71,11 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 	protected static final String EXCLUSIVE_LOCATOR_APPLICATION_ERROR_MESSAGE =
 		"A Spring application cannot be both a Cache and a Locator application;"
-			+ " You may annotate your Spring application main class with either 1 of"
+			+ " You may annotate your Spring application main class with 1 of"
 			+ " [@ClientCacheApplication, @CacheServerApplication, @PeerCacheApplication] or @LocatorApplication;"
-			+ " If you want to create a Spring, Apache Geode/Pivotal GemFire server application "
-			+ " (i.e. [@PeerCacheApplication,  @CacheServerApplication] and also run an embedded Locator service,"
-			+ " then use @EnableLocator with 1 of the server-side, cache application annotations instead;"
+			+ " If you want to create a Spring, Apache Geode server application"
+			+ " (i.e. [@PeerCacheApplication,  @CacheServerApplication]) and also run an embedded Locator service,"
+			+ " then use the @EnableLocator annotation with 1 of the server-side, cache application annotations instead;"
 			+ " Locators are not applicable to clients.";
 
 	private static final List<String> CACHE_FACTORY_BEAN_CLASS_NAMES =
