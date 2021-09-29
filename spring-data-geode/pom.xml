@@ -198,15 +198,6 @@
 			<scope>test</scope>
 		</dependency>
 
-<!--
-		<dependency>
-			<groupId>org.apache.xbean</groupId>
-			<artifactId>xbean-asm9-shaded</artifactId>
-			<version>${webbeans.xbean}</version>
-			<scope>test</scope>
-		</dependency>
--->
-
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyLocale_zh_TW</artifactId>
