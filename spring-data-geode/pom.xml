@@ -332,7 +332,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>remote-java16</id>
+			<id>remote-java17</id>
 			<build>
 				<plugins>
 					<plugin>
