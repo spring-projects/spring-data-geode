@@ -46,11 +46,11 @@ public abstract class GemfireUtils extends RegionUtils {
 	private static final String ASYNC_EVENT_QUEUE_ELEMENT_NAME = "async-event-queue";
 	private static final String ASYNC_EVENT_QUEUE_TYPE_NAME = "org.apache.geode.cache.asyncqueue.AsyncEventQueue";
 	private static final String CQ_ELEMENT_NAME = "cq-listener-container";
-	private static final String CQ_TYPE_NAME = "org.apache.geode.cache.query.internal.cq.CqServiceFactoryImpl";
+	private static final String CQ_TYPE_NAME = "org.apache.geode.cache.query.CqQuery";
 	private static final String GATEWAY_RECEIVER_ELEMENT_NAME = "gateway-receiver";
-	private static final String GATEWAY_RECEIVER_TYPE_NAME = "org.apache.geode.internal.cache.wan.GatewayReceiverFactoryImpl";
+	private static final String GATEWAY_RECEIVER_TYPE_NAME = "org.apache.geode.cache.wan.GatewayReceiverFactory";
 	private static final String GATEWAY_SENDER_ELEMENT_NAME = "gateway-sender";
-	private static final String GATEWAY_SENDER_TYPE_NAME = "org.apache.geode.internal.cache.wan.GatewaySenderFactoryImpl";
+	private static final String GATEWAY_SENDER_TYPE_NAME = "org.apache.geode.cache.wan.GatewaySenderFactory";
 
 	public static String apacheGeodeProductName() {
 
