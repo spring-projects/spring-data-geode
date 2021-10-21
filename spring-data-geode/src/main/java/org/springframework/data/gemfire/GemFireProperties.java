@@ -64,6 +64,7 @@ public enum GemFireProperties {
 	ENABLE_TIME_STATISTICS(ConfigurationProperties.ENABLE_TIME_STATISTICS, Boolean.class, false),
 	ENFORCE_UNIQUE_HOST(ConfigurationProperties.ENFORCE_UNIQUE_HOST, Boolean.class, false),
 	//GEODE_DISALLOW_INTERNAL_MESSAGES_WITHOUT_CREDENTIALS("geode.disallow-internal-messages-without-credentials", Boolean.class, false),
+	GEODE_FOR_REDIS_USERNAME(ConfigurationProperties.REDIS_USERNAME, String.class),
 	GROUPS(ConfigurationProperties.GROUPS, String.class),
 	HTTP_SERVICE_BIND_ADDRESS(ConfigurationProperties.HTTP_SERVICE_BIND_ADDRESS, String.class),
 	HTTP_SERVICE_PORT(ConfigurationProperties.HTTP_SERVICE_PORT, Integer.class, 7070),
