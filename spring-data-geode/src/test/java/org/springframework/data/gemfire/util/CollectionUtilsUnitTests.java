@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -45,6 +46,8 @@ import org.springframework.data.gemfire.test.support.MapBuilder;
  *
  * @author John Blum
  * @see java.lang.Iterable
+ * @see java.util.Collection
+ * @see java.util.Arrays
  * @see java.util.Collection
  * @see java.util.Collections
  * @see java.util.Enumeration
@@ -59,6 +62,17 @@ import org.springframework.data.gemfire.test.support.MapBuilder;
  */
 public class CollectionUtilsUnitTests {
 
+	@SuppressWarnings("unchecked")
+	private <T> Vector<T> vectorOf(T... elements) {
+
+		T[] nullSafeElements = (T[]) ArrayUtils.nullSafeArray(elements, Object.class);
+
+		Vector<T> vector = new Vector<>(nullSafeElements.length);
+
+		Collections.addAll(vector, nullSafeElements);
+
+		return vector;
+	}
 	@Test
 	public void addAllIterableElementsToList() {
 
@@ -125,6 +139,7 @@ public class CollectionUtilsUnitTests {
 	}
 
 	@Test
+	@SuppressWarnings("all")
 	public void asSetContainsAllArrayElements() {
 
 		Object[] elements = { "a", "b", "c" };
@@ -137,6 +152,7 @@ public class CollectionUtilsUnitTests {
 	}
 
 	@Test
+	@SuppressWarnings("all")
 	public void asSetContainsUniqueArrayElements() {
 
 		Object[] elements = { 1, 2, 1 };
@@ -203,45 +219,29 @@ public class CollectionUtilsUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void iterableOfEnumeration() {
 
-		Enumeration<Object> mockEnumeration = mock(Enumeration.class, "MockEnumeration");
+		Enumeration<Integer> enumeration = vectorOf(1, 2, 3).elements();
 
-		when(mockEnumeration.hasMoreElements()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
-		when(mockEnumeration.nextElement()).thenReturn(1).thenReturn(2).thenReturn(3)
-			.thenThrow(new NoSuchElementException("Enumeration exhausted"));
-
-		Iterable<Object> iterable = CollectionUtils.iterable(mockEnumeration);
+		Iterable<Integer> iterable = CollectionUtils.iterable(enumeration);
 
 		assertThat(iterable).isNotNull();
 		//assertThat(iterable).containsExactly(1, 2, 3);
 		assertThat(StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toSet()))
 			.containsExactly(1, 2, 3);
-
-		verify(mockEnumeration, times(4)).hasMoreElements();
-		verify(mockEnumeration, times(3)).nextElement();
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void iterableOfSingleEnumeration() {
 
-		Enumeration<Object> mockEnumeration = mock(Enumeration.class);
+		Enumeration<Integer> enumeration = vectorOf(1).elements();
 
-		when(mockEnumeration.hasMoreElements()).thenReturn(true).thenReturn(false);
-		when(mockEnumeration.nextElement()).thenReturn(1)
-			.thenThrow(new NoSuchElementException("Enumeration exhausted"));
-
-		Iterable<Object> iterable = CollectionUtils.iterable(mockEnumeration);
+		Iterable<Integer> iterable = CollectionUtils.iterable(enumeration);
 
 		assertThat(iterable).isNotNull();
 		//assertThat(iterable).containsExactly(1);
 		assertThat(StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toSet()))
 			.containsExactly(1);
-
-		verify(mockEnumeration, times(2)).hasMoreElements();
-		verify(mockEnumeration, times(1)).nextElement();
 	}
 
 	@Test
