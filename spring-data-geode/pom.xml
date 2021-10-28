@@ -23,7 +23,7 @@
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
 		<geode.version>1.14.0</geode.version>
-		<spring-test-data-geode.version>0.0.26</spring-test-data-geode.version>
+		<spring-test-data-geode.version>0.0.27</spring-test-data-geode.version>
 	</properties>
 
 	<dependencies>
