@@ -30,14 +30,11 @@ import org.springframework.context.annotation.Import;
 
 /**
  * The {@link EnableRedisServer} annotation marks a Spring {@link Configuration @Configuration} annotated {@link Class}
- * to embed the Redis service in this cluster member.
- *
- * The Redis service implements the Redis server protocol enabling Redis clients to connect to and inter-operate with
- * Pivotal GemFire or Apache Geode.
- *
- * However, the embedded Pivotal GemFire/Apache Geode Redis Service can be enabled/disabled externally
- * in {@literal application.properties} by using the {@literal spring.data.gemfire.service.redis.enabled} property
- * even when this {@link Annotation} is present, thereby serving as a toggle.
+ * to embed the Redis service in this cluster member. The Redis service implements the Redis server protocol enabling
+ * Redis clients to connect to and inter-operate with Pivotal GemFire or Apache Geode. However, the embedded Pivotal
+ * GemFire/Apache Geode Redis Service can be enabled/disabled externally in {@literal application.properties} by using
+ * the {@literal spring.data.gemfire.service.redis.enabled} property even when this {@link Annotation} is present,
+ * thereby serving as a toggle.
  *
  * @author John Blum
  * @see java.lang.annotation.Annotation
@@ -55,21 +52,25 @@ import org.springframework.context.annotation.Import;
 public @interface EnableRedisServer {
 
 	/**
-	 * Configures the Network bind-address on which the Redis server will accept connections.
-	 *
-	 * Defaults to {@literal localhost}.
-	 *
-	 * Use the {@literal spring.data.gemfire.service.redis.bind-address} property in {@literal application.properties}.
+	 * Configures the Network bind-address on which the Redis server will accept connections. Defaults to
+	 * {@literal localhost}. Use the {@literal spring.data.gemfire.service.redis.bind-address} property in
+	 * {@literal application.properties}.
 	 */
 	String bindAddress() default "";
 
 	/**
-	 * Configures the Network port on which the Redis server will listen for Redis client connections.
-	 *
-	 * Defaults to {@literal 6379}.
-	 *
-	 * Use the {@literal spring.data.gemfire.service.redis.port} property in {@literal application.properties}.
+	 * Configures the Network port on which the Redis server will listen for Redis client connections. Defaults to
+	 * {@literal 6379}. Use the {@literal spring.data.gemfire.service.redis.port} property in
+	 * {@literal application.properties}.
 	 */
 	int port() default RedisServerConfiguration.DEFAULT_REDIS_PORT;
+
+	/**
+	 * Configures the number of redundant copies the server will try and establish within the cluster. If there is only 1
+	 * server within the cluster, there will only be 1 copy regardless of the setting. Setting this value to 0, will cause
+	 * no redundant copies to be created. Defaults to {@literal 1}. Allowed values: 0..3 Use the
+	 * {@literal spring.data.gemfire.service.redis.redundant-copies} property in {@literal application.properties}.
+	 */
+	int redundantCopies() default RedisServerConfiguration.DEFAULT_REDUNDANT_COPIES;
 
 }

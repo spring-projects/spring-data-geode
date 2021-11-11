@@ -64,19 +64,19 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	}
 
 	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-		Class<?>... annotatedClasses) {
+			Class<?>... annotatedClasses) {
 
-		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer =
-			testPropertySource != null ? applicationContext -> {
-				Optional.ofNullable(testPropertySource).ifPresent(it -> {
+		Function<ConfigurableApplicationContext, ConfigurableApplicationContext> applicationContextInitializer = testPropertySource != null
+				? applicationContext -> {
+					Optional.ofNullable(testPropertySource).ifPresent(it -> {
 
-					MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
+						MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
 
-					propertySources.addFirst(testPropertySource);
-				});
+						propertySources.addFirst(testPropertySource);
+					});
 
-				return applicationContext;
-			}
+					return applicationContext;
+				}
 				: Function.identity();
 
 		return newApplicationContext(applicationContextInitializer, annotatedClasses);
@@ -86,17 +86,20 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void authGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.security.client.accessor", "example.client.AccessController")
-			.withProperty("spring.data.gemfire.security.client.accessor-post-processor", "example.client.AccessControllerPostProcessor")
-			.withProperty("spring.data.gemfire.security.client.authentication-initializer", "example.client.AuthenticationInitializer")
-			.withProperty("spring.data.gemfire.security.client.authenticator", "example.client.Authenticator")
-			.withProperty("spring.data.gemfire.security.client.diffie-hellman-algorithm", "SHA1")
-			.withProperty("spring.data.gemfire.security.peer.authentication-initializer", "example.peer.AuthenticationInitializer")
-			.withProperty("spring.data.gemfire.security.peer.authenticator", "example.peer.Authenticator")
-			.withProperty("spring.data.gemfire.security.peer.verify-member-timeout", 120L)
-			.withProperty("spring.data.gemfire.security.log.file", "/path/to/security.log")
-			.withProperty("spring.data.gemfire.security.log.level", "info")
-			.withProperty("spring.data.gemfire.security.properties-file", "/path/to/security.properties");
+				.withProperty("spring.data.gemfire.security.client.accessor", "example.client.AccessController")
+				.withProperty("spring.data.gemfire.security.client.accessor-post-processor",
+						"example.client.AccessControllerPostProcessor")
+				.withProperty("spring.data.gemfire.security.client.authentication-initializer",
+						"example.client.AuthenticationInitializer")
+				.withProperty("spring.data.gemfire.security.client.authenticator", "example.client.Authenticator")
+				.withProperty("spring.data.gemfire.security.client.diffie-hellman-algorithm", "SHA1")
+				.withProperty("spring.data.gemfire.security.peer.authentication-initializer",
+						"example.peer.AuthenticationInitializer")
+				.withProperty("spring.data.gemfire.security.peer.authenticator", "example.peer.Authenticator")
+				.withProperty("spring.data.gemfire.security.peer.verify-member-timeout", 120L)
+				.withProperty("spring.data.gemfire.security.log.file", "/path/to/security.log")
+				.withProperty("spring.data.gemfire.security.log.level", "info")
+				.withProperty("spring.data.gemfire.security.properties-file", "/path/to/security.properties");
 
 		newApplicationContext(testPropertySource, TestAuthGemFirePropertiesConfiguration.class);
 
@@ -112,11 +115,15 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.getProperty("gemfireSecurityPropertyFile")).isEqualTo("/path/to/security.properties");
 		assertThat(gemfireProperties.getProperty("security-client-accessor")).isEqualTo("example.client.AccessController");
-		assertThat(gemfireProperties.getProperty("security-client-accessor-pp")).isEqualTo("example.client.AccessControllerPostProcessor");
-		assertThat(gemfireProperties.getProperty("security-client-auth-init")).isEqualTo("example.client.AuthenticationInitializer");
-		assertThat(gemfireProperties.getProperty("security-client-authenticator")).isEqualTo("example.client.Authenticator");
+		assertThat(gemfireProperties.getProperty("security-client-accessor-pp"))
+				.isEqualTo("example.client.AccessControllerPostProcessor");
+		assertThat(gemfireProperties.getProperty("security-client-auth-init"))
+				.isEqualTo("example.client.AuthenticationInitializer");
+		assertThat(gemfireProperties.getProperty("security-client-authenticator"))
+				.isEqualTo("example.client.Authenticator");
 		assertThat(gemfireProperties.getProperty("security-client-dhalgo")).isEqualTo("SHA1");
-		assertThat(gemfireProperties.getProperty("security-peer-auth-init")).isEqualTo("example.peer.AuthenticationInitializer");
+		assertThat(gemfireProperties.getProperty("security-peer-auth-init"))
+				.isEqualTo("example.peer.AuthenticationInitializer");
 		assertThat(gemfireProperties.getProperty("security-peer-authenticator")).isEqualTo("example.peer.Authenticator");
 		assertThat(gemfireProperties.getProperty("security-peer-verifymember-timeout")).isEqualTo("120");
 		assertThat(gemfireProperties.getProperty("security-log-file")).isEqualTo("/path/to/security.log");
@@ -127,10 +134,10 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void httpGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.service.http.bind-address", "10.128.64.32")
-			.withProperty("spring.data.gemfire.service.http.port", "8181")
-			.withProperty("spring.data.gemfire.service.http.ssl-require-authentication", "true")
-			.withProperty("spring.data.gemfire.service.http.dev-rest-api.start", "true");
+				.withProperty("spring.data.gemfire.service.http.bind-address", "10.128.64.32")
+				.withProperty("spring.data.gemfire.service.http.port", "8181")
+				.withProperty("spring.data.gemfire.service.http.ssl-require-authentication", "true")
+				.withProperty("spring.data.gemfire.service.http.dev-rest-api.start", "true");
 
 		newApplicationContext(testPropertySource, TestHttpGemFirePropertiesConfiguration.class);
 
@@ -154,8 +161,8 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void locatorGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.locator.host", "10.64.32.16")
-			.withProperty("spring.data.gemfire.locator.port", "11235");
+				.withProperty("spring.data.gemfire.locator.host", "10.64.32.16")
+				.withProperty("spring.data.gemfire.locator.port", "11235");
 
 		newApplicationContext(testPropertySource, TestLocatorGemFirePropertiesConfiguration.class);
 
@@ -176,10 +183,10 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void loggingGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.logging.log-disk-space-limit", "100")
-			.withProperty("spring.data.gemfire.logging.log-file", "/path/to/file.log")
-			.withProperty("spring.data.gemfire.logging.log-file-size-limit", "10")
-			.withProperty("spring.data.gemfire.logging.level", "info");
+				.withProperty("spring.data.gemfire.logging.log-disk-space-limit", "100")
+				.withProperty("spring.data.gemfire.logging.log-file", "/path/to/file.log")
+				.withProperty("spring.data.gemfire.logging.log-file-size-limit", "10")
+				.withProperty("spring.data.gemfire.logging.level", "info");
 
 		newApplicationContext(testPropertySource, TestLoggingGemFirePropertiesConfiguration.class);
 
@@ -203,13 +210,13 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void managerGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.manager.access-file", "/path/to/access.control")
-			.withProperty("spring.data.gemfire.manager.bind-address", "10.32.16.8")
-			.withProperty("spring.data.gemfire.manager.hostname-for-clients", "skullbox")
-			.withProperty("spring.data.gemfire.manager.password-file", "/path/to/password.dat")
-			.withProperty("spring.data.gemfire.manager.port", "1199")
-			.withProperty("spring.data.gemfire.manager.start", "true")
-			.withProperty("spring.data.gemfire.manager.update-rate", "1000");
+				.withProperty("spring.data.gemfire.manager.access-file", "/path/to/access.control")
+				.withProperty("spring.data.gemfire.manager.bind-address", "10.32.16.8")
+				.withProperty("spring.data.gemfire.manager.hostname-for-clients", "skullbox")
+				.withProperty("spring.data.gemfire.manager.password-file", "/path/to/password.dat")
+				.withProperty("spring.data.gemfire.manager.port", "1199")
+				.withProperty("spring.data.gemfire.manager.start", "true")
+				.withProperty("spring.data.gemfire.manager.update-rate", "1000");
 
 		newApplicationContext(testPropertySource, TestManagerGemFirePropertiesConfiguration.class);
 
@@ -237,8 +244,8 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void memcachedServerGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.service.memcached.port", "2468")
-			.withProperty("spring.data.gemfire.service.memcached.protocol", "BINARY");
+				.withProperty("spring.data.gemfire.service.memcached.port", "2468")
+				.withProperty("spring.data.gemfire.service.memcached.protocol", "BINARY");
 
 		newApplicationContext(testPropertySource, TestMemcachedServerGemFirePropertiesConfiguration.class);
 
@@ -264,7 +271,7 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 		assertThat(containsBean("gemfireCache")).isTrue();
 		assertThat(containsBean("gemfireProperties")).isTrue();
 
-		//Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
+		// Properties gemfireProperties = this.applicationContext.getBean("gemfireProperties", Properties.class);
 
 		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
 
@@ -284,7 +291,7 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void offHeapGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.cache.off-heap.memory-size", "1024g");
+				.withProperty("spring.data.gemfire.cache.off-heap.memory-size", "1024g");
 
 		newApplicationContext(testPropertySource, TestOffHeapGemFirePropertiesConfiguration.class);
 
@@ -305,11 +312,11 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void pdxGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.pdx.disk-store-name", "TestDiskStore")
-			.withProperty("spring.data.gemfire.pdx.ignore-unread-fields", "true")
-			.withProperty("spring.data.gemfire.pdx.persistent", "true")
-			.withProperty("spring.data.gemfire.pdx.read-serialized", "true")
-			.withProperty("spring.data.gemfire.pdx.serializer-bean-name", "mockPdxSerializer");
+				.withProperty("spring.data.gemfire.pdx.disk-store-name", "TestDiskStore")
+				.withProperty("spring.data.gemfire.pdx.ignore-unread-fields", "true")
+				.withProperty("spring.data.gemfire.pdx.persistent", "true")
+				.withProperty("spring.data.gemfire.pdx.read-serialized", "true")
+				.withProperty("spring.data.gemfire.pdx.serializer-bean-name", "mockPdxSerializer");
 
 		newApplicationContext(testPropertySource, TestPdxGemFirePropertiesConfiguration.class);
 
@@ -334,8 +341,9 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void redisServerGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.service.redis.bind-address", "10.16.8.4")
-			.withProperty("spring.data.gemfire.service.redis.port", "13579");
+				.withProperty("spring.data.gemfire.service.redis.bind-address", "10.16.8.4")
+				.withProperty("spring.data.gemfire.service.redis.port", "13579")
+				.withProperty("spring.data.gemfire.service.redis.redundant-copies", "2");
 
 		newApplicationContext(testPropertySource, TestRedisServerGemFirePropertiesConfiguration.class);
 
@@ -349,19 +357,22 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 		Properties gemfireProperties = gemfireCache.getDistributedSystem().getProperties();
 
 		assertThat(gemfireProperties).isNotNull();
-		assertThat(gemfireProperties.getProperty("redis-bind-address")).isEqualTo("10.16.8.4");
-		assertThat(gemfireProperties.getProperty("redis-port")).isEqualTo("13579");
+		assertThat(gemfireProperties.getProperty("geode-for-redis-bind-address")).isEqualTo("10.16.8.4");
+		assertThat(gemfireProperties.getProperty("geode-for-redis-port")).isEqualTo("13579");
+		assertThat(gemfireProperties.getProperty("geode-for-redis-redundant-copies")).isEqualTo("2");
 	}
 
 	@Test
 	public void securityGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.security.client.authentication-initializer", "example.security.client.AuthenticationInitializer")
-			.withProperty("spring.data.gemfire.security.peer.authentication-initializer", "example.security.peer.AuthenticationInitializer")
-			.withProperty("spring.data.gemfire.security.manager.class-name", "example.security.SecurityManager")
-			.withProperty("spring.data.gemfire.security.postprocessor.class-name", "example.security.PostProcessor")
-			.withProperty("spring.data.gemfire.security.shiro.ini-resource-path", "/path/to/shiro.ini");
+				.withProperty("spring.data.gemfire.security.client.authentication-initializer",
+						"example.security.client.AuthenticationInitializer")
+				.withProperty("spring.data.gemfire.security.peer.authentication-initializer",
+						"example.security.peer.AuthenticationInitializer")
+				.withProperty("spring.data.gemfire.security.manager.class-name", "example.security.SecurityManager")
+				.withProperty("spring.data.gemfire.security.postprocessor.class-name", "example.security.PostProcessor")
+				.withProperty("spring.data.gemfire.security.shiro.ini-resource-path", "/path/to/shiro.ini");
 
 		newApplicationContext(testPropertySource, TestSecurityGemFirePropertiesConfiguration.class);
 
@@ -375,8 +386,10 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 		Properties gemfireProperties = gemfireCache.getDistributedSystem().getProperties();
 
 		assertThat(gemfireProperties).isNotNull();
-		assertThat(gemfireProperties.getProperty("security-client-auth-init")).isEqualTo("example.security.client.AuthenticationInitializer");
-		assertThat(gemfireProperties.getProperty("security-peer-auth-init")).isEqualTo("example.security.peer.AuthenticationInitializer");
+		assertThat(gemfireProperties.getProperty("security-client-auth-init"))
+				.isEqualTo("example.security.client.AuthenticationInitializer");
+		assertThat(gemfireProperties.getProperty("security-peer-auth-init"))
+				.isEqualTo("example.security.peer.AuthenticationInitializer");
 		assertThat(gemfireProperties.getProperty("security-manager")).isEqualTo("example.security.SecurityManager");
 		assertThat(gemfireProperties.getProperty("security-post-processor")).isEqualTo("example.security.PostProcessor");
 		assertThat(gemfireProperties.getProperty("security-shiro-init")).isEqualTo("/path/to/shiro.ini");
@@ -385,7 +398,8 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	@Test
 	public void serializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration() {
 
-		newApplicationContext(TestSerializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration.class);
+		newApplicationContext(
+				TestSerializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration.class);
 
 		assertThat(containsBean("gemfireProperties")).isTrue();
 
@@ -394,7 +408,7 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.containsKey("serializable-object-filter")).isTrue();
 		assertThat(gemfireProperties.getProperty("serializable-object-filter"))
-			.isEqualTo("example.app.model.TypeOne,example.app.model.TypeTwo");
+				.isEqualTo("example.app.model.TypeOne,example.app.model.TypeTwo");
 		assertThat(gemfireProperties.containsKey("validate-serializable-objects")).isTrue();
 		assertThat(gemfireProperties.getProperty("validate-serializable-objects")).isEqualTo("true");
 	}
@@ -403,17 +417,17 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void sslGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.security.ssl.ciphers", "DSA, RSA")
-			.withProperty("spring.data.gemfire.security.ssl.certificate.alias.default", "TestCert")
-			.withProperty("spring.data.gemfire.security.ssl.keystore", "/path/to/keystore")
-			.withProperty("spring.data.gemfire.security.ssl.keystore.password", "p@55w0rd")
-			.withProperty("spring.data.gemfire.security.ssl.keystore.type", "JKS")
-			.withProperty("spring.data.gemfire.security.ssl.protocols", "IP, TCP/IP, UDP")
-			.withProperty("spring.data.gemfire.security.ssl.require-authentication", "false")
-			.withProperty("spring.data.gemfire.security.ssl.truststore", "/path/to/truststore")
-			.withProperty("spring.data.gemfire.security.ssl.truststore.password", "p@55w0rd")
-			.withProperty("spring.data.gemfire.security.ssl.truststore.type", "PKCS11")
-			.withProperty("spring.data.gemfire.security.ssl.web-require-authentication", "true");
+				.withProperty("spring.data.gemfire.security.ssl.ciphers", "DSA, RSA")
+				.withProperty("spring.data.gemfire.security.ssl.certificate.alias.default", "TestCert")
+				.withProperty("spring.data.gemfire.security.ssl.keystore", "/path/to/keystore")
+				.withProperty("spring.data.gemfire.security.ssl.keystore.password", "p@55w0rd")
+				.withProperty("spring.data.gemfire.security.ssl.keystore.type", "JKS")
+				.withProperty("spring.data.gemfire.security.ssl.protocols", "IP, TCP/IP, UDP")
+				.withProperty("spring.data.gemfire.security.ssl.require-authentication", "false")
+				.withProperty("spring.data.gemfire.security.ssl.truststore", "/path/to/truststore")
+				.withProperty("spring.data.gemfire.security.ssl.truststore.password", "p@55w0rd")
+				.withProperty("spring.data.gemfire.security.ssl.truststore.type", "PKCS11")
+				.withProperty("spring.data.gemfire.security.ssl.web-require-authentication", "true");
 
 		newApplicationContext(testPropertySource, TestSslGemFirePropertiesConfiguration.class);
 
@@ -428,10 +442,10 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 		Properties gemfireProperties = gemfireCache.getDistributedSystem().getProperties();
 
 		String sslEnabledComponents = Optional.ofNullable(gemfireProperties.getProperty("ssl-enabled-components"))
-			.filter(StringUtils::hasText)
-			.map(it -> StringUtils.arrayToCommaDelimitedString(ArrayUtils.sort(
-				StringUtils.commaDelimitedListToStringArray(it))))
-			.orElse(null);
+				.filter(StringUtils::hasText)
+				.map(it -> StringUtils
+						.arrayToCommaDelimitedString(ArrayUtils.sort(StringUtils.commaDelimitedListToStringArray(it))))
+				.orElse(null);
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.getProperty("ssl-ciphers")).isEqualTo("DSA, RSA");
@@ -451,11 +465,11 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	public void statisticsGemFirePropertiesConfiguration() {
 
 		MockPropertySource testPropertySource = new MockPropertySource()
-			.withProperty("spring.data.gemfire.stats.archive-disk-space-limit", "50")
-			.withProperty("spring.data.gemfire.stats.archive-file", "/path/to/archive.stats")
-			.withProperty("spring.data.gemfire.stats.archive-file-size-limit", "10")
-			.withProperty("spring.data.gemfire.stats.enable-time-statistics", "true")
-			.withProperty("spring.data.gemfire.stats.sample-rate", "100");
+				.withProperty("spring.data.gemfire.stats.archive-disk-space-limit", "50")
+				.withProperty("spring.data.gemfire.stats.archive-file", "/path/to/archive.stats")
+				.withProperty("spring.data.gemfire.stats.archive-file-size-limit", "10")
+				.withProperty("spring.data.gemfire.stats.enable-time-statistics", "true")
+				.withProperty("spring.data.gemfire.stats.sample-rate", "100");
 
 		newApplicationContext(testPropertySource, TestStatisticsGemFirePropertiesConfiguration.class);
 
@@ -481,48 +495,48 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	@PeerCacheApplication
 	@EnableAuth
 	@EnableGemFireProperties
-	static class TestAuthGemFirePropertiesConfiguration { }
+	static class TestAuthGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableHttpService
-	static class TestHttpGemFirePropertiesConfiguration { }
+	static class TestHttpGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableLocator
-	static class TestLocatorGemFirePropertiesConfiguration { }
+	static class TestLocatorGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableLogging
-	static class TestLoggingGemFirePropertiesConfiguration { }
+	static class TestLoggingGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableManager
-	static class TestManagerGemFirePropertiesConfiguration { }
+	static class TestManagerGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableMemcachedServer
-	static class TestMemcachedServerGemFirePropertiesConfiguration { }
+	static class TestMemcachedServerGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties(name = "TestName", groups = { "TestGroupOne", "TestGroupTwo" })
-	static class TestNameAndGroupsAnnotationBasedGemFirePropertiesConfiguration { }
+	static class TestNameAndGroupsAnnotationBasedGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableOffHeap(memorySize = "64g")
-	static class TestOffHeapGemFirePropertiesConfiguration { }
+	static class TestOffHeapGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
@@ -540,36 +554,36 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableRedisServer
-	static class TestRedisServerGemFirePropertiesConfiguration { }
+	static class TestRedisServerGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableSecurity
-	static class TestSecurityGemFirePropertiesConfiguration { }
+	static class TestSecurityGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties(serializableObjectFilter = { "example.app.model.TypeOne", "example.app.model.TypeTwo" },
-		validateSerializableObjects = true)
-	static class TestSerializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration { }
+			validateSerializableObjects = true)
+	static class TestSerializableObjectFilterAndValidateSerializableObjectsGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
-	@EnableSsl(ciphers = "FISH", components = {
-		EnableSsl.Component.CLUSTER, EnableSsl.Component.GATEWAY, EnableSsl.Component.JMX,
-		EnableSsl.Component.LOCATOR, EnableSsl.Component.SERVER, EnableSsl.Component.WEB
-	}, componentCertificateAliases = {
-		@EnableSsl.ComponentAlias(component = EnableSsl.Component.GATEWAY, alias = "WanCert"),
-		@EnableSsl.ComponentAlias(component = EnableSsl.Component.WEB, alias = "HttpCert")
-	}, defaultCertificateAlias = "MockCert", protocols = "HTTP")
-	static class TestSslGemFirePropertiesConfiguration { }
+	@EnableSsl(ciphers = "FISH",
+			components = { EnableSsl.Component.CLUSTER, EnableSsl.Component.GATEWAY, EnableSsl.Component.JMX,
+					EnableSsl.Component.LOCATOR, EnableSsl.Component.SERVER, EnableSsl.Component.WEB },
+			componentCertificateAliases = {
+					@EnableSsl.ComponentAlias(component = EnableSsl.Component.GATEWAY, alias = "WanCert"),
+					@EnableSsl.ComponentAlias(component = EnableSsl.Component.WEB, alias = "HttpCert") },
+			defaultCertificateAlias = "MockCert", protocols = "HTTP")
+	static class TestSslGemFirePropertiesConfiguration {}
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication
 	@EnableGemFireProperties
 	@EnableStatistics
-	static class TestStatisticsGemFirePropertiesConfiguration { }
+	static class TestStatisticsGemFirePropertiesConfiguration {}
 
 }

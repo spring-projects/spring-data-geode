@@ -22,13 +22,13 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.config.annotation.support.EmbeddedServiceConfigurationSupport;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 
 /**
- * The {@link RedisServerConfiguration} class is a Spring {@link ImportBeanDefinitionRegistrar} that applies
- * additional configuration using Pivotal GemFire/Apache Geode {@link Properties} to configure
- * an embedded Redis server.
+ * The {@link RedisServerConfiguration} class is a Spring {@link ImportBeanDefinitionRegistrar} that applies additional
+ * configuration using Pivotal GemFire/Apache Geode {@link Properties} to configure an embedded Redis server.
  *
  * @author John Blum
  * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar
@@ -38,6 +38,7 @@ import org.springframework.data.gemfire.util.PropertiesBuilder;
  */
 public class RedisServerConfiguration extends EmbeddedServiceConfigurationSupport {
 
+	protected static final int DEFAULT_REDUNDANT_COPIES = 1;
 	protected static final int DEFAULT_REDIS_PORT = 6379;
 
 	/**
@@ -55,18 +56,19 @@ public class RedisServerConfiguration extends EmbeddedServiceConfigurationSuppor
 	protected Properties toGemFireProperties(Map<String, Object> annotationAttributes) {
 
 		return Optional.ofNullable(resolveProperty(redisServiceProperty("enabled"), Boolean.TRUE))
-			.filter(Boolean.TRUE::equals)
-			.map(enabled ->
+				.filter(Boolean.TRUE::equals).map(enabled ->
 
 				PropertiesBuilder.create()
-					.setProperty("redis-bind-address",
-						resolveProperty(redisServiceProperty("bind-address"),
-							(String) annotationAttributes.get("bindAddress")))
-					.setProperty("redis-port",
-						resolvePort(resolveProperty(redisServiceProperty("port"),
-							(Integer) annotationAttributes.get("port")), DEFAULT_REDIS_PORT))
-					.build()
+						.setProperty(GemFireProperties.REDIS_BIND_ADDRESS.getName(),
+								resolveProperty(redisServiceProperty("bind-address"), (String) annotationAttributes.get("bindAddress")))
+						.setProperty(GemFireProperties.REDIS_PORT.getName(),
+								resolvePort(resolveProperty(redisServiceProperty("port"), (Integer) annotationAttributes.get("port")),
+										DEFAULT_REDIS_PORT))
+						.setProperty(GemFireProperties.REDIS_REDUNDANT_COPIES.getName(),
+								resolvePort(resolveProperty(redisServiceProperty("redundant-copies"),
+										(Integer) annotationAttributes.get("redundantCopies")), DEFAULT_REDUNDANT_COPIES))
+						.build()
 
-			).orElseGet(Properties::new);
+				).orElseGet(Properties::new);
 	}
 }

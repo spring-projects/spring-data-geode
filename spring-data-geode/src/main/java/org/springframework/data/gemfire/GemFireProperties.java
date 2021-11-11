@@ -103,6 +103,7 @@ public enum GemFireProperties {
 	REDIS_ENABLED(ConfigurationProperties.GEODE_FOR_REDIS_ENABLED, Boolean.class),
 	REDIS_BIND_ADDRESS(ConfigurationProperties.GEODE_FOR_REDIS_BIND_ADDRESS, String.class),
 	REDIS_PORT(ConfigurationProperties.GEODE_FOR_REDIS_PORT, Integer.class, 0),
+	REDIS_REDUNDANT_COPIES(ConfigurationProperties.GEODE_FOR_REDIS_REDUNDANT_COPIES, Integer.class, 1),
 	REMOTE_LOCATORS(ConfigurationProperties.REMOTE_LOCATORS, String.class),
 	REMOVE_UNRESPONSIVE_CLIENT(ConfigurationProperties.REMOVE_UNRESPONSIVE_CLIENT, Boolean.class, false),
 	SECURITY_AUTH_TOKEN_ENABLED_COMPONENTS(ConfigurationProperties.SECURITY_AUTH_TOKEN_ENABLED_COMPONENTS, String[].class),
