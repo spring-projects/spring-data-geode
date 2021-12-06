@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -41,10 +42,13 @@ import org.apache.geode.cache.RegionService;
 import org.apache.geode.pdx.PdxInstance;
 import org.apache.geode.pdx.PdxSerializer;
 import org.apache.geode.pdx.PdxWriter;
+import org.apache.geode.pdx.ReflectionBasedAutoSerializer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.data.annotation.AccessType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -56,6 +60,7 @@ import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -80,14 +85,20 @@ import lombok.ToString;
  * @see org.springframework.data.gemfire.config.annotation.EnablePdx
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
  * @see org.springframework.data.gemfire.mapping.MappingPdxSerializer
+ * @see org.springframework.test.context.ActiveProfiles
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.7.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
+@ActiveProfiles("MappingPdxSerializer")
+//@ActiveProfiles("ReflectionBasedAutoSerializer")
 @SuppressWarnings("unused")
 public class PdxSerializationOfComplexObjectModelIntegrationTests {
+
+	@Autowired
+	private Environment environment;
 
 	@Autowired
 	private GemfireTemplate ordersTemplate;
@@ -95,6 +106,7 @@ public class PdxSerializationOfComplexObjectModelIntegrationTests {
 	@Before
 	public void assertGeodeCacheAndRegionConfiguration() {
 
+		assertThat(this.environment).isNotNull();
 		assertThat(this.ordersTemplate).isNotNull();
 
 		org.apache.geode.cache.Region<Object, Object> orders = this.ordersTemplate.getRegion();
@@ -108,10 +120,15 @@ public class PdxSerializationOfComplexObjectModelIntegrationTests {
 
 		assertThat(regionService).isInstanceOf(GemFireCache.class);
 
+		Class<? extends PdxSerializer> expectedPdxSerializerType =
+			Arrays.asList(this.environment.getActiveProfiles()).contains("MappingPdxSerializer")
+				? MappingPdxSerializer.class
+				: ReflectionBasedAutoSerializer.class;
+
 		GemFireCache cache = (GemFireCache) regionService;
 
 		assertThat(cache).isNotNull();
-		assertThat(cache.getPdxSerializer()).isInstanceOf(MappingPdxSerializer.class);
+		assertThat(cache.getPdxSerializer()).isInstanceOf(expectedPdxSerializerType);
 	}
 
 	@Test
@@ -205,10 +222,11 @@ public class PdxSerializationOfComplexObjectModelIntegrationTests {
 
 	@PeerCacheApplication(name = "PdxSerializationOfComplexObjectModelIntegrationTests")
 	@EnableEntityDefinedRegions(basePackageClasses = Order.class)
-	@EnablePdx(serializerBeanName = "OrderManagementMappingPdxSerializer", readSerialized = true)
+	@EnablePdx(serializerBeanName = "OrderPdxSerializer", readSerialized = true)
 	static class TestConfiguration {
 
-		@Bean("OrderManagementMappingPdxSerializer")
+		@Bean("OrderPdxSerializer")
+		@Profile("MappingPdxSerializer")
 		MappingPdxSerializer customMappingPdxSerializer() {
 
 			Set<Class<?>> includedTypes = CollectionUtils.asSet(Customer.class, Order.class, Item.class, Product.class);
@@ -218,6 +236,12 @@ public class PdxSerializationOfComplexObjectModelIntegrationTests {
 			customMappingPdxSerializer.setIncludeTypeFilters(type -> includedTypes.contains(type));
 
 			return customMappingPdxSerializer;
+		}
+
+		@Bean("OrderPdxSerializer")
+		@Profile("ReflectionBasedAutoSerializer")
+		PdxSerializer reflectionAutoSerializer() {
+			return new ReflectionBasedAutoSerializer(".*");
 		}
 
 		@Bean
