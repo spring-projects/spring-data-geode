@@ -220,7 +220,7 @@ public class PdxSerializationOfComplexObjectModelIntegrationTests {
 		verify(pdxSerializer, atLeastOnce()).toData(eq(productTwo), any(PdxWriter.class));
 	}
 
-	@PeerCacheApplication(name = "PdxSerializationOfComplexObjectModelIntegrationTests")
+	@PeerCacheApplication(name = "PdxSerializationOfComplexObjectModelIntegrationTests", copyOnRead = true)
 	@EnableEntityDefinedRegions(basePackageClasses = Order.class)
 	@EnablePdx(serializerBeanName = "OrderPdxSerializer", readSerialized = true)
 	static class TestConfiguration {
