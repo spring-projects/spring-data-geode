@@ -26,7 +26,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.util.ArrayUtils.asArray;
 
@@ -425,7 +425,7 @@ public class AbstractAnnotationConfigSupportTests {
 		assertThat(this.support.resolveBeanClassLoader(mockBeanDefinitionRegistry))
 			.isEqualTo(Thread.currentThread().getContextClassLoader());
 
-		verifyZeroInteractions(mockBeanDefinitionRegistry);
+		verifyNoInteractions(mockBeanDefinitionRegistry);
 	}
 
 	@Test

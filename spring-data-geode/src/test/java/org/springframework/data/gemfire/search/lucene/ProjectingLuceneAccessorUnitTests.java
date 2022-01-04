@@ -22,7 +22,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class ProjectingLuceneAccessorUnitTests {
 		assertThat(projectingLuceneAccessor.getProjectionFactory()).isSameAs(mockProjectionFactory);
 
 		verify(projectingLuceneAccessor, times(1)).resolveProjectionFactory();
-		verifyZeroInteractions(mockProjectionFactory);
+		verifyNoInteractions(mockProjectionFactory);
 	}
 
 	@Test

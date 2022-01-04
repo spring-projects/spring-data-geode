@@ -18,15 +18,15 @@
 package org.springframework.data.gemfire.search.lucene;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -441,8 +441,8 @@ public class LuceneIndexFactoryBeanUnitTests {
 		assertThat(factoryBean.getLuceneService()).isSameAs(mockLuceneService);
 		assertThat(factoryBean.resolveLuceneService()).isSameAs(mockLuceneService);
 
-		verifyZeroInteractions(mockBeanFactory);
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockBeanFactory);
+		verifyNoInteractions(mockCache);
 		verify(factoryBean, never()).resolveLuceneService(any(GemFireCache.class));
 	}
 
@@ -460,7 +460,7 @@ public class LuceneIndexFactoryBeanUnitTests {
 		assertThat(factoryBean.resolveLuceneService()).isSameAs(mockLuceneService);
 
 		verify(mockBeanFactory, times(1)).getBean(eq(LuceneService.class));
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockCache);
 		verify(factoryBean, never()).resolveLuceneService(any(GemFireCache.class));
 	}
 
@@ -476,7 +476,7 @@ public class LuceneIndexFactoryBeanUnitTests {
 		assertThat(factoryBean.getLuceneService()).isNull();
 		assertThat(factoryBean.resolveLuceneService()).isSameAs(mockLuceneService);
 
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockCache);
 		verify(factoryBean, times(1)).resolveLuceneService(eq(mockCache));
 	}
 
@@ -496,7 +496,7 @@ public class LuceneIndexFactoryBeanUnitTests {
 		assertThat(factoryBean.resolveLuceneService()).isSameAs(mockLuceneService);
 
 		verify(mockBeanFactory, times(1)).getBean(eq(LuceneService.class));
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockCache);
 		verify(factoryBean, times(1)).resolveLuceneService(eq(mockCache));
 	}
 

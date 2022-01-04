@@ -27,7 +27,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -186,7 +186,7 @@ public class EnablePdxConfigurationUnitTests {
 		assertThat(this.pdxConfiguration.getBeanFactory()).isEqualTo(mockBeanFactory);
 		assertThat(this.pdxConfiguration.resolveConversionService().isPresent()).isFalse();
 
-		verifyZeroInteractions(mockBeanFactory);
+		verifyNoInteractions(mockBeanFactory);
 	}
 
 	@Test

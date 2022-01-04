@@ -18,13 +18,13 @@
 package org.springframework.data.gemfire.search.lucene.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.search.lucene.support.LucenePage.newLucenePage;
 
@@ -231,7 +231,7 @@ public class LucenePageUnitTests {
 			throw expected;
 		}
 		finally {
-			verifyZeroInteractions(mockQueryResults);
+			verifyNoInteractions(mockQueryResults);
 		}
 	}
 
@@ -247,7 +247,7 @@ public class LucenePageUnitTests {
 			throw expected;
 		}
 		finally {
-			verifyZeroInteractions(mockTemplate);
+			verifyNoInteractions(mockTemplate);
 		}
 	}
 
@@ -265,7 +265,7 @@ public class LucenePageUnitTests {
 		}
 		finally {
 			verify(mockQueryResults, times(1)).hasNext();
-			verifyZeroInteractions(mockTemplate);
+			verifyNoInteractions(mockTemplate);
 		}
 	}
 
