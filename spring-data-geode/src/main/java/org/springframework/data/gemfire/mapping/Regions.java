@@ -100,11 +100,6 @@ public class Regions implements Iterable<Region<?, ?>> {
 		return (Region<S, T>) this.regions.get(namePath);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Iterable#iterator()
-	 */
 	@Override
 	public Iterator<Region<?, ?>> iterator() {
 		return this.regions.values().iterator();

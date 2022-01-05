@@ -119,29 +119,16 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 		return this.regions;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getEntityInformation(java.lang.Class)
-	 */
 	@Override
 	public <T, ID> GemfireEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
 		return new DefaultGemfireEntityInformation<>(resolvePersistentEntity(domainClass));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport
-	 * 	#getRepositoryBaseClass(org.springframework.data.repository.core.RepositoryMetadata)
-	 */
 	@Override
 	protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
 		return SimpleGemfireRepository.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getTargetRepository(org.springframework.data.repository.core.RepositoryInformation)
-	 */
 	@Override
 	protected Object getTargetRepository(RepositoryInformation repositoryInformation) {
 

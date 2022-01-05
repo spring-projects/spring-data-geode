@@ -40,10 +40,6 @@ public class ListRegionsOnServerFunction implements Function {
 
 	public static final String ID = ListRegionsOnServerFunction.class.getName();
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.execute.Function#execute(org.apache.geode.cache.execute.FunctionContext)
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public void execute(FunctionContext functionContext) {
@@ -61,37 +57,21 @@ public class ListRegionsOnServerFunction implements Function {
 		return CacheFactory.getAnyInstance();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.execute.Function#getId()
-	 */
 	@Override
 	public String getId() {
 		return this.getClass().getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.execute.Function#hasResult()
-	 */
 	@Override
 	public boolean hasResult() {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.execute.Function#isHA()
-	 */
 	@Override
 	public boolean isHA() {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.execute.Function#optimizeForWrite()
-	 */
 	@Override
 	public boolean optimizeForWrite() {
 		return false;

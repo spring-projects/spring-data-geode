@@ -25,10 +25,6 @@ class OnMembersFunctionExecutionBeanDefinitionBuilder extends MemberBasedFunctio
 		super(configuration);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.MemberBasedFunctionExecutionBeanDefinitionBuilder#getGemfireFunctionOperationsClass()
-	 */
 	@Override
 	protected Class<?> getGemfireOperationsClass() {
 		return GemfireOnMembersFunctionTemplate.class;

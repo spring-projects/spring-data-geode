@@ -32,11 +32,6 @@ class OnRegionFunctionExecutionBeanDefinitionBuilder extends AbstractFunctionExe
 		super(configuration);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.AbstractFunctionExecutionBeanDefinitionBuilder
-	 * 	#getGemfireFunctionOperationsBeanDefinitionBuilder(org.springframework.beans.factory.support.BeanDefinitionRegistry)
-	 */
 	@Override
 	protected BeanDefinitionBuilder getGemfireFunctionOperationsBeanDefinitionBuilder(BeanDefinitionRegistry registry) {
 
@@ -51,11 +46,6 @@ class OnRegionFunctionExecutionBeanDefinitionBuilder extends AbstractFunctionExe
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.AbstractFunctionExecutionBeanDefinitionBuilder
-	 * 	#getFunctionProxyFactoryBeanClass()
-	 */
 	@Override
 	protected Class<?> getFunctionProxyFactoryBeanClass() {
 		return OnRegionFunctionProxyFactoryBean.class;

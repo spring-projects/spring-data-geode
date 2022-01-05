@@ -25,19 +25,11 @@ class DefaultFunctionArgumentResolver implements FunctionArgumentResolver {
 
 	private static final Object[] EMPTY_ARRAY = new Object[0];
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.reflect.Method
-	 */
 	@Override
 	public Method getFunctionAnnotatedMethod() {
 		throw new UnsupportedOperationException("Not Implemented!");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.FunctionArgumentResolver#resolveFunctionArguments(org.apache.geode.cache.execute.FunctionContext)
-	 */
 	@Override
 	public Object[] resolveFunctionArguments(final FunctionContext functionContext) {
 

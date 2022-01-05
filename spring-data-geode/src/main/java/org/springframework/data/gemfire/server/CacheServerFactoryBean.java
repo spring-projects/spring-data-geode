@@ -292,10 +292,6 @@ public class CacheServerFactoryBean extends AbstractFactoryBeanSupport<CacheServ
 		this.cache = cache;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * For testing purposes only!
-	 */
 	void setCacheServer(CacheServer cacheServer) {
 		this.cacheServer = cacheServer;
 	}

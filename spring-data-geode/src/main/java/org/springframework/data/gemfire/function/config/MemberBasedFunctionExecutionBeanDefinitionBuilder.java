@@ -37,10 +37,6 @@ abstract class MemberBasedFunctionExecutionBeanDefinitionBuilder
 		super(configuration);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.AbstractFunctionExecutionBeanDefinitionBuilder#getGemfireFunctionOperationsBeanDefinitionBuilder(org.springframework.beans.factory.support.BeanDefinitionRegistry)
-	 */
 	@Override
 	protected BeanDefinitionBuilder getGemfireFunctionOperationsBeanDefinitionBuilder(BeanDefinitionRegistry registry) {
 
@@ -58,9 +54,6 @@ abstract class MemberBasedFunctionExecutionBeanDefinitionBuilder
 	}
 
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.AbstractFunctionExecutionBeanDefinitionBuilder#getFunctionProxyFactoryBeanClass()
-	 */
 	@Override
 	protected Class<?> getFunctionProxyFactoryBeanClass() {
 		return GemfireFunctionProxyFactoryBean.class;

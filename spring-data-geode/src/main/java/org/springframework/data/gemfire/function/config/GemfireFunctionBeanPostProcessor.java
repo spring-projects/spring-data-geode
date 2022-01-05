@@ -44,10 +44,6 @@ import org.springframework.util.ReflectionUtils;
  */
 public class GemfireFunctionBeanPostProcessor implements BeanPostProcessor {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
-	 */
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
