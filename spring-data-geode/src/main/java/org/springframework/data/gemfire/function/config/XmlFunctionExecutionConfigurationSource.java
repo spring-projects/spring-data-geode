@@ -55,17 +55,11 @@ public class XmlFunctionExecutionConfigurationSource extends AbstractFunctionExe
 		this.excludeFilters = parser.parseTypeFilters(element, Type.EXCLUDE);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getSource()
-	 */
 	@Override
 	public Object getSource() {
 		return this.parserContext.extractSource(this.element);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getBasePackages()
-	 */
 	@Override
 	public Iterable<String> getBasePackages() {
 
@@ -75,17 +69,11 @@ public class XmlFunctionExecutionConfigurationSource extends AbstractFunctionExe
 	}
 
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getIncludeFilters()
-	 */
 	@Override
 	public Iterable<TypeFilter> getIncludeFilters() {
 		return this.includeFilters;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getExcludeFilters()
-	 */
 	@Override
 	public Iterable<TypeFilter> getExcludeFilters() {
 		return this.excludeFilters;

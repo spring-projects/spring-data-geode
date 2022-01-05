@@ -25,11 +25,6 @@ class OnServersFunctionExecutionBeanDefinitionBuilder extends ServerBasedFunctio
 		super(configuration);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.ServerBasedFunctionExecutionBeanDefinitionBuilder
-	 * 	#getGemfireFunctionOperationsClass()
-	 */
 	@Override
 	protected Class<?> getGemfireFunctionOperationsClass() {
 		return GemfireOnServersFunctionTemplate.class;

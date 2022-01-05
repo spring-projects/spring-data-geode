@@ -160,28 +160,16 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 		this(builder.build());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.FactoryBean#getObject()
-	 */
 	@Override
 	public Properties getObject() throws Exception {
 		return build();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
-	 */
 	@Override
 	public Class<?> getObjectType() {
 		return this.properties != null ? this.properties.getClass() : Properties.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.FactoryBean#isSingleton()
-	 */
 	@Override
 	public boolean isSingleton() {
 		return true;

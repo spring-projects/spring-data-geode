@@ -67,17 +67,11 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 		this.metadata = metadata;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getSource()
-	 */
 	@Override
 	public Object getSource() {
 		return this.metadata;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.gemfire.function.config.FunctionExecutionConfigurationSource#getBasePackages()
-	 */
 	@Override
 	public Iterable<String> getBasePackages() {
 

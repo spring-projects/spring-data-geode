@@ -95,10 +95,6 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 		super.addIncludeFilter(new AllTypeFilter(filterPlusAnnotation));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#isCandidateComponent(org.springframework.beans.factory.annotation.AnnotatedBeanDefinition)
-	 */
 	@Override
 	protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
 
@@ -213,10 +209,6 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 			this.delegates = delegates;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * @see org.springframework.core.type.filter.TypeFilter#match(org.springframework.core.type.classreading.MetadataReader, org.springframework.core.type.classreading.MetadataReaderFactory)
-		 */
 		public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
 
 			for (TypeFilter filter : this.delegates) {

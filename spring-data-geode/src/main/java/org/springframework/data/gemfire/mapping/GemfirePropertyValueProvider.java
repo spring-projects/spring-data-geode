@@ -42,10 +42,6 @@ class GemfirePropertyValueProvider implements PropertyValueProvider<GemfirePersi
 		this.reader = reader;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.convert.PropertyValueProvider#getPropertyValue(org.springframework.data.mapping.PersistentProperty)
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getPropertyValue(GemfirePersistentProperty property) {

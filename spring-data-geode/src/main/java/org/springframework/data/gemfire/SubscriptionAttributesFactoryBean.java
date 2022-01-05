@@ -40,28 +40,16 @@ public class SubscriptionAttributesFactoryBean implements FactoryBean<Subscripti
 
 	private SubscriptionAttributes subscriptionAttributes;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		this.subscriptionAttributes = new SubscriptionAttributes(getInterestPolicy());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.FactoryBean#getObject()
-	 */
 	@Override
 	public SubscriptionAttributes getObject() throws Exception {
 		return this.subscriptionAttributes;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
-	 */
 	@Override
 	public Class<?> getObjectType() {
 
@@ -70,10 +58,6 @@ public class SubscriptionAttributesFactoryBean implements FactoryBean<Subscripti
 			: SubscriptionAttributes.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.beans.factory.FactoryBean#isSingleton()
-	 */
 	@Override
 	public boolean isSingleton() {
 		return true;

@@ -51,11 +51,6 @@ import org.w3c.dom.Element;
  */
 public class FunctionExecutionBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.context.annotation.ImportBeanDefinitionRegistrar
-	 * 	#registerBeanDefinitions(org.springframework.core.type.AnnotationMetadata, org.springframework.beans.factory.support.BeanDefinitionRegistry)
-	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry registry) {
 

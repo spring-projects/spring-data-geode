@@ -79,10 +79,6 @@ class Predicates implements Predicate {
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.repository.query.Predicate#toString(java.lang.String)
-	 */
 	@Override
 	public String toString(String alias) {
 		return current.toString(alias);

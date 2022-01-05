@@ -38,10 +38,6 @@ import org.springframework.util.ClassUtils;
 @SuppressWarnings("unused")
 class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.execute.FunctionContext
-	 */
 	@Override
 	public Object[] resolveFunctionArguments(final FunctionContext functionContext) {
 
@@ -68,20 +64,11 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 		return functionArguments;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.reflect.Method
-	 */
 	@Override
 	public Method getFunctionAnnotatedMethod() {
 		throw new UnsupportedOperationException("Not Implemented!");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.apache.geode.cache.Cache#getPdxSerializer()
-	 * @see org.apache.geode.cache.CacheFactory#getAnyInstance()
-	 */
 	boolean isPdxSerializerConfigured() {
 		try {
 			return (CacheFactory.getAnyInstance().getPdxSerializer() != null);
@@ -100,21 +87,10 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 		return (isOnClasspath(className) && functionAnnotatedMethodHasParameterOfType(className));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Thread#currentThread()
-	 * @see java.lang.Thread#getContextClassLoader()
-	 * @see org.springframework.util.ClassUtils#isPresent(String, ClassLoader)
-	 */
 	boolean isOnClasspath(final String className) {
 		return ClassUtils.isPresent(className, Thread.currentThread().getContextClassLoader());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see #getFunctionAnnotatedMethod()
-	 * @see java.lang.reflect.Method#getParameterTypes()
-	 */
 	boolean functionAnnotatedMethodHasParameterOfType(final String className) {
 		for (Class<?> parameterType : getFunctionAnnotatedMethod().getParameterTypes()) {
 			if (parameterType.getName().equals(className)) {

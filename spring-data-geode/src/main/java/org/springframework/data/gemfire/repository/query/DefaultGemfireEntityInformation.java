@@ -45,10 +45,6 @@ public class DefaultGemfireEntityInformation<T, ID> extends PersistentEntityInfo
 		this.entity = entity;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.gemfire.repository.query.GemfireEntityInformation#getRegionName()
-	 */
 	@Override
 	public String getRegionName() {
 		return entity.getRegionName();
