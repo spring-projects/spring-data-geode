@@ -86,7 +86,7 @@ public class CacheServerFactoryBean extends AbstractFactoryBeanSupport<CacheServ
 
 	private List<CacheServerConfigurer> cacheServerConfigurers = Collections.emptyList();
 
-	private CacheServerConfigurer compositeCacheServerConfigurer = (beanName, bean) ->
+	private final CacheServerConfigurer compositeCacheServerConfigurer = (beanName, bean) ->
 		nullSafeCollection(cacheServerConfigurers).forEach(cacheServerConfigurer ->
 			cacheServerConfigurer.configure(beanName, bean));
 

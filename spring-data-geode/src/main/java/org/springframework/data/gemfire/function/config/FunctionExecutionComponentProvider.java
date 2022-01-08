@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.geode.cache.execute.Execution;
+import org.apache.geode.cache.execute.Function;
+
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.AnnotationMetadata;
@@ -27,6 +30,7 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.data.gemfire.util.CollectionUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -40,14 +44,16 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 	private final Set<Class<? extends Annotation>> functionExecutionAnnotationTypes;
 
 	/**
-	 * Creates a new {@link FunctionExecutionComponentProvider} using the given {@link TypeFilter} to include components to be
-	 * picked up.
+	 * Constructs a new instance of {@link FunctionExecutionComponentProvider} using the given {@link TypeFilter}
+	 * to include components to be picked up during the scan.
 	 *
-	 * @param includeFilters the {@link TypeFilter}s to select function execution interfaces to consider, must not be
-	 *          {@literal null}.
+	 * @param includeFilters the {@link TypeFilter}s to select function execution interfaces to consider;
+	 * must not be {@literal null}.
+	 * @param functionExecutionAnnotationTypes {@link Set} of {@link Annotation} types denoting Apache Geode
+	 * {@link Function} {@link Execution Executions}.
 	 */
-	public FunctionExecutionComponentProvider(Iterable<? extends TypeFilter> includeFilters ,
-			Set<Class<? extends Annotation>> functionExecutionAnnotationTypes) {
+	public FunctionExecutionComponentProvider(@NonNull Iterable<? extends TypeFilter> includeFilters,
+			@NonNull Set<Class<? extends Annotation>> functionExecutionAnnotationTypes) {
 
 		super(false);
 
@@ -102,7 +108,6 @@ class FunctionExecutionComponentProvider extends ClassPathScanningCandidateCompo
 
 		return isTopLevelType;
 	}
-
 
 	// Copy of Spring's AnnotationTypeFilter until SPR-8336 gets resolved.
 

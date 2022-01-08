@@ -18,6 +18,7 @@ package org.springframework.data.gemfire.repository.query;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.repository.core.support.PersistentEntityInformation;
+import org.springframework.lang.NonNull;
 
 /**
  * Implementation of {@link GemfireEntityInformation} and Spring Data's {@link PersistentEntityInformation}
@@ -36,15 +37,20 @@ public class DefaultGemfireEntityInformation<T, ID> extends PersistentEntityInfo
 	private final GemfirePersistentEntity<T> entity;
 
 	/**
-	 * Creates a new {@link DefaultGemfireEntityInformation}.
+	 * Constructs a new instance of {@link DefaultGemfireEntityInformation}
+	 * for the given {@link GemfirePersistentEntity}.
 	 *
-	 * @param entity must not be {@literal null}.
+	 * @param entity {@link GemfirePersistentEntity} to wrap; must not be {@literal null}.
+	 * @see org.springframework.data.gemfire.mapping.GemfirePersistentEntity
 	 */
-	public DefaultGemfireEntityInformation(GemfirePersistentEntity<T> entity) {
+	public DefaultGemfireEntityInformation(@NonNull GemfirePersistentEntity<T> entity) {
 		super(entity);
 		this.entity = entity;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public String getRegionName() {
 		return entity.getRegionName();

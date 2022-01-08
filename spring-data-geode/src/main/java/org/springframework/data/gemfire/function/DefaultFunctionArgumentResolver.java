@@ -14,11 +14,18 @@ package org.springframework.data.gemfire.function;
 
 import java.lang.reflect.Method;
 
+import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 
 /**
+ * {@link FunctionArgumentResolver} used to resolve {@link Object[] arguments} passed to
+ * an Apache Geode {@link Function} during execution.
+ *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.apache.geode.cache.execute.FunctionContext
+ * @see org.springframework.data.gemfire.function.FunctionArgumentResolver
  * @since 1.3.0
  */
 class DefaultFunctionArgumentResolver implements FunctionArgumentResolver {

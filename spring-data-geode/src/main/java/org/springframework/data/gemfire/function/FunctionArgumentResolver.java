@@ -14,14 +14,16 @@ package org.springframework.data.gemfire.function;
 
 import java.lang.reflect.Method;
 
+import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 
 /**
- * The FunctionArgumentResolver interface is a Strategy Interface for resolving Function invocation arguments,
- * given a {@link FunctionContext}.
+ * The {@link FunctionArgumentResolver} interface is a {@literal Strategy} interface for resolving {@link Function}
+ * invocation arguments from the given {@link FunctionContext}.
  *
  * @author David Turanski
  * @author John Blum
+ * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.cache.execute.FunctionContext
  * @since 1.3.0
  */
@@ -29,6 +31,7 @@ interface FunctionArgumentResolver {
 
 	Method getFunctionAnnotatedMethod();
 
+	@SuppressWarnings("rawtypes")
 	Object[] resolveFunctionArguments(FunctionContext functionContext);
 
 }

@@ -24,6 +24,9 @@ class OnMemberFunctionExecutionBeanDefinitionBuilder extends MemberBasedFunction
 		super(configuration);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected Class<?> getGemfireOperationsClass() {
 		return GemfireOnMemberFunctionTemplate.class;

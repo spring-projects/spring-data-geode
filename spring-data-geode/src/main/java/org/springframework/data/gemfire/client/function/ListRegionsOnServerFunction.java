@@ -16,6 +16,7 @@
  */
 package org.springframework.data.gemfire.client.function;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,24 +26,28 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 
+import org.springframework.lang.NonNull;
+
 /**
- * ListRegionsOnServerFunction is a GemFire Function class that returns a List of names for all Regions
- * defined in the GemFire cluster.
+ * {@link ListRegionsOnServerFunction} is an Apache Geode {@link Function}
+ * returning a {@link List} of {@link String names} for all {@link Region Regions}
+ * defined in the Apache Geode cache.
  *
  * @author David Turanski
  * @author John Blum
+ * @see java.io.Serial
  * @see org.apache.geode.cache.execute.Function
  */
-@SuppressWarnings("serial")
-public class ListRegionsOnServerFunction implements Function {
+public class ListRegionsOnServerFunction implements Function<Object> {
 
+	@Serial
 	private static final long serialVersionUID = 867530169L;
 
 	public static final String ID = ListRegionsOnServerFunction.class.getName();
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void execute(FunctionContext functionContext) {
+	public void execute(@NonNull FunctionContext functionContext) {
 
 		List<String> regionNames = new ArrayList<>();
 
@@ -57,21 +62,33 @@ public class ListRegionsOnServerFunction implements Function {
 		return CacheFactory.getAnyInstance();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public String getId() {
-		return this.getClass().getName();
+		return getClass().getName();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public boolean hasResult() {
 		return true;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public boolean isHA() {
 		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public boolean optimizeForWrite() {
 		return false;

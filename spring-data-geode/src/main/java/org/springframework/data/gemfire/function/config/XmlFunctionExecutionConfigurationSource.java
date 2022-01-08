@@ -18,13 +18,13 @@ package org.springframework.data.gemfire.function.config;
 
 import java.util.Arrays;
 
-import org.w3c.dom.Element;
-
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.data.gemfire.function.config.TypeFilterParser.Type;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import org.w3c.dom.Element;
 
 /**
  * @author David Turanski
@@ -55,11 +55,17 @@ public class XmlFunctionExecutionConfigurationSource extends AbstractFunctionExe
 		this.excludeFilters = parser.parseTypeFilters(element, Type.EXCLUDE);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Object getSource() {
 		return this.parserContext.extractSource(this.element);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Iterable<String> getBasePackages() {
 
@@ -68,12 +74,17 @@ public class XmlFunctionExecutionConfigurationSource extends AbstractFunctionExe
 		return Arrays.asList(StringUtils.delimitedListToStringArray(attribute, ",", " "));
 	}
 
-
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Iterable<TypeFilter> getIncludeFilters() {
 		return this.includeFilters;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Iterable<TypeFilter> getExcludeFilters() {
 		return this.excludeFilters;

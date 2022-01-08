@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import org.apache.geode.pdx.PdxReader;
 
 import org.springframework.data.mapping.model.PropertyValueProvider;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -33,15 +33,20 @@ class GemfirePropertyValueProvider implements PropertyValueProvider<GemfirePersi
 	private final PdxReader reader;
 
 	/**
-	 * Creates a new {@link GemfirePropertyValueProvider} with the given {@link PdxReader}.
+	 * Constructs a new instance of {@link GemfirePropertyValueProvider} with the given {@link PdxReader}.
 	 *
-	 * @param reader must not be {@literal null}.
+	 * @param reader {@link PdxReader} used to read values from PDX serialized bytes; must not be {@literal null}.
+	 * @throws IllegalArgumentException if the {@link PdxReader} is {@literal null}.
+	 * @see org.apache.geode.pdx.PdxReader
 	 */
-	public GemfirePropertyValueProvider(PdxReader reader) {
+	public GemfirePropertyValueProvider(@NonNull PdxReader reader) {
 		Assert.notNull(reader, "PdxReader must not be null");
 		this.reader = reader;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getPropertyValue(GemfirePersistentProperty property) {
