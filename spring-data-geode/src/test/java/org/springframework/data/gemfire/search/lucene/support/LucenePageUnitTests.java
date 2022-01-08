@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,8 +22,8 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.search.lucene.support.LucenePage.newLucenePage;
 
@@ -52,7 +51,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Unit tests for {@link LucenePage}.
+ * Unit Tests for {@link LucenePage}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -60,11 +59,11 @@ import lombok.RequiredArgsConstructor;
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
- * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneAccessor
- * @see org.springframework.data.gemfire.search.lucene.support.LucenePage
  * @see org.apache.geode.cache.lucene.LuceneResultStruct
  * @see org.apache.geode.cache.lucene.PageableLuceneQueryResults
- * @since 1.0.0
+ * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneAccessor
+ * @see org.springframework.data.gemfire.search.lucene.support.LucenePage
+ * @since 2.0.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LucenePageUnitTests {
@@ -76,7 +75,7 @@ public class LucenePageUnitTests {
 	private ProjectingLuceneAccessor mockTemplate;
 
 	@SuppressWarnings("unchecked")
-	protected <K, V> LuceneResultStruct<K, V> mockLuceneResultStruct(K key, V value) {
+	private <K, V> LuceneResultStruct<K, V> mockLuceneResultStruct(K key, V value) {
 		LuceneResultStruct<K, V> mockLuceneResultStruct =
 			mock(LuceneResultStruct.class, String.format("MockLuceneResultStruct$%1$s", key));
 
@@ -85,26 +84,26 @@ public class LucenePageUnitTests {
 		return mockLuceneResultStruct;
 	}
 
-	protected List<LuceneResultStruct<Long, String>> mockLuceneResultStructList(List<Person> people) {
+	private List<LuceneResultStruct<Long, String>> mockLuceneResultStructList(List<Person> people) {
 		AtomicLong id = new AtomicLong(0L);
 
 		return people.stream().map(person -> mockLuceneResultStruct(id.incrementAndGet(), person.getName()))
 			.collect(Collectors.toList());
 	}
 
-	protected List<LuceneResultStruct<Long, String>> prepare(PageableLuceneQueryResults<Long, String> mockQueryResults,
+	private List<LuceneResultStruct<Long, String>> prepare(PageableLuceneQueryResults<Long, String> mockQueryResults,
 			Person... results) {
 
 		return prepare(mockQueryResults, Arrays.asList(results), results.length).get(0);
 	}
 
-	protected List<LuceneResultStruct<Long, String>> prepare(PageableLuceneQueryResults<Long, String> mockQueryResults,
+	private List<LuceneResultStruct<Long, String>> prepare(PageableLuceneQueryResults<Long, String> mockQueryResults,
 			Iterable<Person> results) {
 
 		return prepare(mockQueryResults, results, size(results)).get(0);
 	}
 
-	protected List<List<LuceneResultStruct<Long, String>>> prepare(
+	private List<List<LuceneResultStruct<Long, String>>> prepare(
 			PageableLuceneQueryResults<Long, String> mockQueryResults, Iterable<Person> results, int pageSize) {
 
 		List<List<Person>> pages = paginate(results, pageSize);
@@ -112,7 +111,7 @@ public class LucenePageUnitTests {
 		List<List<LuceneResultStruct<Long, String>>> resultStructs =
 			pages.stream().map(this::mockLuceneResultStructList).collect(Collectors.toList());
 
-		Iterator iterator = resultStructs.iterator();
+		Iterator<?> iterator = resultStructs.iterator();
 
 		when(mockQueryResults.hasNext()).thenAnswer(invocation -> iterator.hasNext());
 		when(mockQueryResults.next()).thenAnswer(invocation -> iterator.next());
@@ -121,6 +120,7 @@ public class LucenePageUnitTests {
 	}
 
 	private List<List<Person>> paginate(Iterable<Person> people, int pageSize) {
+
 		List<List<Person>> pages = new ArrayList<>();
 		List<Person> page = new ArrayList<>(pageSize);
 
@@ -138,7 +138,9 @@ public class LucenePageUnitTests {
 		return pages;
 	}
 
+	@SuppressWarnings("unused")
 	private int size(Iterable<?> iterable) {
+
 		int size = 0;
 
 		for (Object element : iterable) {
@@ -150,9 +152,10 @@ public class LucenePageUnitTests {
 
 	@SuppressWarnings("unchecked")
 	protected ProjectingLuceneAccessor prepare(ProjectingLuceneAccessor mockTemplate) {
+
 		when(mockTemplate.project(isA(List.class), eq(Person.class))).thenAnswer(invocation -> {
 			List<LuceneResultStruct<Long, String>> results = invocation.getArgument(0);
-			assertThat(invocation.<Class>getArgument(1)).isEqualTo(Person.class);
+			assertThat(invocation.<Class<?>>getArgument(1)).isEqualTo(Person.class);
 			return results.stream().map(result -> Person.parse(result.getValue())).collect(Collectors.toList());
 		});
 
@@ -160,8 +163,8 @@ public class LucenePageUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void newLucenePageWithNoPreviousPageIsMaterialized() {
+
 		List<Person> people = Collections.singletonList(Person.newPerson("Jon", "Doe"));
 
 		List<LuceneResultStruct<Long, String>> mockResultStructList = prepare(mockQueryResults, people);
@@ -188,6 +191,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void newLucenePageWithPreviousPageIsMaterialized() {
+
 		List<Person> expectedContent = Arrays.asList(Person.newPerson("Jon", "Doe"), Person.newPerson("Jane", "Doe"));
 
 		List<List<LuceneResultStruct<Long, String>>> mockResults =
@@ -221,6 +225,7 @@ public class LucenePageUnitTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void newLucenePageWithNullTemplateThrowsIllegalArgumentException() {
+
 		try {
 			newLucenePage(null, mockQueryResults, 10, Person.class);
 		}
@@ -237,6 +242,7 @@ public class LucenePageUnitTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void newLucenePageWithNullQueryResultsThrowsIllegalArgumentException() {
+
 		try {
 			newLucenePage(mockTemplate, null, 10, Person.class);
 		}
@@ -253,6 +259,7 @@ public class LucenePageUnitTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void newLucenePageWithNoContentThrowsIllegalArgumentException() {
+
 		try {
 			when(mockQueryResults.hasNext()).thenReturn(false);
 			newLucenePage(mockTemplate, mockQueryResults, 10, Person.class);
@@ -271,6 +278,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void getNextReturnsNextPage() {
+
 		List<Person> expectedContent = Arrays.asList(Person.newPerson("Jon", "Doe"), Person.newPerson("Jane", "Doe"));
 
 		List<List<LuceneResultStruct<Long, String>>> mockResults =
@@ -298,6 +306,7 @@ public class LucenePageUnitTests {
 	@SuppressWarnings("unchecked")
 	@Test(expected = IllegalStateException.class)
 	public void getNextThrowsIllegalStateExceptionWhenNoMorePages() {
+
 		try {
 			prepare(mockQueryResults, Person.newPerson("Jon", "Doe"));
 
@@ -324,8 +333,8 @@ public class LucenePageUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getNumberReturnsOne() {
+
 		prepare(mockQueryResults, Person.newPerson("Jon", "Doe"));
 
 		LucenePage<Person, Long, String> page = newLucenePage(mockTemplate, mockQueryResults, 20, Person.class);
@@ -336,8 +345,8 @@ public class LucenePageUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getNumberReturnsTwo() {
+
 		prepare(mockQueryResults, Arrays.asList(Person.newPerson("Jon", "Doe"), Person.newPerson("Jane", "Doe")),
 			1);
 
@@ -353,8 +362,8 @@ public class LucenePageUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getNumberReturnsThree() {
+
 		prepare(mockQueryResults, Arrays.asList(Person.newPerson("Jon", "Doe"), Person.newPerson("Jane", "Doe"),
 			Person.newPerson("Pie", "Doe")), 1);
 
@@ -375,6 +384,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void getSizeWithNoContentEqualsPageSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 
@@ -388,6 +398,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void getSizeWithSingleElementEqualsPageSize() {
+
 		prepare(mockQueryResults, Person.newPerson("Jon", "Doe"));
 
 		LucenePage<Person, Long, String> page =
@@ -402,6 +413,7 @@ public class LucenePageUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void getSizeWithMultipleElementsEqualsPageSize() {
+
 		List<Person> mockList = mock(List.class);
 
 		when(mockList.size()).thenReturn(101);
@@ -421,6 +433,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void totalElementsEqualsLuceneQueryResultsSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 		when(mockQueryResults.size()).thenReturn(409);
@@ -435,6 +448,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void totalPagesIsOneWhenTotalElementsIsLessThanPageSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 		when(mockQueryResults.size()).thenReturn(9);
@@ -449,6 +463,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void totalPagesIsOneWhenTotalElementsEqualsPageSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 		when(mockQueryResults.size()).thenReturn(20);
@@ -463,6 +478,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void totalPagesIsTwoWhenTotalElementsIsGreaterThanPageSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 		when(mockQueryResults.size()).thenReturn(31);
@@ -477,6 +493,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void totalPagesIsFiveWhenTotalElementsIsGreaterThanEqualToPageSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 		when(mockQueryResults.size()).thenReturn(100);
@@ -491,6 +508,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void totalPagesIsSixWhenTotalElementsIsGreaterThanPageSize() {
+
 		when(mockQueryResults.hasNext()).thenReturn(true);
 		when(mockQueryResults.next()).thenReturn(Collections.emptyList());
 		when(mockQueryResults.size()).thenReturn(101);
@@ -505,6 +523,7 @@ public class LucenePageUnitTests {
 
 	@Test
 	public void mapIsSuccessful() {
+
 		List<Person> expectedContent = Arrays.asList(Person.newPerson("Jon", "Doe"), Person.newPerson("Jane", "Doe"));
 
 		prepare(mockQueryResults, expectedContent);
@@ -526,6 +545,7 @@ public class LucenePageUnitTests {
 	@Data
 	@RequiredArgsConstructor(staticName = "newPerson")
 	static class Person {
+
 		@NonNull String firstName;
 		@NonNull String lastName;
 
@@ -542,6 +562,7 @@ public class LucenePageUnitTests {
 	@Data
 	@RequiredArgsConstructor(staticName = "newUser")
 	static class User {
+
 		@NonNull String name;
 
 		static User from(Person person) {

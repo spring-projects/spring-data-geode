@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.apache.geode.cache.lucene.LuceneQueryProvider;
 
 /**
- * Unit tests for {@link ProjectingLuceneOperations}.
+ * Unit Tests for {@link ProjectingLuceneOperations}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -41,7 +40,7 @@ import org.apache.geode.cache.lucene.LuceneQueryProvider;
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneOperations
- * @since 1.1.0
+ * @since 2.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectingLuceneOperationsUnitTests {
@@ -55,6 +54,7 @@ public class ProjectingLuceneOperationsUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void stringQueryCallsQueryWithResultLimit() {
+
 		when(projectingLuceneOperations.query(anyString(), anyString(), any(Class.class))).thenCallRealMethod();
 
 		projectingLuceneOperations.query("title : Up Shit Creek Without A Paddle",
@@ -68,6 +68,7 @@ public class ProjectingLuceneOperationsUnitTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void queryProviderQueryCallsQueryWithResultLimit() {
+
 		when(projectingLuceneOperations.query(any(LuceneQueryProvider.class), any(Class.class)))
 			.thenCallRealMethod();
 
@@ -79,6 +80,6 @@ public class ProjectingLuceneOperationsUnitTests {
 
 	static class Book {}
 
-	abstract class TestProjectingLuceneOperations implements ProjectingLuceneOperations {
-	}
+	static abstract class TestProjectingLuceneOperations implements ProjectingLuceneOperations { }
+
 }

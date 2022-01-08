@@ -14,11 +14,10 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -50,7 +49,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Unit tests for {@link ProjectingLuceneTemplate}.
+ * Unit Tests for {@link ProjectingLuceneTemplate}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -59,7 +58,8 @@ import lombok.RequiredArgsConstructor;
  * @see org.mockito.Mockito
  * @see org.mockito.Spy
  * @see org.mockito.junit.MockitoJUnitRunner
- * @since 1.1.0
+ * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneTemplate
+ * @since 2.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectingLuceneTemplateUnitTests {

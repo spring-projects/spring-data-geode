@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.apache.geode.cache.lucene.LuceneQueryProvider;
 
 /**
- * Unit tests for the {@link LuceneOperations} interface.
+ * Unit Tests for the {@link LuceneOperations} interface.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -41,7 +40,7 @@ import org.apache.geode.cache.lucene.LuceneQueryProvider;
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.search.lucene.LuceneOperations
- * @since 1.0.0
+ * @since 2.0.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LuceneOperationsUnitTests {
@@ -54,6 +53,7 @@ public class LuceneOperationsUnitTests {
 
 	@Test
 	public void stringQueryCallsQueryWithResultLimit() {
+
 		when(mockLuceneOperations.query(anyString(), anyString())).thenCallRealMethod();
 
 		mockLuceneOperations.query("title : Up Shit Creek Without a Paddle", "title");
@@ -65,6 +65,7 @@ public class LuceneOperationsUnitTests {
 
 	@Test
 	public void queryProviderQueryCallsQueryWithResultLimit() {
+
 		when(mockLuceneOperations.query(any(LuceneQueryProvider.class))).thenCallRealMethod();
 
 		mockLuceneOperations.query(mockLuceneQueryProvider);
@@ -75,6 +76,7 @@ public class LuceneOperationsUnitTests {
 
 	@Test
 	public void stringQueryForKeysCallsQueryForKeysWithResultLimit() {
+
 		when(mockLuceneOperations.queryForKeys(anyString(), anyString())).thenCallRealMethod();
 
 		mockLuceneOperations.queryForKeys("title : Up Shit Creek Without a Paddle", "title");
@@ -86,6 +88,7 @@ public class LuceneOperationsUnitTests {
 
 	@Test
 	public void queryProviderQueryForKeysCallsQueryForKeysWithResultLimit() {
+
 		when(mockLuceneOperations.queryForKeys(any(LuceneQueryProvider.class))).thenCallRealMethod();
 
 		mockLuceneOperations.queryForKeys(mockLuceneQueryProvider);
@@ -96,6 +99,7 @@ public class LuceneOperationsUnitTests {
 
 	@Test
 	public void stringQueryForValuesCallsQueryForValuesWithResultLimit() {
+
 		when(mockLuceneOperations.queryForValues(anyString(), anyString())).thenCallRealMethod();
 
 		mockLuceneOperations.queryForValues("title : Up Shit Creek Without a Paddle", "title");
@@ -107,6 +111,7 @@ public class LuceneOperationsUnitTests {
 
 	@Test
 	public void queryProviderQueryForValuesCallsQueryForValuesWithResultLimit() {
+
 		when(mockLuceneOperations.queryForValues(any(LuceneQueryProvider.class))).thenCallRealMethod();
 
 		mockLuceneOperations.queryForValues(mockLuceneQueryProvider);
@@ -115,6 +120,6 @@ public class LuceneOperationsUnitTests {
 			eq(mockLuceneQueryProvider), eq(LuceneOperations.DEFAULT_RESULT_LIMIT));
 	}
 
-	abstract class TestLuceneOperations implements LuceneOperations { }
+	static abstract class TestLuceneOperations implements LuceneOperations { }
 
 }

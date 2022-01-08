@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene.support;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -23,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.search.lucene.support.PdxInstanceMethodInterceptor.newPdxInstanceMethodInterceptor;
 
@@ -45,7 +44,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Unit tests for {@link PdxInstanceMethodInterceptor}.
+ * Unit Tests for {@link PdxInstanceMethodInterceptor}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -69,12 +68,13 @@ public class PdxInstanceMethodInterceptorUnitTests {
 	private WritablePdxInstance mockNewSource;
 
 	@SafeVarargs
-	protected static <T> T[] asArray(T... array) {
+	private static <T> T[] asArray(T... array) {
 		return array;
 	}
 
 	@Test
 	public void newPdxInstanceMethodInterceptorWithValidObjectSourceIsSuccessful() {
+
 		PdxInstanceMethodInterceptor methodInterceptor = newPdxInstanceMethodInterceptor((Object) mockSource);
 
 		assertThat(methodInterceptor).isNotNull();
@@ -83,6 +83,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void newPdxInstanceMethodInterceptorWithInvalidObjectSourceThrowsIllegalArgumentException() {
+
 		try {
 			newPdxInstanceMethodInterceptor(new Object());
 		}
@@ -97,6 +98,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test
 	public void newPdxInstanceMethodInterceptorWithPdxInstanceIsSuccessful() {
+
 		PdxInstanceMethodInterceptor methodInterceptor = newPdxInstanceMethodInterceptor(mockSource);
 
 		assertThat(methodInterceptor).isNotNull();
@@ -105,6 +107,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructPdxInstanceMethodInterceptorWithNullThrowsIllegalArgumentException() {
+
 		try {
 			new PdxInstanceMethodInterceptor(null);
 		}
@@ -118,6 +121,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test
 	public void invokeObjectMethodIsHandled() throws Throwable {
+
 		Person jonDoe = Person.newPerson("Jon", "Doe");
 		Method toString = jonDoe.getClass().getMethod("toString");
 
@@ -133,6 +137,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test
 	public void invokeGetterOnSourceIsHandled() throws Throwable {
+
 		Person jonDoe = Person.newPerson("Jon", "Doe");
 		Method getFirstName = jonDoe.getClass().getMethod("getFirstName");
 
@@ -150,6 +155,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test
 	public void invokeSetterOnSourceIsHandled() throws Throwable {
+
 		Person jonDoe = Person.newPerson("Jon", "Doe");
 		Method setLastName = jonDoe.getClass().getMethod("setLastName", String.class);
 
@@ -172,6 +178,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void invokeThrowsIllegalStateExceptionWhenPdxInstanceDoesNotHaveField() throws Throwable {
+
 		Method getGender = Person.class.getMethod("getGender");
 
 		when(mockMethodInvocation.getMethod()).thenReturn(getGender);
@@ -222,6 +229,7 @@ public class PdxInstanceMethodInterceptorUnitTests {
 
 	@Test(expected = IllegalStateException.class)
 	public void invokeThrowsIllegalArgumentExceptionWhenPdxInstanceHasNoWriter() throws Throwable {
+
 		Method setGender = Person.class.getMethod("setGender", Gender.class);
 
 		when(mockMethodInvocation.getMethod()).thenReturn(setGender);

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +24,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.util.ArrayUtils.asArray;
 
@@ -52,17 +51,14 @@ import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.test.model.Person;
 
 /**
- * Unit tests for {@link AbstractAnnotationConfigSupport}.
+ * Unit Tests for {@link AbstractAnnotationConfigSupport}.
  *
  * @author John Blum
+ * @see java.lang.annotation.Annotation
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
- * @see org.springframework.beans.factory.annotation.AnnotatedBeanDefinition
- * @see org.springframework.beans.factory.config.BeanDefinition
- * @see org.springframework.beans.factory.support.AbstractBeanDefinition
- * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
  * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport
  * @since 1.1.0
  */
@@ -76,7 +72,6 @@ public class AbstractAnnotationConfigSupportTests {
 		this.support = spy(new TestAnnotationConfigSupport());
 	}
 
-	@SuppressWarnings("unchecked")
 	private BeanDefinition mockBeanDefinition(Class<?> beanClass) {
 
 		AbstractBeanDefinition mockBeanDefinition = mock(AbstractBeanDefinition.class, beanClass.getSimpleName());
@@ -290,7 +285,7 @@ public class AbstractAnnotationConfigSupportTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void resolveBeanClassFromBeanDefinition() throws ClassNotFoundException {
 
 		AbstractBeanDefinition mockBeanDefinition = mock(AbstractBeanDefinition.class);
@@ -336,8 +331,7 @@ public class AbstractAnnotationConfigSupportTests {
 	}
 
 	@Test
-	public void resolveBeanClassUsingThreadContextClassLoaderAndFactoryMethodReturnType()
-			throws ClassNotFoundException {
+	public void resolveBeanClassUsingThreadContextClassLoaderAndFactoryMethodReturnType() {
 
 		AnnotatedBeanDefinition mockBeanDefinition = mock(AnnotatedBeanDefinition.class);
 
@@ -537,7 +531,7 @@ public class AbstractAnnotationConfigSupportTests {
 
 	}
 
-	class TestAnnotationConfigSupport extends AbstractAnnotationConfigSupport {
+	static class TestAnnotationConfigSupport extends AbstractAnnotationConfigSupport {
 
 		@Override
 		protected Class<? extends Annotation> getAnnotationType() {

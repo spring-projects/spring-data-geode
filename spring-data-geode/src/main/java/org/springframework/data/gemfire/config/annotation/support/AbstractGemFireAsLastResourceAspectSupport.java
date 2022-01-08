@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation.support;
 
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
@@ -33,20 +32,20 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.ra.GFConnection;
 import org.apache.geode.ra.GFConnectionFactory;
 
-import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.util.StringUtils;
 
+import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+
 /**
  * {@link AbstractGemFireAsLastResourceAspectSupport} is an abstract base class encapsulating functionality common
- * to all AOP Aspect extensions/implementations involving the GemFire JCA ResourceAdapter object registered in
+ * to all AOP Aspect extensions/implementations involving the Apache Geode JCA ResourceAdapter object registered in
  * the JNDI context of a managed environment.
  *
  * @author John Blum

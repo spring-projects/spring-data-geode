@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import static java.util.Arrays.asList;
@@ -49,7 +48,7 @@ import org.apache.geode.cache.lucene.LuceneService;
 import org.apache.geode.cache.lucene.PageableLuceneQueryResults;
 
 /**
- * Unit tests for {@link LuceneTemplate}.
+ * Unit Tests for {@link LuceneTemplate}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -58,13 +57,13 @@ import org.apache.geode.cache.lucene.PageableLuceneQueryResults;
  * @see org.mockito.Mockito
  * @see org.mockito.Spy
  * @see org.mockito.junit.MockitoJUnitRunner
- * @see org.springframework.data.gemfire.search.lucene.LuceneTemplate
  * @see org.apache.geode.cache.lucene.LuceneQuery
  * @see org.apache.geode.cache.lucene.LuceneQueryFactory
  * @see org.apache.geode.cache.lucene.LuceneQueryProvider
  * @see org.apache.geode.cache.lucene.LuceneResultStruct
  * @see org.apache.geode.cache.lucene.LuceneService
  * @see org.apache.geode.cache.lucene.PageableLuceneQueryResults
+ * @see org.springframework.data.gemfire.search.lucene.LuceneTemplate
  * @since 1.0.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -95,8 +94,8 @@ public class LuceneTemplateUnitTests {
 	private LuceneTemplate luceneTemplate;
 
 	@Before
-	@SuppressWarnings("deprecation")
 	public void setup() {
+
 		luceneTemplate.setLuceneService(mockLuceneService);
 
 		when(mockLuceneService.createLuceneQueryFactory()).thenReturn(mockLuceneQueryFactory);
@@ -105,10 +104,12 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void stringQueryReturnsList() throws LuceneQueryException {
+
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"), anyString(), anyString()))
 			.thenReturn(mockLuceneQuery);
+
 		when(mockLuceneQuery.findResults()).thenReturn(asList(mockLuceneResultStructOne, mockLuceneResultStructTwo));
 
 		doReturn("TestIndex").when(luceneTemplate).resolveIndexName();
@@ -134,7 +135,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void stringQueryWithPageSizeReturnsPageableResults() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"), anyString(), anyString()))
 			.thenReturn(mockLuceneQuery);
@@ -161,7 +162,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void queryProviderQueryReturnsList() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"),
 			any(LuceneQueryProvider.class))).thenReturn(mockLuceneQuery);
@@ -190,7 +191,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void queryProviderQueryWithPageSizeReturnsPageableResults() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"),
 			any(LuceneQueryProvider.class))).thenReturn(mockLuceneQuery);
@@ -217,7 +218,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void stringQueryForKeysReturnsKeys() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"), anyString(), anyString()))
 			.thenReturn(mockLuceneQuery);
@@ -246,7 +247,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void queryProviderQueryForKeysReturnsKeys() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"),
 			any(LuceneQueryProvider.class))).thenReturn(mockLuceneQuery);
@@ -274,7 +275,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void stringQueryForValuesReturnsValues() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"), anyString(), anyString()))
 			.thenReturn(mockLuceneQuery);
@@ -303,7 +304,7 @@ public class LuceneTemplateUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings({ "deprecation", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public void queryProviderQueryForValuesReturnsValues() throws LuceneQueryException {
 		when(mockLuceneQueryFactory.create(eq("TestIndex"), eq("/Example"),
 			any(LuceneQueryProvider.class))).thenReturn(mockLuceneQuery);

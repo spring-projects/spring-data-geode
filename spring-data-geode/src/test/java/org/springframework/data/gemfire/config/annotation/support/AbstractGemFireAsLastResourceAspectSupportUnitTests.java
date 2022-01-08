@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +53,7 @@ import org.apache.geode.cache.GemFireCache;
 import org.slf4j.Logger;
 
 /**
- * Unit tests for {@link AbstractGemFireAsLastResourceAspectSupport}.
+ * Unit Tests for {@link AbstractGemFireAsLastResourceAspectSupport}.
  *
  * @author John Blum
  * @see javax.naming.Context
@@ -420,22 +419,20 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 	}
 
 	// TODO refactor this BS; damn you Mockito for your inability to match Varargs completely/reliably; WTF!
-	protected static final class VariableArgumentMatcher<T> implements ArgumentMatcher<T>, VarargMatcher {
+	static final class VariableArgumentMatcher<T> implements ArgumentMatcher<T>, VarargMatcher {
 
-		protected static Object[] varArgThat(Object... expectedArguments) {
+		static Object[] varArgThat(Object... expectedArguments) {
 			return argThat(new VariableArgumentMatcher<>(expectedArguments));
 		}
 
-		private Object[] expectedArguments;
+		private final Object[] expectedArguments;
 
-		@SuppressWarnings("unchecked")
-		protected VariableArgumentMatcher(Object... expectedArguments) {
+		VariableArgumentMatcher(Object... expectedArguments) {
 			this.expectedArguments = Optional.ofNullable(expectedArguments)
 				.orElseThrow(() -> newIllegalArgumentException("Expected arguments must not be null"));
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public boolean matches(T actualArgument) {
 			return asList(this.expectedArguments).containsAll(asList(actualArgument));
 		}

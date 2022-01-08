@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,27 +43,26 @@ import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.util.ArrayUtils;
 
 /**
- * Unit tests for {@link PdxDiskStoreAwareBeanFactoryPostProcessor}.
+ * Unit Tests for {@link PdxDiskStoreAwareBeanFactoryPostProcessor}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
- * @see org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFactoryPostProcessor
  * @see org.apache.geode.cache.DiskStore
- * @see org.apache.geode.cache.Region
- * @see org.apache.geode.cache.asyncqueue.AsyncEventQueue
+ * @see org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFactoryPostProcessor
  * @since 1.3.3
  */
 public class PdxDiskStoreAwareBeanFactoryPostProcessorUnitTests {
 
-	protected static boolean isBeanType(BeanDefinition beanDefinition, Class<?> beanType) {
-		return (beanDefinition instanceof AbstractBeanDefinition
+	private static boolean isBeanType(BeanDefinition beanDefinition, Class<?> beanType) {
+
+		return beanDefinition instanceof AbstractBeanDefinition
 			&& ((AbstractBeanDefinition) beanDefinition).hasBeanClass()
-			&& beanType.isAssignableFrom(((AbstractBeanDefinition) beanDefinition).getBeanClass()));
+			&& beanType.isAssignableFrom(((AbstractBeanDefinition) beanDefinition).getBeanClass());
 	}
 
-	protected static String[] toStringArray(Collection<String> collection) {
-		return collection.toArray(new String[collection.size()]);
+	private static String[] toStringArray(Collection<String> collection) {
+		return collection.toArray(new String[0]);
 	}
 
 	protected ConfigurableListableBeanFactory mockBeanFactory(final Map<String, BeanDefinition> beanDefinitions) {
@@ -81,7 +79,7 @@ public class PdxDiskStoreAwareBeanFactoryPostProcessorUnitTests {
 			assertThat(arguments.length).isEqualTo(1);
 			assertThat(arguments[0]).isInstanceOf(Class.class);
 
-			Class beanType = (Class) arguments[0];
+			Class<?> beanType = (Class<?>) arguments[0];
 
 			List<String> beanNames = new ArrayList<>(beanDefinitions.size());
 
@@ -114,7 +112,7 @@ public class PdxDiskStoreAwareBeanFactoryPostProcessorUnitTests {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
 
 		if (beanClassObject instanceof Class) {
-			builder.getRawBeanDefinition().setBeanClass((Class) beanClassObject);
+			builder.getRawBeanDefinition().setBeanClass((Class<?>) beanClassObject);
 		}
 		else {
 			builder.getRawBeanDefinition().setBeanClassName(String.valueOf(beanClassObject));
@@ -153,7 +151,7 @@ public class PdxDiskStoreAwareBeanFactoryPostProcessorUnitTests {
 		return newBeanDefinitionBuilder(DiskStore.class, dependencies).getBeanDefinition();
 	}
 
-	protected BeanDefinition defineRegion(Class regionClass, String... dependencies) {
+	protected BeanDefinition defineRegion(Class<?> regionClass, String... dependencies) {
 		return newBeanDefinitionBuilder(regionClass, dependencies).getBeanDefinition();
 	}
 

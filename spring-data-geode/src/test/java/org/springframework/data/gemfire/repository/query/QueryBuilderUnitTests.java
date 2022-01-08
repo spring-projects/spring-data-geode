@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.repository.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +28,7 @@ import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
 import org.springframework.data.repository.query.parser.PartTree;
 
 /**
- * Unit tests for {@link QueryBuilder} class.
+ * Unit Tests for {@link QueryBuilder} class.
  *
  * @author John Blum
  * @see org.junit.Test

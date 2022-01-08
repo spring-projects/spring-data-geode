@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,8 +25,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -52,7 +51,7 @@ import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
 import org.springframework.util.MethodInvoker;
 
 /**
- * Unit tests for {@link EnablePdx} and {@link PdxConfiguration}.
+ * Unit Tests for {@link EnablePdx} and {@link PdxConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -60,8 +59,6 @@ import org.springframework.util.MethodInvoker;
  * @see org.mockito.Spy
  * @see org.apache.geode.pdx.PdxSerializer
  * @see org.mockito.junit.MockitoJUnitRunner
- * @see org.springframework.beans.factory.BeanFactory
- * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.EnablePdx
  * @see org.springframework.data.gemfire.config.annotation.PdxConfiguration
  * @since 1.0.0

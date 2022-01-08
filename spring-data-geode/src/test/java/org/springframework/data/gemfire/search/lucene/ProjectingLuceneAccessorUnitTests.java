@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -41,7 +40,7 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 
 /**
- * Unit tests for {@link ProjectingLuceneAccessor}.
+ * Unit Tests for {@link ProjectingLuceneAccessor}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -51,7 +50,7 @@ import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
  * @see org.mockito.Spy
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.search.lucene.ProjectingLuceneAccessor
- * @since 1.1.0
+ * @since 2.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectingLuceneAccessorUnitTests {
@@ -82,6 +81,7 @@ public class ProjectingLuceneAccessorUnitTests {
 
 	@Before
 	public void setup() {
+
 		projectingLuceneAccessor = spy(new ProjectingLuceneAccessorSupport() {});
 
 		doReturn(mockCache).when(projectingLuceneAccessor).resolveCache();
@@ -92,6 +92,7 @@ public class ProjectingLuceneAccessorUnitTests {
 
 	@Test
 	public void afterPropertiesSetInitializesTheProjectingLuceneAccessorCorrectly() throws Exception {
+
 		doReturn(mockProjectionFactory).when(projectingLuceneAccessor).resolveProjectionFactory();
 
 		projectingLuceneAccessor.afterPropertiesSet();
@@ -104,6 +105,7 @@ public class ProjectingLuceneAccessorUnitTests {
 
 	@Test
 	public void projectingLuceneAccessorIsInitializedCorrectly() {
+
 		assertThat(projectingLuceneAccessor.getBeanClassLoader()).isNull();
 		assertThat(projectingLuceneAccessor.getBeanFactory()).isNull();
 		assertThat(projectingLuceneAccessor.getCache()).isNull();
@@ -137,6 +139,7 @@ public class ProjectingLuceneAccessorUnitTests {
 
 	@Test
 	public void setThenGetProjectionFactoryIsCorrect() {
+
 		assertThat(projectingLuceneAccessor.getProjectionFactory()).isNull();
 		assertThat(projectingLuceneAccessor.setThenGetProjectionFactory(mockProjectionFactory))
 			.isSameAs(mockProjectionFactory);
@@ -145,6 +148,7 @@ public class ProjectingLuceneAccessorUnitTests {
 
 	@Test
 	public void resolveProjectFactoryReturnsProvidedProjectFactory() {
+
 		assertThat(projectingLuceneAccessor.getProjectionFactory()).isNull();
 
 		projectingLuceneAccessor.setProjectionFactory(mockProjectionFactory);
@@ -155,6 +159,7 @@ public class ProjectingLuceneAccessorUnitTests {
 
 	@Test
 	public void resolveProjectionFactoryCreatesNewProjectionFactory() {
+
 		assertThat(projectingLuceneAccessor.getProjectionFactory()).isNull();
 
 		ProjectionFactory projectionFactory = projectingLuceneAccessor.resolveProjectionFactory();

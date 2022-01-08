@@ -14,10 +14,9 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,10 +53,9 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.data.gemfire.GemfireUtils;
 
 /**
- * Unit tests for {@link LuceneIndexFactoryBean}.
+ * Unit Tests for {@link LuceneIndexFactoryBean}.
  *
  * @author John Blum
- * @see org.junit.Rule
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.mockito.Mock
@@ -65,7 +63,7 @@ import org.springframework.data.gemfire.GemfireUtils;
  * @see org.mockito.Spy
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.search.lucene.LuceneIndexFactoryBean
- * @since 1.1.0
+ * @since 2.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class LuceneIndexFactoryBeanUnitTests {
@@ -86,7 +84,7 @@ public class LuceneIndexFactoryBeanUnitTests {
 	private LuceneIndexFactory mockLuceneIndexFactory;
 
 	@Mock
-	private LuceneSerializer mockLuceneSerializer;
+	private LuceneSerializer<?> mockLuceneSerializer;
 
 	@Mock
 	private LuceneService mockLuceneService;
@@ -242,7 +240,6 @@ public class LuceneIndexFactoryBeanUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void destroyIsSuccessful() throws Exception {
 
 		factoryBean.setDestroy(true);
@@ -263,7 +260,6 @@ public class LuceneIndexFactoryBeanUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void destroyDoesNothingWhenDestroyIsFalse() throws Exception {
 
 		factoryBean.setDestroy(false);
@@ -281,7 +277,6 @@ public class LuceneIndexFactoryBeanUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void destroyDoesNothingWhenLuceneIndexIsNull() throws Exception {
 
 		factoryBean.setDestroy(true);

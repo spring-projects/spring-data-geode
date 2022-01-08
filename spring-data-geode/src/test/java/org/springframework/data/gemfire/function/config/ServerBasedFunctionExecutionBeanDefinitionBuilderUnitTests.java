@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +31,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
 /**
- * Unit tests for {@link ServerBasedFunctionExecutionBeanDefinitionBuilder}.
+ * Unit Tests for {@link ServerBasedFunctionExecutionBeanDefinitionBuilder}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -43,7 +42,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 public class ServerBasedFunctionExecutionBeanDefinitionBuilderUnitTests {
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getGemfireFunctionOperationsBeanDefinitionBuilder() {
 
 		FunctionExecutionConfiguration mockFunctionExecutionConfiguration =
@@ -84,7 +82,6 @@ public class ServerBasedFunctionExecutionBeanDefinitionBuilderUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getGemfireFunctionOperationsBeanDefinitionBuilderWithCache() {
 
 		FunctionExecutionConfiguration mockFunctionExecutionConfiguration =
@@ -124,7 +121,6 @@ public class ServerBasedFunctionExecutionBeanDefinitionBuilderUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getGemfireFunctionOperationsBeanDefinitionBuilderWithPool() {
 
 		FunctionExecutionConfiguration mockFunctionExecutionConfiguration =
@@ -168,7 +164,6 @@ public class ServerBasedFunctionExecutionBeanDefinitionBuilderUnitTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getGemfireFunctionOperationsBeanDefinitionBuilderWithCacheAndPool() {
 
 		FunctionExecutionConfiguration mockFunctionExecutionConfiguration =
