@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.util;
 
 import java.io.IOException;
@@ -23,12 +22,13 @@ import java.io.Reader;
 import java.util.Properties;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * The PropertiesBuilder class is a Builder for {@link java.util.Properties}.
+ * Builder for {@link java.util.Properties}.
  *
  * @author John Blum
  * @see java.util.Properties
@@ -39,38 +39,39 @@ import org.springframework.util.StringUtils;
 public class PropertiesBuilder implements FactoryBean<Properties> {
 
 	/**
-	 * Factory method to create a default {@link PropertiesBuilder} instance.
+	 * Factory method used to create a default {@link PropertiesBuilder} instance.
 	 *
 	 * @return an instance of the {@link PropertiesBuilder} class with not {@link Properties}.
 	 * @see #PropertiesBuilder()
 	 */
-	public static PropertiesBuilder create() {
+	public static @NonNull PropertiesBuilder create() {
 		return new PropertiesBuilder();
 	}
 
 	/**
-	 * Factory method to create an instance of {@link PropertiesBuilder} initialized with the given {@link Properties}.
+	 * Factory method used to create an instance of {@link PropertiesBuilder} initialized with
+	 * the given {@link Properties}.
 	 *
 	 * @param properties {@link Properties} used as the default properties of the constructed {@link PropertiesBuilder}.
 	 * @return an instance of {@link PropertiesBuilder} initialized with the given {@link Properties}.
 	 * @see java.util.Properties
 	 * @see #PropertiesBuilder(Properties)
 	 */
-	public static PropertiesBuilder from(Properties properties) {
+	public static @NonNull PropertiesBuilder from(@NonNull Properties properties) {
 		return new PropertiesBuilder(properties);
 	}
 
 	/**
-	 * Constructs and initializes a {@link PropertiesBuilder} containing all properties
+	 * Constructs a new instance of {@link PropertiesBuilder} initialized with all properties
 	 * from the given {@link InputStream}.
 	 *
 	 * @param in {@link InputStream} source containing properties to use as the defaults for the constructed builder.
 	 * @return a {@link PropertiesBuilder} initialized with properties from the given {@link InputStream}.
 	 * @throws IllegalArgumentException if the {@link InputStream} cannot be read.
-	 * @see java.io.InputStream
 	 * @see java.util.Properties#load(InputStream)
+	 * @see java.io.InputStream
 	 */
-	public static PropertiesBuilder from(InputStream in) {
+	public static @NonNull PropertiesBuilder from(@NonNull InputStream in) {
 
 		try {
 			Properties defaults = new Properties();
@@ -83,16 +84,16 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	}
 
 	/**
-	 * Constructs and initializes a {@link PropertiesBuilder} containing all properties
+	 * Constructs a new isntance of {@link PropertiesBuilder} initialized with all properties
 	 * from the given {@link Reader}.
 	 *
 	 * @param reader {@link Reader} source containing properties to use as the defaults for the constructed builder.
 	 * @return a {@link PropertiesBuilder} initialized with properties from the given {@link Reader}.
 	 * @throws IllegalArgumentException if the {@link Reader} cannot be read.
-	 * @see java.io.Reader
 	 * @see java.util.Properties#load(Reader)
+	 * @see java.io.Reader
 	 */
-	public static PropertiesBuilder from(Reader reader) {
+	public static @NonNull PropertiesBuilder from(@NonNull Reader reader) {
 
 		try {
 			Properties defaults = new Properties();
@@ -105,17 +106,17 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	}
 
 	/**
-	 * Constructs and initializes a {@link PropertiesBuilder} containing all properties
+	 * Constructs a new instance of {@link PropertiesBuilder} initialized with all properties
 	 * from the given {@link InputStream} in XML format.
 	 *
 	 * @param xml {@link InputStream} source containing properties in XML format to use as defaults
 	 * for the constructed builder.
 	 * @return a {@link PropertiesBuilder} initialized with properties from the given XML {@link InputStream}.
 	 * @throws IllegalArgumentException if the XML {@link InputStream} cannot be read.
-	 * @see java.io.InputStream
 	 * @see java.util.Properties#loadFromXML(InputStream)
+	 * @see java.io.InputStream
 	 */
-	public static PropertiesBuilder fromXml(InputStream xml) {
+	public static @NonNull PropertiesBuilder fromXml(@NonNull InputStream xml) {
 
 		try {
 			Properties defaults = new Properties();
@@ -130,46 +131,56 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	private final Properties properties;
 
 	/**
-	 * Constructs an instance of the {@link PropertiesBuilder} class.
+	 * Constructs a new instance of {@link PropertiesBuilder}.
 	 */
 	public PropertiesBuilder() {
 		this.properties = new Properties();
 	}
 
 	/**
-	 * Constructs an instance of the {@link PropertiesBuilder} class initialized with the default {@link Properties}.
+	 * Constructs a new instance of {@link PropertiesBuilder} initialized with the default {@link Properties}.
 	 *
 	 * @param defaults {@link Properties} used as the defaults.
 	 * @throws NullPointerException if the {@link Properties} reference is {@literal null}.
 	 * @see java.util.Properties
 	 */
-	public PropertiesBuilder(Properties defaults) {
+	public PropertiesBuilder(@NonNull Properties defaults) {
 		this.properties = new Properties();
 		this.properties.putAll(defaults);
 	}
 
 	/**
-	 * Constructs an instance of the {@link PropertiesBuilder} class initialized with the given
-	 * {@link PropertiesBuilder} providing the default {@link Properties} for this builder.
+	 * Constructs a new instance of {@link PropertiesBuilder} initialized with the given {@link PropertiesBuilder}
+	 * providing the default {@link Properties} for {@literal this} builder.
 	 *
 	 * @param builder {@link PropertiesBuilder} providing the default {@link Properties} for this builder.
 	 * @throws NullPointerException if the {@link PropertiesBuilder} reference is {@literal null}.
 	 * @see #PropertiesBuilder(Properties)
 	 */
-	public PropertiesBuilder(PropertiesBuilder builder) {
+	@SuppressWarnings("all")
+	public PropertiesBuilder(@NonNull PropertiesBuilder builder) {
 		this(builder.build());
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Properties getObject() throws Exception {
 		return build();
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Class<?> getObjectType() {
 		return this.properties != null ? this.properties.getClass() : Properties.class;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public boolean isSingleton() {
 		return true;

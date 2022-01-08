@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.mapping;
 
 import java.util.Collections;
@@ -25,13 +24,16 @@ import java.util.Optional;
 import org.apache.geode.cache.Region;
 
 import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
- * Simple value object to abstract access to regions by name and mapped type.
+ * Simple value object to abstract access to {@link Region Regions} by {@link String name} and mapped {@link Class type}.
  *
  * @author Oliver Gierke
  * @author John Blum
+ * @see java.lang.Iterable
+ * @see org.apache.geode.cache.Region
  */
 public class Regions implements Iterable<Region<?, ?>> {
 
@@ -40,14 +42,17 @@ public class Regions implements Iterable<Region<?, ?>> {
 	private final MappingContext<? extends GemfirePersistentEntity<?>, ?> mappingContext;
 
 	/**
-	 * Creates a new {@link Regions} wrapper for the given {@link Region}s and
-	 * {@link MappingContext}.
+	 * Constructs a new instance of the {@link Regions} wrapper for the given {@link Region Regions}
+	 * and {@link MappingContext}.
 	 *
-	 * @param regions must not be {@literal null}.
-	 * @param mappingContext must not be {@literal null}.
+	 * @param regions {@link Iterable} of cache {@link Region Regions}; must not be {@literal null}.
+	 * @param mappingContext Spring Data {@link MappingContext} used for data mapping; must not be {@literal null}.
+	 * @see org.springframework.data.mapping.context.MappingContext
+	 * @see org.apache.geode.cache.Region
+	 * @see java.lang.Iterable
 	 */
-	public Regions(Iterable<Region<?, ?>> regions,
-			MappingContext<? extends GemfirePersistentEntity<?>, ?> mappingContext) {
+	public Regions(@NonNull Iterable<Region<?, ?>> regions,
+			@NonNull MappingContext<? extends GemfirePersistentEntity<?>, ?> mappingContext) {
 
 		Assert.notNull(regions, "Regions must not be null");
 		Assert.notNull(mappingContext, "MappingContext must not be null");
@@ -100,6 +105,9 @@ public class Regions implements Iterable<Region<?, ?>> {
 		return (Region<S, T>) this.regions.get(namePath);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Iterator<Region<?, ?>> iterator() {
 		return this.regions.values().iterator();

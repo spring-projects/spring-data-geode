@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.geode.cache.execute.Execution;
+import org.apache.geode.cache.execute.Function;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -31,14 +34,20 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.data.gemfire.util.ArrayUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
- * Annotation based configuration source for function executions
+ * Annotation based configuration source for {@link Function} {@link Execution Executions}.
  *
  * @author David Turanski
- *
+ * @author John Blum
+ * @see java.lang.annotation.Annotation
+ * @see org.apache.geode.cache.execute.Execution
+ * @see org.apache.geode.cache.execute.Function
+ * @see org.springframework.data.gemfire.function.config.EnableGemfireFunctionExecutions
  */
 public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunctionExecutionConfigurationSource {
 
@@ -50,28 +59,34 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 	private final AnnotationAttributes attributes;
 
 	/**
-	 * Creates a new instance of {@link AnnotationFunctionExecutionConfigurationSource} from
-	 * the given {@link AnnotationMetadata} and {@link EnableGemfireFunctionExecutions} annotation.
+	 * Constructs a new instance of {@link AnnotationFunctionExecutionConfigurationSource}
+	 * from the given {@link AnnotationMetadata} and {@link EnableGemfireFunctionExecutions} annotation.
 	 *
 	 * @param metadata {@link AnnotationMetadata} for the {@link EnableGemfireFunctionExecutions} annotation;
 	 * must not be {@literal null}.
 	 * @see org.springframework.core.type.AnnotationMetadata
 	 */
-	 public AnnotationFunctionExecutionConfigurationSource(AnnotationMetadata metadata) {
+	 public AnnotationFunctionExecutionConfigurationSource(@NonNull AnnotationMetadata metadata) {
 
 		Assert.notNull(metadata, "AnnotationMetadata must not be null");
 
-		this.attributes = AnnotationAttributes.fromMap(
-			metadata.getAnnotationAttributes(EnableGemfireFunctionExecutions.class.getName()));
+		this.attributes = AnnotationAttributes
+			.fromMap(metadata.getAnnotationAttributes(EnableGemfireFunctionExecutions.class.getName()));
 
 		this.metadata = metadata;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Object getSource() {
 		return this.metadata;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Iterable<String> getBasePackages() {
 
@@ -100,7 +115,7 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 		return packages;
 	}
 
-	private boolean areAllEmpty(Object[]... arrays) {
+	private boolean areAllEmpty(@Nullable Object[]... arrays) {
 
 		for (Object[] array : ArrayUtils.nullSafeArray(arrays, Object[].class)) {
 			if (!ArrayUtils.isEmpty(array)) {
@@ -111,11 +126,17 @@ public class AnnotationFunctionExecutionConfigurationSource extends AbstractFunc
 		return true;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public Iterable<TypeFilter> getIncludeFilters() {
 		return parseFilters("includeFilters");
 	}
 
+	/**
+	 * @inheritDoc
+	 */
  	@Override
 	public Iterable<TypeFilter> getExcludeFilters() {
 		return parseFilters("excludeFilters");

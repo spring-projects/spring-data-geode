@@ -14,6 +14,9 @@ package org.springframework.data.gemfire.function.config;
 
 import java.util.Optional;
 
+import org.apache.geode.cache.execute.Execution;
+import org.apache.geode.cache.execute.Function;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
@@ -23,7 +26,7 @@ import org.springframework.data.gemfire.function.execution.GemfireFunctionProxyF
 import org.springframework.util.StringUtils;
 
 /**
- * Base class for {@link OnServer} and {@link OnServers} Function execution
+ * Abstract base class for {@link OnServer} and {@link OnServers} {@link Function} {@link Execution}
  * {@link BeanDefinitionBuilder BeanDefinitionBuilders}.
  *
  * @author David Turanski
@@ -41,6 +44,9 @@ abstract class ServerBasedFunctionExecutionBeanDefinitionBuilder
 		super(configuration);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected BeanDefinitionBuilder getGemfireFunctionOperationsBeanDefinitionBuilder(BeanDefinitionRegistry registry) {
 
@@ -66,6 +72,9 @@ abstract class ServerBasedFunctionExecutionBeanDefinitionBuilder
 		return functionTemplateBuilder;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected Class<?> getFunctionProxyFactoryBeanClass() {
 		return GemfireFunctionProxyFactoryBean.class;

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.function;
 
 import java.lang.reflect.Method;
@@ -23,23 +22,25 @@ import org.apache.geode.cache.CacheFactory;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.pdx.PdxInstance;
 
+import org.springframework.lang.NonNull;
 import org.springframework.util.ClassUtils;
 
 /**
- * The PdxFunctionArgumentResolver class is a Spring Data GemFire FunctionArgumentResolver that automatically resolves
- * PDX types when GemFire is configured with read-serialized set to true, but the application domain classes
- * are actually on the classpath.
+ * {@link PdxFunctionArgumentResolver} is a {@link FunctionArgumentResolver} that automatically resolves PDX types
+ * when Apache Geode is configured with {@literal read-serialized} set to {@literal true}, but the application
+ * domain model classes are actually on the application classpath.
  *
  * @author John Blum
- * @see org.springframework.data.gemfire.function.DefaultFunctionArgumentResolver
  * @see org.apache.geode.pdx.PdxInstance
+ * @see org.springframework.data.gemfire.function.DefaultFunctionArgumentResolver
  * @since 1.5.2
  */
 @SuppressWarnings("unused")
 class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 
 	@Override
-	public Object[] resolveFunctionArguments(final FunctionContext functionContext) {
+	@SuppressWarnings("rawtypes")
+	public Object[] resolveFunctionArguments(@NonNull FunctionContext functionContext) {
 
 		Object[] functionArguments = super.resolveFunctionArguments(functionContext);
 
@@ -70,6 +71,7 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 	}
 
 	boolean isPdxSerializerConfigured() {
+
 		try {
 			return (CacheFactory.getAnyInstance().getPdxSerializer() != null);
 		}
@@ -78,11 +80,6 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 		}
 	}
 
-	/*
-	 * (non-Javadac)
-	 * @see #isOnClasspath(String)
-	 * @see #functionAnnotatedMethodHasParameterOfType(String)
-	 */
 	boolean isDeserializationNecessary(final String className) {
 		return (isOnClasspath(className) && functionAnnotatedMethodHasParameterOfType(className));
 	}
@@ -92,6 +89,7 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 	}
 
 	boolean functionAnnotatedMethodHasParameterOfType(final String className) {
+
 		for (Class<?> parameterType : getFunctionAnnotatedMethod().getParameterTypes()) {
 			if (parameterType.getName().equals(className)) {
 				return true;

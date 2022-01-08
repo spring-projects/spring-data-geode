@@ -22,16 +22,15 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
- * The SubscriptionAttributesFactoryBean class is a Spring FactoryBean used for defining and constructing
- * a GemFire SubscriptionAttributes object, which determines the Subscription policy used by Regions to
- * declared their data interests.
+ * Spring {@link FactoryBean} used for defining and constructing an Apache Geode {@link SubscriptionAttributes} object,
+ * which determines the subscription policy used by cache Regions declaring their data interests.
  *
  * @author Lyndon Adams
  * @author John Blum
- * @see org.springframework.beans.factory.FactoryBean
- * @see org.springframework.beans.factory.InitializingBean
  * @see org.apache.geode.cache.InterestPolicy
  * @see org.apache.geode.cache.SubscriptionAttributes
+ * @see org.springframework.beans.factory.FactoryBean
+ * @see org.springframework.beans.factory.InitializingBean
  * @since 1.3.0
  */
 public class SubscriptionAttributesFactoryBean implements FactoryBean<SubscriptionAttributes>, InitializingBean {

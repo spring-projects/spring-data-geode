@@ -25,6 +25,9 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 public class GemfireFunctionBeanPostProcessorRegistrar implements ImportBeanDefinitionRegistrar {
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 

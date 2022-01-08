@@ -119,16 +119,25 @@ public class GemfireRepositoryFactory extends RepositoryFactorySupport {
 		return this.regions;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public <T, ID> GemfireEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
 		return new DefaultGemfireEntityInformation<>(resolvePersistentEntity(domainClass));
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
 		return SimpleGemfireRepository.class;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	protected Object getTargetRepository(RepositoryInformation repositoryInformation) {
 
