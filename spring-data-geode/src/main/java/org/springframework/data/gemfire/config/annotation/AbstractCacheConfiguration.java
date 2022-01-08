@@ -121,7 +121,7 @@ public abstract class AbstractCacheConfiguration extends AbstractAnnotationConfi
 	private List<JndiDataSource> jndiDataSources;
 	private List<TransactionListener> transactionListeners;
 
-	private PropertiesBuilder customGemFireProperties = PropertiesBuilder.create();
+	private final PropertiesBuilder customGemFireProperties = PropertiesBuilder.create();
 
 	private Resource cacheXml;
 

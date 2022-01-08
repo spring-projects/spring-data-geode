@@ -108,7 +108,7 @@ public class ClientCacheConfiguration extends AbstractCacheConfiguration {
 	private Iterable<ConnectionEndpoint> servers;
 
 	@Autowired(required = false)
-	private List<ClientCacheConfigurer> clientCacheConfigurers = Collections.emptyList();
+	private final List<ClientCacheConfigurer> clientCacheConfigurers = Collections.emptyList();
 
 	private Long idleTimeout;
 	private Long pingInterval;
