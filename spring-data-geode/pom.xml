@@ -20,7 +20,7 @@
 
 	<properties>
 		<project.root>${basedir}/..</project.root>
-		<geode.version>1.13.5</geode.version>
+		<geode.version>1.13.6</geode.version>
 	</properties>
 
 	<dependencies>
