@@ -17,7 +17,7 @@
 	<gfe:cache properties-ref="gemfireProperties"/>
 
 	<!-- NOTE the order of Region bean definitions is important in reproducing the issue in JIRA 195 -->
-	<gfe:partitioned-region id="colocatedRegion" name="Colocated" colocated-with="Source"/>
+	<gfe:partitioned-region id="collocatedRegion" name="Collocated" colocated-with="Source"/>
 	<gfe:partitioned-region id="sourceRegion" name="Source"/>
 
 </beans>
