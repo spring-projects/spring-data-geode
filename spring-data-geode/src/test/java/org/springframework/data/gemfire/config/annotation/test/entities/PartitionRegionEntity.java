@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation.test.entities;
 
 import org.springframework.data.annotation.Id;
