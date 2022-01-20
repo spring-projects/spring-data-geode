@@ -75,6 +75,7 @@ import org.springframework.util.StringUtils;
 public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 
 	@Autowired(required = false)
+	@SuppressWarnings("all")
 	private List<IndexConfigurer> indexConfigurers = Collections.emptyList();
 
 	/**
@@ -342,7 +343,7 @@ public class IndexConfiguration extends EntityDefinedRegionsConfiguration {
 			: generateIndexName(persistentEntity, persistentProperty, indexType));
 	}
 
-	private String generateIndexName(GemfirePersistentEntity persistentEntity,
+	private String generateIndexName(GemfirePersistentEntity<?> persistentEntity,
 			GemfirePersistentProperty persistentProperty, IndexType indexType) {
 
 		return String.format("%1$s%2$s%3$sIdx", persistentEntity.getRegionName(),

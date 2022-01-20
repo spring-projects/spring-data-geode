@@ -63,13 +63,14 @@ import org.springframework.data.gemfire.config.annotation.support.GemFireCompone
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.GemfirePersistentEntity;
-import org.springframework.data.gemfire.mapping.GemfirePersistentProperty;
 import org.springframework.data.gemfire.mapping.annotation.ClientRegion;
 import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.support.CompositeTypeFilter;
 import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -95,7 +96,8 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.data.gemfire.RegionAttributesFactoryBean
  * @see org.springframework.data.gemfire.ReplicatedRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
- * @see CacheTypeAwareRegionFactoryBean
+ * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport
+ * @see org.springframework.data.gemfire.config.annotation.support.CacheTypeAwareRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.support.GemFireComponentClassTypeScanner
  * @see org.springframework.data.gemfire.mapping.GemfireMappingContext
  * @see org.springframework.data.gemfire.mapping.GemfirePersistentEntity
@@ -118,6 +120,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	private GemfireMappingContext mappingContext;
 
 	@Autowired(required = false)
+	@SuppressWarnings("all")
 	private List<RegionConfigurer> regionConfigurers = Collections.emptyList();
 
 	/**
@@ -313,19 +316,14 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	 * @return the resolved {@link GemfireMappingContext mapping context}.
 	 * @see org.springframework.data.gemfire.mapping.GemfireMappingContext
 	 */
-	protected GemfireMappingContext resolveMappingContext() {
+	protected @NonNull GemfireMappingContext resolveMappingContext() {
 
-		return Optional.ofNullable(this.mappingContext).orElseGet(() -> {
+		if (this.mappingContext == null) {
+			this.mappingContext = SpringUtils.<GemfireMappingContext>safeGetValue(() ->
+				getBeanFactory().getBean(GemfireMappingContext.class), GemfireMappingContext::new);
+		}
 
-			try {
-				this.mappingContext = getBeanFactory().getBean(GemfireMappingContext.class);
-			}
-			catch (Throwable ignore) {
-				this.mappingContext = new GemfireMappingContext();
-			}
-
-			return this.mappingContext;
-		});
+		return this.mappingContext;
 	}
 
 	/**
@@ -599,13 +597,13 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 
 		private ClientRegionShortcut clientRegionShortcut;
 
-		private GemfirePersistentEntity<?> persistentEntity;
+		private final GemfirePersistentEntity<?> persistentEntity;
 
 		private RegionShortcut serverRegionShortcut;
 
 		private String poolName;
 
-		protected RegionBeanDefinitionMetadata(GemfirePersistentEntity<?> persistentEntity) {
+		protected RegionBeanDefinitionMetadata(@NonNull GemfirePersistentEntity<?> persistentEntity) {
 			Assert.notNull(persistentEntity, "GemfirePersistentEntity is required");
 			this.persistentEntity = persistentEntity;
 		}
@@ -626,13 +624,14 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 			return Optional.ofNullable(this.persistentEntity);
 		}
 
-		protected GemfirePersistentEntity<?> resolvePersistentEntity() {
+		protected @NonNull GemfirePersistentEntity<?> resolvePersistentEntity() {
 			return getPersistentEntity().orElseThrow(() ->
 				newIllegalStateException("GemfirePersistentEntity could not be resolved"));
 		}
 
 		protected Optional<String> getPoolName() {
-			return Optional.ofNullable(this.poolName).filter(StringUtils::hasText);
+			return Optional.ofNullable(this.poolName)
+				.filter(StringUtils::hasText);
 		}
 
 		protected <T extends Annotation> T getRegionAnnotation() {
@@ -640,10 +639,10 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 		}
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		protected Class<?> getRegionKeyConstraint() {
+		protected @NonNull Class<?> getRegionKeyConstraint() {
 
 			return Optional.ofNullable(resolvePersistentEntity().getIdProperty())
-				.map(idProperty -> ((GemfirePersistentProperty) idProperty).getActualType())
+				.map(idProperty -> idProperty.getActualType())
 				.orElse((Class) Object.class);
 		}
 
@@ -652,7 +651,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 		}
 
 		@SuppressWarnings("all")
-		protected Class<?> getRegionValueConstraint() {
+		protected @NonNull Class<?> getRegionValueConstraint() {
 
 			return Optional.ofNullable(resolvePersistentEntity().getType())
 				.orElse((Class) Object.class);
@@ -666,12 +665,13 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 			return getServerRegionShortcut().orElse(defaultServerRegionShortcut);
 		}
 
-		protected RegionBeanDefinitionMetadata is(boolean strict) {
+		protected @NonNull RegionBeanDefinitionMetadata is(boolean strict) {
 			this.strict = strict;
 			return this;
 		}
 
-		protected RegionBeanDefinitionMetadata using(AnnotationAttributes enableEntityDefinedRegionsAttributes) {
+		protected @NonNull RegionBeanDefinitionMetadata using(
+				@Nullable AnnotationAttributes enableEntityDefinedRegionsAttributes) {
 
 			return Optional.ofNullable(enableEntityDefinedRegionsAttributes)
 				.map(it ->
@@ -683,17 +683,17 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 				.orElse(this);
 		}
 
-		protected RegionBeanDefinitionMetadata using(ClientRegionShortcut clientRegionShortcut) {
+		protected @NonNull RegionBeanDefinitionMetadata using(@Nullable ClientRegionShortcut clientRegionShortcut) {
 			this.clientRegionShortcut = clientRegionShortcut;
 			return this;
 		}
 
-		protected RegionBeanDefinitionMetadata using(RegionShortcut serverRegionShortcut) {
+		protected @NonNull RegionBeanDefinitionMetadata using(@Nullable RegionShortcut serverRegionShortcut) {
 			this.serverRegionShortcut = serverRegionShortcut;
 			return this;
 		}
 
-		protected RegionBeanDefinitionMetadata using(String poolName) {
+		protected @NonNull RegionBeanDefinitionMetadata using(@Nullable String poolName) {
 			this.poolName = poolName;
 			return this;
 		}
