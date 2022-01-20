@@ -37,14 +37,13 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.gemfire.config.annotation.test.entities.NonEntity;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
+import org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest;
 import org.springframework.data.gemfire.util.RegionUtils;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Integration Tests for {@link EnableEntityDefinedRegions} annotation configuration
- * using {@link DataPolicy#PARTITION} {@link Region Regions}.
+ * using {@literal mock} {@link DataPolicy#PARTITION} {@link Region Regions}.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -57,13 +56,12 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
  * @see org.springframework.data.gemfire.mapping.annotation.PartitionRegion
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
- * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
- * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.data.gemfire.tests.unit.annotation.GemFireUnitTest
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 2.7.0
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration
+@GemFireUnitTest
 @SuppressWarnings("unused")
 public class EntityDefinedRegionsForMockCollocatedPartitionRegionsIntegrationsTests extends IntegrationTestsSupport {
 
@@ -111,7 +109,6 @@ public class EntityDefinedRegionsForMockCollocatedPartitionRegionsIntegrationsTe
 		assertRegion(this.customers, "Customers", 1);
 	}
 
-	@EnableGemFireMockObjects
 	@PeerCacheApplication(name = "EntityDefinedRegionsForMockCollocatedPartitionRegionsIntegrationsTests")
 	@EnableEntityDefinedRegions(basePackageClasses = NonEntity.class,
 		includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = PartitionRegion.class))
