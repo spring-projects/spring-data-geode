@@ -54,6 +54,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @see org.apache.geode.cache.Region
  * @see org.springframework.data.gemfire.PartitionedRegionFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.EnableEntityDefinedRegions
+ * @see org.springframework.data.gemfire.config.annotation.PeerCacheApplication
  * @see org.springframework.data.gemfire.mapping.annotation.PartitionRegion
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
  * @see org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects
@@ -64,7 +65,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration
 @SuppressWarnings("unused")
-public class EntityDefinedRegionsForCollocatedPartitionRegionsIntegrationsTests extends IntegrationTestsSupport {
+public class EntityDefinedRegionsForMockCollocatedPartitionRegionsIntegrationsTests extends IntegrationTestsSupport {
 
 	@Autowired
 	private Cache peerCache;
@@ -80,7 +81,7 @@ public class EntityDefinedRegionsForCollocatedPartitionRegionsIntegrationsTests 
 
 		assertThat(this.peerCache).isNotNull();
 		assertThat(this.peerCache.getName())
-			.isEqualTo(EntityDefinedRegionsForCollocatedPartitionRegionsIntegrationsTests.class.getSimpleName());
+			.isEqualTo(EntityDefinedRegionsForMockCollocatedPartitionRegionsIntegrationsTests.class.getSimpleName());
 		assertThat(this.contactEvents).isNotNull();
 		assertThat(this.customers).isNotNull();
 		assertThat(this.peerCache.getRegion(this.contactEvents.getFullPath())).isEqualTo(this.contactEvents);
@@ -111,7 +112,7 @@ public class EntityDefinedRegionsForCollocatedPartitionRegionsIntegrationsTests 
 	}
 
 	@EnableGemFireMockObjects
-	@PeerCacheApplication(name = "EntityDefinedRegionsForCollocatedPartitionRegionsIntegrationsTests")
+	@PeerCacheApplication(name = "EntityDefinedRegionsForMockCollocatedPartitionRegionsIntegrationsTests")
 	@EnableEntityDefinedRegions(basePackageClasses = NonEntity.class,
 		includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = PartitionRegion.class))
 	static class TestConfiguration {
