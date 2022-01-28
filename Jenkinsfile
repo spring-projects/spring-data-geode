@@ -1,3 +1,9 @@
+def p = [:]
+node {
+    checkout scm
+    p = readProperties interpolate: true, file: 'ci/pipeline.properties'
+}
+
 pipeline {
 	agent none
 
@@ -12,7 +18,7 @@ pipeline {
 	}
 
 	stages {
-		stage("test: baseline (jdk8)") {
+		stage("test: baseline (main)") {
 			when {
 				anyOf {
 					branch '2.5.x'
@@ -29,7 +35,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
@@ -51,7 +57,7 @@ pipeline {
 				}
 			}
 			parallel {
-				stage("test: baseline (jdk11)") {
+				stage("test: baseline (next)") {
 					agent {
 						label 'data'
 					}
@@ -62,7 +68,7 @@ pipeline {
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image('adoptopenjdk/openjdk11:latest').inside('-v $HOME:/tmp/jenkins-home') {
+								docker.image(p['docker.java.11.image']).inside(p['docker.java.inside.basic']) {
 									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
@@ -87,7 +93,7 @@ pipeline {
 					steps {
 						script {
 							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image('adoptopenjdk/openjdk15:latest').inside('-v $HOME:/tmp/jenkins-home') {
+								docker.image(p['docker.java.15.image']).inside(p['docker.java.inside.basic']) {
 									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
@@ -122,7 +128,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
