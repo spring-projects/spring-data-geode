@@ -162,8 +162,8 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 	 */
 	void initializePoolResolver() {
 
-		this.defaultPoolResolver =
-			ComposablePoolResolver.compose(new BeanFactoryPoolResolver(getBeanFactory()), new PoolManagerPoolResolver());
+		this.defaultPoolResolver = ComposablePoolResolver
+			.compose(new BeanFactoryPoolResolver(getBeanFactory()), new PoolManagerPoolResolver());
 
 		this.poolResolver = this.poolResolver != null ? this.poolResolver : this.defaultPoolResolver;
 	}
@@ -181,8 +181,6 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 	 */
 	@Override
 	protected Region<K, V> createRegion(GemFireCache gemfireCache, String regionName) {
-
-		applyRegionConfigurers(regionName);
 
 		ClientCache clientCache = resolveCache(gemfireCache);
 
@@ -209,7 +207,7 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 
 		if (parent != null) {
 
-			logInfo("Creating client sub-Region [%1$s] with parent Region [%2$s]",
+			logInfo("Creating client Subregion [%1$s] with parent Region [%2$s]",
 				regionName, parent.getName());
 
 			return clientRegionFactory.createSubregion(parent, regionName);
@@ -226,7 +224,7 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 
 		return Optional.ofNullable(gemfireCache)
 			.filter(GemfireUtils::isClient)
-			.map(cache -> (ClientCache) cache)
+			.map(ClientCache.class::cast)
 			.orElseThrow(() -> newIllegalArgumentException("ClientCache is required"));
 	}
 

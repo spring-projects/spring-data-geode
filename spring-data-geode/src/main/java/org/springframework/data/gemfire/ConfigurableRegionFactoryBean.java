@@ -15,10 +15,6 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeCollection;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +25,8 @@ import org.apache.geode.cache.Region;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.RegionConfigurer;
+import org.springframework.data.gemfire.util.ArrayUtils;
+import org.springframework.data.gemfire.util.CollectionUtils;
 
 /**
  * {@link ConfigurableRegionFactoryBean} is an abstract base class encapsulating functionality common
@@ -53,16 +51,27 @@ public abstract class ConfigurableRegionFactoryBean<K, V> extends ResolvableRegi
 
 		@Override
 		public void configure(String beanName, ClientRegionFactoryBean<?, ?> bean) {
-			nullSafeCollection(regionConfigurers)
+			CollectionUtils.nullSafeCollection(regionConfigurers)
 				.forEach(regionConfigurer -> regionConfigurer.configure(beanName, bean));
 		}
 
 		@Override
 		public void configure(String beanName, PeerRegionFactoryBean<?, ?> bean) {
-			nullSafeCollection(regionConfigurers)
+			CollectionUtils.nullSafeCollection(regionConfigurers)
 				.forEach(regionConfigurer -> regionConfigurer.configure(beanName, bean));
 		}
 	};
+
+	/**
+	 * Applies all {@link RegionConfigurer RegionConfigurers}.
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+
+		applyRegionConfigurers(requireRegionName());
+
+		super.afterPropertiesSet();
+	}
 
 	/**
 	 * Returns a reference to the Composite {@link RegionConfigurer} used to apply additional configuration
@@ -85,7 +94,7 @@ public abstract class ConfigurableRegionFactoryBean<K, V> extends ResolvableRegi
 	 * @see #setRegionConfigurers(List)
 	 */
 	public void setRegionConfigurers(RegionConfigurer... regionConfigurers) {
-		setRegionConfigurers(Arrays.asList(nullSafeArray(regionConfigurers, RegionConfigurer.class)));
+		setRegionConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(regionConfigurers, RegionConfigurer.class)));
 	}
 
 	/**
@@ -128,7 +137,7 @@ public abstract class ConfigurableRegionFactoryBean<K, V> extends ResolvableRegi
 	 * @see #applyRegionConfigurers(String, Iterable)
 	 */
 	protected void applyRegionConfigurers(String regionName, RegionConfigurer... regionConfigurers) {
-		applyRegionConfigurers(regionName, Arrays.asList(nullSafeArray(regionConfigurers, RegionConfigurer.class)));
+		applyRegionConfigurers(regionName, Arrays.asList(ArrayUtils.nullSafeArray(regionConfigurers, RegionConfigurer.class)));
 	}
 
 	/**
@@ -144,11 +153,11 @@ public abstract class ConfigurableRegionFactoryBean<K, V> extends ResolvableRegi
 	protected void applyRegionConfigurers(String regionName, Iterable<RegionConfigurer> regionConfigurers) {
 
 		if (this instanceof ClientRegionFactoryBean) {
-			StreamSupport.stream(nullSafeIterable(regionConfigurers).spliterator(), false)
+			StreamSupport.stream(CollectionUtils.nullSafeIterable(regionConfigurers).spliterator(), false)
 				.forEach(regionConfigurer -> regionConfigurer.configure(regionName, (ClientRegionFactoryBean<K, V>) this));
 		}
 		else if (this instanceof PeerRegionFactoryBean) {
-			StreamSupport.stream(nullSafeIterable(regionConfigurers).spliterator(), false)
+			StreamSupport.stream(CollectionUtils.nullSafeIterable(regionConfigurers).spliterator(), false)
 				.forEach(regionConfigurer -> regionConfigurer.configure(regionName, (PeerRegionFactoryBean<K, V>) this));
 		}
 	}

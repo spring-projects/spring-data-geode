@@ -463,12 +463,6 @@ public abstract class SpringUtils {
 		T get() throws Throwable;
 	}
 
-	/**
-	 * @deprecated use {@link VoidReturningThrowableOperation}.
-	 */
-	@Deprecated
-	public interface VoidReturningExceptionThrowingOperation extends VoidReturningThrowableOperation { }
-
 	@FunctionalInterface
 	public interface VoidReturningThrowableOperation {
 		void run() throws Throwable;

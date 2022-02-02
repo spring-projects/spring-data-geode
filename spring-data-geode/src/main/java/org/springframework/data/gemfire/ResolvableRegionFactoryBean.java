@@ -19,6 +19,7 @@ import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newR
 
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
@@ -27,16 +28,21 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
+import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
+import org.springframework.data.gemfire.support.GemfireFunctions;
+import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} for looking up {@link Region Regions}.
+ * Spring {@link FactoryBean} used to look up or create {@link Region Regions}.
  *
- * If lookups are disabled or the {@link Region} does not exist, an exception is thrown.
- *
- * For declaring and configuring new Regions, see {@link PeerRegionFactoryBean}.
+ * For declaring and configuring new {@literal client} {@link Region Regions}, see {@link ClientRegionFactoryBean}.
+ * For declaring and configuring new {@literal peer} {@link Region Regions}, see {@link PeerRegionFactoryBean}
+ * and {@link Class subclasses}.
  *
  * @author Costin Leau
  * @author John Blum
@@ -49,6 +55,10 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("unused")
 public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryBeanSupport<Region<K, V>>
 		implements InitializingBean {
+
+	protected static final String CREATING_REGION_LOG_MESSAGE = "Creating Region [%1$s] in Cache [%2$s]";
+	protected static final String REGION_FOUND_LOG_MESSAGE = "Found Region [%1$s] in Cache [%2$s]";
+	protected static final String REGION_NOT_FOUND_ERROR_MESSAGE = "Region [%1$s] in Cache [%2$s] not found";
 
 	private Boolean lookupEnabled = false;
 
@@ -80,25 +90,19 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 
 		synchronized (cache) {
 
-			setRegion(isLookupEnabled()
-				? Optional.ofNullable(getParent())
-					.map(parentRegion -> parentRegion.<K, V>getSubregion(regionName))
-					.orElseGet(() -> cache.<K, V>getRegion(regionName))
-				: null);
+			setRegion(resolveRegion(cache, regionName));
 
 			if (getRegion() != null) {
-				logInfo("Found Region [%1$s] in Cache [%2$s]", regionName, cache.getName());
+				logInfo(REGION_FOUND_LOG_MESSAGE, regionName, cache.getName());
 			}
 			else {
-				logInfo("Falling back to creating Region [%1$s] in Cache [%2$s]",
-					regionName, cache.getName());
-
+				logInfo(CREATING_REGION_LOG_MESSAGE, regionName, cache.getName());
 				setRegion(postProcess(loadSnapshot(createRegion(cache, regionName))));
 			}
 		}
 	}
 
-	private GemFireCache requireCache() {
+	private @NonNull GemFireCache requireCache() {
 
 		GemFireCache cache = getCache();
 
@@ -107,7 +111,7 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 		return cache;
 	}
 
-	private String requireRegionName() {
+	@NonNull String requireRegionName() {
 
 		String regionName = resolveRegionName();
 
@@ -116,15 +120,29 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 		return regionName;
 	}
 
+	private @Nullable Region<K, V> resolveRegion(@NonNull GemFireCache cache, @NonNull String regionName) {
+
+		return isLookupEnabled()
+			? Optional.ofNullable(getParent())
+				.<Region<K, V>>map(GemfireFunctions.getSubregionFromRegion(regionName))
+				.orElseGet(GemfireFunctions.getRegionFromCache(cache, regionName))
+			: null;
+	}
+
 	/**
-	 * Resolves the {@link String name} of the {@link Region}.
+	 * Resolves the configured {@link String name} of the {@link Region}.
 	 *
-	 * @return a {@link String} containing the name of the {@link Region}.
+	 * @return a {@link String} containing the {@literal name} of the {@link Region}.
 	 * @see org.apache.geode.cache.Region#getName()
 	 */
 	public String resolveRegionName() {
-		return StringUtils.hasText(this.regionName) ? this.regionName
-			: (StringUtils.hasText(this.name) ? this.name : getBeanName());
+
+		String name = this.name;
+		String regionName = this.regionName;
+
+		return StringUtils.hasText(regionName) ? regionName
+			: StringUtils.hasText(name) ? name
+			: getBeanName();
 	}
 
 	/**
@@ -142,28 +160,32 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @see org.apache.geode.cache.Region
 	 */
 	protected Region<K, V> createRegion(GemFireCache cache, String regionName) throws Exception {
-		throw new BeanInitializationException(
-			String.format("Region [%1$s] in Cache [%2$s] not found", regionName, cache));
+		throw new BeanInitializationException(String.format(REGION_NOT_FOUND_ERROR_MESSAGE, regionName, cache));
 	}
 
 	/**
-	 * Loads the configured data {@link Resource snapshot} into the given {@link Region}.
+	 * Loads data from the configured {@link Resource snapshot} into the given {@link Region}.
 	 *
-	 * @param region {@link Region} to load.
+	 * @param region {@link Region} to load; must not be {@literal null}.
 	 * @return the given {@link Region}.
-	 * @throws RuntimeException if the snapshot load fails.
+	 * @throws RuntimeException if loading the snapshot fails.
 	 * @see org.apache.geode.cache.Region#loadSnapshot(InputStream)
+	 * @see org.apache.geode.cache.Region
 	 */
-	protected Region<K, V> loadSnapshot(Region<K, V> region) {
+	protected @NonNull Region<K, V> loadSnapshot(@NonNull Region<K, V> region) {
 
-		Optional.ofNullable(this.snapshot).ifPresent(snapshot -> {
-			try {
-				region.loadSnapshot(snapshot.getInputStream());
-			}
-			catch (Exception cause) {
-				throw newRuntimeException(cause, "Failed to load snapshot [%s]", snapshot);
-			}
-		});
+		Resource snapshot = this.snapshot;
+
+		if (snapshot != null) {
+
+			SpringUtils.VoidReturningThrowableOperation operation =
+				() -> region.loadSnapshot(snapshot.getInputStream());
+
+			Function<Throwable, RuntimeException> exceptionHandler =
+				cause -> newRuntimeException(cause, "Failed to load snapshot [%s]", snapshot);
+
+			SpringUtils.safeRunOperation(operation, exceptionHandler);
+		}
 
 		return region;
 	}
@@ -198,15 +220,17 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Class<?> getObjectType() {
-		return Optional.ofNullable(getRegion()).map(Region::getClass).orElse((Class) Region.class);
+
+		Region<?, ?> region = getRegion();
+
+		return region != null ? region.getClass() : Region.class;
 	}
 
 	/**
 	 * Returns a reference to the {@link GemFireCache} used to create the {@link Region}.
 	 *
-	 * @return a reference to the {@link GemFireCache} used to create the {@link Region}..
+	 * @return a reference to the {@link GemFireCache} used to create the {@link Region}.
 	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	public GemFireCache getCache() {
@@ -223,16 +247,16 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 		this.cache = cache;
 	}
 
-	public boolean isLookupEnabled() {
-		return Boolean.TRUE.equals(getLookupEnabled());
-	}
-
-	public void setLookupEnabled(Boolean lookupEnabled) {
+	public void setLookupEnabled(@Nullable Boolean lookupEnabled) {
 		this.lookupEnabled = lookupEnabled;
 	}
 
-	public Boolean getLookupEnabled() {
+	public @Nullable Boolean getLookupEnabled() {
 		return this.lookupEnabled;
+	}
+
+	public boolean isLookupEnabled() {
+		return Boolean.TRUE.equals(getLookupEnabled());
 	}
 
 	/**
@@ -244,30 +268,30 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @see #setBeanName(String)
 	 * @see org.apache.geode.cache.Region#getFullPath()
 	 */
-	public void setName(String name) {
+	public void setName(@NonNull String name) {
 		this.name = name;
 	}
 
 	/**
-	 * Sets a reference to the parent {@link Region} to indicated this {@link FactoryBean} represents a GemFire cache
-	 * {@link Region Sub-Region}.
+	 * Sets a reference to the parent {@link Region} making this {@link FactoryBean}
+	 * represent a cache {@link Region Sub-Region}.
 	 *
 	 * @param parent reference to the parent {@link Region}.
 	 * @see org.apache.geode.cache.Region
 	 */
-	public void setParent(Region<?, ?> parent) {
+	public void setParent(@Nullable Region<?, ?> parent) {
 		this.parent = parent;
 	}
 
 	/**
-	 * Returns a reference to the parent {@link Region} indicating this {@link FactoryBean} represents a GemFire cache
-	 * {@link Region Sub-Region}.
+	 * Returns a reference to the parent {@link Region} making this {@link FactoryBean}
+	 * represent a cache {@link Region Sub-Region}.
 	 *
-	 * @return a reference to the parent {@link Region} or {@literal null} if this {@link Region}
+	 * @return a reference to the parent {@link Region}, or {@literal null} if this {@link Region}
 	 * is not a {@link Region Sub-Region}.
 	 * @see org.apache.geode.cache.Region
 	 */
-	protected Region<?, ?> getParent() {
+	protected @Nullable Region<?, ?> getParent() {
 		return this.parent;
 	}
 
@@ -277,7 +301,7 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @param region reference to the resolvable {@link Region}.
 	 * @see org.apache.geode.cache.Region
 	 */
-	protected void setRegion(Region<K, V> region) {
+	protected void setRegion(@Nullable Region<K, V> region) {
 		this.region = region;
 	}
 
@@ -288,7 +312,7 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @return a reference to the {@link Region} resolved during lookup.
 	 * @see org.apache.geode.cache.Region
 	 */
-	public Region<K, V> getRegion() {
+	public @Nullable Region<K, V> getRegion() {
 		return this.region;
 	}
 
@@ -300,7 +324,7 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @see #setName(String)
 	 * @see org.apache.geode.cache.Region#getName()
 	 */
-	public void setRegionName(String regionName) {
+	public void setRegionName(@Nullable String regionName) {
 		this.regionName = regionName;
 	}
 
@@ -312,7 +336,7 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @see #setName(String)
 	 * @param snapshot the snapshot to set
 	 */
-	public void setSnapshot(Resource snapshot) {
+	public void setSnapshot(@Nullable Resource snapshot) {
 		this.snapshot = snapshot;
 	}
 }

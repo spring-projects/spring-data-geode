@@ -166,8 +166,6 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	@Override
 	protected Region<K, V> createRegion(GemFireCache gemfireCache, String regionName) {
 
-		applyRegionConfigurers(regionName);
-
 		verifyLockGrantorEligibility(getAttributes(), getScope());
 
 		Cache cache = resolveCache(gemfireCache);
