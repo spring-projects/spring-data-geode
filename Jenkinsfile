@@ -31,11 +31,11 @@ pipeline {
 			}
 			options { timeout(time: 30, unit: 'MINUTES') }
 			environment {
-				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+				ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 			}
 			steps {
 				script {
-					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
 						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
@@ -44,67 +44,6 @@ pipeline {
 							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 							sh 'rm -Rf `find . -name "*.log"`'
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
-						}
-					}
-				}
-			}
-		}
-
-		stage("Test other configurations") {
-			when {
-				beforeAgent(true)
-				allOf {
-					branch(pattern: "main|(\\d\\.\\d\\.x)", comparator: "REGEXP")
-					not { triggeredBy 'UpstreamCause' }
-				}
-			}
-			parallel {
-				stage("test: baseline (next)") {
-					agent {
-						label 'data'
-					}
-					options { timeout(time: 30, unit: 'MINUTES') }
-					environment {
-						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
-					}
-					steps {
-						script {
-							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image(p['docker.java.next.image']).inside(p['docker.java.inside.basic']) {
-									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-									sh 'rm -Rf `find . -name "newDB"`'
-									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
-								}
-							}
-						}
-					}
-				}
-
-				stage("test: baseline (LTS)") {
-					agent {
-						label 'data'
-					}
-					options { timeout(time: 30, unit: 'MINUTES') }
-					environment {
-						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
-					}
-					steps {
-						script {
-							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-								docker.image(p['docker.java.lts.image']).inside(p['docker.java.inside.basic']) {
-									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-									sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-									sh 'rm -Rf `find . -name "newDB"`'
-									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -P java11,remote-java17 clean dependency:list test -Dsort -U -B'
-								}
-							}
 						}
 					}
 				}
@@ -125,12 +64,12 @@ pipeline {
 			options { timeout(time: 20, unit: 'MINUTES') }
 
 			environment {
-				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+				ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 			}
 
 			steps {
 				script {
-					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
 						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
