@@ -30,11 +30,11 @@ pipeline {
 			}
 			options { timeout(time: 30, unit: 'MINUTES') }
 			environment {
-				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+				ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 			}
 			steps {
 				script {
-					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
 						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
@@ -63,11 +63,11 @@ pipeline {
 					}
 					options { timeout(time: 30, unit: 'MINUTES') }
 					environment {
-						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+						ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 					}
 					steps {
 						script {
-							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+							docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
 								docker.image(p['docker.java.11.image']).inside(p['docker.java.inside.basic']) {
 									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
@@ -88,11 +88,11 @@ pipeline {
 					}
 					options { timeout(time: 30, unit: 'MINUTES') }
 					environment {
-						ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+						ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 					}
 					steps {
 						script {
-							docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+							docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
 								docker.image(p['docker.java.15.image']).inside(p['docker.java.inside.basic']) {
 									sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 									sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
@@ -122,12 +122,12 @@ pipeline {
 			options { timeout(time: 20, unit: 'MINUTES') }
 
 			environment {
-				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+				ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 			}
 
 			steps {
 				script {
-					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
+					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
 						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
@@ -158,13 +158,13 @@ pipeline {
 			options { timeout(time: 20, unit: 'MINUTES') }
 
 			environment {
-				ARTIFACTORY = credentials('02bd1690-b54f-4c9f-819d-a77cb7a9822c')
+				ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 			}
 
 			steps {
 				script {
-					docker.withRegistry('', 'hub.docker.com-springbuildmaster') {
-						docker.image('adoptopenjdk/openjdk8:latest').inside('-v $HOME:/tmp/jenkins-home') {
+					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
+						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home" ./mvnw -s settings.xml -Pci,distribute ' +
 									'-Dartifactory.server=https://repo.spring.io ' +
 									"-Dartifactory.username=${ARTIFACTORY_USR} " +
