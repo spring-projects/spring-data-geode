@@ -15,6 +15,7 @@
  */
 package org.springframework.data.gemfire.repository;
 
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
@@ -24,7 +25,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author John Blum
  * @see org.springframework.data.repository.PagingAndSortingRepository
  */
-public interface GemfireRepository<T, ID> extends PagingAndSortingRepository<T, ID> {
+public interface GemfireRepository<T, ID> extends CrudRepository<T, ID>, PagingAndSortingRepository<T, ID> {
 
 	/**
 	 * Save the entity wrapped by the given {@link Wrapper}.
