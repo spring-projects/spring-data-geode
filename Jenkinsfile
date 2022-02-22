@@ -77,7 +77,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "newDB"`'
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -Pjava11 clean dependency:list test -Dsort -U -B'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
 								}
 							}
 						}
@@ -102,7 +102,7 @@ pipeline {
 									sh 'rm -Rf `find . -name "newDB"`'
 									sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 									sh 'rm -Rf `find . -name "*.log"`'
-									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -P java11,remote-java17 clean dependency:list test -Dsort -U -B'
+									sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml -P remote-java17 clean dependency:list test -Dsort -U -B'
 								}
 							}
 						}
@@ -131,7 +131,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
-						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
+						docker.image(p['docker.java.lts.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
