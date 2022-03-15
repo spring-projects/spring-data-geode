@@ -131,7 +131,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
-						docker.image(p['docker.java.lts.image']).inside(p['docker.java.inside.basic']) {
+						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
 							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
