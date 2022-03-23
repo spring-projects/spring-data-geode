@@ -47,7 +47,7 @@
 		<apache-shiro.version>1.8.0</apache-shiro.version>
 		<cache-api.version>1.1.1</cache-api.version>
 		<log4j.version>2.16.0</log4j.version>
-		<micrometer>1.8.2</micrometer>
+		<micrometer>1.9.0-M4</micrometer>
 		<multithreadedtc.version>1.01</multithreadedtc.version>
 		<snappy.version>0.4</snappy.version>
 		<springdata.commons>3.0.0-SNAPSHOT</springdata.commons>
