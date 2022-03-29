@@ -43,7 +43,7 @@ import org.springframework.util.ReflectionUtils;
  */
 public class GemFirePropertiesUnitTests {
 
-	private static final Set<String> deprecatedGemFireProperties = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+	private static final Set<String> deprecatedGemFireProperties = asUnmodifiableSet(
 		"cluster-ssl-ciphers", // all 'cluster-ssl-*' properties replaced by 'ssl-*' properties
 		"cluster-ssl-enabled",
 		"cluster-ssl-keystore",
@@ -60,7 +60,12 @@ public class GemFirePropertiesUnitTests {
 		"security-client-authenticator", // replaced by SecurityManager
 		"security-client-dhalgo", // use SSL instead
 		"security-peer-authenticator" // replaced by SecurityManager
-	)));
+	);
+
+	@SuppressWarnings("unchecked")
+	private static <T> Set<T> asUnmodifiableSet(T... array) {
+		return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(array)));
+	}
 
 	private Set<String> resolveActualGemFirePropertyNames() {
 
