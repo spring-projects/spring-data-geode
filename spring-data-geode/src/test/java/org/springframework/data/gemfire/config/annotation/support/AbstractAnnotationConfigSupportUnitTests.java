@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -37,6 +38,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.GemFireCache;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -67,7 +70,7 @@ import org.springframework.data.gemfire.test.model.Person;
  * @since 1.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AbstractAnnotationConfigSupportTests {
+public class AbstractAnnotationConfigSupportUnitTests {
 
 	private AbstractAnnotationConfigSupport support;
 
@@ -81,14 +84,38 @@ public class AbstractAnnotationConfigSupportTests {
 
 		AbstractBeanDefinition mockBeanDefinition = mock(AbstractBeanDefinition.class, beanClass.getSimpleName());
 
-		when(mockBeanDefinition.getBeanClassName()).thenReturn(beanClass.getName());
-		when(mockBeanDefinition.getRole()).thenReturn(BeanDefinition.ROLE_APPLICATION);
+		doReturn(beanClass.getName()).when(mockBeanDefinition).getBeanClassName();
+		doReturn(BeanDefinition.ROLE_APPLICATION).when(mockBeanDefinition).getRole();
 
 		return mockBeanDefinition;
 	}
 
 	@Test
-	public void isNotInfrastructureBeanIsTrue() {
+	public void isNotInfrastructureBeanWithApacheGeodeClassIsTrue() {
+
+		BeanDefinition mockBeanDefinition = mockBeanDefinition(GemFireCache.class);
+
+		assertThat(this.support.isNotInfrastructureBean(mockBeanDefinition)).isTrue();
+
+		verify(mockBeanDefinition, times(1)).getBeanClassName();
+		verify(mockBeanDefinition, times(1)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
+	}
+
+	@Test
+	public void isNotInfrastructureBeanWithObjectClassIsTrue() {
+
+		BeanDefinition mockBeanDefinition = mockBeanDefinition(Object.class);
+
+		assertThat(this.support.isNotInfrastructureBean(mockBeanDefinition)).isTrue();
+
+		verify(mockBeanDefinition, times(1)).getBeanClassName();
+		verify(mockBeanDefinition, times(1)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
+	}
+
+	@Test
+	public void isNotInfrastructureBeanWithSpringDataGeodeGemfireTemplateClassIsTrue() {
 
 		BeanDefinition mockBeanDefinition = mockBeanDefinition(GemfireTemplate.class);
 
@@ -96,10 +123,11 @@ public class AbstractAnnotationConfigSupportTests {
 
 		verify(mockBeanDefinition, times(1)).getBeanClassName();
 		verify(mockBeanDefinition, times(1)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
-	public void isNotInfrastructureBeanWithInfrastructureClassIsFalse() {
+	public void isNotInfrastructureBeanWithSpringFrameworkInfrastructureClassIsFalse() {
 
 		BeanDefinition mockBeanDefinition = mockBeanDefinition(SpringVersion.class);
 
@@ -107,6 +135,7 @@ public class AbstractAnnotationConfigSupportTests {
 
 		verify(mockBeanDefinition, times(1)).getBeanClassName();
 		verify(mockBeanDefinition, times(1)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
@@ -114,32 +143,35 @@ public class AbstractAnnotationConfigSupportTests {
 
 		BeanDefinition mockBeanDefinition = mockBeanDefinition(Object.class);
 
-		when(mockBeanDefinition.getRole()).thenReturn(BeanDefinition.ROLE_INFRASTRUCTURE);
+		doReturn(BeanDefinition.ROLE_INFRASTRUCTURE).when(mockBeanDefinition).getRole();
 
 		assertThat(this.support.isNotInfrastructureBean(mockBeanDefinition)).isFalse();
 
 		verify(mockBeanDefinition, never()).getBeanClassName();
 		verify(mockBeanDefinition, times(1)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
-	public void isNotInfrastructureClassWithBeanDefinitionIsTrue() {
+	public void isNotInfrastructureClassWithObjectBeanDefinitionIsTrue() {
 
 		BeanDefinition mockBeanDefinition = mockBeanDefinition(Object.class);
 
 		assertThat(this.support.isNotInfrastructureClass(mockBeanDefinition)).isTrue();
 
 		verify(mockBeanDefinition, times(1)).getBeanClassName();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
-	public void isNotInfrastructureClassWithBeanDefinitionIsFalse() {
+	public void isNotInfrastructureClassWithSpringInfrastructureBeanDefinitionIsFalse() {
 
 		BeanDefinition mockBeanDefinition = mockBeanDefinition(SpringVersion.class);
 
 		assertThat(this.support.isNotInfrastructureClass(mockBeanDefinition)).isFalse();
 
 		verify(mockBeanDefinition, times(1)).getBeanClassName();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
@@ -150,8 +182,7 @@ public class AbstractAnnotationConfigSupportTests {
 	@Test
 	public void isNotInfrastructureClassIsFalse() {
 		assertThat(this.support.isNotInfrastructureClass("org.springframework.SomeType")).isFalse();
-		assertThat(this.support.isNotInfrastructureClass("org.springframework.core.type.SomeType"))
-			.isFalse();
+		assertThat(this.support.isNotInfrastructureClass("org.springframework.core.type.SomeType")).isFalse();
 	}
 
 	@Test
@@ -159,12 +190,13 @@ public class AbstractAnnotationConfigSupportTests {
 
 		BeanDefinition mockBeanDefinition = mock(BeanDefinition.class);
 
-		when(mockBeanDefinition.getRole()).thenReturn(BeanDefinition.ROLE_APPLICATION).thenReturn(Integer.MAX_VALUE);
+		doReturn(BeanDefinition.ROLE_APPLICATION).doReturn(Integer.MAX_VALUE).when(mockBeanDefinition).getRole();
 
 		assertThat(this.support.isNotInfrastructureRole(mockBeanDefinition)).isTrue();
 		assertThat(this.support.isNotInfrastructureRole(mockBeanDefinition)).isTrue();
 
 		verify(mockBeanDefinition, times(2)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
@@ -172,13 +204,14 @@ public class AbstractAnnotationConfigSupportTests {
 
 		BeanDefinition mockBeanDefinition = mock(BeanDefinition.class);
 
-		when(mockBeanDefinition.getRole()).thenReturn(BeanDefinition.ROLE_INFRASTRUCTURE)
-			.thenReturn(BeanDefinition.ROLE_SUPPORT);
+		doReturn(BeanDefinition.ROLE_INFRASTRUCTURE).doReturn(BeanDefinition.ROLE_SUPPORT)
+			.when(mockBeanDefinition).getRole();
 
 		assertThat(this.support.isNotInfrastructureRole(mockBeanDefinition)).isFalse();
 		assertThat(this.support.isNotInfrastructureRole(mockBeanDefinition)).isFalse();
 
 		verify(mockBeanDefinition, times(2)).getRole();
+		verifyNoMoreInteractions(mockBeanDefinition);
 	}
 
 	@Test
@@ -200,9 +233,9 @@ public class AbstractAnnotationConfigSupportTests {
 	@Test
 	public void requirePropertyWithNonStringValueIsSuccessful() {
 
-		when(support.resolveProperty(anyString(), eq(Integer.class), eq(null))).thenReturn(1);
+		when(this.support.resolveProperty(anyString(), eq(Integer.class), eq(null))).thenReturn(1);
 
-		assertThat(support.requireProperty("key", Integer.class)).isEqualTo(1);
+		assertThat(this.support.requireProperty("key", Integer.class)).isEqualTo(1);
 
 		verify(support, times(1))
 			.resolveProperty(eq("key"), eq(Integer.class), eq(null));
@@ -211,21 +244,21 @@ public class AbstractAnnotationConfigSupportTests {
 	@Test
 	public void requirePropertyWithStringValueIsSuccessful() {
 
-		when(support.resolveProperty(anyString(), eq(String.class), eq(null))).thenReturn("test");
+		when(this.support.resolveProperty(anyString(), eq(String.class), eq(null))).thenReturn("test");
 
-		assertThat(support.requireProperty("key", String.class)).isEqualTo("test");
+		assertThat(this.support.requireProperty("key", String.class)).isEqualTo("test");
 
-		verify(support, times(1))
+		verify(this.support, times(1))
 			.resolveProperty(eq("key"), eq(String.class), eq(null));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void requirePropertyWithEmptyStringThrowsIllegalArgumentException() {
 
-		when(support.resolveProperty(anyString(), eq(String.class), eq(null))).thenReturn("  ");
+		when(this.support.resolveProperty(anyString(), eq(String.class), eq(null))).thenReturn("  ");
 
 		try {
-			support.requireProperty("key", String.class);
+			this.support.requireProperty("key", String.class);
 		}
 		catch (IllegalArgumentException expected) {
 
@@ -235,7 +268,7 @@ public class AbstractAnnotationConfigSupportTests {
 			throw expected;
 		}
 		finally {
-			verify(support, times(1))
+			verify(this.support, times(1))
 				.resolveProperty(eq("key"), eq(String.class), eq(null));
 		}
 	}
@@ -243,10 +276,10 @@ public class AbstractAnnotationConfigSupportTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void requirePropertyWithNullValueThrowsIllegalArgumentException() {
 
-		when(support.resolveProperty(anyString(), any(), eq(null))).thenReturn(null);
+		when(this.support.resolveProperty(anyString(), any(), eq(null))).thenReturn(null);
 
 		try {
-			support.requireProperty("key", Integer.class);
+			this.support.requireProperty("key", Integer.class);
 		}
 		catch (IllegalArgumentException expected) {
 			assertThat(expected).hasMessage("Property [key] is required");
@@ -255,7 +288,7 @@ public class AbstractAnnotationConfigSupportTests {
 			throw expected;
 		}
 		finally {
-			verify(support, times(1))
+			verify(this.support, times(1))
 				.resolveProperty(eq("key"), eq(Integer.class), eq(null));
 		}
 	}
@@ -384,7 +417,7 @@ public class AbstractAnnotationConfigSupportTests {
 
 	@Test
 	public void resolveBeanClassLoaderIsNullSafe() {
-		assertThat(this.support.resolveBeanClassLoader(null))
+		assertThat(this.support.resolveBeanClassLoader((BeanDefinitionRegistry) null))
 			.isEqualTo(Thread.currentThread().getContextClassLoader());
 	}
 
