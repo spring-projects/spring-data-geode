@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -37,13 +38,14 @@ import org.springframework.beans.factory.BeanFactory;
 import org.slf4j.Logger;
 
 /**
- * Unit tests for {@link AbstractFactoryBeanSupport}.
+ * Unit Tests for {@link AbstractFactoryBeanSupport}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.Spy
+ * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.data.gemfire.support.AbstractFactoryBeanSupport
  * @since 1.0.0
  */
@@ -51,159 +53,167 @@ import org.slf4j.Logger;
 public class AbstractFactoryBeanSupportUnitTests {
 
 	@Mock
-	private Logger mockLog;
+	private Logger mockLogger;
 
 	@Spy
 	private TestFactoryBeanSupport<?> factoryBeanSupport;
 
 	@Before
 	public void setup() {
-		when(factoryBeanSupport.getLog()).thenReturn(mockLog);
+		doReturn(this.mockLogger).when(this.factoryBeanSupport).getLogger();
 	}
 
 	@Test
 	public void setAndGetBeanClassLoader() {
 
-		assertThat(factoryBeanSupport.getBeanClassLoader()).isNull();
+		assertThat(this.factoryBeanSupport.getBeanClassLoader()).isNull();
 
 		ClassLoader mockClassLoader = mock(ClassLoader.class);
 
-		factoryBeanSupport.setBeanClassLoader(mockClassLoader);
+		this.factoryBeanSupport.setBeanClassLoader(mockClassLoader);
 
-		assertThat(factoryBeanSupport.getBeanClassLoader()).isSameAs(mockClassLoader);
+		assertThat(this.factoryBeanSupport.getBeanClassLoader()).isSameAs(mockClassLoader);
 
 		ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
 
-		factoryBeanSupport.setBeanClassLoader(systemClassLoader);
+		this.factoryBeanSupport.setBeanClassLoader(systemClassLoader);
 
-		assertThat(factoryBeanSupport.getBeanClassLoader()).isSameAs(systemClassLoader);
+		assertThat(this.factoryBeanSupport.getBeanClassLoader()).isSameAs(systemClassLoader);
 
-		factoryBeanSupport.setBeanClassLoader(null);
+		this.factoryBeanSupport.setBeanClassLoader(null);
 
-		assertThat(factoryBeanSupport.getBeanClassLoader()).isNull();
+		assertThat(this.factoryBeanSupport.getBeanClassLoader()).isNull();
 	}
 
 	@Test
 	public void setAndGetBeanFactory() {
 
-		assertThat(factoryBeanSupport.getBeanFactory()).isNull();
+		assertThat(this.factoryBeanSupport.getBeanFactory()).isNull();
 
 		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
-		factoryBeanSupport.setBeanFactory(mockBeanFactory);
+		this.factoryBeanSupport.setBeanFactory(mockBeanFactory);
 
-		assertThat(factoryBeanSupport.getBeanFactory()).isSameAs(mockBeanFactory);
+		assertThat(this.factoryBeanSupport.getBeanFactory()).isSameAs(mockBeanFactory);
 
-		factoryBeanSupport.setBeanFactory(null);
+		this.factoryBeanSupport.setBeanFactory(null);
 
-		assertThat(factoryBeanSupport.getBeanFactory()).isNull();
+		assertThat(this.factoryBeanSupport.getBeanFactory()).isNull();
 	}
 
 	@Test
 	public void setAndGetBeanName() {
 
-		assertThat(factoryBeanSupport.getBeanName()).isNullOrEmpty();
+		assertThat(this.factoryBeanSupport.getBeanName()).isNullOrEmpty();
 
-		factoryBeanSupport.setBeanName("test");
+		this.factoryBeanSupport.setBeanName("test");
 
-		assertThat(factoryBeanSupport.getBeanName()).isEqualTo("test");
+		assertThat(this.factoryBeanSupport.getBeanName()).isEqualTo("test");
 
-		factoryBeanSupport.setBeanName(null);
+		this.factoryBeanSupport.setBeanName(null);
 
-		assertThat(factoryBeanSupport.getBeanName()).isNullOrEmpty();
+		assertThat(this.factoryBeanSupport.getBeanName()).isNullOrEmpty();
 	}
 
 	@Test
 	public void isSingletonDefaultsToTrue() {
-		assertThat(factoryBeanSupport.isSingleton()).isTrue();
+		assertThat(this.factoryBeanSupport.isSingleton()).isTrue();
 	}
 
 	@Test
 	public void logsDebugWhenDebugIsEnabled() {
 
-		when(mockLog.isDebugEnabled()).thenReturn(true);
+		when(this.mockLogger.isDebugEnabled()).thenReturn(true);
 
-		factoryBeanSupport.logDebug("%s log test", "debug");
+		this.factoryBeanSupport.logDebug("%s log test", "debug");
 
-		verify(mockLog, times(1)).isDebugEnabled();
-		verify(mockLog, times(1)).debug(eq("debug log test"));
+		verify(this.mockLogger, times(1)).isDebugEnabled();
+		verify(this.mockLogger, times(1)).debug(eq("debug log test"));
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
 	public void logsInfoWhenInfoIsEnabled() {
 
-		when(mockLog.isInfoEnabled()).thenReturn(true);
+		when(this.mockLogger.isInfoEnabled()).thenReturn(true);
 
-		factoryBeanSupport.logInfo("%s log test", "info");
+		this.factoryBeanSupport.logInfo("%s log test", "info");
 
-		verify(mockLog, times(1)).isInfoEnabled();
-		verify(mockLog, times(1)).info(eq("info log test"));
+		verify(this.mockLogger, times(1)).isInfoEnabled();
+		verify(this.mockLogger, times(1)).info(eq("info log test"));
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
 	public void logsWarningWhenWarnIsEnabled() {
 
-		when(mockLog.isWarnEnabled()).thenReturn(true);
+		when(this.mockLogger.isWarnEnabled()).thenReturn(true);
 
-		factoryBeanSupport.logWarning("%s log test", "warn");
+		this.factoryBeanSupport.logWarning("%s log test", "warn");
 
-		verify(mockLog, times(1)).isWarnEnabled();
-		verify(mockLog, times(1)).warn(eq("warn log test"));
+		verify(this.mockLogger, times(1)).isWarnEnabled();
+		verify(this.mockLogger, times(1)).warn(eq("warn log test"));
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
-	public void logsWarningWhenErrorIsEnabled() {
+	public void logsErrorWhenErrorIsEnabled() {
 
-		when(mockLog.isErrorEnabled()).thenReturn(true);
+		when(this.mockLogger.isErrorEnabled()).thenReturn(true);
 
-		factoryBeanSupport.logError("%s log test", "error");
+		this.factoryBeanSupport.logError("%s log test", "error");
 
-		verify(mockLog, times(1)).isErrorEnabled();
-		verify(mockLog, times(1)).error(eq("error log test"));
+		verify(this.mockLogger, times(1)).isErrorEnabled();
+		verify(this.mockLogger, times(1)).error(eq("error log test"));
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
 	public void suppressesDebugLoggingWhenDebugIsDisabled() {
 
-		when(mockLog.isDebugEnabled()).thenReturn(false);
+		when(this.mockLogger.isDebugEnabled()).thenReturn(false);
 
-		factoryBeanSupport.logDebug(() -> "test");
+		this.factoryBeanSupport.logDebug(() -> "test");
 
-		verify(mockLog, times(1)).isDebugEnabled();
-		verify(mockLog, never()).debug(any());
+		verify(this.mockLogger, times(1)).isDebugEnabled();
+		verify(this.mockLogger, never()).debug(any());
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
 	public void suppressesInfoLoggingWhenInfoIsDisabled() {
 
-		when(mockLog.isInfoEnabled()).thenReturn(false);
+		when(this.mockLogger.isInfoEnabled()).thenReturn(false);
 
-		factoryBeanSupport.logInfo(() -> "test");
+		this.factoryBeanSupport.logInfo(() -> "test");
 
-		verify(mockLog, times(1)).isInfoEnabled();
-		verify(mockLog, never()).info(any());
+		verify(this.mockLogger, times(1)).isInfoEnabled();
+		verify(this.mockLogger, never()).info(any());
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
 	public void suppressesWarnLoggingWhenWarnIsDisabled() {
 
-		when(mockLog.isWarnEnabled()).thenReturn(false);
+		when(this.mockLogger.isWarnEnabled()).thenReturn(false);
 
-		factoryBeanSupport.logWarning(() -> "test");
+		this.factoryBeanSupport.logWarning(() -> "test");
 
-		verify(mockLog, times(1)).isWarnEnabled();
-		verify(mockLog, never()).warn(any());
+		verify(this.mockLogger, times(1)).isWarnEnabled();
+		verify(this.mockLogger, never()).warn(any());
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	@Test
-	public void suppressesErrorLoggingWhenInfoIsDisabled() {
+	public void suppressesErrorLoggingWhenErrorIsDisabled() {
 
-		when(mockLog.isErrorEnabled()).thenReturn(false);
+		when(this.mockLogger.isErrorEnabled()).thenReturn(false);
 
-		factoryBeanSupport.logError(() -> "test");
+		this.factoryBeanSupport.logError(() -> "test");
 
-		verify(mockLog, times(1)).isErrorEnabled();
-		verify(mockLog, never()).error(any());
+		verify(this.mockLogger, times(1)).isErrorEnabled();
+		verify(this.mockLogger, never()).error(any());
+		verifyNoMoreInteractions(this.mockLogger);
 	}
 
 	private static class TestFactoryBeanSupport<T> extends AbstractFactoryBeanSupport<T> {

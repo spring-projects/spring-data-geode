@@ -138,8 +138,8 @@ public class IndexFactoryBeanUnitTests {
 		IndexFactoryBean indexFactoryBean = spy(new IndexFactoryBean() {
 
 			@Override
-			protected Logger newLog() {
-				return mockLogger;
+			protected Logger newLogger() {
+				return IndexFactoryBeanUnitTests.this.mockLogger;
 			}
 		});
 
