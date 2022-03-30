@@ -24,17 +24,18 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.lang.NonNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AbstractFactoryBeanSupport} class is an abstract Spring {@link FactoryBean} base class implementation
- * encapsulating operations common to SDG's {@link FactoryBean} implementations.
+ * An abstract Spring {@link FactoryBean} base class implementation encapsulating operations common to all
+ * Spring Data for Apache Geode (SDG) {@link FactoryBean} implementations.
  *
  * @author John Blum
- * @see org.apache.commons.logging.Log
- * @see org.apache.commons.logging.LogFactory
+ * @see org.slf4j.Logger
+ * @see org.slf4j.LoggerFactory
  * @see org.springframework.beans.factory.BeanClassLoaderAware
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.BeanFactoryAware
@@ -52,27 +53,28 @@ public abstract class AbstractFactoryBeanSupport<T>
 
 	private BeanFactory beanFactory;
 
-	private final Logger log;
+	private final Logger logger;
 
 	private String beanName;
 
 	/**
-	 * Constructs a new instance of {@link AbstractFactoryBeanSupport} and initialized the logger.
+	 * Constructs a new instance of {@link AbstractFactoryBeanSupport} initializing a {@link Logger} to log operations
+	 * performed by {@literal this} {@link FactoryBean}.
 	 *
-	 * @see #newLog()
+	 * @see #newLogger()
 	 */
 	protected AbstractFactoryBeanSupport() {
-		this.log = newLog();
+		this.logger = newLogger();
 	}
 
 	/**
-	 * Constructs a new instance of {@link Logger} to log statements printed by Spring Data GemFire/Geode.
+	 * Constructs a new instance of {@link Logger} to log statements printed by Spring Data for Apache Geode.
 	 *
-	 * @return a new instance of {@link Logger}.
+	 * @return a new instance of SLF4J {@link Logger}.
 	 * @see org.apache.commons.logging.LogFactory#getLog(Class)
 	 * @see org.apache.commons.logging.Log
 	 */
-	protected Logger newLog() {
+	protected @NonNull Logger newLogger() {
 		return LoggerFactory.getLogger(getClass());
 	}
 
@@ -146,17 +148,78 @@ public abstract class AbstractFactoryBeanSupport<T>
 	}
 
 	/**
-	 * Returns a reference to the {@link Logger} used by this {@link FactoryBean} to log {@link String messages}.
+	 * Returns a reference to the {@link Logger} used by {@literal this} {@link FactoryBean}
+	 * to log {@link String messages}.
 	 *
-	 * @return a reference to the {@link Logger} used by this {@link FactoryBean} to log {@link String messages}.
+	 * @return a reference to the {@link Logger} used by {@literal this} {@link FactoryBean}
+	 * to log {@link String messages}.
 	 * @see org.apache.commons.logging.Log
 	 */
-	protected Logger getLog() {
-		return this.log;
+	protected @NonNull Logger getLogger() {
+		return this.logger;
 	}
 
 	/**
-	 * Indicates that this {@link FactoryBean} produces a single bean instance.
+	 * Returns an {@link Optional} reference to the {@link Logger} used by {@literal this} {@link FactoryBean}
+	 * to log {@link String messages}.
+	 *
+	 * @return an {@link Optional} reference to the {@link Logger} used by {@literal this} {@link FactoryBean}
+	 * to log {@link String messages}.
+	 * @see java.util.Optional
+	 * @see org.slf4j.Logger
+	 * @see #getLogger()
+	 */
+	protected Optional<Logger> getOptionalLogger() {
+		return Optional.ofNullable(getLogger());
+	}
+
+	/**
+	 * Determines whether {@literal DEBUG} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal DEBUG} logging is enabled.
+	 * @see org.slf4j.Logger#isDebugEnabled()
+	 * @see #getOptionalLogger()
+	 */
+	public boolean isDebugLoggingEnabled() {
+		return getOptionalLogger().filter(Logger::isDebugEnabled).isPresent();
+	}
+
+	/**
+	 * Determines whether {@literal INFO} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal INFO} logging is enabled.
+	 * @see org.slf4j.Logger#isInfoEnabled()
+	 * @see #getOptionalLogger()
+	 */
+	public boolean isInfoLoggingEnabled() {
+		return getOptionalLogger().filter(Logger::isInfoEnabled).isPresent();
+	}
+
+	/**
+	 * Determines whether {@literal WARN} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal WARN} logging is enabled.
+	 * @see org.slf4j.Logger#isWarnEnabled()
+	 * @see #getOptionalLogger()
+	 */
+	public boolean isWarnLoggingEnabled() {
+		return getOptionalLogger().filter(Logger::isWarnEnabled).isPresent();
+	}
+
+	/**
+	 * Determines whether {@literal ERROR} logging is enabled.
+	 *
+	 * @return a boolean value indicating whether {@literal ERROR} logging is enabled.
+	 * @see org.slf4j.Logger#isErrorEnabled()
+	 * @see #getOptionalLogger()
+	 */
+	public boolean isErrorLoggingEnabled() {
+		return getOptionalLogger().filter(Logger::isErrorEnabled).isPresent();
+	}
+
+	/**
+	 * Indicates that {@literal this} {@link FactoryBean} produces a single bean instance.
+>>>>>>> 6d7247275 (Review and refactor the AbstractFactoryBeanSupport class.)
 	 *
 	 * @return {@literal true} by default.
 	 * @see org.springframework.beans.factory.FactoryBean#isSingleton()
@@ -183,10 +246,10 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isDebugEnabled()
 	 * @see org.apache.commons.logging.Log#debug(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logDebug(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLogger()
 			.filter(Logger::isDebugEnabled)
 			.ifPresent(log -> log.debug(message.get()));
 	}
@@ -208,10 +271,10 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isInfoEnabled()
 	 * @see org.apache.commons.logging.Log#info(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logInfo(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLogger()
 			.filter(Logger::isInfoEnabled)
 			.ifPresent(log -> log.info(message.get()));
 	}
@@ -233,10 +296,10 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isWarnEnabled()
 	 * @see org.apache.commons.logging.Log#warn(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logWarning(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLogger()
 			.filter(Logger::isWarnEnabled)
 			.ifPresent(log -> log.warn(message.get()));
 	}
@@ -258,10 +321,10 @@ public abstract class AbstractFactoryBeanSupport<T>
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isErrorEnabled()
 	 * @see org.apache.commons.logging.Log#error(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logError(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		getOptionalLogger()
 			.filter(Logger::isErrorEnabled)
 			.ifPresent(log -> log.error(message.get()));
 	}
