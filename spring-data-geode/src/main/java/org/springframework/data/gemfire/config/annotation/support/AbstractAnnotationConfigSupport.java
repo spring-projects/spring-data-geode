@@ -16,9 +16,7 @@
  */
 package org.springframework.data.gemfire.config.annotation.support;
 
-import static org.springframework.data.gemfire.util.CollectionUtils.asSet;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -50,10 +48,14 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.MethodMetadata;
+import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.expression.spel.support.StandardTypeConverter;
 import org.springframework.expression.spel.support.StandardTypeLocator;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -61,17 +63,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link AbstractAnnotationConfigSupport} class is an abstract base class encapsulating functionality
- * common to all Annotations and configuration classes used to configure Pivotal GemFire/Apache Geode objects
- * with Spring Data GemFire or Spring Data Geode.
+ * An abstract base class encapsulating functionality common to all Spring Data for Apache Geode (SDG) annotations
+ * and configuration classes used to configure Apache Geode objects using Spring Data for Apache Geode.
  *
  * @author John Blum
  * @author Udo Kohlmeyer
  * @see java.lang.ClassLoader
  * @see java.lang.annotation.Annotation
+ * @see java.lang.reflect.AnnotatedElement
  * @see org.springframework.beans.factory.BeanClassLoaderAware
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.BeanFactoryAware
+ * @see org.springframework.beans.factory.annotation.AnnotatedBeanDefinition
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory
  * @see org.springframework.beans.factory.support.AbstractBeanDefinition
  * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
@@ -90,11 +93,14 @@ public abstract class AbstractAnnotationConfigSupport
 		implements BeanClassLoaderAware, BeanFactoryAware, EnvironmentAware {
 
 	protected static final Set<Integer> INFRASTRUCTURE_ROLES =
-		asSet(BeanDefinition.ROLE_INFRASTRUCTURE, BeanDefinition.ROLE_SUPPORT);
+		CollectionUtils.asSet(BeanDefinition.ROLE_INFRASTRUCTURE, BeanDefinition.ROLE_SUPPORT);
 
 	protected static final String ORG_SPRINGFRAMEWORK_DATA_GEMFIRE_PACKAGE = "org.springframework.data.gemfire";
 	protected static final String ORG_SPRINGFRAMEWORK_PACKAGE = "org.springframework";
 	protected static final String SPRING_DATA_GEMFIRE_PROPERTY_PREFIX = "spring.data.gemfire.";
+
+	protected static final Supplier<ClassLoader> CURRENT_THREAD_CONTEXT_CLASS_LOADER =
+		() -> Thread.currentThread().getContextClassLoader();
 
 	private BeanFactory beanFactory;
 
@@ -104,7 +110,22 @@ public abstract class AbstractAnnotationConfigSupport
 
 	private final EvaluationContext evaluationContext;
 
-	private final Logger log;
+	private final Logger logger;
+
+	/**
+	 * Asserts the given, configured {@link Object} is not {@literal null}.
+	 *
+	 * @param <T> {@link Class type} of the {@link Object} to assert.
+	 * @param object {@link Object} reference to assert as not {@literal null}.
+	 * @param message {@link String} containing the message used in the {@link IllegalStateException}
+	 * thrown by this assertion if the {@link Object} is {@literal null}.
+	 * @return the given {@link Object} used as the subject of this assertion.
+	 * @throws IllegalStateException if the {@link Object} is {@literal null}.
+	 */
+	private static <T> T assertReferenceAndReturn(T object, String message) {
+		Assert.state(object != null, message);
+		return object;
+	}
 
 	/**
 	 * Determines whether the given {@link Number} has value.  The {@link Number} is valuable
@@ -149,16 +170,18 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Constructs a new instance of {@link AbstractAnnotationConfigSupport}.
+	 * Constructs a new instance of {@link AbstractAnnotationConfigSupport} initialized with the given, non-required
+	 * {@link BeanFactory}.
 	 *
 	 * @param beanFactory reference to the Spring {@link BeanFactory}.
 	 * @see org.springframework.beans.factory.BeanFactory
 	 * @see #newEvaluationContext(BeanFactory)
+	 * @see #newLogger()
 	 */
 	public AbstractAnnotationConfigSupport(BeanFactory beanFactory) {
 
 		this.evaluationContext = newEvaluationContext(beanFactory);
-		this.log = newLog();
+		this.logger = newLogger();
 	}
 
 	/**
@@ -199,13 +222,13 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Constructs a new instance of {@link Logger} to log statements printed by Spring Data GemFire/Geode.
+	 * Constructs a new instance of {@link Logger} to log statements printed by Spring Data for Apache Geode.
 	 *
 	 * @return a new instance of {@link Logger}.
-	 * @see org.apache.commons.logging.LogFactory#getLog(Class)
-	 * @see org.apache.commons.logging.Log
+	 * @see org.slf4j.LoggerFactory#getLogger(Class)
+	 * @see org.slf4j.Logger
 	 */
-	protected Logger newLog() {
+	protected @NonNull Logger newLogger() {
 		return LoggerFactory.getLogger(getClass());
 	}
 
@@ -314,12 +337,14 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Null-safe method to determine whether the given {@link Object bean} is a Spring container provided
+	 * Null-safe method used to determine whether the given {@link Object bean} is a Spring container provided
 	 * infrastructure bean.
 	 *
 	 * @param bean {@link Object} to evaluate.
-	 * @return {@literal true} iff the {@link Object bean} is not a Spring container infrastructure bean.
+	 * @return {@literal true} iff the {@link Object bean} is not a Spring container provided infrastructure bean.
 	 * @see #isNotInfrastructureClass(String)
+	 * @see java.lang.Object#getClass()
+	 * @see java.lang.Class#getName()
 	 */
 	protected boolean isNotInfrastructureBean(Object bean) {
 
@@ -330,12 +355,12 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Null-safe method to determine whether the bean defined in the given {@link BeanDefinition}
+	 * Null-safe method used to determine whether the bean defined by the given {@link BeanDefinition}
 	 * is a Spring container provided infrastructure bean.
 	 *
 	 * @param beanDefinition {@link BeanDefinition} to evaluate.
-	 * @return {@literal true} iff the bean defined in the given {@link BeanDefinition} is not a Spring container
-	 * infrastructure bean.
+	 * @return {@literal true} iff the bean defined by the given {@link BeanDefinition} is not a Spring container
+	 * provided infrastructure bean.
 	 * @see org.springframework.beans.factory.config.BeanDefinition
 	 * @see #isNotInfrastructureClass(BeanDefinition)
 	 * @see #isNotInfrastructureRole(BeanDefinition)
@@ -345,12 +370,12 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Null-safe method to determine whether the bean defined in the given {@link BeanDefinition}
-	 * is a Spring container infrastructure bean based on the bean's {@link Class#getName() class type}.
+	 * Null-safe method used to determine whether the bean defined by the given {@link BeanDefinition}
+	 * is a Spring container infrastructure bean based on the bean's class name.
 	 *
 	 * @param beanDefinition {@link BeanDefinition} of the bean to evaluate.
 	 * @return {@literal true} iff the bean defined in the given {@link BeanDefinition} is not a Spring container
-	 * infrastructure bean.
+	 * infrastructure bean. Returns {@literal false} if the bean class name cannot be resolved.
 	 * @see org.springframework.beans.factory.config.BeanDefinition
 	 * @see #resolveBeanClassName(BeanDefinition)
 	 * @see #isNotInfrastructureClass(String)
@@ -360,19 +385,21 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Determines whether the given {@link Class#getName() class type name} is considered a Spring container
+	 * Determines whether the given {@link Class#getName() class name} is considered a Spring container
 	 * infrastructure type.
 	 *
-	 * The class type name is considered a Spring container infrastructure type if the package name begins with
-	 * 'org.springframework', excluding 'org.springframework.data.gemfire'.
+	 * The {@link String class name} is considered a Spring container infrastructure type if the package name
+	 * begins with {@literal org.springframework}, excluding {@literal org.springframework.data.gemfire}.
 	 *
-	 * @param className {@link String} containing the name of the class type to evaluate.
-	 * @return {@literal true} iff the given {@link Class#getName() class type name} is not considered a
-	 * Spring container infrastructure type.
+	 * @param className {@link String} containing the {@literal name} of the class type to evaluate;
+	 * must not be {@literal null}.
+	 * @return {@literal true} iff the given {@link Class#getName() class name} is not considered a Spring container
+	 * infrastructure type.
 	 */
-	protected boolean isNotInfrastructureClass(String className) {
-		return (className.startsWith(ORG_SPRINGFRAMEWORK_DATA_GEMFIRE_PACKAGE)
-			|| !className.startsWith(ORG_SPRINGFRAMEWORK_PACKAGE));
+	boolean isNotInfrastructureClass(@NonNull String className) {
+
+		return className.startsWith(ORG_SPRINGFRAMEWORK_DATA_GEMFIRE_PACKAGE)
+			|| !className.startsWith(ORG_SPRINGFRAMEWORK_PACKAGE);
 	}
 
 	/**
@@ -439,9 +466,11 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @see java.lang.Thread#getContextClassLoader()
 	 * @see #getBeanClassLoader()
 	 */
-	protected ClassLoader resolveBeanClassLoader() {
-		return Optional.ofNullable(getBeanClassLoader())
-			.orElseGet(() -> Thread.currentThread().getContextClassLoader());
+	protected @NonNull ClassLoader resolveBeanClassLoader() {
+
+		ClassLoader beanClassLoader = getBeanClassLoader();
+
+		return beanClassLoader != null ? beanClassLoader : CURRENT_THREAD_CONTEXT_CLASS_LOADER.get();
 	}
 
 	/**
@@ -460,9 +489,8 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @throws IllegalStateException if the Spring {@link BeanFactory} was not properly configured.
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
-	protected BeanFactory getBeanFactory() {
-		return Optional.ofNullable(this.beanFactory)
-			.orElseThrow(() -> newIllegalStateException("BeanFactory is required"));
+	protected @NonNull BeanFactory getBeanFactory() {
+		return assertReferenceAndReturn(this.beanFactory, "BeanFactory is required");
 	}
 
 	/**
@@ -503,8 +531,8 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @return a reference to the {@link Logger} used by this class to log {@link String messages}.
 	 * @see org.apache.commons.logging.Log
 	 */
-	protected Logger getLog() {
-		return this.log;
+	protected @NonNull Logger getLogger() {
+		return this.logger;
 	}
 
 	/**
@@ -524,10 +552,10 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isDebugEnabled()
 	 * @see org.apache.commons.logging.Log#debug(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logDebug(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		Optional.ofNullable(getLogger())
 			.filter(Logger::isDebugEnabled)
 			.ifPresent(log -> log.debug(message.get()));
 	}
@@ -549,10 +577,10 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isInfoEnabled()
 	 * @see org.apache.commons.logging.Log#info(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logInfo(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		Optional.ofNullable(getLogger())
 			.filter(Logger::isInfoEnabled)
 			.ifPresent(log -> log.info(message.get()));
 	}
@@ -574,10 +602,10 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isWarnEnabled()
 	 * @see org.apache.commons.logging.Log#warn(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logWarning(Supplier<String> message) {
-		Optional.ofNullable(getLog())
+		Optional.ofNullable(getLogger())
 			.filter(Logger::isWarnEnabled)
 			.ifPresent(log -> log.info(message.get()));
 	}
@@ -599,16 +627,17 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @param message {@link Supplier} containing the {@link String message} and arguments to log.
 	 * @see org.apache.commons.logging.Log#isErrorEnabled()
 	 * @see org.apache.commons.logging.Log#error(Object)
-	 * @see #getLog()
+	 * @see #getLogger()
 	 */
 	protected void logError(Supplier<String> message) {
-		Optional.ofNullable(getLog())
-			.filter(Logger::isWarnEnabled)
+		Optional.ofNullable(getLogger())
+			.filter(Logger::isErrorEnabled)
 			.ifPresent(log -> log.info(message.get()));
 	}
 
 	/**
-	 * Registers the {@link AbstractBeanDefinition} with the {@link BeanDefinitionRegistry} using a generated bean name.
+	 * Registers the {@link AbstractBeanDefinition} with the {@link BeanDefinitionRegistry} using a generated
+	 * {@link String bean name}.
 	 *
 	 * @param beanDefinition {@link AbstractBeanDefinition} to register.
 	 * @return the given {@link AbstractBeanDefinition}.
@@ -628,7 +657,8 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Registers the {@link AbstractBeanDefinition} with the {@link BeanDefinitionRegistry} using a generated bean name.
+	 * Registers the {@link AbstractBeanDefinition} with the given {@link BeanDefinitionRegistry} using a generated
+	 * {@link String bean name}.
 	 *
 	 * @param beanDefinition {@link AbstractBeanDefinition} to register.
 	 * @param registry {@link BeanDefinitionRegistry} used to register the {@link AbstractBeanDefinition}.
@@ -639,9 +669,9 @@ public abstract class AbstractAnnotationConfigSupport
 	 */
 	protected AbstractBeanDefinition register(AbstractBeanDefinition beanDefinition, BeanDefinitionRegistry registry) {
 
-		Optional.ofNullable(registry).ifPresent(it ->
-			BeanDefinitionReaderUtils.registerWithGeneratedName(beanDefinition, it)
-		);
+		if (registry != null) {
+			BeanDefinitionReaderUtils.registerWithGeneratedName(beanDefinition, registry);
+		}
 
 		return beanDefinition;
 	}
@@ -837,9 +867,9 @@ public abstract class AbstractAnnotationConfigSupport
 	 */
 	protected <A extends Annotation> A resolveAnnotation(AnnotatedElement annotatedElement, Class<A> annotationType) {
 
-		return (annotatedElement instanceof Class
+		return annotatedElement instanceof Class
 			? AnnotatedElementUtils.findMergedAnnotation(annotatedElement, annotationType)
-			: AnnotationUtils.findAnnotation(annotatedElement, annotationType));
+			: AnnotationUtils.findAnnotation(annotatedElement, annotationType);
 	}
 
 	/**
@@ -854,7 +884,9 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @see #resolveBeanClassLoader(BeanDefinitionRegistry)
 	 * @see #resolveBeanClass(BeanDefinition, ClassLoader)
 	 */
-	protected Optional<Class<?>> resolveBeanClass(BeanDefinition beanDefinition, BeanDefinitionRegistry registry) {
+	protected Optional<Class<?>> resolveBeanClass(@Nullable BeanDefinition beanDefinition,
+			@Nullable BeanDefinitionRegistry registry) {
+
 		return resolveBeanClass(beanDefinition, resolveBeanClassLoader(registry));
 	}
 
@@ -867,10 +899,13 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @return an {@link Optional} {@link Class} specifying the resolved type of the bean.
 	 * @see org.springframework.beans.factory.config.BeanDefinition
 	 * @see org.springframework.beans.factory.config.ConfigurableBeanFactory
+	 * @see #resolveBeanClassLoader(ConfigurableBeanFactory)
 	 * @see #resolveBeanClass(BeanDefinition, ClassLoader)
 	 */
-	protected Optional<Class<?>> resolveBeanClass(BeanDefinition beanDefinition, ConfigurableBeanFactory beanFactory) {
-		return resolveBeanClass(beanDefinition, beanFactory.getBeanClassLoader());
+	protected Optional<Class<?>> resolveBeanClass(@Nullable BeanDefinition beanDefinition,
+			@NonNull ConfigurableBeanFactory beanFactory) {
+
+		return resolveBeanClass(beanDefinition, resolveBeanClassLoader(beanFactory));
 	}
 
 	/**
@@ -885,7 +920,8 @@ public abstract class AbstractAnnotationConfigSupport
 	 * @see org.springframework.util.ClassUtils#forName(String, ClassLoader)
 	 * @see #resolveBeanClassName(BeanDefinition)
 	 */
-	protected Optional<Class<?>> resolveBeanClass(BeanDefinition beanDefinition, ClassLoader classLoader) {
+	protected Optional<Class<?>> resolveBeanClass(@Nullable BeanDefinition beanDefinition,
+			@Nullable ClassLoader classLoader) {
 
 		Class<?> beanClass = beanDefinition instanceof AbstractBeanDefinition
 			? safeResolveType(() -> ((AbstractBeanDefinition) beanDefinition).resolveBeanClass(classLoader))
@@ -893,9 +929,8 @@ public abstract class AbstractAnnotationConfigSupport
 
 		if (beanClass == null) {
 			beanClass = resolveBeanClassName(beanDefinition)
-				.map(beanClassName ->
-					safeResolveType(() ->
-						ClassUtils.forName(beanClassName, classLoader))).orElse(null);
+				.map(beanClassName -> safeResolveType(() -> ClassUtils.forName(beanClassName, classLoader)))
+				.orElse(null);
 		}
 
 		return Optional.ofNullable(beanClass);
@@ -910,15 +945,35 @@ public abstract class AbstractAnnotationConfigSupport
 	 * or the {@link Thread#currentThread() current Thread's} {@link Thread#getContextClassLoader() context ClassLoader}.
 	 * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#getBeanClassLoader()
 	 * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
-	 * @see java.lang.Thread#currentThread()
 	 * @see java.lang.Thread#getContextClassLoader()
+	 * @see java.lang.Thread#currentThread()
 	 */
-	protected ClassLoader resolveBeanClassLoader(BeanDefinitionRegistry registry) {
+	protected @NonNull ClassLoader resolveBeanClassLoader(@Nullable BeanDefinitionRegistry registry) {
 
 		return Optional.ofNullable(registry)
-			.filter(it -> it instanceof ConfigurableBeanFactory)
-			.map(it -> ((ConfigurableBeanFactory) it).getBeanClassLoader())
-			.orElseGet(() -> Thread.currentThread().getContextClassLoader());
+			.filter(ConfigurableBeanFactory.class::isInstance)
+			.map(ConfigurableBeanFactory.class::cast)
+			.map(ConfigurableBeanFactory::getBeanClassLoader)
+			.orElseGet(CURRENT_THREAD_CONTEXT_CLASS_LOADER);
+	}
+
+	/**
+	 * Attempts to resolve the {@link ClassLoader} used by the {@link ConfigurableBeanFactory}
+	 * to load {@link Class} definitions of the beans created by the factory.
+	 *
+	 * @param beanFactory {@link ConfigurableBeanFactory} from which to resolve the {@link ClassLoader}.
+	 * @return the resolved {@link ClassLoader} from the {@link ConfigurableBeanFactory}
+	 * or the {@link Thread#currentThread() current Thread's} {@link Thread#getContextClassLoader() context ClassLoader}.
+	 * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#getBeanClassLoader()
+	 * @see org.springframework.beans.factory.config.ConfigurableBeanFactory
+	 * @see java.lang.Thread#getContextClassLoader()
+	 * @see java.lang.Thread#currentThread()
+	 */
+	protected @NonNull ClassLoader resolveBeanClassLoader(@Nullable ConfigurableBeanFactory beanFactory) {
+
+		return Optional.ofNullable(beanFactory)
+			.map(ConfigurableBeanFactory::getBeanClassLoader)
+			.orElseGet(CURRENT_THREAD_CONTEXT_CLASS_LOADER);
 	}
 
 	/**
@@ -931,15 +986,20 @@ public abstract class AbstractAnnotationConfigSupport
 	 */
 	protected Optional<String> resolveBeanClassName(BeanDefinition beanDefinition) {
 
-		Optional<String> beanClassName = Optional.ofNullable(beanDefinition)
+		Optional<BeanDefinition> optionalBeanDefinition = Optional.ofNullable(beanDefinition);
+
+		Optional<String> beanClassName = optionalBeanDefinition
 			.map(BeanDefinition::getBeanClassName)
 			.filter(StringUtils::hasText);
 
-		if (!beanClassName.isPresent()) {
-			beanClassName = Optional.ofNullable(beanDefinition)
-				.filter(it -> it instanceof AnnotatedBeanDefinition)
+		boolean beanClassNameNotPresent = beanClassName.isEmpty();
+
+		if (beanClassNameNotPresent) {
+			beanClassName = optionalBeanDefinition
+				.filter(AnnotatedBeanDefinition.class::isInstance)
 				.filter(it -> StringUtils.hasText(it.getFactoryMethodName()))
-				.map(it -> ((AnnotatedBeanDefinition) it).getFactoryMethodMetadata())
+				.map(AnnotatedBeanDefinition.class::cast)
+				.map(AnnotatedBeanDefinition::getFactoryMethodMetadata)
 				.map(MethodMetadata::getReturnTypeName);
 		}
 
@@ -1069,17 +1129,19 @@ public abstract class AbstractAnnotationConfigSupport
 	}
 
 	/**
-	 * Safely resolves a {@link Class type} returned by the supplied {@link TypeResolver} where the {@link Class type}
-	 * resolution might result in a {@link ClassNotFoundException}, or possibly, {@link NoClassDefFoundError}.
+	 * Safely resolves a {@link Class type} returned by the given {@link TypeResolver} where the {@link Class type}
+	 * resolution might result in a {@link ClassNotFoundException} or {@link NoClassDefFoundError}.
 	 *
 	 * @param <T> {@link Class} of the type being resolved.
 	 * @param typeResolver {@link TypeResolver} used to resolve a specific {@link Class type}.
 	 * @return the resolved {@link Class type} or {@literal null} if the {@link Class type} returned by
 	 * the {@link TypeResolver} could not be resolved.
 	 * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport.TypeResolver
+	 * @see java.lang.ClassNotFoundException
+	 * @see java.lang.NoClassDefFoundError
 	 * @see java.lang.Class
 	 */
-	protected <T> Class<T> safeResolveType(TypeResolver<T> typeResolver) {
+	protected @Nullable <T> Class<T> safeResolveType(@NonNull TypeResolver<T> typeResolver) {
 
 		try {
 			return typeResolver.resolve();
@@ -1094,7 +1156,7 @@ public abstract class AbstractAnnotationConfigSupport
 	 * to resolve a particular {@link Class type}.
 	 *
 	 * Implementations are free to decide on how a {@link Class type} gets resolved, such as
-	 * with {@link Class#forName(String)} or perhaps using {@link ClassLoader#defineClass(String, byte[], int, int)}.
+	 * with {@link Class#forName(String)} or by using {@literal ClassLoader#defineClass(String, byte[], int, int)}.
 	 *
 	 * @param <T> {@link Class} of the type to resolve.
 	 */
