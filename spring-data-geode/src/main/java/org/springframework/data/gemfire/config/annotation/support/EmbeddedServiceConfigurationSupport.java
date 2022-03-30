@@ -217,7 +217,9 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 
 		BeanFactory beanFactory = getBeanFactory();
 
-		if (beanFactory instanceof AutowireCapableBeanFactory autowiringBeanFactory) {
+		if (beanFactory instanceof AutowireCapableBeanFactory) {
+
+			AutowireCapableBeanFactory autowiringBeanFactory = (AutowireCapableBeanFactory) beanFactory;
 
 			NamedBeanHolder<T> beanHolder = autowiringBeanFactory.resolveNamedBean(beanType);
 
@@ -346,8 +348,8 @@ public abstract class EmbeddedServiceConfigurationSupport extends AbstractAnnota
 		@Override
 		public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
-			if (bean instanceof Properties gemfirePropertiesBean && GEMFIRE_PROPERTIES_BEAN_NAME.equals(beanName)) {
-				gemfirePropertiesBean.putAll(this.gemfireProperties);
+			if (bean instanceof Properties && GEMFIRE_PROPERTIES_BEAN_NAME.equals(beanName)) {
+				((Properties) bean).putAll(this.gemfireProperties);
 			}
 
 			return bean;
