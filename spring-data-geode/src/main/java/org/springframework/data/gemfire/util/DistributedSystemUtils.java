@@ -47,7 +47,7 @@ public abstract class DistributedSystemUtils extends SpringUtils {
 
 	public static final String DURABLE_CLIENT_ID_PROPERTY_NAME = GemFireProperties.DURABLE_CLIENT_ID.getName();
 	public static final String DURABLE_CLIENT_TIMEOUT_PROPERTY_NAME = GemFireProperties.DURABLE_CLIENT_TIMEOUT.getName();
-	public static final String GEMFIRE_PREFIX = GemFireProperties.PROPERTY_NAME_PREFIX;
+	public static final String GEMFIRE_PREFIX = GemFireProperties.GEMFIRE_PROPERTY_NAME_PREFIX;
 	public static final String NAME_PROPERTY_NAME = GemFireProperties.NAME.getName();
 
 	public static Properties configureDurableClient(Properties gemfireProperties,
