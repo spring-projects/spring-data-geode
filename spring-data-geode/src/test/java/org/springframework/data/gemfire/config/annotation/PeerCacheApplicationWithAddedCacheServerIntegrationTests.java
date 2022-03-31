@@ -66,9 +66,9 @@ public class PeerCacheApplicationWithAddedCacheServerIntegrationTests extends Cl
 		locatorPort = findAvailablePort();
 
 		gemfireLocator = run(TestLocatorConfiguration.class,
-			"-Dspring.data.gemfire.locator.port=" + locatorPort,
-						String.format("-D%1$s%2$s=%3$s", GemFireProperties.PROPERTY_NAME_PREFIX,
-							GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(), false));
+"-Dspring.data.gemfire.locator.port=" + locatorPort,
+			String.format("-D%1$s%2$s=%3$s", GemFireProperties.GEMFIRE_PROPERTY_NAME_PREFIX,
+				GemFireProperties.ENABLE_CLUSTER_CONFIGURATION.getName(), false));
 
 		waitForServerToStart("localhost", locatorPort);
 
