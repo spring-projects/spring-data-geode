@@ -182,14 +182,16 @@ public enum GemFireProperties {
 
 		String safePropertyName = String.valueOf(propertyName).trim();
 
-		boolean gemfireDotPrefixed = safePropertyName.startsWith(PROPERTY_NAME_PREFIX);
+		boolean gemfireDotPrefixed = safePropertyName.startsWith(GEMFIRE_PROPERTY_NAME_PREFIX);
 
 		int index = safePropertyName.lastIndexOf(".");
 
-		return gemfireDotPrefixed && index > -1 ? safePropertyName.substring(index + 1) : propertyName;
+		return gemfireDotPrefixed && index > -1
+			? safePropertyName.substring(index + 1)
+			: propertyName;
 	}
 
-	private @Nullable Class<?> nullSafeType(@Nullable Object target, @Nullable Class<?> defaultType) {
+	private static @Nullable Class<?> nullSafeType(@Nullable Object target, @Nullable Class<?> defaultType) {
 		return target != null ? target.getClass() : defaultType;
 	}
 
@@ -197,7 +199,7 @@ public enum GemFireProperties {
 
 	private static final Object DEFAULT_PROPERTY_VALUE = null;
 
-	public static final String PROPERTY_NAME_PREFIX = "gemfire.";
+	public static final String GEMFIRE_PROPERTY_NAME_PREFIX = "gemfire.";
 
 	private final Class<?> propertyType;
 
@@ -254,8 +256,12 @@ public enum GemFireProperties {
 	 * @see #getDefaultValueAsType(Class)
 	 * @see #getType()
 	 */
+	@SuppressWarnings("unchecked")
 	public @NonNull <T> T getDefaultValueAsType() {
-		return getDefaultValueAsType(getType());
+
+		Class<T> propertyType = (Class<T>) getType();
+
+		return getDefaultValueAsType(propertyType);
 	}
 
 	/**
@@ -269,15 +275,20 @@ public enum GemFireProperties {
 	 * @see #getDefaultValue()
 	 * @see #getType()
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> T getDefaultValueAsType(Class<?> type) {
+	public @NonNull <T> T getDefaultValueAsType(@NonNull Class<T> type) {
+
+		Assert.notNull(type, "Target type must not be null");
 
 		Object defaultValue = getDefaultValue();
 
-		Class<?> defaultValueType = nullSafeType(defaultValue, getType());
+		Class<?> propertyType = getType();
+		Class<?> defaultValueType = nullSafeType(defaultValue, propertyType);
 
-		if (this.conversionService.canConvert(defaultValueType, type)) {
-			return (T) this.conversionService.convert(defaultValue, type);
+		if (type.isInstance(defaultValue)) {
+			return type.cast(defaultValue);
+		}
+		else if (this.conversionService.canConvert(defaultValueType, type)) {
+			return this.conversionService.convert(defaultValue, type);
 		}
 
 		throw newIllegalArgumentException("Cannot convert value [%s] from type [%s] to type [%s]",
@@ -285,9 +296,9 @@ public enum GemFireProperties {
 	}
 
 	/**
-	 * Gets the {@link String name} of this property.
+	 * Gets the {@link String name} of {@literal this} property.
 	 *
-	 * @return the {@link String name} of this property.
+	 * @return the {@link String name} of {@literal this} property.
 	 * @see java.lang.String
 	 */
 	public @NonNull String getName() {
@@ -295,9 +306,9 @@ public enum GemFireProperties {
 	}
 
 	/**
-	 * Gets the declared {@link Class type} of this property.
+	 * Gets the declared {@link Class type} of {@literal this} property.
 	 *
-	 * @return the declared {@link Class type} of this property.
+	 * @return the declared {@link Class type} of {@literal this} property.
 	 * @see java.lang.Class
 	 */
 	public @NonNull Class<?> getType() {
@@ -308,7 +319,7 @@ public enum GemFireProperties {
 	 * @inheritDoc
 	 */
 	@Override
-	public String toString() {
+	public @NonNull String toString() {
 		return getName();
 	}
 }
