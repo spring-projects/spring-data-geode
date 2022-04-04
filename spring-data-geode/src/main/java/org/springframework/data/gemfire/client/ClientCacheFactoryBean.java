@@ -134,8 +134,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 			clientCacheConfigurer.configure(beanName, bean));
 
 	/**
-	 * Applies the composite {@link ClientCacheConfigurer ClientCacheConfigurers}
-	 * to this {@link ClientCacheFactoryBean} before the {@link ClientCache} is created.
+	 * Applies the composite {@link ClientCacheConfigurer ClientCacheConfigurers} to this {@link ClientCacheFactoryBean}
+	 * before the {@link ClientCache} is created.
 	 *
 	 * @see #getCompositeClientCacheConfigurer()
 	 * @see #applyClientCacheConfigurers(ClientCacheConfigurer...)
