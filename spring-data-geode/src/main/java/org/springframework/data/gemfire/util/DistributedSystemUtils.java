@@ -26,6 +26,8 @@ import org.apache.geode.distributed.internal.InternalDistributedSystem;
 import org.apache.geode.distributed.internal.InternalLocator;
 
 import org.springframework.data.gemfire.GemFireProperties;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -40,7 +42,7 @@ import org.springframework.util.StringUtils;
  * @since 1.7.0
  */
 @SuppressWarnings("unused")
-public abstract class DistributedSystemUtils extends SpringUtils {
+public abstract class DistributedSystemUtils extends SpringExtensions {
 
 	public static final int DEFAULT_CACHE_SERVER_PORT = CacheServer.DEFAULT_PORT;
 	public static final int DEFAULT_LOCATOR_PORT = 10334;
@@ -50,8 +52,8 @@ public abstract class DistributedSystemUtils extends SpringUtils {
 	public static final String GEMFIRE_PREFIX = GemFireProperties.GEMFIRE_PROPERTY_NAME_PREFIX;
 	public static final String NAME_PROPERTY_NAME = GemFireProperties.NAME.getName();
 
-	public static Properties configureDurableClient(Properties gemfireProperties,
-			String durableClientId, Integer durableClientTimeout) {
+	public static @NonNull Properties configureDurableClient(@NonNull Properties gemfireProperties,
+			@Nullable String durableClientId, @Nullable Integer durableClientTimeout) {
 
 		if (StringUtils.hasText(durableClientId)) {
 
@@ -67,26 +69,32 @@ public abstract class DistributedSystemUtils extends SpringUtils {
 		return gemfireProperties;
 	}
 
-	public static boolean isConnected(DistributedSystem distributedSystem) {
-		return Optional.ofNullable(distributedSystem).filter(DistributedSystem::isConnected).isPresent();
+	public static boolean isConnected(@Nullable DistributedSystem distributedSystem) {
+
+		return Optional.ofNullable(distributedSystem)
+			.filter(DistributedSystem::isConnected)
+			.isPresent();
 	}
 
-	public static boolean isNotConnected(DistributedSystem distributedSystem) {
+	public static boolean isNotConnected(@Nullable DistributedSystem distributedSystem) {
 		return !isConnected(distributedSystem);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends DistributedSystem> T getDistributedSystem() {
+	public static @Nullable <T extends DistributedSystem> T getDistributedSystem() {
 		return (T) InternalDistributedSystem.getAnyInstance();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends DistributedSystem> T getDistributedSystem(GemFireCache gemfireCache) {
-		return (T) Optional.ofNullable(gemfireCache).map(GemFireCache::getDistributedSystem).orElse(null);
+	public static @Nullable <T extends DistributedSystem> T getDistributedSystem(GemFireCache gemfireCache) {
+
+		return (T) Optional.ofNullable(gemfireCache)
+			.map(GemFireCache::getDistributedSystem)
+			.orElse(null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Locator> T getLocator() {
+	public static @Nullable <T extends Locator> T getLocator() {
 		return (T) InternalLocator.getLocator();
 	}
 }

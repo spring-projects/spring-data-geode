@@ -17,7 +17,7 @@
 
 package org.springframework.data.gemfire.search.lucene;
 
-import static org.springframework.data.gemfire.util.SpringUtils.safeGetValue;
+import static org.springframework.data.gemfire.util.SpringExtensions.safeGetValue;
 
 import java.util.Optional;
 

@@ -38,7 +38,7 @@ import org.apache.geode.cache.query.SelectResults;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.gemfire.util.RegionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -428,13 +428,13 @@ public class GemfireTemplate extends GemfireAccessor implements GemfireOperation
 
 		if (RegionUtils.isLocal(region)) {
 
-			SpringUtils.ValueReturningThrowableOperation<Boolean> hasServerProxyMethod = () ->
+			SpringExtensions.ValueReturningThrowableOperation<Boolean> hasServerProxyMethod = () ->
 				Optional.ofNullable(ReflectionUtils.findMethod(region.getClass(), "hasServerProxy"))
 					.map(method -> ReflectionUtils.invokeMethod(method, region))
 					.map(Boolean.FALSE::equals)
 					.orElse(false);
 
-			return SpringUtils.safeGetValue(hasServerProxyMethod, false);
+			return SpringExtensions.safeGetValue(hasServerProxyMethod, false);
 		}
 
 		return false;

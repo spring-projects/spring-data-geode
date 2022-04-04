@@ -45,7 +45,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.annotation.OrderUtils;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.data.gemfire.util.StreamUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -233,7 +233,7 @@ public class ApplicationContextBeanOrderingIntegrationTests extends IntegrationT
 	public void expectBeansToBeOrderedByOrderAnnotationAndOrderedInterfaceUsingSpringUtils() {
 
 		List<NamedBean> orderedBeans = CollectionUtils
-			.nullSafeList(SpringUtils.getBeansOfTypeOrdered(this.applicationContext.getBeanFactory(), NamedBean.class));
+			.nullSafeList(SpringExtensions.getBeansOfTypeOrdered(this.applicationContext.getBeanFactory(), NamedBean.class));
 
 		Stream<NamedBean> orderedBeanStream = StreamUtils.nullSafeStream(orderedBeans.stream());
 

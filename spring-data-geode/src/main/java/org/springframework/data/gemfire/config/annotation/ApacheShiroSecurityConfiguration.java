@@ -47,7 +47,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -123,7 +123,7 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 	public BeanFactoryPostProcessor shiroGemFireBeanFactoryPostProcessor() {
 
 		return configurableListableBeanFactory ->
-			SpringUtils.addDependsOn(configurableListableBeanFactory.getBeanDefinition("gemfireCache"),
+			SpringExtensions.addDependsOn(configurableListableBeanFactory.getBeanDefinition("gemfireCache"),
 				"shiroSecurityManager");
 	}
 

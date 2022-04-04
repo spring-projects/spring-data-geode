@@ -33,7 +33,7 @@ import org.springframework.data.gemfire.SubscriptionAttributesFactoryBean;
 import org.springframework.data.gemfire.config.support.GemfireFeature;
 import org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpirationAttributesFactoryBean;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
@@ -478,7 +478,7 @@ abstract class ParsingUtils {
 	}
 
 	static String resolveCacheReference(String cacheReference) {
-		return SpringUtils.defaultIfEmpty(cacheReference, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		return SpringExtensions.defaultIfEmpty(cacheReference, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 	}
 
 	static void setRegionReference(Element element, BeanDefinitionBuilder builder) {

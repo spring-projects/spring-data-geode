@@ -47,7 +47,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.gemfire.config.annotation.IndexConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.data.gemfire.util.CacheUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -356,7 +356,7 @@ public class LuceneIndexFactoryBean extends AbstractFactoryBeanSupport<LuceneInd
 
 		return Optional.ofNullable(getLuceneService())
 			.orElseGet(() -> Optional.ofNullable(getBeanFactory())
-				.map(it -> SpringUtils.safeGetValue(() -> it.getBean(LuceneService.class), (LuceneService) null))
+				.map(it -> SpringExtensions.safeGetValue(() -> it.getBean(LuceneService.class), (LuceneService) null))
 				.orElseGet(() -> resolveLuceneService(resolveCache())));
 	}
 

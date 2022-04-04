@@ -27,7 +27,7 @@ import org.apache.geode.distributed.ServerLauncher.ServerState;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * Integration Tests {@link SpringServerLauncherCacheProvider} class.
@@ -50,7 +50,7 @@ public class SpringServerLauncherCacheProviderIntegrationTests extends Integrati
 	@After
 	public void tearDown() {
 
-		SpringUtils.safeDoOperation(() ->
+		SpringExtensions.safeDoOperation(() ->
 			closeApplicationContext(SpringContextBootstrappingInitializer.getApplicationContext()));
 
 		SpringContextBootstrappingInitializer.destroy();

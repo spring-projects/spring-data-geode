@@ -30,8 +30,8 @@ import org.apache.geode.cache.execute.ResultCollector;
 
 import org.springframework.data.gemfire.function.ExecutionTimeoutFunctionException;
 import org.springframework.data.gemfire.function.UncategorizedFunctionException;
-import org.springframework.data.gemfire.util.SpringUtils;
-import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowableOperation;
+import org.springframework.data.gemfire.util.SpringExtensions;
+import org.springframework.data.gemfire.util.SpringExtensions.ValueReturningThrowableOperation;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -185,7 +185,7 @@ abstract class AbstractFunctionExecution {
 		try {
 
 			Object result = timeout > 0
-				? SpringUtils.<T>safeGetValue(getResultWithTimeoutThrowableOperation(resultCollector, timeout),
+				? SpringExtensions.<T>safeGetValue(getResultWithTimeoutThrowableOperation(resultCollector, timeout),
 					newFunctionAndInterruptedExceptionHandler(timeout))
 				: resultCollector.getResult();
 

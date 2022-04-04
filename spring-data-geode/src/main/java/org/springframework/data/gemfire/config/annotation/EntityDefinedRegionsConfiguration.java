@@ -68,7 +68,7 @@ import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.support.CompositeTypeFilter;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -289,7 +289,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	 */
 	private String[] nullSafeGetPatterns(AnnotationAttributes filterAttributes) {
 
-		return SpringUtils.<String[]>safeGetValue(() ->
+		return SpringExtensions.<String[]>safeGetValue(() ->
 			nullSafeArray(filterAttributes.getStringArray("pattern"), String.class), () -> new String[0]);
 	}
 
@@ -319,7 +319,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	protected @NonNull GemfireMappingContext resolveMappingContext() {
 
 		if (this.mappingContext == null) {
-			this.mappingContext = SpringUtils.<GemfireMappingContext>safeGetValue(() ->
+			this.mappingContext = SpringExtensions.<GemfireMappingContext>safeGetValue(() ->
 				getBeanFactory().getBean(GemfireMappingContext.class), GemfireMappingContext::new);
 		}
 

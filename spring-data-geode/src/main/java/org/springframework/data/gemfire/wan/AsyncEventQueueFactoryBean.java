@@ -30,7 +30,7 @@ import org.apache.geode.cache.wan.GatewaySender;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 
 /**
@@ -154,7 +154,7 @@ public class AsyncEventQueueFactoryBean extends AbstractWANComponentFactoryBean<
 	public void destroy() {
 
 		if (!getCache().isClosed()) {
-			SpringUtils.safeDoOperation(() -> this.asyncEventListener.close());
+			SpringExtensions.safeDoOperation(() -> this.asyncEventListener.close());
 		}
 	}
 

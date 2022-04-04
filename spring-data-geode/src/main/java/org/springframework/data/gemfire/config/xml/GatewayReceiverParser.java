@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.data.gemfire.wan.GatewayReceiverFactoryBean;
 
 /**
@@ -49,7 +49,7 @@ class GatewayReceiverParser extends AbstractSimpleBeanDefinitionParser {
 	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
 		String cacheRef = element.getAttribute(ParsingUtils.CACHE_REF_ATTRIBUTE_NAME);
 
-		builder.addConstructorArgReference(SpringUtils.defaultIfEmpty(
+		builder.addConstructorArgReference(SpringExtensions.defaultIfEmpty(
 			cacheRef, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
 
 		builder.setLazyInit(false);

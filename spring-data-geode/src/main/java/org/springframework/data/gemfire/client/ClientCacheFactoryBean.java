@@ -52,7 +52,8 @@ import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.PropertiesBuilder;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -79,6 +80,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.context.event.ApplicationContextEvent
  * @see org.springframework.context.event.ContextRefreshedEvent
  * @see org.springframework.data.gemfire.CacheFactoryBean
+ * @see org.springframework.data.gemfire.client.support.PoolManagerPoolResolver
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
  * @since 1.0.0
  */
@@ -219,9 +221,9 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		DistributedSystem distributedSystem = distributedSystemSupplier.get();
 
 		if (GemfireUtils.isConnected(distributedSystem)) {
-			Properties distributedSystemProperties = (Properties) distributedSystem.getProperties().clone();
-			distributedSystemProperties.putAll(gemfireProperties);
-			gemfireProperties = distributedSystemProperties;
+			gemfireProperties = PropertiesBuilder.from(distributedSystem.getProperties())
+				.add(gemfireProperties)
+				.build();
 		}
 
 		GemfireUtils.configureDurableClient(gemfireProperties, getDurableClientId(), getDurableClientTimeout());
@@ -360,7 +362,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 			if (pool == null && isPoolNameResolvable(poolName)) {
 
-				String dereferencedPoolName = SpringUtils.dereferenceBean(poolName);
+				String dereferencedPoolName = SpringExtensions.dereferenceBean(poolName);
 
 				PoolFactoryBean poolFactoryBean =
 					getBeanFactory().getBean(dereferencedPoolName, PoolFactoryBean.class);
@@ -412,8 +414,8 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 	}
 
 	/**
-	 * Inform the Apache Geode cluster that this {@link ClientCache} is ready to receive events
-	 * iff the client is non-durable.
+	 * Inform the Apache Geode cluster of servers that this {@link ClientCache} is ready to receive events and updates
+	 * iff the client is durable.
 	 *
 	 * @param event {@link ApplicationContextEvent} fired when the {@link ApplicationContext} is refreshed.
 	 * @see org.apache.geode.cache.client.ClientCache#readyForEvents()
@@ -429,13 +431,13 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 			}
 			catch (IllegalStateException | CacheClosedException ignore) {
 				// Exceptions are thrown when ClientCache.readyForEvents() is called on a non-durable client
-				// or the ClientCache is closing.
+				// or when the ClientCache is closing.
 			}
 		}
 	}
 
 	/**
-	 * Null-safe internal method used to close the {@link ClientCache} and preserve durability.
+	 * Null-safe method used to {@link GemFireCache#close()} the {@link ClientCache} and preserve durability.
 	 *
 	 * @param cache {@link GemFireCache} to close.
 	 * @see org.apache.geode.cache.client.ClientCache#close(boolean)
@@ -768,7 +770,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		Boolean readyForEvents = getReadyForEvents();
 
 		return readyForEvents != null ? Boolean.TRUE.equals(readyForEvents)
-			: SpringUtils.safeGetValue(() -> GemfireUtils.isDurable(fetchCache()), false);
+			: SpringExtensions.safeGetValue(() -> GemfireUtils.isDurable(fetchCache()), false);
 	}
 
 	public void setRetryAttempts(Integer retryAttempts) {

@@ -44,7 +44,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -183,7 +183,7 @@ public class LuceneOperationsIntegrationTests extends IntegrationTestsSupport {
 			LuceneService luceneService =
 				event.getApplicationContext().getBean("luceneService", LuceneService.class);
 
-			boolean flushed = SpringUtils.safeGetValue(() -> {
+			boolean flushed = SpringExtensions.safeGetValue(() -> {
 				try {
 					return luceneService.waitUntilFlushed("PersonTitleIndex", "/People", 15L, TimeUnit.SECONDS);
 				}

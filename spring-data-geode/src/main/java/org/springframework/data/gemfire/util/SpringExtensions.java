@@ -66,12 +66,12 @@ import org.springframework.util.StringUtils;
  * @since 1.8.0
  */
 @SuppressWarnings("unused")
-public abstract class SpringUtils {
+public abstract class SpringExtensions {
 
 	/**
-	 * Determines whether all the {@link Object} values in the array are {@literal non-null}
+	 * Determines whether all the {@link Object} values in the array are {@literal non-null}.
 	 *
-	 * @param values array of {@link Object Objects} to evaluate.
+	 * @param values array of {@link Object values} to evaluate for {@literal null}.
 	 * @return a boolean value indicating whether all of the {@link Object} values
 	 * in the array are {@literal non-null}.
 	 */
@@ -89,34 +89,34 @@ public abstract class SpringUtils {
 	}
 
 	/**
-	 * Determines whether a given bean registered in the {@link BeanFactory Spring container} matches by
-	 * both {@link String name} and {@link Class type}.
+	 * Determines whether a given bean registered in the Spring {@link BeanFactory} matches by {@link String name}
+	 * and {@link Class type}.
 	 *
-	 * @param beanFactory {@link BeanFactory Spring container} in which to resolve the bean;
-	 * must not be {@literal null}.
+	 * @param beanFactory Spring {@link BeanFactory} used to resolve the bean; must not be {@literal null}.
 	 * @param beanName {@link String name} of the bean.
 	 * @param beanType {@link Class type} of the bean.
-	 * @return a boolean value indicating whether the {@link BeanFactory Spring container} contains a bean
-	 * matching by both {@link String name} and {@link Class type}.
+	 * @return a boolean value indicating whether the Spring {@link BeanFactory} contains a bean matching by
+	 * {@link String name} and {@link Class type}.
 	 * @see org.springframework.beans.factory.BeanFactory
-	 * @see java.lang.Class
 	 * @see java.lang.String
+	 * @see java.lang.Class
 	 */
-	public static boolean isMatchingBean(@NonNull BeanFactory beanFactory, String beanName, Class<?> beanType) {
+	public static boolean isMatchingBean(@NonNull BeanFactory beanFactory,
+		@NonNull String beanName, @Nullable Class<?> beanType) {
+
 		return beanFactory.containsBean(beanName) && beanFactory.isTypeMatch(beanName, beanType);
 	}
 
 	/**
-	 * Adds an array of bean dependencies (by name) to the given {@link BeanDefinition}.
+	 * Adds an array of bean dependencies (by {@link String name}) to the given {@link BeanDefinition}.
 	 *
-	 * @param beanDefinition {@link BeanDefinition} to add the bean dependencies to; must not be {@literal null}.
-	 * @param beanNames {@link String} array containing names of beans for which the {@link BeanDefinition}
-	 * depends on (or has a dependency).
+	 * @param beanDefinition {@link BeanDefinition} to add the bean dependencies; must not be {@literal null}.
+	 * @param beanNames array of {@link String names} of beans for which the {@link BeanDefinition}
+	 * depends on, or will have a dependency.
 	 * @return the given {@link BeanDefinition}.
 	 * @see org.springframework.beans.factory.config.BeanDefinition
 	 */
-	@NonNull
-	public static BeanDefinition addDependsOn(@NonNull BeanDefinition beanDefinition, @Nullable String... beanNames) {
+	public static @NonNull BeanDefinition addDependsOn(@NonNull BeanDefinition beanDefinition, String... beanNames) {
 
 		List<String> dependsOnList = new ArrayList<>();
 
@@ -173,7 +173,7 @@ public abstract class SpringUtils {
 
 		// Handles @Order annotated beans and beans implementing the Ordered interface
 		List<OrderedBeanWrapper<T>> orderedBeansOfType = beansOfType.entrySet().stream()
-				.map(SpringUtils::toOrderedBeanWrapper)
+				.map(SpringExtensions::toOrderedBeanWrapper)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 
@@ -246,7 +246,10 @@ public abstract class SpringUtils {
 	 * @see org.springframework.core.Ordered
 	 */
 	public static @Nullable Integer getOrder(@Nullable Object target) {
-		return target instanceof Ordered ? ((Ordered) target).getOrder() : null;
+
+		return target instanceof Ordered ? Integer.valueOf(((Ordered) target).getOrder())
+			: target != null ? OrderUtils.getOrder(target.getClass())
+			: null;
 	}
 
 	/**
@@ -269,7 +272,8 @@ public abstract class SpringUtils {
 		return beanFactory.getBeanProvider(beanType).orderedStream();
 	}
 
-	public static Optional<Object> getPropertyValue(BeanDefinition beanDefinition, String propertyName) {
+	public static Optional<Object> getPropertyValue(@Nullable BeanDefinition beanDefinition,
+			@Nullable String propertyName) {
 
 		return Optional.ofNullable(beanDefinition)
 			.map(BeanDefinition::getPropertyValues)
@@ -277,16 +281,16 @@ public abstract class SpringUtils {
 			.map(PropertyValue::getValue);
 	}
 
-	public static BeanDefinition setPropertyReference(BeanDefinition beanDefinition,
-			String propertyName, String beanName) {
+	public static BeanDefinition setPropertyReference(@NonNull BeanDefinition beanDefinition,
+			@NonNull String propertyName, @NonNull String beanName) {
 
 		beanDefinition.getPropertyValues().addPropertyValue(propertyName, new RuntimeBeanReference(beanName));
 
 		return beanDefinition;
 	}
 
-	public static BeanDefinition setPropertyValue(BeanDefinition beanDefinition,
-			String propertyName, Object propertyValue) {
+	public static BeanDefinition setPropertyValue(@NonNull BeanDefinition beanDefinition,
+			@NonNull String propertyName, @Nullable Object propertyValue) {
 
 		beanDefinition.getPropertyValues().addPropertyValue(propertyName, propertyValue);
 
