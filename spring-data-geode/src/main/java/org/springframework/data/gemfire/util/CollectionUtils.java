@@ -16,7 +16,6 @@
 package org.springframework.data.gemfire.util;
 
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * {@link CollectionUtils} is an abstract utility class used to workin with the Java Collections Framework and classes.
+ * Abstract utility class used to operate on Java Collections Framework and classes.
  *
  * @author John Blum
  * @see java.util.Collection
@@ -67,7 +66,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.lang.Iterable
 	 * @see java.util.Collection
 	 */
-	public static <E, T extends Collection<E>> T addAll(@NonNull T collection, @Nullable Iterable<E> iterable) {
+	public static @NonNull <E, T extends Collection<E>> T addAll(@NonNull T collection, @Nullable Iterable<E> iterable) {
 
 		Assert.notNull(collection, "Collection is required");
 
@@ -84,7 +83,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @return an unmodifiable {@link Set} containing the elements from the given object array.
 	 */
 	@SafeVarargs
-	public static <T> Set<T> asSet(@NonNull T... elements) {
+	public static @NonNull <T> Set<T> asSet(@NonNull T... elements) {
 
 		Set<T> set = new HashSet<>(elements.length);
 
@@ -103,7 +102,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 */
 	public static boolean containsAny(@Nullable Collection<?> collection, @Nullable Object... elements) {
 
-		return Arrays.asList(nullSafeArray(elements, Object.class)).stream()
+		return Arrays.asList(ArrayUtils.nullSafeArray(elements, Object.class)).stream()
 			.anyMatch(element -> nullSafeCollection(collection).contains(element));
 	}
 
@@ -115,8 +114,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.lang.Iterable
 	 * @see #nullSafeIterable(Iterable)
 	 */
-	@NonNull
-	public static <T> Iterable<T> emptyIterable() {
+	public static @NonNull <T> Iterable<T> emptyIterable() {
 		return Collections::emptyIterator;
 	}
 
@@ -129,8 +127,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.lang.Iterable
 	 * @see java.util.Enumeration
 	 */
-	@NonNull
-	public static <T> Iterable<T> iterable(@Nullable Enumeration<T> enumeration) {
+	public static @NonNull <T> Iterable<T> iterable(@Nullable Enumeration<T> enumeration) {
 		return () -> toIterator(nullSafeEnumeration(enumeration));
 	}
 
@@ -143,8 +140,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.lang.Iterable
 	 * @see java.util.Iterator
 	 */
-	@NonNull
-	public static <T> Iterable<T> iterable(@Nullable Iterator<T> iterator) {
+	public static @NonNull <T> Iterable<T> iterable(@Nullable Iterator<T> iterator) {
 		return () -> nullSafeIterator(iterator);
 	}
 
@@ -159,8 +155,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Collections#emptyList()
 	 * @see java.util.Collection
 	 */
-	@NonNull
-	public static <T> Collection<T> nullSafeCollection(@Nullable Collection<T> collection) {
+	public static @NonNull <T> Collection<T> nullSafeCollection(@Nullable Collection<T> collection) {
 		return collection != null ? collection : Collections.emptyList();
 	}
 
@@ -175,8 +170,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Collections#emptyEnumeration()
 	 * @see java.util.Enumeration
 	 */
-	@NonNull
-	public static <T> Enumeration<T> nullSafeEnumeration(@Nullable Enumeration<T> enumeration) {
+	public static @NonNull <T> Enumeration<T> nullSafeEnumeration(@Nullable Enumeration<T> enumeration) {
 		return enumeration != null ? enumeration : Collections.emptyEnumeration();
 	}
 
@@ -190,13 +184,13 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see #emptyIterable()
 	 * @see java.lang.Iterable
 	 */
-	@NonNull
-	public static <T> Iterable<T> nullSafeIterable(@Nullable Iterable<T> iterable) {
+	public static @NonNull <T> Iterable<T> nullSafeIterable(@Nullable Iterable<T> iterable) {
 		return iterable != null ? iterable : emptyIterable();
 	}
 
 	/**
-	 * Returns the given {@link Iterable} if not {@literal null} or empty, otherwise returns the {@code defaultIterable}.
+	 * Returns the given {@link Iterable} if not {@literal null} or {@literal empty},
+	 * otherwise returns the {@code defaultIterable}.
 	 *
 	 * @param <T> concrete {@link Class} type of the {@link Iterable}.
 	 * @param <E> {@link Class} type of the elements in the {@link Iterable Iterables}.
@@ -205,9 +199,12 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @return {@code iterable} if not {@literal null} or empty otherwise return {@code defaultIterable}.
 	 * @see java.lang.Iterable
 	 */
-	@Nullable
-	public static <E, T extends Iterable<E>> T nullSafeIterable(@Nullable T iterable, @Nullable T defaultIterable) {
-		return Optional.ofNullable(iterable).filter(it -> it.iterator().hasNext()).orElse(defaultIterable);
+	public static @Nullable <E, T extends Iterable<E>> T nullSafeIterable(@Nullable T iterable,
+			@Nullable T defaultIterable) {
+
+		return Optional.ofNullable(iterable)
+			.filter(it -> it.iterator().hasNext())
+			.orElse(defaultIterable);
 	}
 
 	/**
@@ -221,8 +218,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Collections#emptyIterator()
 	 * @see java.util.Iterator
 	 */
-	@NonNull
-	public static <T> Iterator<T> nullSafeIterator(@Nullable Iterator<T> iterator) {
+	public static @NonNull <T> Iterator<T> nullSafeIterator(@Nullable Iterator<T> iterator) {
 		return iterator != null ? iterator : Collections.emptyIterator();
 	}
 
@@ -236,8 +232,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Collections#emptyList()
 	 * @see java.util.List
 	 */
-	@NonNull
-	public static <T> List<T> nullSafeList(@Nullable List<T> list) {
+	public static @NonNull <T> List<T> nullSafeList(@Nullable List<T> list) {
 		return list != null ? list : Collections.emptyList();
 	}
 
@@ -253,8 +248,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Map
 	 */
 	@SuppressWarnings("all")
-	@NonNull
-	public static <K, V> Map<K, V> nullSafeMap(@Nullable Map<K, V> map) {
+	public static @NonNull <K, V> Map<K, V> nullSafeMap(@Nullable Map<K, V> map) {
 		return map != null ? map : Collections.<K, V>emptyMap();
 	}
 
@@ -268,8 +262,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Collections#emptySet()
 	 * @see java.util.Set
 	 */
-	@NonNull
-	public static <T> Set<T> nullSafeSet(@Nullable Set<T> set) {
+	public static @NonNull <T> Set<T> nullSafeSet(@Nullable Set<T> set) {
 		return set != null ? set : Collections.emptySet();
 	}
 
@@ -355,9 +348,9 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see java.util.Collections#sort(List)
 	 * @see java.util.List
 	 */
-	public static <T extends Comparable<T>> List<T> sort(@NonNull List<T> list) {
+	public static @NonNull <T extends Comparable<T>> List<T> sort(@NonNull List<T> list) {
 
-		Assert.notNull(list, "List is required");
+		Assert.notNull(list, "List must not be null");
 
 		Collections.sort(list);
 
@@ -377,9 +370,9 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @throws NullPointerException if either the list or indexes are null.
 	 * @see java.util.List
 	 */
-	public static <T> List<T> subList(@NonNull List<T> source, int... indices) {
+	public static @NonNull <T> List<T> subList(@NonNull List<T> source, int... indices) {
 
-		Assert.notNull(source, "List is required");
+		Assert.notNull(source, "List must not be null");
 
 		List<T> result = new ArrayList<>(indices.length);
 
@@ -398,8 +391,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 	 * @see #newSortedMap(Map)
 	 * @see java.util.Map
 	 */
-	@NonNull
-	public static String toString(@Nullable Map<?, ?> map) {
+	public static @NonNull String toString(@Nullable Map<?, ?> map) {
 
 		StringBuilder builder = new StringBuilder("{\n");
 
@@ -418,8 +410,7 @@ public abstract class CollectionUtils extends org.springframework.util.Collectio
 		return builder.toString();
 	}
 
-	@NonNull
-	private static SortedMap<?, ?> newSortedMap(@Nullable Map<?, ?> map) {
+	private static @NonNull SortedMap<?, ?> newSortedMap(@Nullable Map<?, ?> map) {
 		return new TreeMap<>(nullSafeMap(map));
 	}
 }
