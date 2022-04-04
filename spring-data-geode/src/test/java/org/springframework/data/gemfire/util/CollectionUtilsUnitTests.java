@@ -633,7 +633,7 @@ public class CollectionUtilsUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("List is required");
+			assertThat(expected).hasMessage("List must not be null");
 			assertThat(expected).hasNoCause();
 
 			throw expected;
@@ -674,7 +674,7 @@ public class CollectionUtilsUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("List is required");
+			assertThat(expected).hasMessage("List must not be null");
 			assertThat(expected).hasNoCause();
 
 			throw expected;
