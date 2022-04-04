@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 
 /**
  * {@link ArrayUtils} is an abstract utility class used to work with {@link Object} arrays.
@@ -50,8 +50,8 @@ public abstract class ArrayUtils {
 	 * @param defaultArray array to return if the given {@code array} is {@literal null} or empty.
 	 * @return the given {@code array} if not {@literal null} or empty otherwise return the {@code defaultArray}.
 	 */
-	public static <T> T[] defaultIfEmpty(T[] array, T[] defaultArray) {
-		return !ObjectUtils.isEmpty(array) ? array : defaultArray;
+	public static @Nullable <T> T[] defaultIfEmpty(@Nullable T[] array, @Nullable T[] defaultArray) {
+		return isNotEmpty(array) ? array : defaultArray;
 	}
 
 	/**
@@ -63,7 +63,7 @@ public abstract class ArrayUtils {
 	 * @return the first element in the array or {@literal null} if the array is null or empty.
 	 * @see #getFirst(Object[], Object)
 	 */
-	public static <T> T getFirst(T[] array) {
+	public static @Nullable <T> T getFirst(@Nullable T[] array) {
 		return getFirst(array, null);
 	}
 
@@ -75,9 +75,9 @@ public abstract class ArrayUtils {
 	 * @param array the array from which to extract the first element.
 	 * @param defaultValue value to return if the array is {@literal null} or empty.
 	 * @return the first element in the array or {@code defaultValue} if the array is {@literal null} or empty.
-	 * @see #getFirst(Object[], Object)
+	 * @see #getFirst(Object[])
 	 */
-	public static <T> T getFirst(T[] array, T defaultValue) {
+	public static @Nullable <T> T getFirst(@Nullable T[] array, @Nullable T defaultValue) {
 		return isEmpty(array) ? defaultValue : array[0];
 	}
 
@@ -92,7 +92,7 @@ public abstract class ArrayUtils {
 	 * @see java.lang.System#arraycopy(Object, int, Object, int, int)
 	 * @see java.lang.reflect.Array#newInstance(Class, int)
 	 */
-	public static Object[] insert(Object[] originalArray, int position, Object element) {
+	public static @NonNull Object[] insert(@NonNull Object[] originalArray, int position, Object element) {
 
 		Object[] newArray =
 			(Object[]) Array.newInstance(originalArray.getClass().getComponentType(), originalArray.length + 1);
@@ -123,7 +123,7 @@ public abstract class ArrayUtils {
 	 * @return a boolean value indicating whether the given array is empty.
 	 * @see #length(Object...)
 	 */
-	public static boolean isEmpty(Object[] array) {
+	public static boolean isEmpty(@Nullable Object[] array) {
 		return length(array) == 0;
 	}
 
@@ -134,7 +134,7 @@ public abstract class ArrayUtils {
 	 * @return a boolean value indicating whether the given array is empty.
 	 * @see #isEmpty(Object[])
 	 */
-	public static boolean isNotEmpty(Object[] array) {
+	public static boolean isNotEmpty(@Nullable Object[] array) {
 		return !isEmpty(array);
 	}
 
@@ -144,7 +144,7 @@ public abstract class ArrayUtils {
 	 * @param array the array to determine it's length.
 	 * @return the length of the given array or 0 if the array reference is null.
 	 */
-	public static int length(Object[] array) {
+	public static int length(@Nullable Object[] array) {
 		return array != null ? array.length : 0;
 	}
 
@@ -159,7 +159,7 @@ public abstract class ArrayUtils {
 	 * @see java.lang.reflect.Array#newInstance(Class, int)
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T[] nullSafeArray(T[] array, Class<T> componentType) {
+	public static <T> T[] nullSafeArray(@Nullable T[] array, @NonNull Class<T> componentType) {
 		return array != null ? array : (T[]) Array.newInstance(componentType, 0);
 	}
 
@@ -173,7 +173,7 @@ public abstract class ArrayUtils {
 	 * @see java.lang.System#arraycopy(Object, int, Object, int, int)
 	 * @see java.lang.reflect.Array#newInstance(Class, int)
 	 */
-	public static Object[] remove(Object[] originalArray, int position) {
+	public static Object[] remove(@NonNull Object[] originalArray, int position) {
 
 		Object[] newArray =
 			(Object[]) Array.newInstance(originalArray.getClass().getComponentType(), originalArray.length - 1);
@@ -200,7 +200,7 @@ public abstract class ArrayUtils {
 	 * @return the sorted array of elements.
 	 * @see java.util.Arrays#sort(Object[])
 	 */
-	public static <T extends Comparable<T>> T[] sort(T[] array) {
+	public static @NonNull <T extends Comparable<T>> T[] sort(@NonNull T[] array) {
 
 		Arrays.sort(array);
 
@@ -217,7 +217,7 @@ public abstract class ArrayUtils {
 	 * @see java.lang.Iterable
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Iterable<T> toIterable(@NonNull T... array) {
+	public static @NonNull <T> Iterable<T> toIterable(@NonNull T... array) {
 		return IterableArray.of(array);
 	}
 
