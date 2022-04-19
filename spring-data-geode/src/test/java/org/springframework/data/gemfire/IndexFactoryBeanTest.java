@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,12 +29,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.client.ClientCache;
@@ -45,18 +52,11 @@ import org.apache.geode.cache.query.IndexNameConflictException;
 import org.apache.geode.cache.query.IndexStatistics;
 import org.apache.geode.cache.query.QueryService;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.slf4j.Logger;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
+
+import org.slf4j.Logger;
 
 /**
  * Unit tests for {@link IndexFactoryBean}.
@@ -141,7 +141,7 @@ public class IndexFactoryBeanTest {
 
 			@Override
 			protected Logger newLogger() {
-				return IndexFactoryBeanUnitTests.this.mockLogger;
+				return IndexFactoryBeanTest.this.mockLogger;
 			}
 		});
 
@@ -188,7 +188,7 @@ public class IndexFactoryBeanTest {
 			.registerAlias(eq("KeyIndexBean"), eq("TestKeyIndex"));
 		verify(mockQueryService, times(1))
 			.createKeyIndex(eq("TestKeyIndex"), eq("id"), eq("/Example"));
-		verifyZeroInteractions(mockCache);
+		verifyNoInteractions(mockCache);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -536,7 +536,7 @@ public class IndexFactoryBeanTest {
 
 		indexFactoryBean.registerAlias("IndexBean", "TestIndex");
 
-		verifyZeroInteractions(mockBeanFactory);
+		verifyNoInteractions(mockBeanFactory);
 	}
 
 	@Test
@@ -551,7 +551,7 @@ public class IndexFactoryBeanTest {
 
 		assertThat(indexFactoryBean.getBeanFactory()).isSameAs(mockConfigurableBeanFactory);
 
-		verifyZeroInteractions(mockConfigurableBeanFactory);
+		verifyNoInteractions(mockConfigurableBeanFactory);
 	}
 
 	@Test
@@ -922,7 +922,7 @@ public class IndexFactoryBeanTest {
 				.createFunctionalIndex(eq(mockQueryService), eq("TestIndex"),
 					eq("id"), eq("/Example"), eq(null));
 
-			verifyZeroInteractions(mockLogger);
+			verifyNoInteractions(mockLogger);
 
 			verify(mockQueryService, times(1)).getIndexes();
 		}
@@ -970,7 +970,7 @@ public class IndexFactoryBeanTest {
 				.createFunctionalIndex(eq(mockQueryService), eq("TestIndex"),
 					eq("id"), eq("/Example"), eq(null));
 
-			verifyZeroInteractions(mockLogger);
+			verifyNoInteractions(mockLogger);
 
 			verify(mockQueryService, times(1)).getIndexes();
 		}
@@ -1004,7 +1004,7 @@ public class IndexFactoryBeanTest {
 			.createFunctionalIndex(eq(mockQueryService), eq("TestIndex"), eq("price"),
 				eq("/Orders"), eq(null));
 
-		verifyZeroInteractions(mockLogger);
+		verifyNoInteractions(mockLogger);
 
 		verify(mockQueryService, times(1)).getIndexes();
 	}
@@ -1086,7 +1086,7 @@ public class IndexFactoryBeanTest {
 		verify(indexFactoryBean, times(1))
 			.createKeyIndex(eq(mockQueryService), eq("TestIndex"), eq("id"), eq("/Example"));
 
-		verifyZeroInteractions(mockLogger);
+		verifyNoInteractions(mockLogger);
 
 		verify(mockQueryService, times(1)).getIndexes();
 	}
@@ -1557,7 +1557,7 @@ public class IndexFactoryBeanTest {
 	}
 
 	@Test
-	public void getObjectReturnsLookedUpIndex() throws Exception {
+	public void getObjectReturnsLookedUpIndex() {
 
 		Index mockIndexOne = mockIndex("MockIndexOne");
 		Index mockIndexTwo = mockIndex("MockIndexTwo");
