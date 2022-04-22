@@ -103,13 +103,13 @@ public class GemFirePropertiesUnitTests {
 
 		Set<String> actualGemFireProperties = resolveActualGemFirePropertyNames();
 		Set<String> expectedGemFireProperties = resolveExpectedNonDeprecatedGemFirePropertyNames();
-		Set<String> missingGemFireProperties = new TreeSet<>(actualGemFireProperties);
+		Set<String> extraGemFireProperties = new TreeSet<>(actualGemFireProperties);
 
-		missingGemFireProperties.removeAll(expectedGemFireProperties);
+		extraGemFireProperties.removeAll(expectedGemFireProperties);
 
-		assertThat(missingGemFireProperties)
+		assertThat(extraGemFireProperties)
 			.describedAs("Unexpected properties in [%s] not in [%s] include (%s)",
-				GemFireProperties.class.getName(), ConfigurationProperties.class.getName(), missingGemFireProperties)
+				GemFireProperties.class.getName(), ConfigurationProperties.class.getName(), extraGemFireProperties)
 			.isEmpty();
 	}
 
@@ -163,5 +163,23 @@ public class GemFirePropertiesUnitTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void fromNullProperty() {
 		testFromInvalidGemFireProperty(null);
+	}
+
+	@Test
+	public void normalizeGemFireProperty() {
+		assertThat(GemFireProperties.normalizePropertyName("gemfire.name")).isEqualTo("name");
+	}
+
+	@Test
+	public void normalizeNonGemFirePrefixedProperty() {
+
+		assertThat(GemFireProperties.normalizePropertyName("non-existing-property")).isEqualTo("non-existing-property");
+		assertThat(GemFireProperties.normalizePropertyName("name")).isEqualTo("name");
+		assertThat(GemFireProperties.normalizePropertyName("geode.name")).isEqualTo("geode.name");
+	}
+
+	@Test
+	public void normalizeNullPropertyName() {
+		assertThat(GemFireProperties.normalizePropertyName(null)).isNull();
 	}
 }

@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
  *
  * @author John Blum
  * @see org.apache.geode.distributed.ConfigurationProperties
+ * @see <a href="https://geode.apache.org/docs/guide/114/reference/topics/gemfire_properties.html">Apache Geode Properties</a>
  * @since 2.3.0
  */
 @SuppressWarnings("unused")
@@ -174,25 +175,27 @@ public enum GemFireProperties {
 			.orElseThrow(() -> newIllegalArgumentException("[%s] is not a valid Apache Geode property", propertyName));
 	}
 
-	private static boolean equals(@Nullable GemFireProperties property, @Nullable String propertyName) {
+	private static boolean equals(@NonNull GemFireProperties property, @Nullable String propertyName) {
 		return property != null && property.getName().equals(normalizePropertyName(propertyName));
 	}
 
-	private static @Nullable String normalizePropertyName(@Nullable String propertyName) {
+	/**
+	 * Normalizes the given {@link String property name} by stripping off the {@literal gemfire.} prefix.
+	 *
+	 * @param propertyName {@link String name} of the property to normalize.
+	 * @return a normalized {@link String name} for the given property.
+	 */
+	public static @Nullable String normalizePropertyName(@Nullable String propertyName) {
 
-		String safePropertyName = String.valueOf(propertyName).trim();
+		String nullSafePropertyName = String.valueOf(propertyName).trim();
 
-		boolean gemfireDotPrefixed = safePropertyName.startsWith(GEMFIRE_PROPERTY_NAME_PREFIX);
+		boolean gemfireDotPrefixed = nullSafePropertyName.startsWith(GEMFIRE_PROPERTY_NAME_PREFIX);
 
-		int index = safePropertyName.lastIndexOf(".");
+		int index = nullSafePropertyName.lastIndexOf(".");
 
 		return gemfireDotPrefixed && index > -1
-			? safePropertyName.substring(index + 1)
+			? nullSafePropertyName.substring(index + 1)
 			: propertyName;
-	}
-
-	private static @Nullable Class<?> nullSafeType(@Nullable Object target, @Nullable Class<?> defaultType) {
-		return target != null ? target.getClass() : defaultType;
 	}
 
 	private static final Class<?> DEFAULT_PROPERTY_TYPE = Object.class;
@@ -205,7 +208,7 @@ public enum GemFireProperties {
 
 	private final ConversionService conversionService;
 
-	/** NOTE: a {@literal null} value represents an unset value */
+	/** NOTE: A {@literal null} value represents an unset value */
 	private final Object defaultValue;
 
 	private final String propertyName;
@@ -225,9 +228,9 @@ public enum GemFireProperties {
 	}
 
 	/**
-	 * Gets this property's {@link Object default value}.
+	 * Gets the {@link Object default value} for this Apache Geode property.
 	 *
-	 * @return this property's {@link Object default value}.
+	 * @return the {@link Object default value} for this Apache Geode property.
 	 * @see java.lang.Object
 	 */
 	public @Nullable Object getDefaultValue() {
@@ -235,10 +238,11 @@ public enum GemFireProperties {
 	}
 
 	/**
-	 * Gets this property's {@link Object default value} as a {@link String}.
+	 * Gets the {@link Object default value} for this Apache Geode property as a {@link String}.
 	 *
-	 * @return this property's {@link Object default value} as a {@link String}. If this property's
-	 * {@link Object default value} is {@literal null}, then this method return the {@literal "null"} {@link String}.
+	 * @return the {@link Object default value} for this Apache Geode property as a {@link String}.
+	 * If this property's {@link Object default value} is {@literal null}, then this method returns
+	 * the {@literal "null"} {@link String}.
 	 * @see #getDefaultValue()
 	 * @see java.lang.String
 	 */
@@ -247,31 +251,16 @@ public enum GemFireProperties {
 	}
 
 	/**
-	 * Gets this property's {@link Object default value} converted to the property's declared {@link Class type}.
+	 * Gets the {@link Object default value} for this Apache Geode property converted to
+	 * the given, required {@link Class type}.
 	 *
-	 * @param <T> declared {@link Class type} of this property.
-	 * @return this property's {@link Object default value} converted to the property's declared {@link Class type}.
-	 * @throws IllegalArgumentException if this property's {@link Object default value} cannot be converted to
-	 * the property's declared {@link Class type}.
-	 * @see #getDefaultValueAsType(Class)
-	 * @see #getType()
-	 */
-	@SuppressWarnings("unchecked")
-	public @NonNull <T> T getDefaultValueAsType() {
-
-		Class<T> propertyType = (Class<T>) getType();
-
-		return getDefaultValueAsType(propertyType);
-	}
-
-	/**
-	 * Gets this property's {@link Object default value} converted to the given {@link Class type}.
-	 *
-	 * @param <T> desired {@link Class type} for this property's {@link Object default value}.
-	 * @param type {@link Class type} to convert the property's {@link Object default value} to.
-	 * @return this property's {@link Object default value} converted to an instance of the given {@link Class type}.
-	 * @throws IllegalArgumentException if this property's {@link Object default value} cannot be converted to
-	 * an instance of the given {@link Class type}.
+	 * @param <T> Desired {@link Class type} for this Apache Geode property's {@link Object default value}.
+	 * @param type {@link Class type} to convert the {@link Object default value} to.
+	 * @return the {@link Object default value} for this Apache Geode property converted into an instance of
+	 * the given, required {@link Class type}.
+	 * @throws IllegalArgumentException if this Apache Geode property's {@link Object default value}
+	 * cannot be converted to an instance of the given, required {@link Class type}
+	 * or the given {@link Class type} is {@literal null}.
 	 * @see #getDefaultValue()
 	 * @see #getType()
 	 */
@@ -280,9 +269,7 @@ public enum GemFireProperties {
 		Assert.notNull(type, "Target type must not be null");
 
 		Object defaultValue = getDefaultValue();
-
-		Class<?> propertyType = getType();
-		Class<?> defaultValueType = nullSafeType(defaultValue, propertyType);
+		Class<?> defaultValueType = resolveDefaultValueType();
 
 		if (type.isInstance(defaultValue)) {
 			return type.cast(defaultValue);
@@ -295,10 +282,20 @@ public enum GemFireProperties {
 			defaultValue, defaultValueType, type);
 	}
 
+	private @NonNull Class<?> resolveDefaultValueType() {
+
+		Class<?> propertyType = getType();
+		Object defaultValue = getDefaultValue();
+
+		return defaultValue != null ? defaultValue.getClass()
+			: propertyType != null ? propertyType
+			: Object.class;
+	}
+
 	/**
-	 * Gets the {@link String name} of {@literal this} property.
+	 * Gets the {@link String name} of this Apache Geode property.
 	 *
-	 * @return the {@link String name} of {@literal this} property.
+	 * @return the {@link String name} of this Apache Geode property.
 	 * @see java.lang.String
 	 */
 	public @NonNull String getName() {
@@ -306,9 +303,9 @@ public enum GemFireProperties {
 	}
 
 	/**
-	 * Gets the declared {@link Class type} of {@literal this} property.
+	 * Gets the declared {@link Class type} of this Apache Geode property.
 	 *
-	 * @return the declared {@link Class type} of {@literal this} property.
+	 * @return the declared {@link Class type} of this Apache Geode property.
 	 * @see java.lang.Class
 	 */
 	public @NonNull Class<?> getType() {
