@@ -129,14 +129,14 @@ You can also chat with the community on https://gitter.im/spring-projects/spring
 
 == Reporting Issues
 
-Spring Data uses github issues as issue tracking system to record bugs and feature requests. If you want to raise an issue, please follow the recommendations below:
+Spring Data uses GitHub Issues as the issue tracking system to record bugs and feature requests. If you want to raise an issue, please follow the recommendations below:
 
-* Before you log a bug, please search the
-https://github.com/spring-projects/spring-data-geode/issues[issue tracker] to see if someone has already reported the problem.
-* If the issue doesn’t already exist, https://github.com/spring-projects/spring-data-geode/issues[create a new issue].
+* Before you log a bug, please search
+https://github.com/spring-projects/spring-data-geode/issues[GitHub Issues] to see if someone has already reported the problem.
+* If the issue does not already exist, https://github.com/spring-projects/spring-data-geode/issues[create a new issue].
 * Please provide as much information as possible with the issue report, we like to know the version of Spring Data that you are using and JVM version.
 * If you need to paste code, or include a stack trace use markdown {backtick}{backtick}{backtick} escapes before and after your text.
-* If possible try to create a test-case or project that replicates the issue. Attach a link to your code or a compressed file containing your code.
+* If possible try to create a test case or project that reproduces the issue. Attach a link to your code or a compressed file containing your code.
 
 == Building from Source
 
