@@ -35,7 +35,10 @@ import org.springframework.data.gemfire.util.PropertiesBuilder;
  * @see org.springframework.data.gemfire.config.annotation.EnableRedisServer
  * @see org.springframework.data.gemfire.config.annotation.support.EmbeddedServiceConfigurationSupport
  * @since 1.9.0
+ * @deprecated Support for the Redis Server protocol in Apache Geode to service Redis clients is targeted
+ * to be removed in the Apache Geode project as of Apache Geode 1.15.
  */
+@Deprecated
 public class RedisServerConfiguration extends EmbeddedServiceConfigurationSupport {
 
 	protected static final int DEFAULT_REDIS_PORT = 6379;
