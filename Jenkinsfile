@@ -1,10 +1,12 @@
 def p = [:]
+
 node {
     checkout scm
     p = readProperties interpolate: true, file: 'ci/pipeline.properties'
 }
 
 pipeline {
+
 	agent none
 
 	triggers {
@@ -35,16 +37,14 @@ pipeline {
 			}
 			steps {
 				script {
-					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
-						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
-							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-							sh 'rm -Rf `find . -name "newDB"`'
-							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-							sh 'rm -Rf `find . -name "*.log"`'
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
-						}
+					docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
+						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "newDB"`'
+						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "*.log"`'
+						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
 					}
 				}
 			}
@@ -69,23 +69,21 @@ pipeline {
 
 			steps {
 				script {
-					docker.withRegistry(p['docker.registry'], p['docker.credentials']) {
-						docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
-							sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-							sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-							sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-							sh 'rm -Rf `find . -name "newDB"`'
-							sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-							sh 'rm -Rf `find . -name "*.log"`'
-							sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -s settings.xml -Pci,artifactory ' +
-									'-Dartifactory.server=https://repo.spring.io ' +
-									"-Dartifactory.username=${ARTIFACTORY_USR} " +
-									"-Dartifactory.password=${ARTIFACTORY_PSW} " +
-									"-Dartifactory.staging-repository=libs-snapshot-local " +
-									"-Dartifactory.build-name=spring-data-geode " +
-									"-Dartifactory.build-number=${BUILD_NUMBER} " +
-									'-Dmaven.test.skip=true clean deploy -U -B'
-						}
+					docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
+						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "newDB"`'
+						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+						sh 'rm -Rf `find . -name "*.log"`'
+						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -s settings.xml -Pci,artifactory ' +
+								'-Dartifactory.server=https://repo.spring.io ' +
+								"-Dartifactory.username=${ARTIFACTORY_USR} " +
+								"-Dartifactory.password=${ARTIFACTORY_PSW} " +
+								"-Dartifactory.staging-repository=libs-snapshot-local " +
+								"-Dartifactory.build-name=spring-data-geode " +
+								"-Dartifactory.build-number=${BUILD_NUMBER} " +
+								'-Dmaven.test.skip=true clean deploy -U -B'
 					}
 				}
 			}
