@@ -157,34 +157,6 @@ See {sdg-javadoc}/org/springframework/data/gemfire/config/annotation/EnableMemca
 
 See <<bootstrap-annotation-config-embedded-services-memcached>> for more details.
 
-[[bootstap-annotations-quickstart-redisserver]]
-== Configure the Embedded Redis Server
-
-Annotate your Spring `@PeerCacheApplication` or `@CacheServerApplication` class with `@EnableRedisServer` to start
-the embedded Redis server listening on port `6379`, as follows:
-
-[source,java]
-----
-@SpringBootApplication
-@CacheServerApplication
-@EnableRedisServer
-public class ServerApplication {
-
-  public static void main(String[] args) {
-    SpringApplication.run(ServerApplication.class, args);
-  }
-}
-----
-
-NOTE: `@EnableRedisServer` can only be used with {data-store-name} server applications.
-
-WARNING: You must explicitly declare the `org.apache.geode:geode-redis` module on your Spring [Boot] application
-classpath.
-
-See {sdg-javadoc}/org/springframework/data/gemfire/config/annotation/EnableRedisServer.html[`@EnableRedisServer` Javadoc].
-
-See <<bootstrap-annotation-config-embedded-services-redis>> for more details.
-
 [[bootstap-annotations-quickstart-logging]]
 == Configure Logging
 

@@ -805,10 +805,6 @@ public abstract class AbstractAnnotationConfigSupport
 		return String.format("%1$s%2$s", propertyName("service."), propertyNameSuffix);
 	}
 
-	protected String redisServiceProperty(String propertyNameSuffix) {
-		return String.format("%1$s%2$s", serviceProperty("redis."), propertyNameSuffix);
-	}
-
 	protected String memcachedServiceProperty(String propertyNameSuffix) {
 		return String.format("%1$s%2$s", serviceProperty("memcached."), propertyNameSuffix);
 	}

@@ -39,10 +39,9 @@ import org.springframework.mock.env.MockPropertySource;
 import org.springframework.util.StringUtils;
 
 /**
- * Integration tests for {@link EnableAuth}, {@link EnableGemFireProperties}, {@link EnableHttpService},
+ * Integration Tests for {@link EnableAuth}, {@link EnableGemFireProperties}, {@link EnableHttpService},
  * {@link EnableLocator}, {@link EnableLogging}, {@link EnableManager}, {@link EnableMemcachedServer},
- * {@link EnableOffHeap}, {@link EnableRedisServer}, {@link EnableSecurity}, {@link EnableSsl},
- * {@link EnableStatistics}.
+ * {@link EnableOffHeap}, {@link EnableSecurity}, {@link EnableSsl}, {@link EnableStatistics}.
  *
  * @author John Blum
  * @see java.util.Properties
@@ -331,29 +330,6 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 	}
 
 	@Test
-	public void redisServerGemFirePropertiesConfiguration() {
-
-		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.service.redis.bind-address", "10.16.8.4")
-			.withProperty("spring.data.gemfire.service.redis.port", "13579");
-
-		newApplicationContext(testPropertySource, TestRedisServerGemFirePropertiesConfiguration.class);
-
-		assertThat(containsBean("gemfireCache")).isTrue();
-
-		GemFireCache gemfireCache = getBean("gemfireCache", GemFireCache.class);
-
-		assertThat(gemfireCache).isNotNull();
-		assertThat(gemfireCache.getDistributedSystem()).isNotNull();
-
-		Properties gemfireProperties = gemfireCache.getDistributedSystem().getProperties();
-
-		assertThat(gemfireProperties).isNotNull();
-		assertThat(gemfireProperties.getProperty("redis-bind-address")).isEqualTo("10.16.8.4");
-		assertThat(gemfireProperties.getProperty("redis-port")).isEqualTo("13579");
-	}
-
-	@Test
 	public void securityGemFirePropertiesConfiguration() {
 
 		PropertySource testPropertySource = new MockPropertySource("TestPropertySource")
@@ -535,12 +511,6 @@ public class EnableGemFirePropertiesIntegrationTests extends SpringApplicationCo
 			return mock(PdxSerializer.class);
 		}
 	}
-
-	@EnableGemFireMockObjects
-	@PeerCacheApplication
-	@EnableGemFireProperties
-	@EnableRedisServer
-	static class TestRedisServerGemFirePropertiesConfiguration { }
 
 	@EnableGemFireMockObjects
 	@PeerCacheApplication

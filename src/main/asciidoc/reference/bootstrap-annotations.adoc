@@ -774,31 +774,6 @@ public class ServerApplication { .. }
 More details on {data-store-name}'s Memcached service (called "Gemcached") can be found
 {x-data-store-docs}/tools_modules/gemcached/chapter_overview.html[here].
 
-[[bootstrap-annotation-config-embedded-services-redis]]
-=== Configuring the Embedded Redis Server
-
-{data-store-name} also implements the Redis server protocol, which enables Redis clients to connect to and communicate
-with a cluster of {data-store-name} servers to issue Redis commands. As of this writing, the Redis server protocol
-support in {data-store-name} is still experimental.
-
-To enable the embedded Redis service, add the `@EnableRedisServer` annotation to any `@PeerCacheApplication`
-or `@CacheServerApplication` annotated class, as follows:
-
-.Spring `CacheServer` application running an embedded Redis server
-[source, java]
-----
-@SpringBootApplication
-@CacheServerApplication
-@EnableRedisServer
-public class ServerApplication { .. }
-----
-
-WARNING: You must explicitly declare the `org.apache.geode:geode-redis` module on your Spring [Boot] application
-classpath.
-
-More details on {data-store-name}'s Redis adapter can be found
-{x-data-store-docs}/tools_modules/redis_adapter.html[here].
-
 [[bootstrap-annotation-config-logging]]
 == Configuring Logging
 
