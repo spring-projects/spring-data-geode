@@ -44,6 +44,8 @@ import org.springframework.util.StringUtils;
  */
 public class SslConfiguration extends EmbeddedServiceConfigurationSupport {
 
+	private static final String SPACE_DELIMITER = " ";
+
 	/**
 	 * Returns the {@link EnableSsl} {@link Annotation} {@link Class type}.
 	 *
@@ -73,6 +75,11 @@ public class SslConfiguration extends EmbeddedServiceConfigurationSupport {
 				resolveProperty(sslProperty("ciphers"),
 					StringUtils.arrayToCommaDelimitedString(annotationAttributes.getStringArray("ciphers"))))
 
+			.setProperty("ssl-client-protocols",
+				resolveProperty(sslProperty("client.protocols"),
+					StringUtils.arrayToDelimitedString(annotationAttributes.getStringArray("clientProtocols"),
+						SPACE_DELIMITER)))
+
 			.setPropertyIfNotDefault("ssl-default-alias",
 				resolveProperty(sslProperty("certificate.alias.default"),
 					annotationAttributes.getString("defaultCertificateAlias")), "")
@@ -100,6 +107,11 @@ public class SslConfiguration extends EmbeddedServiceConfigurationSupport {
 			.setProperty("ssl-require-authentication",
 				resolveProperty(sslProperty("require-authentication"),
 					annotationAttributes.getBoolean("requireAuthentication")))
+
+			.setProperty("ssl-server-protocols",
+				resolveProperty(sslProperty("server.protocols"),
+					StringUtils.arrayToDelimitedString(annotationAttributes.getStringArray("serverProtocols"),
+						SPACE_DELIMITER)))
 
 			.setProperty("ssl-truststore",
 				resolveProperty(sslProperty("truststore"),

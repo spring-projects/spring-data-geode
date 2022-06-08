@@ -79,6 +79,7 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.getProperty("ssl-ciphers")).isEqualTo("FISH,Scream,SEAL,SNOW");
+		assertThat(gemfireProperties.getProperty("ssl-client-protocols")).isEqualTo("ONE TWO");
 		assertThat(gemfireProperties.getProperty("ssl-enabled-components")).isEqualTo("server,gateway");
 		assertThat(gemfireProperties.getProperty("ssl-default-alias")).isEqualTo("TestCert");
 		assertThat(gemfireProperties.getProperty("ssl-gateway-alias")).isEqualTo("WanCert");
@@ -88,6 +89,7 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 		assertThat(gemfireProperties.getProperty("ssl-keystore-type")).isEqualTo("JKS");
 		assertThat(gemfireProperties.getProperty("ssl-protocols")).isEqualTo("TCP/IP,HTTP");
 		assertThat(gemfireProperties.getProperty("ssl-require-authentication")).isEqualTo("true");
+		assertThat(gemfireProperties.getProperty("ssl-server-protocols")).isEqualTo("TWO FOUR");
 		assertThat(gemfireProperties.getProperty("ssl-truststore")).isEqualTo("/path/to/truststore.jks");
 		assertThat(gemfireProperties.getProperty("ssl-truststore-password")).isEqualTo("p@55w0rd!");
 		assertThat(gemfireProperties.getProperty("ssl-truststore-type")).isEqualTo("PKCS11");
@@ -99,17 +101,19 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 	public void sslPropertyBasedConfigurationIsCorrect() {
 
 		PropertySource<?> testPropertySource = new MockPropertySource("TestPropertySource")
-			.withProperty("spring.data.gemfire.security.ssl.ciphers", "Scream, SEAL, SNOW")
-			.withProperty("spring.data.gemfire.security.ssl.components", "locator, server, gateway")
 			.withProperty("spring.data.gemfire.security.ssl.certificate.alias.default", "MockCert")
 			.withProperty("spring.data.gemfire.security.ssl.certificate.alias.gateway", "WanCert")
 			.withProperty("spring.data.gemfire.security.ssl.certificate.alias.server", "ServerCert")
+			.withProperty("spring.data.gemfire.security.ssl.ciphers", "Scream, SEAL, SNOW")
+			.withProperty("spring.data.gemfire.security.ssl.client.protocols", "ONE, TWO")
+			.withProperty("spring.data.gemfire.security.ssl.components", "locator, server, gateway")
 			.withProperty("spring.data.gemfire.security.ssl.enable-endpoint-identification", "true")
 			.withProperty("spring.data.gemfire.security.ssl.keystore", "~/test/app/keystore.jks")
 			.withProperty("spring.data.gemfire.security.ssl.keystore.password", "0p3nS@y5M3")
 			.withProperty("spring.data.gemfire.security.ssl.keystore.type", "R2D2")
 			.withProperty("spring.data.gemfire.security.ssl.protocols", "IP, TCP/IP, UDP")
 			.withProperty("spring.data.gemfire.security.ssl.require-authentication", "false")
+			.withProperty("spring.data.gemfire.security.ssl.server.protocols", "TWO, FOUR")
 			.withProperty("spring.data.gemfire.security.ssl.truststore", "relative/path/to/trusted.keystore")
 			.withProperty("spring.data.gemfire.security.ssl.truststore.password", "kn0ckKn0ck")
 			.withProperty("spring.data.gemfire.security.ssl.truststore.type", "C3PO")
@@ -135,6 +139,7 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 
 		assertThat(gemfireProperties).isNotNull();
 		assertThat(gemfireProperties.getProperty("ssl-ciphers")).isEqualTo("Scream, SEAL, SNOW");
+		assertThat(gemfireProperties.getProperty("ssl-client-protocols")).isEqualTo("ONE, TWO");
 		assertThat(sslEnabledComponents).isEqualTo("gateway,locator,server");
 		assertThat(gemfireProperties.getProperty("ssl-default-alias")).isEqualTo("MockCert");
 		assertThat(gemfireProperties.getProperty("ssl-gateway-alias")).isEqualTo("WanCert");
@@ -145,6 +150,7 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 		assertThat(gemfireProperties.getProperty("ssl-keystore-type")).isEqualTo("R2D2");
 		assertThat(gemfireProperties.getProperty("ssl-protocols")).isEqualTo("IP, TCP/IP, UDP");
 		assertThat(gemfireProperties.getProperty("ssl-require-authentication")).isEqualTo("false");
+		assertThat(gemfireProperties.getProperty("ssl-server-protocols")).isEqualTo("TWO, FOUR");
 		assertThat(gemfireProperties.getProperty("ssl-truststore")).isEqualTo("relative/path/to/trusted.keystore");
 		assertThat(gemfireProperties.getProperty("ssl-truststore-password")).isEqualTo("kn0ckKn0ck");
 		assertThat(gemfireProperties.getProperty("ssl-truststore-type")).isEqualTo("C3PO");
@@ -156,6 +162,7 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 	@ClientCacheApplication(logLevel = "error")
 	@EnableSsl(
 		ciphers = { "FISH", "Scream", "SEAL", "SNOW" },
+		clientProtocols = { "ONE", "TWO" },
 		components = { EnableSsl.Component.SERVER, EnableSsl.Component.GATEWAY },
 		componentCertificateAliases = {
 			@EnableSsl.ComponentAlias(component = EnableSsl.Component.GATEWAY, alias = "WanCert")
@@ -165,6 +172,7 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 		keystore = "/path/to/keystore.jks",
 		keystorePassword = "s3cr3t!",
 		protocols = { "TCP/IP", "HTTP" },
+		serverProtocols = { "TWO", "FOUR" },
 		truststore = "/path/to/truststore.jks",
 		truststorePassword = "p@55w0rd!",
 		truststoreType = "PKCS11",
@@ -173,8 +181,8 @@ public class EnableSslConfigurationUnitTests extends SpringApplicationContextInt
 	)
 	static class SslAnnotationBasedConfiguration { }
 
+	@ClientCacheApplication
 	@EnableGemFireMockObjects
-	@ClientCacheApplication(logLevel = "error")
 	@EnableSsl
 	static class SslPropertyBasedConfiguration { }
 

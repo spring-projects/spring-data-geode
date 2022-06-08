@@ -66,6 +66,18 @@ public @interface EnableSsl {
 	String[] ciphers() default { "any" };
 
 	/**
+	 * Configures a list of the SSL protocols to enable on the client-side of the SSL connection.
+	 *
+	 * The protocols listed must be supported by the available providers.
+	 *
+	 * Defaults to {@literal empty}.
+	 *
+	 * Use the {@literal spring.data.gemfire.security.ssl.client.protocols} property
+	 * in {@literal application.properties}.
+	 */
+	String[] clientProtocols() default {};
+
+	/**
 	 * Configures the Pivotal GemFire/Apache Geode components for which SSL will be enabled.
 	 *
 	 * Defaults to {@link EnableSsl.Component#ALL}.
@@ -170,6 +182,18 @@ public @interface EnableSsl {
 	 * in {@literal application.properties}.
 	 */
 	boolean requireAuthentication() default true;
+
+	/**
+	 * Configures a list of the SSL protocols to enable on the server-side of the SSL connection.
+	 *
+	 * The protocols listed must be supported by the available providers.
+	 *
+	 * Defaults to {@literal empty}.
+	 *
+	 * Use the {@literal spring.data.gemfire.security.ssl.server.protocols} property
+	 * in {@literal application.properties}.
+	 */
+	String[] serverProtocols() default {};
 
 	/**
 	 * Pathname to the truststore used for SSL communications.
