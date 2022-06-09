@@ -90,7 +90,7 @@ public class PdxFunctionArgumentResolverIntegrationTests extends IntegrationTest
 			return type.getDeclaredMethod(methodName, parameterTypes);
 		}
 		catch (NoSuchMethodException cause) {
-			throw newRuntimeException("Failed to get method [%1$s] with signature [%2$s] on Class type [%3$s]!",
+			throw newRuntimeException("Failed to get method [%1$s] with signature [%2$s] on Class type [%3$s]",
 				methodName, getMethodSignature(methodName, parameterTypes), type.getName());
 		}
 	}

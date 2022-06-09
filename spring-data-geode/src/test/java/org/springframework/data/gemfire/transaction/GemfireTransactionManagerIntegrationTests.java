@@ -77,7 +77,7 @@ public class GemfireTransactionManagerIntegrationTests extends IntegrationTestsS
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("BOOM!");
+			assertThat(expected).hasMessage("BOOM");
 			assertThat(expected).hasNoCause();
 
 			throw expected;
@@ -161,7 +161,7 @@ public class GemfireTransactionManagerIntegrationTests extends IntegrationTestsS
 
 		@Transactional(propagation = Propagation.REQUIRED)
 		public void doOperationTwoInTransactionOne() {
-			throw new IllegalArgumentException("BOOM!");
+			throw new IllegalArgumentException("BOOM");
 		}
 	}
 }

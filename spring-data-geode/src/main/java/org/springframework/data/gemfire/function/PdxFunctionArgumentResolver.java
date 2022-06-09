@@ -74,7 +74,7 @@ class PdxFunctionArgumentResolver extends DefaultFunctionArgumentResolver {
 	 */
 	@Override
 	public Method getFunctionAnnotatedMethod() {
-		throw new UnsupportedOperationException("Not Implemented!");
+		throw new UnsupportedOperationException("Not Implemented");
 	}
 
 	/*

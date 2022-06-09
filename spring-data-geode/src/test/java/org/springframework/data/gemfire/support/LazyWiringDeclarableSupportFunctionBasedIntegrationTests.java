@@ -83,7 +83,7 @@ public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests extends In
 
 	@Test
 	public void helloGreeting() {
-		assertThat(helloFunctionExecution.hello(null)).isEqualTo("Hello Everyone!");
+		assertThat(helloFunctionExecution.hello(null)).isEqualTo("Hello Everyone");
 	}
 
 	protected static abstract class FunctionAdaptor<T> extends LazyWiringDeclarableSupport implements Function<T> {
@@ -121,7 +121,7 @@ public class LazyWiringDeclarableSupportFunctionBasedIntegrationTests extends In
 
 		protected static final String ADDRESS_TO_PARAMETER = "hello.address.to";
 		protected static final String DEFAULT_ADDRESS_TO = "World";
-		protected static final String HELLO_GREETING = "Hello %1$s!";
+		protected static final String HELLO_GREETING = "Hello %1$s";
 		protected static final String ID = "hello";
 
 		@Value("${hello.default.address.to}")

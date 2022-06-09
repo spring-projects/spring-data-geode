@@ -69,7 +69,7 @@ public class SubRegionIntegrationTests extends IntegrationTestsSupport {
 	@SuppressWarnings("unchecked")
 	public void testGemFireAccountsSubRegionCreation() {
 
-		assertThat(cache).as("The GemFire Cache was not properly initialized!").isNotNull();
+		assertThat(cache).as("The GemFire Cache was not properly initialized").isNotNull();
 
 		Region customers = cache.getRegion("Customers");
 
@@ -92,7 +92,7 @@ public class SubRegionIntegrationTests extends IntegrationTestsSupport {
 	@SuppressWarnings("unchecked")
 	public void testSpringSubRegionConfiguration() {
 
-		assertThat(accounts).as("The /Customers/Accounts SubRegion was not properly initialized!").isNotNull();
+		assertThat(accounts).as("The /Customers/Accounts SubRegion was not properly initialized").isNotNull();
 		assertThat(accounts.getName()).isEqualTo("Accounts");
 		assertThat(accounts.getFullPath()).isEqualTo("/Customers/Accounts");
 

@@ -264,7 +264,7 @@ public class ContinuousQueryListenerAdapter implements ContinuousQueryListener {
 			}, method -> isValidEventHandlerMethodSignature(method, methodName));
 
 			Assert.isTrue(!this.methods.isEmpty(), String.format("Cannot find a suitable method named [%1$s#%2$s];"
-				+ " Is the method public and does it have the proper arguments?",
+				+ " Is the method public and does it have the proper arguments",
 					delegateType.getName(), methodName));
 		}
 

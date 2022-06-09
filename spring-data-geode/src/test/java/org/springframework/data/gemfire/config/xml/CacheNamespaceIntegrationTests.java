@@ -274,7 +274,7 @@ public class CacheNamespaceIntegrationTests extends IntegrationTestsSupport {
 
 		@Override
 		public void onEvent(TimestampedEntryEvent event, GatewayConflictHelper helper) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 	}
 }

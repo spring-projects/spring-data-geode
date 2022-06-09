@@ -72,7 +72,7 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 		Region<?, ?> simple = applicationContext.getBean("simple", Region.class);
 
 		assertThat(simple)
-			.describedAs("The 'simple' Region was not properly configured or initialized!")
+			.describedAs("The 'simple' Region was not properly configured or initialized")
 			.isNotNull();
 
 		assertThat(simple.getName()).isEqualTo("simple");
@@ -132,7 +132,7 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 		Region region = applicationContext.getBean("local-with-attributes", Region.class);
 
 		assertThat(region)
-			.describedAs("The 'local-with-attributes' Region was not properly configured and initialized!")
+			.describedAs("The 'local-with-attributes' Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(region.getName()).isEqualTo("local-with-attributes");
@@ -174,7 +174,7 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 		Region persistentLocalRegion = applicationContext.getBean("persistent", Region.class);
 
 		assertThat(persistentLocalRegion)
-			.describedAs("The 'persistent' Local Region was not properly configured and initialized!")
+			.describedAs("The 'persistent' Local Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(persistentLocalRegion.getName()).isEqualTo("persistent");
@@ -193,7 +193,7 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 
 		Region<?, ?> compressed = applicationContext.getBean("Compressed", Region.class);
 
-		assertThat(compressed).as("The 'Compressed' Local Region was not properly configured and initialized!")
+		assertThat(compressed).as("The 'Compressed' Local Region was not properly configured and initialized")
 			.isNotNull();
 		assertThat(compressed.getName()).isEqualTo("Compressed");
 		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "Compressed");
@@ -214,12 +214,12 @@ public class LocalRegionNamespaceIntegrationTests extends IntegrationTestsSuppor
 
 		@Override
 		public byte[] compress(byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
 		public byte[] decompress(byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

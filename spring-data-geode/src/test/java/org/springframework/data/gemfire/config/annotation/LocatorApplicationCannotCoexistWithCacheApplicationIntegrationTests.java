@@ -63,7 +63,7 @@ public class LocatorApplicationCannotCoexistWithCacheApplicationIntegrationTests
 			getBean(GemFireCache.class);
 			getBean(Locator.class);
 
-			fail("Caches and Locators cannot coexist!");
+			fail("Caches and Locators cannot coexist");
 
 		}
 		catch (BeanDefinitionStoreException expected) {

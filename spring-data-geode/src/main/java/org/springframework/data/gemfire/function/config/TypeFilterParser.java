@@ -83,8 +83,8 @@ class TypeFilterParser {
 	 */
 	TypeFilterParser(ReaderContext readerContext, ClassLoader classLoader) {
 
-		Assert.notNull(readerContext, "ReaderContext must not be null!");
-		Assert.notNull(classLoader, "ClassLoader must not be null!");
+		Assert.notNull(readerContext, "ReaderContext must not be null");
+		Assert.notNull(classLoader, "ClassLoader must not be null");
 
 		this.readerContext = readerContext;
 		this.classLoader = classLoader;

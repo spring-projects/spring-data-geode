@@ -76,7 +76,7 @@ public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTes
 		}
 
 		assertThat(found)
-			.as(String.format("Expected a GemFire CacheListener of type (%1$s) to be registered on Region (%2$s)!",
+			.describedAs(String.format("Expected a GemFire CacheListener of type (%1$s) to be registered on Region (%2$s)",
 				TestNoOpCacheListener.class.getName(), customersAccountsRegion.getName())).isTrue();
 	}
 
@@ -106,7 +106,7 @@ public class SubRegionSubElementNamespaceIntegrationTests extends IntegrationTes
 
 		@Override
 		public boolean processEvents(final List<AsyncEvent> events) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

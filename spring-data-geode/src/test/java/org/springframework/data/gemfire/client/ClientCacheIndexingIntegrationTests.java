@@ -86,7 +86,7 @@ public class ClientCacheIndexingIntegrationTests extends ForkingClientServerInte
 	public void testIndexByName() {
 
 		assertThat(clientCache)
-			.describedAs("The GemFire ClientCache was not properly configured and initialized!")
+			.describedAs("The GemFire ClientCache was not properly configured and initialized")
 			.isNotNull();
 
 		Index actualIndex = getIndex(clientCache, "ExampleIndex");

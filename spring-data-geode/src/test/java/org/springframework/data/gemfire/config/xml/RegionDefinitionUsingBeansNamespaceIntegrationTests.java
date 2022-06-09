@@ -71,7 +71,7 @@ public class RegionDefinitionUsingBeansNamespaceIntegrationTests extends Integra
 	@Test
 	public void testExampleRegionBeanDefinitionConfiguration() {
 
-		assertThat(example).as("The '/Example' Region was not properly configured and initialized!").isNotNull();
+		assertThat(example).as("The '/Example' Region was not properly configured and initialized").isNotNull();
 		assertThat(example.getName()).isEqualTo("Example");
 		assertThat(example.getFullPath()).isEqualTo("/Example");
 		assertThat(example.getAttributes()).isNotNull();
@@ -107,7 +107,7 @@ public class RegionDefinitionUsingBeansNamespaceIntegrationTests extends Integra
 	@Test
 	public void testAnotherExampleRegionDefinitionConfiguration() {
 
-		assertThat(anotherExample).as("The '/AnotherExample' Region was not properly configured and initialized!")
+		assertThat(anotherExample).as("The '/AnotherExample' Region was not properly configured and initialized")
 			.isNotNull();
 		assertThat(anotherExample.getName()).isEqualTo("AnotherExample");
 		assertThat(anotherExample.getFullPath()).isEqualTo("/AnotherExample");

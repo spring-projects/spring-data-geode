@@ -293,7 +293,7 @@ public class MappingPdxSerializerUnitTests {
 		}
 		catch (IllegalArgumentException expected) {
 
-			assertThat(expected).hasMessage("CustomInstantiators must not be null!");
+			assertThat(expected).hasMessage("CustomInstantiators must not be null");
 			assertThat(expected).hasNoCause();
 
 			throw expected;

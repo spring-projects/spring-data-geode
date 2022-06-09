@@ -51,7 +51,7 @@ public class AutoRegionLookupWithComponentScanningIntegrationTests extends Integ
 	public void testAutowiredNativeRegions() {
 
 		assertThat(this.applicationContext.containsBean("autoRegionLookupDao"))
-			.describedAs("The 'autoRegionLookupDao' Spring bean DAO was not properly configured an initialized!")
+			.describedAs("The 'autoRegionLookupDao' Spring bean DAO was not properly configured an initialized")
 			.isTrue();
 
 		assertThat(this.applicationContext.getBean("autoRegionLookupDao", AutoRegionLookupDao.class)).isNotNull();

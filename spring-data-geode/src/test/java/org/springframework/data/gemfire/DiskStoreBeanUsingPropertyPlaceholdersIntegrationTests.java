@@ -75,7 +75,7 @@ public class DiskStoreBeanUsingPropertyPlaceholdersIntegrationTests extends Inte
 	@Test
 	public void testDiskStoreBeanWithPropertyPlaceholderConfiguration() {
 
-		assertThat(testDataStore).describedAs("The Disk Store was not configured and initialized!").isNotNull();
+		assertThat(testDataStore).describedAs("The Disk Store was not configured and initialized").isNotNull();
 		assertThat(testDataStore.getAllowForceCompaction()).isEqualTo(getExpectedValue("allowForceCompaction"));
 		assertThat(testDataStore.getAutoCompact()).isEqualTo(getExpectedValue("autoCompact"));
 		assertThat(testDataStore.getCompactionThreshold()).isEqualTo(getExpectedValue("compactionThreshold"));

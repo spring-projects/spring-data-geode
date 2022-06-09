@@ -137,7 +137,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 		Region<?, ?> region = applicationContext.getBean("replicated-with-attributes", Region.class);
 
 		assertThat(region)
-			.describedAs("The 'replicated-with-attributes' Region was not properly configured and initialized!")
+			.describedAs("The 'replicated-with-attributes' Region was not properly configured and initialized")
 			.isNotNull();
 
 		RegionAttributes regionAttributes = region.getAttributes();
@@ -167,7 +167,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 
 		Region<?, ?> region = applicationContext.getBean("replicated-with-synchronous-index-updates", Region.class);
 
-		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized!",
+		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized",
 			"replicated-with-synchronous-index-updates")).isNotNull();
 
 		RegionAttributes<?, ?> regionAttributes = region.getAttributes();
@@ -200,7 +200,7 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 
 		Region<?, ?> compressed = applicationContext.getBean("Compressed", Region.class);
 
-		assertThat(compressed).as("The 'Compressed' REPLICATE Region was not properly configured and initialized!")
+		assertThat(compressed).as("The 'Compressed' REPLICATE Region was not properly configured and initialized")
 			.isNotNull();
 		assertThat(compressed.getName()).isEqualTo("Compressed");
 		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "Compressed");
@@ -221,12 +221,12 @@ public class ReplicatedRegionNamespaceIntegrationTests extends IntegrationTestsS
 
 		@Override
 		public byte[] compress(final byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
 		public byte[] decompress(final byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

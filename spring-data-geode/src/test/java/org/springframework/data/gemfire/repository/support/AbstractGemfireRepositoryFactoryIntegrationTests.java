@@ -144,7 +144,7 @@ public abstract class AbstractGemfireRepositoryFactoryIntegrationTests extends I
 
 		try {
 			repository.findByLastname("Matthews");
-			fail("Exception expected!");
+			fail("Exception expected");
 		} catch (IncorrectResultSizeDataAccessException e) {
 			assertThat(e.getExpectedSize()).isEqualTo(1);
 			assertThat(e.getActualSize()).isEqualTo(2);
