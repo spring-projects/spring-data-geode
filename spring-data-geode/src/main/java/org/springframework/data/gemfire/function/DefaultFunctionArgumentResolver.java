@@ -34,7 +34,7 @@ class DefaultFunctionArgumentResolver implements FunctionArgumentResolver {
 
 	@Override
 	public Method getFunctionAnnotatedMethod() {
-		throw new UnsupportedOperationException("Not Implemented!");
+		throw new UnsupportedOperationException("Not Implemented");
 	}
 
 	@Override

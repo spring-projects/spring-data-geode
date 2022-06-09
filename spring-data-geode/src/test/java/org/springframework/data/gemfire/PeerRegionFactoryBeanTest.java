@@ -845,7 +845,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.setPersistent(true);
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "PARTITION");
 			fail(
-				"Setting the 'persistent' attribute to TRUE and 'Data Policy' to PARTITION should have thrown an IllegalArgumentException!");
+				"Setting the 'persistent' attribute to TRUE and 'Data Policy' to PARTITION should have thrown an IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 			assertThat(expected.getMessage()).isEqualTo("Data Policy [PARTITION] is not valid when persistent is true");
@@ -1033,7 +1033,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.setPersistent(false);
 			factoryBean.resolveDataPolicy(mockRegionFactory, false, DataPolicy.PERSISTENT_REPLICATE);
 			fail(
-				"Setting the 'persistent' attribute to FALSE and 'Data Policy' to PERSISTENT_REPLICATE should have thrown an IllegalArgumentException!");
+				"Setting the 'persistent' attribute to FALSE and 'Data Policy' to PERSISTENT_REPLICATE should have thrown an IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 			assertThat(expected.getMessage())
@@ -1057,7 +1057,7 @@ public class PeerRegionFactoryBeanTest extends AbstractRegionFactoryBeanTests {
 			factoryBean.setPersistent(true);
 			factoryBean.resolveDataPolicy(mockRegionFactory, true, "REPLICATE");
 			fail(
-				"Setting the 'persistent' attribute to TRUE and 'Data Policy' to REPLICATE should have thrown an IllegalArgumentException!");
+				"Setting the 'persistent' attribute to TRUE and 'Data Policy' to REPLICATE should have thrown an IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
 			assertThat(expected.getMessage()).isEqualTo("Data Policy [REPLICATE] is not valid when persistent is true");

@@ -58,11 +58,11 @@ public class AlgorithmRepositoryIntegrationTests extends IntegrationTestsSupport
 	public void algorithmsRepositoryFunctionsCorrectly() {
 
 		assertThat(algorithmRepo)
-			.describedAs("A reference to the AlgorithmRepository was not properly configured!")
+			.describedAs("A reference to the AlgorithmRepository was not properly configured")
 			.isNotNull();
 
 		assertThat(algorithmsRegion)
-			.describedAs("A reference to the 'Algorithms' GemFire Cache Region was not properly configured!")
+			.describedAs("A reference to the 'Algorithms' GemFire Cache Region was not properly configured")
 			.isNotNull();
 
 		assertThat(algorithmsRegion.getName()).isEqualTo("Algorithms");

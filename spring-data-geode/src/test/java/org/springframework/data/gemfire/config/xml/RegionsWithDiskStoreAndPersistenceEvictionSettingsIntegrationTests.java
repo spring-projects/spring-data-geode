@@ -69,7 +69,7 @@ public class RegionsWithDiskStoreAndPersistenceEvictionSettingsIntegrationTests 
 	public void testNotPersistentNoOverflowRegion() {
 
 		assertThat(notPersistentNoOverflowRegion)
-			.describedAs("The Not Persistent, No Overflow Region was not properly configured and initialized!")
+			.describedAs("The Not Persistent, No Overflow Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(notPersistentNoOverflowRegion.getAttributes()).isNotNull();
@@ -83,7 +83,7 @@ public class RegionsWithDiskStoreAndPersistenceEvictionSettingsIntegrationTests 
 	public void testNotPersistentOverflowRegion() {
 
 		assertThat(notPersistentOverflowRegion)
-			.describedAs("The Not Persistent, Overflow Region was not properly configured and initialized!")
+			.describedAs("The Not Persistent, Overflow Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(notPersistentOverflowRegion.getAttributes()).isNotNull();
@@ -97,7 +97,7 @@ public class RegionsWithDiskStoreAndPersistenceEvictionSettingsIntegrationTests 
 	public void testPersistentNoOverflowRegion() {
 
 		assertThat(persistentNoOverflowRegion)
-			.describedAs("The Persistent, No Overflow Region was not properly configured and initialized!")
+			.describedAs("The Persistent, No Overflow Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(persistentNoOverflowRegion.getAttributes()).isNotNull();
@@ -111,7 +111,7 @@ public class RegionsWithDiskStoreAndPersistenceEvictionSettingsIntegrationTests 
 	public void testPersistentOverflowRegion() {
 
 		assertThat(persistentOverflowRegion)
-			.describedAs("The Persistent, Overflow Region was not properly configured and initialized!")
+			.describedAs("The Persistent, Overflow Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(persistentOverflowRegion.getAttributes()).isNotNull();

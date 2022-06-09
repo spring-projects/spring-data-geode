@@ -67,7 +67,7 @@ public class GatewayReceiverManualStartIntegrationTests extends IntegrationTests
 	public void autoGatewayReceiverConfigurationIsCorrect() {
 
 		assertThat(autoGatewayReceiver)
-			.describedAs("The 'Auto' GatewayReceiver was not properly configured or initialized!")
+			.describedAs("The 'Auto' GatewayReceiver was not properly configured or initialized")
 			.isNotNull();
 
 		assertThat(autoGatewayReceiver.isRunning()).isTrue();
@@ -77,7 +77,7 @@ public class GatewayReceiverManualStartIntegrationTests extends IntegrationTests
 		int gatewayReceiverPort = autoGatewayReceiver.getPort();
 
 		assertGreaterThanEqualToLessThanEqualTo(String.format(
-			"GatewayReceiver 'port' [%1$d] was not greater than equal to [%2$d] and less than equal to [%3$d]!",
+			"GatewayReceiver 'port' [%1$d] was not greater than equal to [%2$d] and less than equal to [%3$d]",
 				gatewayReceiverPort, autoGatewayReceiver.getStartPort(), autoGatewayReceiver.getEndPort()),
 					gatewayReceiverPort, autoGatewayReceiver.getStartPort(), autoGatewayReceiver.getEndPort());
 
@@ -90,7 +90,7 @@ public class GatewayReceiverManualStartIntegrationTests extends IntegrationTests
 	public void manualGatewayReceiverConfigurationIsCorrect() throws IOException {
 
 		assertThat(manualGatewayReceiver)
-			.describedAs("The 'Manual' GatewayReceiver was not properly configured or initialized!")
+			.describedAs("The 'Manual' GatewayReceiver was not properly configured or initialized")
 			.isNotNull();
 
 		assertThat(manualGatewayReceiver.isRunning()).isFalse();
@@ -104,7 +104,7 @@ public class GatewayReceiverManualStartIntegrationTests extends IntegrationTests
 		int gatewayReceiverPort = manualGatewayReceiver.getPort();
 
 		assertGreaterThanEqualToLessThanEqualTo(String.format(
-			"GatewayReceiver 'port' [%1$d] was not greater than equal to [%2$d] and less than equal to [%3$d]!",
+			"GatewayReceiver 'port' [%1$d] was not greater than equal to [%2$d] and less than equal to [%3$d]",
 				gatewayReceiverPort, manualGatewayReceiver.getStartPort(), manualGatewayReceiver.getEndPort()),
 					gatewayReceiverPort, manualGatewayReceiver.getStartPort(), manualGatewayReceiver.getEndPort());
 

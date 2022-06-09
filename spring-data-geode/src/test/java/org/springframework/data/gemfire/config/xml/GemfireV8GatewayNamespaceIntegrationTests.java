@@ -64,7 +64,7 @@ public class GemfireV8GatewayNamespaceIntegrationTests extends IntegrationTestsS
 	public void testGatewaySenderEventSubstitutionFilter() {
 
 		assertThat(gatewaySenderWithEventSubstitutionFilter)
-			.describedAs("The 'gatewaySenderEventSubtitutionFilter' bean was not properly configured and initialized!")
+			.describedAs("The 'gatewaySenderEventSubtitutionFilter' bean was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(gatewaySenderWithEventSubstitutionFilter.getId()).isEqualTo("gateway-sender-with-event-substitution-filter");
@@ -81,7 +81,7 @@ public class GemfireV8GatewayNamespaceIntegrationTests extends IntegrationTestsS
 	public void testGatewaySenderEventSubstitutionFilterRef() {
 
 		assertThat(gatewaySenderWithEventSubstitutionFilterRef)
-			.describedAs("The 'gatewaySenderEventSubtitutionFilter' bean was not properly configured and initialized!")
+			.describedAs("The 'gatewaySenderEventSubtitutionFilter' bean was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(gatewaySenderWithEventSubstitutionFilterRef.getId()).isEqualTo("gateway-sender-with-event-substitution-filter-ref");
@@ -108,7 +108,7 @@ public class GemfireV8GatewayNamespaceIntegrationTests extends IntegrationTestsS
 
 		@Override
 		public Object getSubstituteValue(EntryEvent<Object, Object> objectObjectEntryEvent) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

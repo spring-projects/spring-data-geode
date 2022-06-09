@@ -86,11 +86,11 @@ public class ContinuousQueryListenerContainerNamespaceIntegrationTests
 	@Test
 	public void testContainerConfiguration() throws Exception {
 
-		assertThat(container).as("The ContinuousQueryListenerContainer was not properly configured!").isNotNull();
-		assertThat(container.isActive()).as("The CQ Listener Container should be active (initialized)!").isTrue();
-		assertThat(container.isAutoStartup()).as("The CQ Listener container should not be configured to auto-start!")
+		assertThat(container).as("The ContinuousQueryListenerContainer was not properly configured").isNotNull();
+		assertThat(container.isActive()).as("The CQ Listener Container should be active (initialized)").isTrue();
+		assertThat(container.isAutoStartup()).as("The CQ Listener container should not be configured to auto-start")
 			.isFalse();
-		assertThat(container.isRunning()).as("The CQ Listener Container should not be running!").isFalse();
+		assertThat(container.isRunning()).as("The CQ Listener Container should not be running").isFalse();
 		assertThat(container.getPhase()).isEqualTo(4);
 		assertThat(testErrorHandler).isNotNull();
 		assertThat(TestUtils.<Object>readField("errorHandler", container)).isSameAs(testErrorHandler);

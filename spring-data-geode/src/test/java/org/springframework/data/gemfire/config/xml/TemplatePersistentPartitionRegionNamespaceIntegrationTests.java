@@ -77,7 +77,7 @@ public class TemplatePersistentPartitionRegionNamespaceIntegrationTests extends 
 	@Test
 	public void testExampleTemplatedPersistentPartitionRegion() {
 
-		assertThat(example).describedAs("The '/Example' PARTITION Region was not properly configured and initialized!").isNotNull();
+		assertThat(example).describedAs("The '/Example' PARTITION Region was not properly configured and initialized").isNotNull();
 		assertThat(example.getName()).isEqualTo("Example");
 		assertThat(example.getFullPath()).isEqualTo("/Example");
 		assertThat(example.getAttributes()).isNotNull();
@@ -99,7 +99,7 @@ public class TemplatePersistentPartitionRegionNamespaceIntegrationTests extends 
 
 		@Override
 		public Object getRoutingObject(final EntryOperation<K, V> kvEntryOperation) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

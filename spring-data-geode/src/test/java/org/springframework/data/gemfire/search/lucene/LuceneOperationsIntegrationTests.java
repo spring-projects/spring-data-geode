@@ -192,7 +192,7 @@ public class LuceneOperationsIntegrationTests extends IntegrationTestsSupport {
 				}
 			});
 
-			assertThat(flushed).describedAs("LuceneIndex not flushed!").isTrue();
+			assertThat(flushed).describedAs("LuceneIndex not flushed").isTrue();
 		}
 	}
 

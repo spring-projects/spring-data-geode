@@ -246,7 +246,7 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 
 		public UserDataStoreCacheLoader() {
 			Assert.state(INSTANCE.compareAndSet(null, this),
-				String.format("An instance of %1$s was already created!", getClass().getName()));
+				String.format("An instance of %1$s was already created", getClass().getName()));
 		}
 
 		@Override

@@ -451,7 +451,7 @@ public class SpringContextBootstrappingInitializer implements ApplicationListene
 							contextConfigLocationsArray)));
 
 					Assert.state(localApplicationContext.isRunning(), String.format(
-						"The Spring ApplicationContext (%1$s) failed to be properly initialized with the context config files (%2$s) or base packages (%3$s)!",
+						"The Spring ApplicationContext (%1$s) failed to be properly initialized with the context config files (%2$s) or base packages (%3$s)",
 							nullSafeGetApplicationContextId(localApplicationContext), Arrays.toString(contextConfigLocationsArray),
 								Arrays.toString(basePackagesArray)));
 

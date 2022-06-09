@@ -157,7 +157,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 		Region<?, ?> compressed = requireApplicationContext().getBean("compressed", Region.class);
 
 		assertThat(compressed)
-			.describedAs("The 'compressed' PARTITION Region was not properly configured and initialized!")
+			.describedAs("The 'compressed' PARTITION Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(compressed.getName()).isEqualTo("compressed");
@@ -203,7 +203,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 		Region<?, ?> listeners = requireApplicationContext().getBean("listeners", Region.class);
 
 		assertThat(listeners)
-			.describedAs("The 'listeners' PARTITION Region was not properly configured and initialized!")
+			.describedAs("The 'listeners' PARTITION Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(listeners.getName()).isEqualTo("listeners");
@@ -233,7 +233,7 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 		Region<?, ?> listeners = requireApplicationContext().getBean("listenerRef", Region.class);
 
 		assertThat(listeners)
-			.describedAs("The 'listenerRef' PARTITION Region was not properly configured and initialized!")
+			.describedAs("The 'listenerRef' PARTITION Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(listeners.getName()).isEqualTo("listenerRef");
@@ -260,12 +260,12 @@ public class PartitionedRegionNamespaceIntegrationTests extends IntegrationTests
 
 		@Override
 		public byte[] compress(final byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
 		public byte[] decompress(final byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

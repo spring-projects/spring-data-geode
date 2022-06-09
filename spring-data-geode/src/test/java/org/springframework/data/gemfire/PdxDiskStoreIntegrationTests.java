@@ -71,11 +71,11 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 		assertThat(region).isNotNull();
 
 		assertThat(region.getName())
-			.describedAs("Expected Region with name %1$s; but was %2$s!", expectedRegionName, region.getName())
+			.describedAs("Expected Region with name %1$s; but was %2$s", expectedRegionName, region.getName())
 			.isEqualTo(expectedRegionName);
 
 		assertThat(region.getFullPath())
-			.describedAs("Expected Region with path %1$s; but was %2$s!", expectedRegionPath, region.getFullPath())
+			.describedAs("Expected Region with path %1$s; but was %2$s", expectedRegionPath, region.getFullPath())
 			.isEqualTo(expectedRegionPath);
 	}
 
@@ -109,7 +109,7 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 	@Before
 	public void setup() {
 
-		assertThat(pdxDataRegion).as("The PdxData GemFire Region was not created successfully!").isNotNull();
+		assertThat(pdxDataRegion).as("The PdxData GemFire Region was not created successfully").isNotNull();
 
 		if (pdxDataRegion.size() == 0) {
 			for (int index = 1; index <= NUMBER_OF_REGION_ENTRIES; index++) {
@@ -152,7 +152,7 @@ public class PdxDiskStoreIntegrationTests extends IntegrationTestsSupport {
 
 		public KeyHolder(T key) {
 
-			Assert.notNull(key, "The key cannot be null!");
+			Assert.notNull(key, "The key cannot be null");
 
 			this.key = key;
 		}

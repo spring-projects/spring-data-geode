@@ -81,7 +81,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 			Collection<String> expectedCacheListenerNames) {
 
 		if (!expectedCacheListenerNames.isEmpty()) {
-			assertThat(cacheListeners).as("CacheListeners must not be null!").isNotNull();
+			assertThat(cacheListeners).as("CacheListeners must not be null").isNotNull();
 			assertThat(cacheListeners.length).isEqualTo(expectedCacheListenerNames.size());
 			assertThat(toStrings(cacheListeners).containsAll(expectedCacheListenerNames)).isTrue();
 		}
@@ -90,7 +90,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
 			EvictionAlgorithm expectedAlgorithm, int expectedMaximum) {
 
-		assertThat(evictionAttributes).as("EvictionAttributes must not be null!").isNotNull();
+		assertThat(evictionAttributes).as("EvictionAttributes must not be null").isNotNull();
 		assertThat(evictionAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(evictionAttributes.getAlgorithm()).isEqualTo(expectedAlgorithm);
 		assertThat(evictionAttributes.getMaximum()).isEqualTo(expectedMaximum);
@@ -101,7 +101,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 		String description, int expectedTimeout, ExpirationAction expectedAction) {
 
 		assertThat(expirationAttributes)
-			.as(String.format("ExpirationAttributes for '%1$s' must not be null!", description)).isNotNull();
+			.as(String.format("ExpirationAttributes for '%1$s' must not be null", description)).isNotNull();
 		assertThat(expirationAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(expirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
 	}
@@ -116,7 +116,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 
 	private void assertGemFireComponent(Object gemfireComponent, String expectedName) {
 
-		assertThat(gemfireComponent).as("The GemFire component must not be null!").isNotNull();
+		assertThat(gemfireComponent).as("The GemFire component must not be null").isNotNull();
 		assertThat(gemfireComponent.toString()).isEqualTo(expectedName);
 	}
 
@@ -129,7 +129,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 	private void assertRegionAttributes(Region<?, ?> region, String expectedName, String expectedFullPath,
 			DataPolicy expectedDataPolicy) {
 
-		assertThat(String.format("'%1$s' Region was not properly initialized!", region)).isNotNull();
+		assertThat(String.format("'%1$s' Region was not properly initialized", region)).isNotNull();
 		assertThat(region.getName()).isEqualTo(expectedName);
 		assertThat(region.getFullPath()).isEqualTo(expectedFullPath);
 		assertThat(region.getAttributes()).isNotNull();
@@ -208,7 +208,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 
 		@Override
 		public boolean processEvents(List<AsyncEvent> events) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
@@ -245,7 +245,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 
 		@Override
 		public V load(LoaderHelper<K, V> helper) throws CacheLoaderException {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
@@ -279,7 +279,7 @@ public class LookupRegionMutationIntegrationTests extends IntegrationTestsSuppor
 
 		@Override
 		public ExpirationAttributes getExpiry(Region.Entry<K, V> entry) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

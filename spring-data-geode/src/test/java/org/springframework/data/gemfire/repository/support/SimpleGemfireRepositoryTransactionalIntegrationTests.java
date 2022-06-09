@@ -88,7 +88,7 @@ public class SimpleGemfireRepositoryTransactionalIntegrationTests extends Integr
 	public void setup() {
 
 		assertThat(this.customers)
-			.describedAs("The 'Customers' Cache Region was not properly configured and initialized!")
+			.describedAs("The 'Customers' Cache Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(this.customers.getName()).isEqualTo("Customers");

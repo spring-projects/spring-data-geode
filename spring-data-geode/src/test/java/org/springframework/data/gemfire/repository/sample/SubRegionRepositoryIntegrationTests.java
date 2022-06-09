@@ -185,21 +185,21 @@ public class SubRegionRepositoryIntegrationTests extends IntegrationTestsSupport
 	@Before
 	public void setup() {
 
-		assertThat(programmers).as("The /Users/Programmers Subregion was null!").isNotNull();
+		assertThat(programmers).as("The /Users/Programmers Subregion was null").isNotNull();
 
 		if (programmers.isEmpty()) {
 			programmers.putAll(PROGRAMMER_USER_DATA);
 		}
 
 		assertThat(programmers.size()).isEqualTo(PROGRAMMER_USER_DATA.size());
-		assertThat(adminUsers).as("The /Local/Admins/Users Subregion was null!").isNotNull();
+		assertThat(adminUsers).as("The /Local/Admins/Users Subregion was null").isNotNull();
 
 		if (adminUsers.isEmpty()) {
 			adminUsers.putAll(ADMIN_USER_DATA);
 		}
 
 		assertThat(adminUsers.size()).isEqualTo(ADMIN_USER_DATA.size());
-		assertThat(guestUsers).as("The /Local/Guest/Users Subregion was null!").isNotNull();
+		assertThat(guestUsers).as("The /Local/Guest/Users Subregion was null").isNotNull();
 
 		if (guestUsers.isEmpty()) {
 			guestUsers.putAll(GUEST_USER_DATA);

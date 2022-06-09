@@ -259,7 +259,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 				.filter(existingIndex -> isIgnoreIfExists())
 				.map(existingIndex -> {
 
-					logWarning("WARNING! You are choosing to ignore this Index [%1$s] and return the existing"
+					logWarning("WARNING; You are choosing to ignore this Index [%1$s] and return the existing"
 							+ " Index having the same basic definition [%2$s] but with a different name [%3$s];"
 							+ " Make sure no OQL Query Hints refer to this Index by name [%1$s]",
 						indexName, toBasicIndexDefinition(), existingIndex.getName());
@@ -273,7 +273,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 						.map(existingIndex -> {
 
 							// Log an informational warning to caution the user about using the override
-							logWarning("WARNING! You are attempting to 'override' an existing Index [%1$s]"
+							logWarning("WARNING; You are attempting to 'override' an existing Index [%1$s]"
 									+ " having the same basic definition [%2$s] as the Index that will be created"
 									+ " by this IndexFactoryBean [%3$s]; 'Override' effectively 'renames' the existing"
 									+ " Index [%1$s] by removing it then recreating it under the new name [%3$s] with"
@@ -370,7 +370,7 @@ public class IndexFactoryBean extends AbstractFactoryBeanSupport<Index> implemen
 			String existingIndexDefinition = String.format(BASIC_INDEX_DEFINITION, existingIndex.getIndexedExpression(),
 				existingIndex.getFromClause(), IndexType.valueOf(existingIndex.getType()));
 
-			logWarning("WARNING! %1$s existing Index [%2$s] having a definition [%3$s]"
+			logWarning("WARNING; %1$s existing Index [%2$s] having a definition [%3$s]"
 					+ " that does not match the Index defined [%4$s] by this IndexFactoryBean [%5$s]",
 				action, existingIndex.getName(), existingIndexDefinition, toBasicIndexDefinition(), indexName);
 		}

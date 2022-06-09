@@ -196,7 +196,7 @@ class Predicates implements Predicate {
 				case CONTAINING:
 					return "LIKE";
 				default:
-					throw new IllegalArgumentException(String.format("Unsupported operator %s!", partType));
+					throw new IllegalArgumentException(String.format("Unsupported operator: %s", partType));
 			}
 		}
 	}

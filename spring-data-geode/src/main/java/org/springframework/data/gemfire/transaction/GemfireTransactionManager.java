@@ -163,8 +163,8 @@ public class GemfireTransactionManager extends AbstractPlatformTransactionManage
 		}
 		catch (Exception cause) {
 			throw new CannotCreateTransactionException(String.format("%1$s; %2$s",
-				"An existing, ongoing transaction is already associated with the current thread.",
-				" Are multiple transaction managers present?"), cause);
+				"An existing, ongoing transaction is already associated with the current thread;",
+				" Are multiple transaction managers present"), cause);
 		}
 	}
 
@@ -187,7 +187,7 @@ public class GemfireTransactionManager extends AbstractPlatformTransactionManage
 		}
 		catch (Exception cause) {
 			throw new NoTransactionException(
-				"No transaction is associated with the current thread. Are multiple transaction managers present?",
+				"No transaction is associated with the current thread; Are multiple transaction managers present",
 					cause);
 		}
 	}
@@ -243,7 +243,7 @@ public class GemfireTransactionManager extends AbstractPlatformTransactionManage
 		catch (Exception cause) {
 
 			String exceptionMessage =
-				"No transaction is associated with the current thread. Are multiple transaction managers present?";
+				"No transaction is associated with the current thread; Are multiple transaction managers present";
 
 			throw new NoTransactionException(exceptionMessage, cause);
 		}

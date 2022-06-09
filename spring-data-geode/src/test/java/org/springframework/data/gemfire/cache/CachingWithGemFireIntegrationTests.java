@@ -109,13 +109,13 @@ public class CachingWithGemFireIntegrationTests extends IntegrationTestsSupport 
 		private NamedNumbersInMemoryRepository namedNumbersRepo;
 
 		public final void setNamedNumbersRepo(final NamedNumbersInMemoryRepository namedNumbersRepo) {
-			Assert.notNull(namedNumbersRepo, "The 'NamedNumbers' Repository must not be null!");
+			Assert.notNull(namedNumbersRepo, "The 'NamedNumbers' Repository must not be null");
 			this.namedNumbersRepo = namedNumbersRepo;
 		}
 
 		protected NamedNumbersInMemoryRepository getNamedNumbersRepo() {
 			Assert.state(namedNumbersRepo != null,
-				"A reference to the 'NamedNumbers' Repository was not properly configured and initialized!");
+				"A reference to the 'NamedNumbers' Repository was not properly configured and initialized");
 			return namedNumbersRepo;
 		}
 
@@ -141,12 +141,12 @@ public class CachingWithGemFireIntegrationTests extends IntegrationTestsSupport 
 		}
 
 		public final void setNamedNumbers(final Map<String, Integer> namedNumbers) {
-			Assert.notNull(namedNumbers, "The reference to the 'NamedNumbers' Map must not be null!");
+			Assert.notNull(namedNumbers, "The reference to the 'NamedNumbers' Map must not be null");
 			this.namedNumbers = namedNumbers;
 		}
 
 		protected Map<String, Integer> getNamedNumbers() {
-			Assert.state(namedNumbers != null, "The 'NamedNumbers' Map was not properly configured and initialized!");
+			Assert.state(namedNumbers != null, "The 'NamedNumbers' Map was not properly configured and initialized");
 			return namedNumbers;
 		}
 

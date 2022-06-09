@@ -77,7 +77,7 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 			DataPolicy dataPolicy) {
 
 		assertThat(region)
-			.as(String.format("The '%1$s' Region was not properly configured and initialized!", regionName))
+			.as(String.format("The '%1$s' Region was not properly configured and initialized", regionName))
 			.isNotNull();
 		assertThat(region.getName()).isEqualTo(regionName);
 		assertThat(region.getFullPath()).isEqualTo(regionFullPath);
@@ -167,8 +167,8 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 
 		@Override
 		public ExpirationAttributes getExpiry(final Region.Entry<K, V> kvEntry) {
-			Assert.state(timeout != null, "The expiration 'timeout' must be specified!");
-			Assert.state(action != null, "The expiration 'action' must be specified!");
+			Assert.state(timeout != null, "The expiration 'timeout' must be specified");
+			Assert.state(action != null, "The expiration 'action' must be specified");
 			return new ExpirationAttributes(timeout, action);
 		}
 

@@ -88,7 +88,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void localRegionWithDataPolicyIsCorrect() {
 
 		assertThat(localWithDataPolicy)
-			.describedAs("A reference to the 'LocalWithDataPolicy' Region was not property configured!")
+			.describedAs("A reference to the 'LocalWithDataPolicy' Region was not property configured")
 			.isNotNull();
 
 		assertThat(localWithDataPolicy.getName()).isEqualTo("LocalWithDataPolicy");
@@ -101,7 +101,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void localRegionWithShortcutIsCorrect() {
 
 		assertThat(localWithShortcut)
-			.describedAs("A reference to the 'LocalWithShortcut' Region was not property configured!")
+			.describedAs("A reference to the 'LocalWithShortcut' Region was not property configured")
 			.isNotNull();
 
 		assertThat(localWithShortcut.getName()).isEqualTo("LocalWithShortcut");
@@ -114,7 +114,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void partitionRegionWithDataPolicyIsCorrect() {
 
 		assertThat(partitionWithDataPolicy)
-			.describedAs("A reference to the 'PartitionWithDataPolicy' Region was not property configured!")
+			.describedAs("A reference to the 'PartitionWithDataPolicy' Region was not property configured")
 			.isNotNull();
 
 		assertThat(partitionWithDataPolicy.getName()).isEqualTo("PartitionWithDataPolicy");
@@ -127,7 +127,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void partitionRegionWithShortcutIsCorrect() {
 
 		assertThat(partitionWithShortcut)
-			.describedAs("A reference to the 'PartitionWithShortcut' Region was not property configured!")
+			.describedAs("A reference to the 'PartitionWithShortcut' Region was not property configured")
 			.isNotNull();
 
 		assertThat(partitionWithShortcut.getName()).isEqualTo("PartitionWithShortcut");
@@ -140,7 +140,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void replicateRegionWithDataPolicyIsCorrect() {
 
 		assertThat(replicateWithDataPolicy)
-			.describedAs("A reference to the 'ReplicateWithDataPolicy' Region was not property configured!")
+			.describedAs("A reference to the 'ReplicateWithDataPolicy' Region was not property configured")
 			.isNotNull();
 
 		assertThat(replicateWithDataPolicy.getName()).isEqualTo("ReplicateWithDataPolicy");
@@ -153,7 +153,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void replicateRegionWithShortcutIsCorrect() {
 
 		assertThat(replicateWithShortcut)
-			.describedAs("A reference to the 'ReplicateWithShortcut' Region was not property configured!")
+			.describedAs("A reference to the 'ReplicateWithShortcut' Region was not property configured")
 			.isNotNull();
 
 		assertThat(replicateWithShortcut.getName()).isEqualTo("ReplicateWithShortcut");
@@ -166,7 +166,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void shortcutDefaultsRegionIsCorrect() {
 
 		assertThat(shortcutDefaults)
-			.describedAs("A reference to the 'ShortcutDefaults' Region was not properly configured!")
+			.describedAs("A reference to the 'ShortcutDefaults' Region was not properly configured")
 			.isNotNull();
 
 		assertThat(shortcutDefaults.getName()).isEqualTo("ShortcutDefaults");
@@ -194,7 +194,7 @@ public class RegionDataPolicyShortcutsIntegrationTests extends IntegrationTestsS
 	public void shortcutOverridesRegionIsCorrect() {
 
 		assertThat(shortcutOverrides)
-			.describedAs("A reference to the 'ShortcutOverrides' Region was not properly configured!")
+			.describedAs("A reference to the 'ShortcutOverrides' Region was not properly configured")
 			.isNotNull();
 
 		assertThat(shortcutOverrides.getName()).isEqualTo("ShortcutOverrides");

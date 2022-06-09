@@ -105,7 +105,7 @@ public class TemplateClientRegionNamespaceIntegrationTests extends IntegrationTe
 	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
 			EvictionAlgorithm expectedAlgorithm, int expectedMaximum, ObjectSizer expectedObjectSizer) {
 
-		assertThat(evictionAttributes).describedAs("The 'EvictionAttributes' must not be null!").isNotNull();
+		assertThat(evictionAttributes).describedAs("The 'EvictionAttributes' must not be null").isNotNull();
 		assertThat(evictionAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(evictionAttributes.getAlgorithm()).isEqualTo(expectedAlgorithm);
 		assertThat(evictionAttributes.getMaximum()).isEqualTo(expectedMaximum);
@@ -122,16 +122,16 @@ public class TemplateClientRegionNamespaceIntegrationTests extends IntegrationTe
 	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes, ExpirationAction expectedAction,
 			int expectedTimeout) {
 
-		assertThat(expirationAttributes).as("The 'ExpirationAttributes' must not be null!").isNotNull();
+		assertThat(expirationAttributes).as("The 'ExpirationAttributes' must not be null").isNotNull();
 		assertThat(expirationAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(expirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
 	}
 
 	private void assertDefaultRegionAttributes(Region<?, ?> region) {
 
-		assertThat(region).describedAs("The Region must not be null!").isNotNull();
+		assertThat(region).describedAs("The Region must not be null").isNotNull();
 		assertThat(region.getAttributes())
-			.describedAs("The Region (%1$s) must have 'RegionAttributes' defined!", region.getFullPath())
+			.describedAs("The Region (%1$s) must have 'RegionAttributes' defined", region.getFullPath())
 			.isNotNull();
 		assertThat(region.getAttributes().getCompressor()).isNull();
 		assertThat(region.getAttributes().getCustomEntryIdleTimeout()).isNull();
@@ -160,11 +160,11 @@ public class TemplateClientRegionNamespaceIntegrationTests extends IntegrationTe
 
 	private static void assertRegionMetaData(Region<?, ?> region, String expectedRegionName, String expectedRegionPath) {
 
-		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized!",
+		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized",
 			expectedRegionName)).isNotNull();
 		assertThat(region.getName()).isEqualTo(expectedRegionName);
 		assertThat(region.getFullPath()).isEqualTo(expectedRegionPath);
-		assertThat(region.getAttributes()).as(String.format("The '%1$s' Region must have RegionAttributes defined!",
+		assertThat(region.getAttributes()).as(String.format("The '%1$s' Region must have RegionAttributes defined",
 			expectedRegionName)).isNotNull();
 	}
 

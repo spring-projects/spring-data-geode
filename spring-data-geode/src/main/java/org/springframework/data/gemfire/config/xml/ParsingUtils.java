@@ -498,7 +498,7 @@ abstract class ParsingUtils {
 				? String.format("Attribute [%1$s] of element [%2$s]", attributeName, elementName)
 				: String.format("Element [%s]", elementName);
 
-			String message = String.format("%1$s requires VMware Tanzu GemFire version 7 or later. Current version is %2$s.",
+			String message = String.format("%1$s requires VMware Tanzu GemFire version 7 or later; Current version is %2$s",
 				messagePrefix, GemfireUtils.GEMFIRE_VERSION);
 
 			parserContext.getReaderContext().error(message, null);
