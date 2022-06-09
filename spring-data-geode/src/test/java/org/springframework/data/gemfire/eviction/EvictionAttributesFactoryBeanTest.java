@@ -213,7 +213,7 @@ public class EvictionAttributesFactoryBeanTest {
 		}
 		catch (IllegalArgumentException expected) {
 			assertThat(expected.getMessage())
-				.isEqualTo("HEAP_PERCENTAGE (LRU_HEAP algorithm) does not support threshold (a.k.a. maximum)!");
+				.isEqualTo("HEAP_PERCENTAGE (LRU_HEAP algorithm) does not support threshold (a.k.a. maximum)");
 			assertThat(factoryBean.getThreshold().intValue()).isEqualTo(85);
 			assertThat(factoryBean.getType()).isEqualTo(EvictionPolicyType.HEAP_PERCENTAGE);
 			throw expected;

@@ -40,7 +40,7 @@ public class TestUserDao implements UserDao {
 	private DataSource userDataSource;
 
 	public DataSource getDataSource() {
-		Assert.state(userDataSource != null, "A reference to the Users DataSource was not properly configured!");
+		Assert.state(userDataSource != null, "A reference to the Users DataSource was not properly configured");
 		return userDataSource;
 	}
 }

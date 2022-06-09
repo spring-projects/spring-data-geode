@@ -42,7 +42,7 @@ public enum JndiDataSourceType {
 	 * @param name the GemFire named JNDI DataSource implementation.
 	 */
 	JndiDataSourceType(final String name) {
-		Assert.hasText(name, "The JNDI DataSource Type 'name' must be specified!");
+		Assert.hasText(name, "The JNDI DataSource Type 'name' must be specified");
 		this.name = name;
 	}
 

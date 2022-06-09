@@ -181,7 +181,7 @@ public class CommitConflictExceptionTransactionalIntegrationTests extends Integr
 
 				}, Function.identity());
 
-				fail("Expected CommitConflictException!");
+				fail("Expected CommitConflictException");
 
 			}
 			catch (RuntimeException expected) {

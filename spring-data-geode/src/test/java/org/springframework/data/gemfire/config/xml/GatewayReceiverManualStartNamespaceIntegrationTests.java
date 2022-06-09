@@ -63,7 +63,7 @@ public class GatewayReceiverManualStartNamespaceIntegrationTests extends Integra
 	public void testManual() throws Exception {
 
 		assertThat(this.manualGatewayReceiverFactory)
-			.describedAs("The 'Manual' GatewayReceiverFactoryBean was not properly configured and initialized!")
+			.describedAs("The 'Manual' GatewayReceiverFactoryBean was not properly configured and initialized")
 			.isNotNull();
 
 		GatewayReceiver manualGatewayReceiver = this.manualGatewayReceiverFactory.getObject();

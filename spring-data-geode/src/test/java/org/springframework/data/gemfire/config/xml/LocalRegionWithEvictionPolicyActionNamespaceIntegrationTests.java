@@ -65,7 +65,7 @@ public class LocalRegionWithEvictionPolicyActionNamespaceIntegrationTests extend
 	@Test
 	public void testLocalRegionConfigurationWithEvictionPolicyActionSetToLocalDestroy() {
 
-		assertThat(localDestroyRegion).as("The 'LocalDestroy' Region was not properly configured and initialized!")
+		assertThat(localDestroyRegion).as("The 'LocalDestroy' Region was not properly configured and initialized")
 			.isNotNull();
 		assertThat(localDestroyRegion.getName()).isEqualTo("LocalDestroy");
 		assertThat(localDestroyRegion.getFullPath()).isEqualTo("/LocalDestroy");
@@ -80,7 +80,7 @@ public class LocalRegionWithEvictionPolicyActionNamespaceIntegrationTests extend
 	@Test
 	public void testLocalRegionConfigurationWithEvictionPolicyActionSetToNone() {
 
-		assertThat(noneRegion).as("The 'None' Region was not properly configured and initialized!").isNotNull();
+		assertThat(noneRegion).as("The 'None' Region was not properly configured and initialized").isNotNull();
 		assertThat(noneRegion.getName()).isEqualTo("None");
 		assertThat(noneRegion.getFullPath()).isEqualTo("/None");
 		assertThat(noneRegion.getAttributes()).isNotNull();
@@ -93,7 +93,7 @@ public class LocalRegionWithEvictionPolicyActionNamespaceIntegrationTests extend
 	@Test
 	public void testLocalRegionConfigurationWithEvictionPolicyActionSetToOverflowToDisk() {
 
-		assertThat(overflowRegion).as("The 'Overflow' Region was not properly configured and initialized!").isNotNull();
+		assertThat(overflowRegion).as("The 'Overflow' Region was not properly configured and initialized").isNotNull();
 		assertThat(overflowRegion.getName()).isEqualTo("Overflow");
 		assertThat(overflowRegion.getFullPath()).isEqualTo("/Overflow");
 		assertThat(overflowRegion.getAttributes()).isNotNull();

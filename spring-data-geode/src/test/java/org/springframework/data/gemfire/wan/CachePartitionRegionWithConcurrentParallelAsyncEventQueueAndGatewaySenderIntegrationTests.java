@@ -71,7 +71,7 @@ public class CachePartitionRegionWithConcurrentParallelAsyncEventQueueAndGateway
 	public void testPartitionRegionWithConcurrentParallelAsyncEventQueueAndGatewaySenderConfiguration() {
 
 		assertThat(exampleRegion)
-			.describedAs("The 'ExampleRegion' PARTITION Region was not properly configured and initialized!")
+			.describedAs("The 'ExampleRegion' PARTITION Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(exampleRegion.getName()).isEqualTo("ExampleRegion");
@@ -86,7 +86,7 @@ public class CachePartitionRegionWithConcurrentParallelAsyncEventQueueAndGateway
 	public void testConcurrentParallelAsyncEventQueue() {
 
 		assertThat(exampleQueue)
-			.describedAs("The 'ExampleQueue' AsyncEventQueue was not properly configured and initialized!")
+			.describedAs("The 'ExampleQueue' AsyncEventQueue was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(exampleQueue.getId()).isEqualTo("ExampleQueue");
@@ -99,7 +99,7 @@ public class CachePartitionRegionWithConcurrentParallelAsyncEventQueueAndGateway
 	public void testConcurrentParallelGatewaySender() {
 
 		assertThat(exampleGateway)
-			.describedAs("The 'ExampleGateway' was not properly configured and initialized!")
+			.describedAs("The 'ExampleGateway' was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(exampleGateway.getId()).isEqualTo("ExampleGateway");

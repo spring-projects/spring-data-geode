@@ -64,7 +64,7 @@ public class GatewayReceiverDefaultStartNamespaceIntegrationTests extends Integr
 	public void testDefault() throws Exception {
 
 		assertThat(this.defaultGatewayReceiverFactory)
-			.describedAs("The 'Default' GatewayReceiverFactoryBean was not properly configured and initialized!")
+			.describedAs("The 'Default' GatewayReceiverFactoryBean was not properly configured and initialized")
 			.isNotNull();
 
 		GatewayReceiver defaultGatewayReceiver = this.defaultGatewayReceiverFactory.getObject();

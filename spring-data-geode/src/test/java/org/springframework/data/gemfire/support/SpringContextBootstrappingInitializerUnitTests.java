@@ -698,7 +698,7 @@ public class SpringContextBootstrappingInitializerUnitTests {
 			assertThat(expected.getMessage().contains("Failed to bootstrap the Spring ApplicationContext")).isTrue();
 			assertThat(expected.getCause() instanceof IllegalStateException).isTrue();
 			assertThat(expected.getCause().getMessage()).isEqualTo(
-				"The Spring ApplicationContext (testInitWhenApplicationContextIsNotRunning) failed to be properly initialized with the context config files ([]) or base packages ([org.example.app, org.example.plugins])!");
+				"The Spring ApplicationContext (testInitWhenApplicationContextIsNotRunning) failed to be properly initialized with the context config files ([]) or base packages ([org.example.app, org.example.plugins])");
 
 			throw (IllegalStateException) expected.getCause();
 		}

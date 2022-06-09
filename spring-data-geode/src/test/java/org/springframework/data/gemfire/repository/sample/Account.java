@@ -40,7 +40,7 @@ public class Account {
 	private String number;
 
 	public Account(final Long customerId) {
-		Assert.notNull(customerId, "The Customer ID to which this Account is associated cannot be null!");
+		Assert.notNull(customerId, "The Customer ID to which this Account is associated cannot be null");
 		this.customerId = customerId;
 	}
 

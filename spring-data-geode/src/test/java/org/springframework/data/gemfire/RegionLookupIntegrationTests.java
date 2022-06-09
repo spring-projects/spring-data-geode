@@ -51,7 +51,7 @@ public class RegionLookupIntegrationTests extends IntegrationTestsSupport {
 
 		try {
 			applicationContext = newApplicationContext(configLocation);
-			fail("Spring ApplicationContext should have thrown a BeanCreationException caused by a RegionExistsException!");
+			fail("Spring ApplicationContext should have thrown a BeanCreationException caused by a RegionExistsException");
 		}
 		catch (BeanCreationException expected) {
 

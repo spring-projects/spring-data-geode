@@ -60,7 +60,7 @@ public class UserRepositoryQueriesIntegrationTests extends IntegrationTestsSuppo
 
 	private static void assertQueryResults(Iterable<User> actualUsers, String... expectedUsernames) {
 
-		assertThat(actualUsers).as("The query did not return any results!").isNotNull();
+		assertThat(actualUsers).as("The query did not return any results").isNotNull();
 
 		List<String> actualUsernames = new ArrayList<>(expectedUsernames.length);
 
@@ -99,7 +99,7 @@ public class UserRepositoryQueriesIntegrationTests extends IntegrationTestsSuppo
 	@SuppressWarnings("unchecked")
 	public void setup() {
 
-		assertThat(users).describedAs("The 'Users' GemFire Cache Region cannot be null!").isNotNull();
+		assertThat(users).describedAs("The 'Users' GemFire Cache Region cannot be null").isNotNull();
 
 		if (users.isEmpty()) {
 			userRepository.save(createUser("blumj", true));

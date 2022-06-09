@@ -55,14 +55,14 @@ public class AutoRegionLookupWithAutowiringIntegrationTests extends IntegrationT
 			DataPolicy expectedDataPolicy) {
 
 		assertThat(region)
-			.describedAs(String.format("Region (%1$s) was not properly configured and initialized!", expectedName))
+			.describedAs(String.format("Region (%1$s) was not properly configured and initialized", expectedName))
 			.isNotNull();
 
 		assertThat(region.getName()).isEqualTo(expectedName);
 		assertThat(region.getFullPath()).isEqualTo(expectedFullPath);
 
 		assertThat(region.getAttributes())
-			.describedAs(String.format("Region (%1$s) must have RegionAttributes defined!", expectedName))
+			.describedAs(String.format("Region (%1$s) must have RegionAttributes defined", expectedName))
 			.isNotNull();
 
 		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);

@@ -89,7 +89,7 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 	public void gemFireSubRegionCreationConfigurationIsCorrect() {
 
 		assertThat(this.clientCache)
-			.describedAs("The Client Cache was not properly initialized!")
+			.describedAs("The Client Cache was not properly initialized")
 			.isNotNull();
 
 		Region<?, ?> parent = this.clientCache.getRegion("Parent");

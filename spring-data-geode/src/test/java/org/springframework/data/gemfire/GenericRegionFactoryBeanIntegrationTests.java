@@ -155,10 +155,10 @@ public class GenericRegionFactoryBeanIntegrationTests extends IntegrationTestsSu
 	protected void assertRegionAttributes(Region<?, ?> region, String expectedRegionName, String expectedRegionPath,
 			DataPolicy expectedDataPolicy, Scope expectedScope) {
 
-		assertThat(region).as("The GemFire Cache Region must not be null!").isNotNull();
+		assertThat(region).as("The GemFire Cache Region must not be null").isNotNull();
 		assertThat(region.getName()).isEqualTo(expectedRegionName);
 		assertThat(region.getFullPath()).isEqualTo(expectedRegionPath);
-		assertThat(region.getAttributes()).as("The RegionAttributes must be specified!").isNotNull();
+		assertThat(region.getAttributes()).as("The RegionAttributes must be specified").isNotNull();
 		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);
 		assertThat(region.getAttributes().getScope()).isEqualTo(expectedScope);
 	}

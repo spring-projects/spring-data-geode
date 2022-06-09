@@ -59,7 +59,7 @@ public class CollocatedRegionIntegrationTests extends IntegrationTestsSupport {
 		assertThat(region).isNotNull();
 
 		assertThat(region.getName())
-			.describedAs("Expected Region with name %1$s; but was %2$s!", expectedRegionName, region.getName())
+			.describedAs("Expected Region with name [%1$s]; but was [%2$s]", expectedRegionName, region.getName())
 			.isEqualTo(expectedRegionName);
 	}
 

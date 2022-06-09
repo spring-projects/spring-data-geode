@@ -52,15 +52,15 @@ public class LookupSubRegionIntegrationTests extends IntegrationTestsSupport {
 	private void assertRegionExists(String expectedRegionName, String expectedRegionPath, Region<?, ?> region) {
 
 		assertThat(region)
-			.describedAs("The Region with name (%1$s) at path (%2$s) was null!",expectedRegionName, expectedRegionPath)
+			.describedAs("The Region with name (%1$s) at path (%2$s) was null",expectedRegionName, expectedRegionPath)
 			.isNotNull();
 
 		assertThat(region.getName())
-			.describedAs("Expected Region name of %1$s; but was %2$s!", expectedRegionName, region.getName())
+			.describedAs("Expected Region name of %1$s; but was %2$s", expectedRegionName, region.getName())
 			.isEqualTo(expectedRegionName);
 
 		assertThat(region.getFullPath())
-			.describedAs("Expected Region path of %1$s; but was %2$s!", expectedRegionPath, region.getFullPath())
+			.describedAs("Expected Region path of %1$s; but was %2$s", expectedRegionPath, region.getFullPath())
 			.isEqualTo(expectedRegionPath);
 	}
 

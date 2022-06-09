@@ -58,7 +58,7 @@ public class JndiBindingsWithPropertyPlaceholdersNamespaceIntegrationTests exten
 			}
 		}
 
-		fail("ConfigProperty with name [%1$s] was not found!", expectedPropertyName);
+		fail("ConfigProperty with name [%1$s] was not found", expectedPropertyName);
 	}
 
 	@Test

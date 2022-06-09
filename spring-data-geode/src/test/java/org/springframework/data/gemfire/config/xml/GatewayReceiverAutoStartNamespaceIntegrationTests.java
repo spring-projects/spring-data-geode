@@ -64,7 +64,7 @@ public class GatewayReceiverAutoStartNamespaceIntegrationTests extends Integrati
 	public void testAuto() throws Exception {
 
 		assertThat(this.autoGatewayReceiverFactory)
-			.describedAs("The 'Auto' GatewayReceiverFactoryBean was not properly configured and initialized!")
+			.describedAs("The 'Auto' GatewayReceiverFactoryBean was not properly configured and initialized")
 			.isNotNull();
 
 		GatewayReceiver autoGatewayReceiver = this.autoGatewayReceiverFactory.getObject();

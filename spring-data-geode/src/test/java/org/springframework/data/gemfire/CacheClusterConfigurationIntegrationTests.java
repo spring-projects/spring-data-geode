@@ -198,7 +198,7 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 			String expectedRegionFullPath) {
 
 		assertThat(actualRegion)
-			.describedAs("The [%s] was not properly configured and initialized!", expectedRegionName)
+			.describedAs("The [%s] was not properly configured and initialized", expectedRegionName)
 			.isNotNull();
 
 		assertThat(actualRegion.getName()).isEqualTo(expectedRegionName);
@@ -272,7 +272,7 @@ public class CacheClusterConfigurationIntegrationTests extends ForkingClientServ
 
 			fail("Loading the 'cacheUsingLocalOnlyConfigurationIntegrationTest.xml' Spring ApplicationContext"
 				+ " configuration file should have resulted in an Exception due to the Region lookup on"
-				+ " 'ClusterConfigRegion' when GemFire Cluster Configuration is disabled!");
+				+ " 'ClusterConfigRegion' when GemFire Cluster Configuration is disabled");
 		}
 		catch (BeanCreationException expected) {
 

@@ -758,7 +758,7 @@ public class IndexFactoryBeanUnitTests {
 			.createKeyIndex(eq(mockQueryService), eq("TestIndex"), eq("id"), eq("/Example"));
 
 		verify(mockLogger, times(1)).warn(
-			eq(String.format("WARNING! You are choosing to ignore this Index [TestIndex] and return the existing Index"
+			eq(String.format("WARNING; You are choosing to ignore this Index [TestIndex] and return the existing Index"
 					+ " having the same basic definition [%s] but with a different name [MockIndex];"
 					+ " Make sure no OQL Query Hints refer to this Index by name [TestIndex]",
 				indexFactoryBean.toBasicIndexDefinition())));
@@ -799,7 +799,7 @@ public class IndexFactoryBeanUnitTests {
 			.createKeyIndex(eq(mockQueryService), eq("TestIndex"), eq("id"), eq("/Example"));
 
 		verify(mockLogger, times(1)).warn(
-			eq(String.format("WARNING! You are attempting to 'override' an existing Index [MockIndex]"
+			eq(String.format("WARNING; You are attempting to 'override' an existing Index [MockIndex]"
 					+ " having the same basic definition [%s] as the Index that will be created by this"
 					+ " IndexFactoryBean [TestIndex]; 'Override' effectively 'renames' the existing Index [MockIndex]"
 					+ " by removing it then recreating it under the new name [TestIndex] with the same definition;"
@@ -861,7 +861,7 @@ public class IndexFactoryBeanUnitTests {
 				.createKeyIndex(eq(mockQueryService), eq("TestIndex"), eq("id"), eq("/Example"));
 
 			verify(mockLogger, times(1)).warn(
-				eq(String.format("WARNING! You are attempting to 'override' an existing Index [MockIndex]"
+				eq(String.format("WARNING; You are attempting to 'override' an existing Index [MockIndex]"
 						+ " having the same basic definition [%s] as the Index that will be created by this"
 						+ " IndexFactoryBean [TestIndex]; 'Override' effectively 'renames' the existing Index [MockIndex]"
 						+ " by removing it then recreating it under the new name [TestIndex] with the same definition;"
@@ -1041,7 +1041,7 @@ public class IndexFactoryBeanUnitTests {
 				eq("/Orders"), eq(null));
 
 		verify(mockLogger, times(1)).warn(String.format(
-			"WARNING! Returning existing Index [TestIndex] having a definition [%1$s] that does not match"
+			"WARNING; Returning existing Index [TestIndex] having a definition [%1$s] that does not match"
 				+ " the Index defined [%2$s] by this IndexFactoryBean [TestIndex]",
 			existingIndexDefinition, indexFactoryBean.toBasicIndexDefinition()));
 
@@ -1127,7 +1127,7 @@ public class IndexFactoryBeanUnitTests {
 			eq("TestIndex"), eq("purchaseDate"), eq("/Orders"), eq(null));
 
 		verify(mockLogger, times(1)).warn(eq(String.format(
-			"WARNING! Overriding existing Index [TestIndex] having a definition [%1$s] that does not match"
+			"WARNING; Overriding existing Index [TestIndex] having a definition [%1$s] that does not match"
 				+ " the Index defined [%2$s] by this IndexFactoryBean [TestIndex]",
 			existingIndexDefinition, indexFactoryBean.toBasicIndexDefinition())));
 
@@ -1189,7 +1189,7 @@ public class IndexFactoryBeanUnitTests {
 				.createKeyIndex(eq(mockQueryService), eq("MockIndex"), eq("id"), eq("/Example"));
 
 			verify(mockLogger, times(1)).warn(eq(String.format(
-				"WARNING! Overriding existing Index [MockIndex] having a definition [%1$s] that does not match"
+				"WARNING; Overriding existing Index [MockIndex] having a definition [%1$s] that does not match"
 					+ " the Index defined [%2$s] by this IndexFactoryBean [MockIndex]",
 				existingIndexDefinition, indexFactoryBean.toBasicIndexDefinition())));
 

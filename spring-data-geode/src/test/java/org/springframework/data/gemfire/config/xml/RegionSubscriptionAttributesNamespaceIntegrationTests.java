@@ -71,7 +71,7 @@ public class RegionSubscriptionAttributesNamespaceIntegrationTests extends Integ
 	private void assertSubscription(Region<?, ?> region, String expectedRegionName,
 			DataPolicy expectedDataPolicy, InterestPolicy expectedInterestedPolicy) {
 
-		assertThat(region).describedAs(String.format("The '%1$s' Region was not properly configured an initialized!", expectedRegionName)).isNotNull();
+		assertThat(region).describedAs(String.format("The '%1$s' Region was not properly configured an initialized", expectedRegionName)).isNotNull();
 		assertThat(region.getName()).isEqualTo(expectedRegionName);
 		assertThat(region.getAttributes()).isNotNull();
 		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);

@@ -109,7 +109,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 		Region<?, ?> simple = requireApplicationContext().getBean("simple", Region.class);
 
-		assertThat(simple).as("The 'SimpleRegion' Client Region was not properly configured and initialized!")
+		assertThat(simple).as("The 'SimpleRegion' Client Region was not properly configured and initialized")
 			.isNotNull();
 		assertThat(simple.getName()).isEqualTo("SimpleRegion");
 		assertThat(simple.getFullPath()).isEqualTo(Region.SEPARATOR + "SimpleRegion");
@@ -171,7 +171,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 		Region<?, ?> persistent = requireApplicationContext().getBean("persistent", Region.class);
 
 		assertThat(persistent)
-			.describedAs("The 'PersistentRegion' Region was not properly configured and initialized!")
+			.describedAs("The 'PersistentRegion' Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(persistent.getName()).isEqualTo("PersistentRegion");
@@ -234,7 +234,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 		Region<?, ?> compressed = requireApplicationContext().getBean("Compressed", Region.class);
 
-		assertThat(compressed).as("The 'Compressed' Client Region was not properly configured and initialized!")
+		assertThat(compressed).as("The 'Compressed' Client Region was not properly configured and initialized")
 			.isNotNull();
 		assertThat(compressed.getName()).isEqualTo("Compressed");
 		assertThat(compressed.getFullPath()).isEqualTo(Region.SEPARATOR + "Compressed");
@@ -242,7 +242,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 		assertThat(compressed.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.EMPTY);
 		assertThat(compressed.getAttributes().getPoolName()).isEqualTo("gemfire-pool");
 		assertThat(compressed.getAttributes().getCompressor() instanceof TestCompressor)
-			.describedAs(String.format("Expected 'TestCompressor'; but was '%s'!",
+			.describedAs(String.format("Expected 'TestCompressor'; but was '%s'",
 				ObjectUtils.nullSafeClassName(compressed.getAttributes().getCompressor())))
 			.isTrue();
 		assertThat(compressed.getAttributes().getCompressor().toString()).isEqualTo("STD");
@@ -258,7 +258,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 			requireApplicationContext().getBean("client-with-attributes", Region.class);
 
 		assertThat(clientRegion)
-			.describedAs("The 'client-with-attributes' Client Region was not properly configured and initialized!")
+			.describedAs("The 'client-with-attributes' Client Region was not properly configured and initialized")
 			.isNotNull();
 
 		assertThat(clientRegion.getName()).isEqualTo("client-with-attributes");
@@ -311,7 +311,7 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 		@Override
 		public Object load(final LoaderHelper<Object, Object> helper) throws CacheLoaderException {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
@@ -331,12 +331,12 @@ public class ClientRegionNamespaceIntegrationTests extends IntegrationTestsSuppo
 
 		@Override
 		public byte[] compress(final byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override
 		public byte[] decompress(final byte[] input) {
-			throw new UnsupportedOperationException("Not Implemented!");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		@Override

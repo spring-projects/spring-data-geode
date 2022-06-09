@@ -62,7 +62,7 @@ public class EvictionAttributesFactoryBean implements FactoryBean<EvictionAttrib
 		switch (type) {
 			case HEAP_PERCENTAGE:
 				if (threshold != null) {
-					throw new IllegalArgumentException("HEAP_PERCENTAGE (LRU_HEAP algorithm) does not support threshold (a.k.a. maximum)!");
+					throw new IllegalArgumentException("HEAP_PERCENTAGE (LRU_HEAP algorithm) does not support threshold (a.k.a. maximum)");
 				}
 
 				return EvictionAttributes.createLRUHeapAttributes(getObjectSizer(), getAction());

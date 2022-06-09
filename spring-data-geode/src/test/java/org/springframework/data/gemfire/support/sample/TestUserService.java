@@ -38,7 +38,7 @@ public class TestUserService implements UserService {
 	private UserDao userDao;
 
 	public UserDao getUserDao() {
-		Assert.state(userDao != null, "A reference to the UserDao was not properly configured!");
+		Assert.state(userDao != null, "A reference to the UserDao was not properly configured");
 		return userDao;
 	}
 }

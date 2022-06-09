@@ -155,7 +155,7 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	private void assertEvictionAttributes(EvictionAttributes evictionAttributes, EvictionAction expectedAction,
 			EvictionAlgorithm expectedAlgorithm, int expectedMaximum, ObjectSizer expectedObjectSizer) {
 
-		assertThat(evictionAttributes).as("The 'EvictionAttributes' must not be null!").isNotNull();
+		assertThat(evictionAttributes).as("The 'EvictionAttributes' must not be null").isNotNull();
 		assertThat(evictionAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(evictionAttributes.getAlgorithm()).isEqualTo(expectedAlgorithm);
 		assertThat(evictionAttributes.getMaximum()).isEqualTo(expectedMaximum);
@@ -172,7 +172,7 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	private void assertExpirationAttributes(ExpirationAttributes expirationAttributes, ExpirationAction expectedAction,
 			int expectedTimeout) {
 
-		assertThat(expirationAttributes).as("The 'ExpirationAttributes' must not be null!").isNotNull();
+		assertThat(expirationAttributes).as("The 'ExpirationAttributes' must not be null").isNotNull();
 		assertThat(expirationAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(expirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
 	}
@@ -216,10 +216,10 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	@SuppressWarnings("unchecked")
 	private void assertDefaultRegionAttributes(Region region) {
 
-		assertThat(region).describedAs("The Region must not be null!").isNotNull();
+		assertThat(region).describedAs("The Region must not be null").isNotNull();
 
 		assertThat(region.getAttributes())
-			.describedAs(String.format("Region (%1$s) must have 'RegionAttributes' defined!",region.getFullPath()))
+			.describedAs(String.format("Region (%1$s) must have 'RegionAttributes' defined",region.getFullPath()))
 			.isNotNull();
 
 		assertThat(region.getAttributes().getCompressor()).isNull();
@@ -241,7 +241,7 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 	private void assertSubscriptionAttributes(SubscriptionAttributes subscriptionAttributes,
 			InterestPolicy expectedInterestPolicy) {
 
-		assertThat(subscriptionAttributes).as("The 'SubscriptionAttributes' must not be null!").isNotNull();
+		assertThat(subscriptionAttributes).as("The 'SubscriptionAttributes' must not be null").isNotNull();
 		assertThat(subscriptionAttributes.getInterestPolicy()).isEqualTo(expectedInterestPolicy);
 	}
 
@@ -263,11 +263,11 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 
 	private static void assertRegionMetaData(Region<?, ?> region, String expectedRegionName, String expectedRegionPath) {
 
-		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized!",
+		assertThat(region).as(String.format("The '%1$s' Region was not properly configured and initialized",
 			expectedRegionName)).isNotNull();
 		assertThat(region.getName()).isEqualTo(expectedRegionName);
 		assertThat(region.getFullPath()).isEqualTo(expectedRegionPath);
-		assertThat(region.getAttributes()).as(String.format("The '%1$s' Region must have RegionAttributes defined!",
+		assertThat(region.getAttributes()).as(String.format("The '%1$s' Region must have RegionAttributes defined",
 			expectedRegionName)).isNotNull();
 	}
 
@@ -289,7 +289,7 @@ public class TemplateRegionsNamespaceIntegrationTests extends IntegrationTestsSu
 			try {
 				applicationContext.getBean(beanName);
 				fail(String
-					.format("The abstract bean definition '%1$s' should not exist as a bean in the Spring context!",
+					.format("The abstract bean definition '%1$s' should not exist as a bean in the Spring context",
 						beanName));
 			}
 			catch (BeansException expected) {
