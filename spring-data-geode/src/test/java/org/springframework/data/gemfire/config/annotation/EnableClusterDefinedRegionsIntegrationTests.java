@@ -28,6 +28,7 @@ import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,6 +38,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.PartitionedRegionFactoryBean;
 import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
+import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.util.CacheUtils;
@@ -73,6 +75,10 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 	private ClientCache cache;
 
 	@Autowired
+	@Qualifier("Example")
+	private Region<String, Object> exampleRegion;
+
+	@Autowired
 	@Qualifier("LocalRegion")
 	private Region<?, ?> localClientProxyRegion;
 
@@ -101,6 +107,16 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 	}
 
 	@Test
+	public void exampleRegionIsClientOnly() {
+
+		assertThat(this.exampleRegion).isNotNull();
+		assertThat(this.exampleRegion.getName()).isEqualTo("Example");
+		assertThat(this.exampleRegion.getFullPath()).isEqualTo(RegionUtils.toRegionPath("Example"));
+		assertThat(this.exampleRegion.getAttributes()).isNotNull();
+		assertThat(this.exampleRegion.getAttributes().getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
+	}
+
+	@Test
 	public void clusterRegionsExistOnClient() {
 
 		assertRegion(this.localClientProxyRegion, "LocalRegion");
@@ -123,6 +139,17 @@ public class EnableClusterDefinedRegionsIntegrationTests extends ForkingClientSe
 
 			return (bean, clientCacheFactoryBean) -> clientCacheFactoryBean.setServers(
 				Collections.singletonList(new ConnectionEndpoint("localhost", port)));
+		}
+
+		@Bean("Example")
+		ClientRegionFactoryBean<String, Object> exampleRegion(ClientCache clientCache) {
+
+			ClientRegionFactoryBean<String, Object> exampleRegion = new ClientRegionFactoryBean<>();
+
+			exampleRegion.setCache(clientCache);
+			exampleRegion.setShortcut(ClientRegionShortcut.LOCAL);
+
+			return exampleRegion;
 		}
 
 		@Bean("TestBean")
