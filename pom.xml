@@ -46,7 +46,7 @@
 		<antlr.version>2.7.7</antlr.version>
 		<apache-shiro.version>1.9.1</apache-shiro.version>
 		<cache-api.version>1.1.1</cache-api.version>
-		<log4j.version>2.16.0</log4j.version>
+		<log4j.version>2.18.0</log4j.version>
 		<micrometer>1.9.0-M4</micrometer>
 		<multithreadedtc.version>1.01</multithreadedtc.version>
 		<snappy.version>0.4</snappy.version>
