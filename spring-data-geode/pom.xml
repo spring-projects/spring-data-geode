@@ -156,7 +156,7 @@
 		</dependency>
 
 		<!-- Test -->
-		<!-- CDI -->
+		<!-- Java EE CDI -->
 		<dependency>
 			<groupId>jakarta.annotation</groupId>
 			<artifactId>jakarta.annotation-api</artifactId>
@@ -202,6 +202,8 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Test -->
+		<!-- Apache Derby -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyLocale_zh_TW</artifactId>
@@ -209,6 +211,8 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Test -->
+		<!-- General -->
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
