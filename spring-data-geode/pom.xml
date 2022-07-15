@@ -27,7 +27,7 @@
 		<geode.version>[1.15.0,1.16.0)</geode.version>
 		<geode.version>[1.15.0,1.15.0-build.1038)</geode.version>
 -->
-		<spring-test-data-geode.version>1.0.0-SNAPSHOT</spring-test-data-geode.version>
+		<spring-test-data-geode.version>1.0.0-M5</spring-test-data-geode.version>
 	</properties>
 
 	<dependencies>
