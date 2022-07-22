@@ -21,11 +21,17 @@ import static org.mockito.Mockito.mock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.CacheListener;
+import org.apache.geode.cache.CacheLoader;
+import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.CustomExpiry;
 import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.ExpirationAction;
 import org.apache.geode.cache.ExpirationAttributes;
+import org.apache.geode.cache.LoaderHelper;
 import org.apache.geode.cache.Region;
+import org.apache.geode.cache.util.CacheListenerAdapter;
+import org.apache.geode.cache.util.CacheWriterAdapter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -69,23 +75,24 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 	@Qualifier("LocalExample")
 	private Region<?, ?> localExample;
 
-	private void assertRegionMetaData(final Region<?, ?> region, final String regionName, final DataPolicy dataPolicy) {
+	private void assertRegionMetaData(Region<?, ?> region, String regionName, DataPolicy dataPolicy) {
 		assertRegionMetaData(region, regionName, Region.SEPARATOR + regionName, dataPolicy);
 	}
 
-	private void assertRegionMetaData(Region<?, ?> region, String regionName, String regionFullPath,
-			DataPolicy dataPolicy) {
+	private void assertRegionMetaData(Region<?, ?> region,
+			String regionName, String regionFullPath, DataPolicy dataPolicy) {
 
 		assertThat(region)
-			.as(String.format("The '%1$s' Region was not properly configured and initialized", regionName))
+			.describedAs("The '%s' Region was not properly configured and initialized", regionName)
 			.isNotNull();
+
 		assertThat(region.getName()).isEqualTo(regionName);
 		assertThat(region.getFullPath()).isEqualTo(regionFullPath);
 		assertThat(region.getAttributes()).isNotNull();
 		assertThat(region.getAttributes().getDataPolicy()).isEqualTo(dataPolicy);
 	}
 
-	private void assertNoExpiration(final ExpirationAttributes expirationAttributes) {
+	private void assertNoExpiration(ExpirationAttributes expirationAttributes) {
 
 		if (expirationAttributes != null) {
 			//assertEquals(ExpirationAction.INVALIDATE, expirationAttributes.getAction());
@@ -111,7 +118,7 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 	}
 
 	@Test
-	public void testReplicateExampleExpirationAttributes() {
+	public void exampleReplicateRegionExpirationAttributesAreCorrect() {
 
 		assertRegionMetaData(replicateExample, "ReplicateExample", DataPolicy.REPLICATE);
 		assertExpirationAttributes(replicateExample.getAttributes().getEntryTimeToLive(),
@@ -123,7 +130,7 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 	}
 
 	@Test
-	public void testPreloadedExampleExpirationAttributes() {
+	public void examplePreloadedRegionExpirationAttributesAreCorrect() {
 
 		assertRegionMetaData(preloadedExample, "PreloadedExample", DataPolicy.PRELOADED);
 		assertExpirationAttributes(preloadedExample.getAttributes().getEntryTimeToLive(),
@@ -134,7 +141,7 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 	}
 
 	@Test
-	public void testPartitionExampleExpirationAttributes() {
+	public void examplePartitionRegionExpirationAttributesAreCorrect() {
 
 		assertRegionMetaData(partitionExample, "PartitionExample", DataPolicy.PARTITION);
 		assertExpirationAttributes(partitionExample.getAttributes().getEntryTimeToLive(),
@@ -146,7 +153,7 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 	}
 
 	@Test
-	public void testLocalExampleExpirationAttributes() {
+	public void exampleLocalRegionExpirationAttributesAreCorrect() {
 
 		assertRegionMetaData(localExample, "LocalExample", DataPolicy.NORMAL);
 		assertNoExpiration(localExample.getAttributes().getEntryTimeToLive());
@@ -156,6 +163,18 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 		assertCustomExpiry(localExample.getAttributes().getCustomEntryIdleTimeout(), "LocalTtiCustomExpiry",
 			60, ExpirationAction.LOCAL_INVALIDATE);
 	}
+
+	public static class TestCacheListener<K, V> extends CacheListenerAdapter<K, V> { }
+
+	public static class TestCacheLoader<K, V> implements CacheLoader<K, V> {
+
+		@Override
+		public V load(LoaderHelper<K, V> loaderHelper) throws CacheLoaderException {
+			return null;
+		}
+	}
+
+	public static class TestCacheWriter<K, V> extends CacheWriterAdapter<K, V> { }
 
 	public static class TestCustomExpiry<K, V> implements CustomExpiry<K, V> {
 
@@ -172,21 +191,20 @@ public class RegionExpirationAttributesNamespaceIntegrationTests extends Integra
 			return new ExpirationAttributes(timeout, action);
 		}
 
-		public void setAction(final ExpirationAction action) {
+		public void setAction(ExpirationAction action) {
 			this.action = action;
 		}
 
-		public void setName(final String name) {
+		public void setName(String name) {
 			this.name = name;
 		}
 
-		public void setTimeout(final Integer timeout) {
+		public void setTimeout(Integer timeout) {
 			this.timeout = timeout;
 		}
 
 		@Override
-		public void close() {
-		}
+		public void close() { }
 
 		@Override
 		public String toString() {

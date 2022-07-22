@@ -19,15 +19,22 @@
 	<context:property-placeholder properties-ref="expirationProperties"/>
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">RegionExpirationAttributesNamespaceTest</prop>
+		<prop key="name">RegionExpirationAttributesNamespaceIntegrationTests</prop>
 		<prop key="log-level">error</prop>
 	</util:properties>
 
 	<gfe:cache properties-ref="gemfireProperties"/>
 
+	<bean name="testListener" class="org.springframework.data.gemfire.config.xml.RegionExpirationAttributesNamespaceIntegrationTests$TestCacheListener"/>
+	<bean name="testLoader" class="org.springframework.data.gemfire.config.xml.RegionExpirationAttributesNamespaceIntegrationTests$TestCacheLoader"/>
+	<bean name="testWriter" class="org.springframework.data.gemfire.config.xml.RegionExpirationAttributesNamespaceIntegrationTests$TestCacheWriter"/>
+
 	<gfe:replicated-region id="ReplicateExample" persistent="false">
+		<gfe:cache-listener ref="testListener"/>
 		<gfe:entry-ttl timeout="600" action="${expiration.action}"/>
 		<gfe:entry-tti timeout="300" action="INVALIDATE"/>
+		<gfe:cache-loader ref="testLoader"/>
+		<gfe:cache-writer ref="testWriter"/>
 	</gfe:replicated-region>
 
 	<!--
@@ -39,11 +46,14 @@
 	</gfe:local-region>
 
 	<gfe:partitioned-region id="PartitionExample" persistent="false">
+		<gfe:cache-listener ref="testListener"/>
 		<gfe:entry-ttl timeout="300" action="${expiration.action}"/>
 		<gfe:custom-entry-tti>
 			<bean class="org.springframework.data.gemfire.config.xml.RegionExpirationAttributesNamespaceIntegrationTests$TestCustomExpiry"
 				  p:name="PartitionCustomExpiry" p:timeout="120" p:action="#{T(org.apache.geode.cache.ExpirationAction).INVALIDATE}"/>
 		</gfe:custom-entry-tti>
+		<gfe:cache-loader ref="testLoader"/>
+		<gfe:cache-writer ref="testWriter"/>
 	</gfe:partitioned-region>
 
 	<gfe:local-region id="LocalExample" persistent="false">
