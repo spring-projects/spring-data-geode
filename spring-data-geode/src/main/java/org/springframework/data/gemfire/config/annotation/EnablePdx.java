@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
 
 /**
  * The {@link EnablePdx} annotation marks a Spring {@link Configuration @Configuration} annotated {@link Class}
@@ -60,6 +61,18 @@ public @interface EnablePdx {
 	 * Use the {@literal spring.data.gemfire.pdx.ignore-unread-fields} property in {@literal application.properties}.
 	 */
 	boolean ignoreUnreadFields() default PdxConfiguration.DEFAULT_IGNORE_UNREAD_FIELDS;
+
+	/**
+	 * When using the Spring Data Geode's (SDG) {@link MappingPdxSerializer} most application domain {@link Class types}
+	 * are included for Apache Geode PDX serialization, by default. However, certain {@link Class types} are excluded
+	 * by SDG's {@link MappingPdxSerializer}, such as {@literal java.*}, {@literal javax.*}, {@literal com.gemstone.*},
+	 * {@literal org.apache.geode.*} and {@literal org.springframework.*} {@link Class types}. This allows the default
+	 * behavior to be overridden when and where necessary.
+	 *
+	 * @return an array of {@link Class types} to be handled by the {@link MappingPdxSerializer}, possibly overriding
+	 * the excluded {@link Class types} by default.
+	 */
+	Class<?>[] includeDomainTypes() default {};
 
 	/**
 	 * Configures whether the type metadata for PDX objects is persisted to disk.
