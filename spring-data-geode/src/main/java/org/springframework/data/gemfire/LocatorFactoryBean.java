@@ -15,9 +15,6 @@
  */
 package org.springframework.data.gemfire;
 
-import static org.springframework.data.gemfire.util.ArrayUtils.nullSafeArray;
-import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeIterable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +29,10 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.gemfire.config.annotation.LocatorConfigurer;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
+import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
+import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.lang.Nullable;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -57,8 +56,10 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 	public static final int DEFAULT_PORT = 10334;
 
 	public static final String DEFAULT_LOG_LEVEL = GemFireProperties.LOG_LEVEL.getDefaultValueAsString();
-	private static final String LOCATORS_PROPERTY = GemFireProperties.LOCATORS.toString();
-	public static final String LOG_LEVEL_PROPERTY = GemFireProperties.LOG_LEVEL.toString();
+	private static final String LOCATORS_PROPERTY = GemFireProperties.LOCATORS.getName();
+	public static final String LOG_LEVEL_PROPERTY = GemFireProperties.LOG_LEVEL.getName();
+
+	private boolean useBeanFactoryLocator = false;
 
 	private Integer port = DEFAULT_PORT;
 
@@ -82,16 +83,22 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		applyLocatorConfigurers(getCompositeLocatorConfigurer());
+
+		applyLocatorConfigurers();
+		initializeBeanFactoryLocator();
 		init();
 	}
 
+	protected void applyLocatorConfigurers() {
+		applyLocatorConfigurers(getCompositeLocatorConfigurer());
+	}
+
 	protected void applyLocatorConfigurers(LocatorConfigurer... locatorConfigurers) {
-		applyLocatorConfigurers(Arrays.asList(nullSafeArray(locatorConfigurers, LocatorConfigurer.class)));
+		applyLocatorConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(locatorConfigurers, LocatorConfigurer.class)));
 	}
 
 	protected void applyLocatorConfigurers(Iterable<LocatorConfigurer> locatorConfigurers) {
-		StreamSupport.stream(nullSafeIterable(locatorConfigurers).spliterator(), false)
+		StreamSupport.stream(CollectionUtils.nullSafeIterable(locatorConfigurers).spliterator(), false)
 			.forEach(locatorConfigurer -> locatorConfigurer.configure(getBeanName(), this));
 	}
 
@@ -142,6 +149,13 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return locatorBuilder;
 	}
 
+	protected void initializeBeanFactoryLocator() {
+
+		if (isUseBeanFactoryLocator()) {
+			GemfireBeanFactoryLocator.newBeanFactoryLocator(getBeanFactory(), getBeanName());
+		}
+	}
+
 	protected LocatorLauncher.Builder newLocatorLauncherBuilder() {
 		return new LocatorLauncher.Builder();
 	}
@@ -162,8 +176,8 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return this.locatorLauncher;
 	}
 
-	@Nullable @Override
-	public Locator getObject() throws Exception {
+	@Override
+	public @NonNull Locator getObject() throws Exception {
 
 		Locator locator = getLocator();
 
@@ -172,8 +186,8 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return locator;
 	}
 
-	@Nullable @Override
-	public Class<?> getObjectType() {
+	@Override
+	public @NonNull Class<?> getObjectType() {
 
 		Locator locator  = getLocator();
 
@@ -190,7 +204,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 			.filter(StringUtils::hasText);
 	}
 
-	public LocatorConfigurer getCompositeLocatorConfigurer() {
+	public @NonNull LocatorConfigurer getCompositeLocatorConfigurer() {
 		return this.compositeLocatorConfigurer;
 	}
 
@@ -198,7 +212,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		this.gemfireProperties = gemfireProperties;
 	}
 
-	public Properties getGemFireProperties() {
+	public @NonNull Properties getGemFireProperties() {
 
 		if (this.gemfireProperties == null) {
 			this.gemfireProperties = new Properties();
@@ -218,7 +232,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 	}
 
 	public void setLocatorConfigurers(LocatorConfigurer... locatorConfigurers) {
-		setLocatorConfigurers(Arrays.asList(nullSafeArray(locatorConfigurers, LocatorConfigurer.class)));
+		setLocatorConfigurers(Arrays.asList(ArrayUtils.nullSafeArray(locatorConfigurers, LocatorConfigurer.class)));
 	}
 
 	public void setLocatorConfigurers(List<LocatorConfigurer> locatorConfigurers) {
@@ -262,5 +276,13 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 	public Integer getPort() {
 		return this.port;
+	}
+
+	public void setUseBeanFactoryLocator(boolean useBeanFactoryLocator) {
+		this.useBeanFactoryLocator = useBeanFactoryLocator;
+	}
+
+	public boolean isUseBeanFactoryLocator() {
+		return this.useBeanFactoryLocator;
 	}
 }
