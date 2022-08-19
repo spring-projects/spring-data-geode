@@ -38,6 +38,8 @@ import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.LocatorFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -64,12 +66,14 @@ import org.springframework.util.ClassUtils;
 @SuppressWarnings("unused")
 public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSupport implements ImportAware {
 
+	public static final boolean DEFAULT_USE_BEAN_FACTORY_LOCATOR = false;
+
 	public static final int DEFAULT_PORT = 10334;
 
 	public static final String DEFAULT_LOG_LEVEL = "warn";
 	public static final String DEFAULT_NAME = "SpringBasedLocatorApplication";
 
-	protected static final String EXCLUSIVE_LOCATOR_APPLICATION_ERROR_MESSAGE =
+	protected static final String LOCATOR_APPLICATION_MUTEX_ERROR_MESSAGE =
 		"A Spring application cannot be both a Cache and a Locator application;"
 			+ " You may annotate your Spring application main class with 1 of"
 			+ " [@ClientCacheApplication, @CacheServerApplication, @PeerCacheApplication] or @LocatorApplication;"
@@ -80,6 +84,8 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 	private static final List<String> CACHE_FACTORY_BEAN_CLASS_NAMES =
 		Arrays.asList(CacheFactoryBean.class.getName(), ClientCacheFactoryBean.class.getName());
+
+	private boolean useBeanFactoryLocator = DEFAULT_USE_BEAN_FACTORY_LOCATOR;
 
 	private int port = DEFAULT_PORT;
 
@@ -93,13 +99,28 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 	private String logLevel;
 	private String name;
 
+	/**
+	 * Returns the {@link LocatorApplication} annotation used to configure and bootstrap a {@link Locator}-based,
+	 * Spring application.
+	 *
+	 * @return the {@link LocatorApplication} annotation {@link Class type}.
+	 * @see org.springframework.data.gemfire.config.annotation.LocatorApplication
+	 */
 	@Override
-	protected Class<? extends Annotation> getAnnotationType() {
+	protected @NonNull Class<? extends Annotation> getAnnotationType() {
 		return LocatorApplication.class;
 	}
 
+	/**
+	 * Returns a {@link BeanFactoryPostProcessor} used to enforce that the Spring application can only be
+	 * an Apache Geode {@link GemFireCache cache} application or an Apache Geode {@link Locator} application,
+	 * but not both.
+	 *
+	 * @return a {@link BeanFactoryPostProcessor} used to enforce the Spring, Apache Geode application type.
+	 * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor
+	 */
 	@Bean
-	BeanFactoryPostProcessor exclusiveLocatorApplicationBeanFactoryPostProcessor() {
+	@NonNull BeanFactoryPostProcessor locatorApplicationMutexBeanFactoryPostProcessor() {
 
 		return configurableListableBeanFactory -> {
 
@@ -107,25 +128,23 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 			boolean match = Arrays.stream(nullSafeArray(beanDefinitionNames, String.class))
 				.map(configurableListableBeanFactory::getBeanDefinition)
-				.anyMatch(beanDefinition ->
+				.anyMatch(beanDefinition -> resolveBeanClassName(beanDefinition)
+					.map(beanClassName -> {
+						try {
 
-					resolveBeanClassName(beanDefinition)
-						.map(beanClassName -> {
-							try {
+							Class<?> possibleCacheType =
+								ClassUtils.resolveClassName(beanClassName, getBeanClassLoader());
 
-								Class<?> possibleCacheType =
-									ClassUtils.resolveClassName(beanClassName, getBeanClassLoader());
-
-								return isCacheType(possibleCacheType);
-							}
-							catch (Throwable ignore) {
-								return CACHE_FACTORY_BEAN_CLASS_NAMES.contains(beanClassName);
-							}
-						})
-						.orElse(false));
+							return isCacheType(possibleCacheType);
+						}
+						catch (Throwable ignore) {
+							return CACHE_FACTORY_BEAN_CLASS_NAMES.contains(beanClassName);
+						}
+					})
+					.orElse(false));
 
 			if (match) {
-				throw new BeanDefinitionStoreException(EXCLUSIVE_LOCATOR_APPLICATION_ERROR_MESSAGE);
+				throw new BeanDefinitionStoreException(LOCATOR_APPLICATION_MUTEX_ERROR_MESSAGE);
 			}
 		};
 	}
@@ -136,8 +155,15 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 			&& (CacheFactoryBean.class.isAssignableFrom(type) || GemFireCache.class.isAssignableFrom(type));
 	}
 
+	/**
+	 * Process the {@link Annotation} metadata from the {@link LocatorApplication} annotation.
+	 *
+	 * @param importMetadata {@link AnnotationMetadata} containing metadata from the {@link LocatorApplication}
+	 * annotation annotated on the Spring application {@link Configuration} {@link Class}.
+	 * @see org.springframework.core.type.AnnotationMetadata
+	 */
 	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
+	public void setImportMetadata(@NonNull AnnotationMetadata importMetadata) {
 
 		if (isAnnotationPresent(importMetadata)) {
 
@@ -160,6 +186,9 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 			setPort(resolveProperty(locatorProperty("port"),
 				locatorApplicationAnnotationAttributes.<Integer>getNumber("port")));
+
+			setUseBeanFactoryLocator(resolveProperty("use-bean-factory-locator", Boolean.class,
+				locatorApplicationAnnotationAttributes.getBoolean("useBeanFactoryLocator")));
 		}
 	}
 
@@ -175,6 +204,7 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 		locatorFactoryBean.setLogLevel(getLogLevel());
 		locatorFactoryBean.setName(getName());
 		locatorFactoryBean.setPort(getPort());
+		locatorFactoryBean.setUseBeanFactoryLocator(isUseBeanFactoryLocator());
 
 		return locatorFactoryBean;
 	}
@@ -183,47 +213,47 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 		return Optional.ofNullable(this.locatorConfigurers)
 			.filter(locatorConfigurers -> !locatorConfigurers.isEmpty())
-			.orElseGet(() ->
-				Collections.singletonList(LazyResolvingComposableLocatorConfigurer.create(getBeanFactory())));
+			.orElseGet(() -> Collections.singletonList(LazyResolvingComposableLocatorConfigurer
+				.create(getBeanFactory())));
 	}
 
-	public void setBindAddress(String bindAddress) {
+	public void setBindAddress(@Nullable String bindAddress) {
 		this.bindAddress = bindAddress;
 	}
 
-	public String getBindAddress() {
+	public @Nullable String getBindAddress() {
 		return this.bindAddress;
 	}
 
-	public void setHostnameForClients(String hostnameForClients) {
+	public void setHostnameForClients(@Nullable String hostnameForClients) {
 		this.hostnameForClients = hostnameForClients;
 	}
 
-	public String getHostnameForClients() {
+	public @Nullable String getHostnameForClients() {
 		return this.hostnameForClients;
 	}
 
-	public void setLocators(String locators) {
+	public void setLocators(@Nullable String locators) {
 		this.locators = locators;
 	}
 
-	public String getLocators() {
+	public @Nullable String getLocators() {
 		return this.locators;
 	}
 
-	public void setLogLevel(String logLevel) {
+	public void setLogLevel(@Nullable String logLevel) {
 		this.logLevel = logLevel;
 	}
 
-	public String getLogLevel() {
+	public @Nullable String getLogLevel() {
 		return this.logLevel;
 	}
 
-	public void setName(String name) {
+	public void setName(@Nullable String name) {
 		this.name = name;
 	}
 
-	public String getName() {
+	public @Nullable String getName() {
 		return this.name;
 	}
 
@@ -233,5 +263,13 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 	public int getPort() {
 		return this.port;
+	}
+
+	public boolean isUseBeanFactoryLocator() {
+		return this.useBeanFactoryLocator;
+	}
+
+	public void setUseBeanFactoryLocator(boolean useBeanFactoryLocator) {
+		this.useBeanFactoryLocator = useBeanFactoryLocator;
 	}
 }

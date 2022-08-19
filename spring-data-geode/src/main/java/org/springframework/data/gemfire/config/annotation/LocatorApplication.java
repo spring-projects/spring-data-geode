@@ -25,8 +25,10 @@ import java.lang.annotation.Target;
 
 import org.apache.geode.distributed.Locator;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
 
 /**
  * The {@link LocatorApplication} {@link Annotation} enables a Spring Data for Apache Geode & Pivotal GemFire
@@ -90,7 +92,7 @@ public @interface LocatorApplication {
 	String logLevel() default LocatorApplicationConfiguration.DEFAULT_LOG_LEVEL;
 
 	/**
-	 * Configures the name of the {@link Locator} application.
+	 * Configures the {@link String name} of the {@link Locator} application.
 	 *
 	 * Defaults to {@literal SpringBasedLocatorApplication}.
 	 *
@@ -109,5 +111,16 @@ public @interface LocatorApplication {
 	 * in Spring Boot {@literal application.properties}.
 	 */
 	int port() default LocatorApplicationConfiguration.DEFAULT_PORT;
+
+	/**
+	 * Configures the {@link Locator} application with the {@link GemfireBeanFactoryLocator} in order to look up
+	 * the Spring {@link BeanFactory} used to auto-wire, configure and initialize Apache Geode components
+	 * created in a non-Spring managed, Apache Geode context (for example: {@literal cache.xml}).
+	 *
+	 * Defaults to {@literal false}.
+	 *
+	 * Use {@literal spring.data.gemfire.use-bean-factory-locator} property in {@literal application.properties}.
+	 */
+	boolean useBeanFactoryLocator() default LocatorApplicationConfiguration.DEFAULT_USE_BEAN_FACTORY_LOCATOR;
 
 }

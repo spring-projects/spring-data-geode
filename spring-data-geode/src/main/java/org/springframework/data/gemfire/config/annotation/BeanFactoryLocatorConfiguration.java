@@ -20,8 +20,10 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.gemfire.CacheFactoryBean;
+import org.springframework.data.gemfire.LocatorFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
+import org.springframework.lang.NonNull;
 
 /**
  * The {@link BeanFactoryLocatorConfiguration} class extends the Spring application configuration by enabling
@@ -33,8 +35,10 @@ import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.data.gemfire.CacheFactoryBean
+ * @see org.springframework.data.gemfire.LocatorFactoryBean
  * @see org.springframework.data.gemfire.client.ClientCacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
+ * @see org.springframework.data.gemfire.config.annotation.LocatorConfigurer
  * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
  * @see org.springframework.data.gemfire.config.annotation.EnableBeanFactoryLocator
  * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
@@ -64,6 +68,10 @@ public class BeanFactoryLocatorConfiguration {
 					((CacheFactoryBean) bean).setUseBeanFactoryLocator(true);
 				}
 
+				if (bean instanceof LocatorFactoryBean) {
+					((LocatorFactoryBean) bean).setUseBeanFactoryLocator(true);
+				}
+
 				return bean;
 			}
 		};
@@ -73,12 +81,25 @@ public class BeanFactoryLocatorConfiguration {
 	 * Declares and registers a {@link ClientCacheConfigurer} bean to configure a {@link ClientCacheFactoryBean}
 	 * by setting the {@literal useBeanFactoryLocator} property to {@literal true}.
 	 *
-	 * @return a {@link ClientCacheConfigurer} used to configure and set the SDG {@link ClientCacheFactoryBean}'s
+	 * @return a {@link ClientCacheConfigurer} used to configure and set the SDG {@link ClientCacheFactoryBean}
 	 * {@literal useBeanFactoryLocator} property to {@literal true}.
 	 * @see org.springframework.data.gemfire.config.annotation.ClientCacheConfigurer
 	 */
 	@Bean
-	public ClientCacheConfigurer useBeanFactoryLocatorClientCacheConfigurer() {
+	public @NonNull ClientCacheConfigurer useBeanFactoryLocatorClientCacheConfigurer() {
+		return (beanName, bean) -> bean.setUseBeanFactoryLocator(true);
+	}
+
+	/**
+	 * Declares and registers a {@link LocatorConfigurer} bean to configure a {@link LocatorFactoryBean}
+	 * by setting the {@literal useBeanFactoryLocator} property to {@literal true}.
+	 *
+	 * @return a {@link LocatorConfigurer} used to configure and set the SDG {@link LocatorFactoryBean}
+	 * {@literal useBeanFactoryLocator} property to {@literal true}.
+	 * @see org.springframework.data.gemfire.config.annotation.LocatorConfigurer
+	 */
+	@Bean
+	public @NonNull LocatorConfigurer useBeanFactoryLocatorLocatorConfigurer() {
 		return (beanName, bean) -> bean.setUseBeanFactoryLocator(true);
 	}
 
@@ -86,12 +107,12 @@ public class BeanFactoryLocatorConfiguration {
 	 * Declares and registers a {@link PeerCacheConfigurer} bean to configure a {@link CacheFactoryBean}
 	 * by setting the {@literal useBeanFactoryLocator} property to {@literal true}.
 	 *
-	 * @return a {@link PeerCacheConfigurer} used to configure and set the SDG {@link CacheFactoryBean}'s
+	 * @return a {@link PeerCacheConfigurer} used to configure and set the SDG {@link CacheFactoryBean}
 	 * {@literal useBeanFactoryLocator} property to {@literal true}.
 	 * @see org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer
 	 */
 	@Bean
-	public PeerCacheConfigurer useBeanFactoryLocatorPeerCacheConfigurer() {
+	public @NonNull PeerCacheConfigurer useBeanFactoryLocatorPeerCacheConfigurer() {
 		return (beanName, bean) -> bean.setUseBeanFactoryLocator(true);
 	}
 }
