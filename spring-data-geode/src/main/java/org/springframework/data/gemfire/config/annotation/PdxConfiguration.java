@@ -16,7 +16,9 @@
 package org.springframework.data.gemfire.config.annotation;
 
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.pdx.PdxSerializer;
@@ -36,6 +38,7 @@ import org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFact
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
 import org.springframework.data.gemfire.mapping.MappingPdxSerializer;
 import org.springframework.data.gemfire.support.NoOpBeanFactoryPostProcessor;
+import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
@@ -57,6 +60,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.data.gemfire.CacheFactoryBean
  * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport
  * @see org.springframework.data.gemfire.config.support.PdxDiskStoreAwareBeanFactoryPostProcessor
+ * @see org.springframework.data.gemfire.mapping.GemfireMappingContext
  * @see org.springframework.data.gemfire.mapping.MappingPdxSerializer
  * @see org.springframework.data.gemfire.support.NoOpBeanFactoryPostProcessor
  * @since 2.1.0
@@ -75,6 +79,8 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 	private Boolean ignoreUnreadFields;
 	private Boolean persistent;
 	private Boolean readSerialized;
+
+	private Class<?>[] includeDomainTypes = {};
 
 	private String diskStoreName;
 	private String serializerBeanName;
@@ -105,6 +111,8 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 				enablePdxAttributes.containsKey("ignoreUnreadFields")
 					? enablePdxAttributes.getBoolean("ignoreUnreadFields")
 					: DEFAULT_IGNORE_UNREAD_FIELDS));
+
+			setIncludeDomainTypes(enablePdxAttributes.getClassArray("includeDomainTypes"));
 
 			setPersistent(resolveProperty(pdxProperty("persistent"),
 				enablePdxAttributes.containsKey("persistent")
@@ -137,6 +145,14 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 
 	protected boolean isIgnoreUnreadFields() {
 		return Boolean.TRUE.equals(this.ignoreUnreadFields);
+	}
+
+	void setIncludeDomainTypes(Class<?>[] includeDomainTypes) {
+		this.includeDomainTypes = includeDomainTypes;
+	}
+
+	protected Class<?>[] getIncludeDomainTypes() {
+		return ArrayUtils.nullSafeArray(this.includeDomainTypes, Class.class);
 	}
 
 	void setPersistent(Boolean persistent) {
@@ -189,7 +205,7 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 	 * @see org.springframework.data.gemfire.CacheFactoryBean
 	 * @see <a href="https://geode.apache.org/docs/guide/113/developing/data_serialization/gemfire_pdx_serialization.html">Geode PDX Serialization</a>
 	 */
-	protected void configurePdx(CacheFactoryBean cacheFactoryBean) {
+	protected void configurePdx(@NonNull CacheFactoryBean cacheFactoryBean) {
 
 		getDiskStoreName().ifPresent(cacheFactoryBean::setPdxDiskStoreName);
 
@@ -240,15 +256,20 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 	 * @see org.apache.geode.pdx.PdxSerializer
 	 * @see #getBeanFactory()
 	 */
-	@NonNull
-	protected PdxSerializer resolvePdxSerializer() {
+	protected @NonNull PdxSerializer resolvePdxSerializer() {
 
 		BeanFactory beanFactory = getBeanFactory();
 
-		return getSerializerBeanName()
+		PdxSerializer serializer = getSerializerBeanName()
 			.filter(beanFactory::containsBean)
 			.map(beanName -> beanFactory.getBean(beanName, PdxSerializer.class))
 			.orElseGet(this::newPdxSerializer);
+
+		if (serializer instanceof MappingPdxSerializer) {
+			((MappingPdxSerializer) serializer).setIncludeTypeFilters(buildIncludeTypeFilters());
+		}
+
+		return serializer;
 	}
 
 	/**
@@ -258,11 +279,23 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 	 * @return a new instance of {@link PdxSerializer}.
 	 * @see org.apache.geode.pdx.PdxSerializer
 	 */
-	@NonNull
 	@SuppressWarnings("unchecked")
-	protected <T extends PdxSerializer> T newPdxSerializer() {
+	protected @NonNull <T extends PdxSerializer> T newPdxSerializer() {
 
 		return (T) MappingPdxSerializer.create(resolveMappingContext().orElse(null),
 			resolveConversionService().orElse(null));
+	}
+
+	private @NonNull Predicate<Class<?>> buildIncludeTypeFilters() {
+
+		Predicate<Class<?>> includeTypeFilter = type -> false;
+
+		for (Class<?> domainType : getIncludeDomainTypes()) {
+			if (Objects.nonNull(domainType)) {
+				includeTypeFilter = includeTypeFilter.or(type -> domainType.isAssignableFrom(type));
+			}
+		}
+
+		return includeTypeFilter;
 	}
 }

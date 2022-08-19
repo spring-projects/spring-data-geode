@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.gemstone.gemfire.TestGemStoneGemFireType;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
@@ -95,6 +97,7 @@ public class EnablePdxConfigurationUnitTests {
 
 		annotationAttributes.put("diskStoreName", "MockDiskStore");
 		annotationAttributes.put("ignoreUnreadFields", Boolean.TRUE);
+		annotationAttributes.put("includeDomainTypes", new Class[] { TestGemStoneGemFireType.class });
 		annotationAttributes.put("persistent", Boolean.TRUE);
 		annotationAttributes.put("readSerialized", Boolean.TRUE);
 		annotationAttributes.put("serializerBeanName", "MockPdxSerializer");
@@ -109,6 +112,7 @@ public class EnablePdxConfigurationUnitTests {
 		assertThat(this.pdxConfiguration.getBeanFactory()).isEqualTo(mockBeanFactory);
 		assertThat(this.pdxConfiguration.getDiskStoreName().orElse(null)).isEqualTo("MockDiskStore");
 		assertThat(this.pdxConfiguration.isIgnoreUnreadFields()).isTrue();
+		assertThat(this.pdxConfiguration.getIncludeDomainTypes()).containsExactly(TestGemStoneGemFireType.class);
 		assertThat(this.pdxConfiguration.isPersistent()).isTrue();
 		assertThat(this.pdxConfiguration.isReadSerialized()).isTrue();
 		assertThat(this.pdxConfiguration.getSerializerBeanName().orElse(null)).isEqualTo("MockPdxSerializer");
@@ -129,6 +133,7 @@ public class EnablePdxConfigurationUnitTests {
 
 		assertThat(this.pdxConfiguration.getDiskStoreName().isPresent()).isFalse();
 		assertThat(this.pdxConfiguration.isIgnoreUnreadFields()).isFalse();
+		assertThat(this.pdxConfiguration.getIncludeDomainTypes()).isEmpty();
 		assertThat(this.pdxConfiguration.isPersistent()).isFalse();
 		assertThat(this.pdxConfiguration.isReadSerialized()).isFalse();
 		assertThat(this.pdxConfiguration.getSerializerBeanName().isPresent()).isFalse();
@@ -171,6 +176,7 @@ public class EnablePdxConfigurationUnitTests {
 
 		verify(this.pdxConfiguration, times(1)).getDiskStoreName();
 		verify(this.pdxConfiguration, times(1)).isIgnoreUnreadFields();
+		verify(this.pdxConfiguration, never()).getIncludeDomainTypes();
 		verify(this.pdxConfiguration, times(1)).isPersistent();
 		verify(this.pdxConfiguration, times(1)).isReadSerialized();
 		verify(this.pdxConfiguration, times(1)).getSerializerBeanName();
