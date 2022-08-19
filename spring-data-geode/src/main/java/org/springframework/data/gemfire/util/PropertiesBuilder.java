@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Properties;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -37,6 +39,11 @@ import org.springframework.util.StringUtils;
  */
 @SuppressWarnings("unused")
 public class PropertiesBuilder implements FactoryBean<Properties> {
+
+	private static final Function<Object, String> TO_STRING_FUNCTION = target ->
+		target instanceof Class ? ((Class<?>) target).getName()
+		: target != null ? target.toString()
+		: String.valueOf(target);
 
 	/**
 	 * Factory method used to create a default {@link PropertiesBuilder} instance.
@@ -162,25 +169,16 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 		this(builder.build());
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
-	public Properties getObject() throws Exception {
+	public @NonNull Properties getObject() throws Exception {
 		return build();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
-	public Class<?> getObjectType() {
+	public @NonNull Class<?> getObjectType() {
 		return this.properties != null ? this.properties.getClass() : Properties.class;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public boolean isSingleton() {
 		return true;
@@ -194,7 +192,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @return a reference to this {@link PropertiesBuilder}.
 	 * @see java.util.Properties
 	 */
-	public PropertiesBuilder add(Properties properties) {
+	public @NonNull PropertiesBuilder add(@Nullable Properties properties) {
 
 		if (!CollectionUtils.isEmpty(properties)) {
 			this.properties.putAll(properties);
@@ -211,7 +209,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @return a reference to this {@link PropertiesBuilder}.
 	 * @see org.springframework.data.gemfire.util.PropertiesBuilder
 	 */
-	public PropertiesBuilder add(PropertiesBuilder builder) {
+	public @NonNull PropertiesBuilder add(@Nullable PropertiesBuilder builder) {
 		return builder != null ? add(builder.build()) : this;
 	}
 
@@ -223,8 +221,8 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @return a reference to this {@link PropertiesBuilder}.
 	 * @see #setProperty(String, String)
 	 */
-	public PropertiesBuilder setProperty(String name, Object value) {
-		return value != null ? setProperty(name, value.toString()) : this;
+	public @NonNull PropertiesBuilder setProperty(@NonNull String name, @NonNull Object value) {
+		return value != null ? setProperty(name, TO_STRING_FUNCTION.apply(value)) : this;
 	}
 
 	/**
@@ -237,7 +235,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @see org.springframework.util.StringUtils#arrayToCommaDelimitedString(Object[])
 	 * @see #setProperty(String, String)
 	 */
-	public PropertiesBuilder setProperty(String name, Object[] values) {
+	public @NonNull PropertiesBuilder setProperty(@NonNull String name, @Nullable Object[] values) {
 		return !ObjectUtils.isEmpty(values) ? setProperty(name, StringUtils.arrayToCommaDelimitedString(values)) : this;
 	}
 
@@ -252,7 +250,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @throws IllegalArgumentException if the property name is not specified.
 	 * @see java.util.Properties#setProperty(String, String)
 	 */
-	public PropertiesBuilder setProperty(String name, String value) {
+	public @NonNull PropertiesBuilder setProperty(@NonNull String name, @NonNull String value) {
 
 		Assert.hasText(name, String.format("Name [%s] must be specified", name));
 
@@ -275,7 +273,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @return a reference to this {@link PropertiesBuilder}.
 	 * @see #setProperty(String, Object)
 	 */
-	public <T> PropertiesBuilder setPropertyIfNotDefault(String name, Object value, T defaultValue) {
+	public @NonNull <T> PropertiesBuilder setPropertyIfNotDefault(@NonNull String name, Object value, T defaultValue) {
 		return defaultValue == null || !defaultValue.equals(value) ? setProperty(name, value) : this;
 	}
 
@@ -286,7 +284,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @return a reference to this {@link PropertiesBuilder}.
 	 * @throws IllegalArgumentException if the property name is not specified.
 	 */
-	public PropertiesBuilder unsetProperty(String name) {
+	public @NonNull PropertiesBuilder unsetProperty(@NonNull String name) {
 
 		Assert.hasText(name, String.format("Name [%s] mut be specified", name));
 
@@ -303,7 +301,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @param value {@link String} value for the property being set.
 	 * @return a boolean value indicating whether the given {@link String} value is a valid {@link Properties} value.
 	 */
-	protected boolean isValuable(String value) {
+	protected boolean isValuable(@Nullable String value) {
 		return StringUtils.hasText(value) && !"null".equalsIgnoreCase(value.trim());
 	}
 
@@ -313,7 +311,7 @@ public class PropertiesBuilder implements FactoryBean<Properties> {
 	 * @return the {@link Properties} object built by this builder.
 	 * @see java.util.Properties
 	 */
-	public Properties build() {
+	public @NonNull Properties build() {
 		return this.properties;
 	}
 }
