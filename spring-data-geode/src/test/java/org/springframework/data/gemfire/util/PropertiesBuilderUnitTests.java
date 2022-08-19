@@ -23,19 +23,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.Properties;
 
 import org.junit.Test;
 
 /**
- * Test suite of test cases testing the contract and functionality of the {@link PropertiesBuilder} class.
+ * Unit Tests for {@link PropertiesBuilder}
  *
  * @author John Blum
  * @see java.util.Properties
+ * @see org.junit.Test
  * @see org.springframework.data.gemfire.util.PropertiesBuilder
  * @since 1.9.0
  */
-public class PropertiesBuilderTests {
+public class PropertiesBuilderUnitTests {
 
 	private Properties singletonProperties(String name, String value) {
 		Properties properties = new Properties();
@@ -44,7 +46,7 @@ public class PropertiesBuilderTests {
 	}
 
 	@Test
-	public void constructDefaultPropertiesBuilder() throws Exception {
+	public void constructPropertiesBuilder() throws Exception {
 
 		PropertiesBuilder builder = new PropertiesBuilder();
 
@@ -208,7 +210,7 @@ public class PropertiesBuilderTests {
 			.build();
 
 		assertThat(properties).isNotNull();
-		assertThat(properties.size()).isEqualTo(5);
+		assertThat(properties).hasSize(5);
 		assertThat(properties.getProperty("boolean")).isEqualTo(Boolean.TRUE.toString());
 		assertThat(properties.getProperty("character")).isEqualTo("A");
 		assertThat(properties.getProperty("integer")).isEqualTo("1");
@@ -224,9 +226,38 @@ public class PropertiesBuilderTests {
 			.build();
 
 		assertThat(properties).isNotNull();
-		assertThat(properties.size()).isEqualTo(1);
+		assertThat(properties).hasSize(1);
 		assertThat(properties.containsKey("numbers")).isTrue();
 		assertThat(properties.getProperty("numbers")).isEqualTo("one,two,three");
+	}
+
+	@Test
+	public void setClassPropertyValueIsClassName() {
+
+		Properties properties = PropertiesBuilder.create()
+			.setProperty("type", BigDecimal.class)
+			.build();
+
+		assertThat(properties).isNotNull();
+		assertThat(properties).hasSize(1);
+		assertThat(properties).containsKey("type");
+		assertThat(properties.get("type")).isEqualTo(BigDecimal.class.getName());
+	}
+
+	@Test
+	public void setStringPropertyValuesIsSuccessful() {
+
+		Properties properties = PropertiesBuilder.create()
+			.setProperty("one", "1")
+			.setProperty("two", "2")
+			.build();
+
+		assertThat(properties).isNotNull();
+		assertThat(properties).hasSize(2);
+		assertThat(properties.containsKey("one")).isTrue();
+		assertThat(properties.containsKey("two")).isTrue();
+		assertThat(properties.getProperty("one")).isEqualTo("1");
+		assertThat(properties.getProperty("two")).isEqualTo("2");
 	}
 
 	@Test
@@ -271,22 +302,6 @@ public class PropertiesBuilderTests {
 	}
 
 	@Test
-	public void setStringPropertyValuesIsSuccessful() {
-
-		Properties properties = PropertiesBuilder.create()
-			.setProperty("one", "1")
-			.setProperty("two", "2")
-			.build();
-
-		assertThat(properties).isNotNull();
-		assertThat(properties.size()).isEqualTo(2);
-		assertThat(properties.containsKey("one")).isTrue();
-		assertThat(properties.containsKey("two")).isTrue();
-		assertThat(properties.getProperty("one")).isEqualTo("1");
-		assertThat(properties.getProperty("two")).isEqualTo("2");
-	}
-
-	@Test
 	public void unsetPropertyIsSuccessful() {
 
 		Properties properties = PropertiesBuilder.create().unsetProperty("example").build();
@@ -299,7 +314,9 @@ public class PropertiesBuilderTests {
 
 	@Test
 	public void stringLiteralIsValuable() {
+
 		assertThat(PropertiesBuilder.create().isValuable("test")).isTrue();
+		assertThat(PropertiesBuilder.create().isValuable("mock")).isTrue();
 	}
 
 	@Test
