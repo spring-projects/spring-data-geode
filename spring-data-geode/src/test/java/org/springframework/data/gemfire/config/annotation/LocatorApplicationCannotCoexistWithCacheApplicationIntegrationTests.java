@@ -69,7 +69,7 @@ public class LocatorApplicationCannotCoexistWithCacheApplicationIntegrationTests
 		catch (BeanDefinitionStoreException expected) {
 
 			assertThat(expected)
-				.hasMessage(LocatorApplicationConfiguration.EXCLUSIVE_LOCATOR_APPLICATION_ERROR_MESSAGE);
+				.hasMessage(LocatorApplicationConfiguration.LOCATOR_APPLICATION_MUTEX_ERROR_MESSAGE);
 
 			assertThat(expected).hasNoCause();
 
