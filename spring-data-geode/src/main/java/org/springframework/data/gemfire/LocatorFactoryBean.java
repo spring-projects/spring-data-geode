@@ -33,12 +33,13 @@ import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Spring {@link FactoryBean} used to configure and initialize (bootstrap) an Apache Geode or Pivotal GemFire
- * {@link Locator} using the {@link LocatorLauncher} class.
+ * Spring {@link FactoryBean} used to configure, bootstrap and initialize an Apache Geode {@link Locator}
+ * using the {@link LocatorLauncher} class.
  *
  * @author John Blum
  * @see java.util.Properties
@@ -48,6 +49,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.InitializingBean
  * @see org.springframework.data.gemfire.config.annotation.LocatorConfigurer
  * @see org.springframework.data.gemfire.support.AbstractFactoryBeanSupport
+ * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  * @since 2.2.0
  */
 @SuppressWarnings("unused")
@@ -156,7 +158,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		}
 	}
 
-	protected LocatorLauncher.Builder newLocatorLauncherBuilder() {
+	protected @NonNull LocatorLauncher.Builder newLocatorLauncherBuilder() {
 		return new LocatorLauncher.Builder();
 	}
 
@@ -168,11 +170,11 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return locatorLauncher;
 	}
 
-	public Locator getLocator() {
+	public @Nullable Locator getLocator() {
 		return this.locator;
 	}
 
-	public LocatorLauncher getLocatorLauncher() {
+	public @Nullable LocatorLauncher getLocatorLauncher() {
 		return this.locatorLauncher;
 	}
 
@@ -194,7 +196,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return locator != null ? locator.getClass() : Locator.class;
 	}
 
-	public void setBindAddress(String bindAddress) {
+	public void setBindAddress(@Nullable String bindAddress) {
 		this.bindAddress = bindAddress;
 	}
 
@@ -208,7 +210,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return this.compositeLocatorConfigurer;
 	}
 
-	public void setGemFireProperties(Properties gemfireProperties) {
+	public void setGemFireProperties(@Nullable Properties gemfireProperties) {
 		this.gemfireProperties = gemfireProperties;
 	}
 
@@ -221,7 +223,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		return this.gemfireProperties;
 	}
 
-	public void setHostnameForClients(String hostnameForClients) {
+	public void setHostnameForClients(@Nullable String hostnameForClients) {
 		this.hostnameForClients = hostnameForClients;
 	}
 
@@ -239,7 +241,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 		Optional.ofNullable(locatorConfigurers).ifPresent(this.locatorConfigurers::addAll);
 	}
 
-	public void setLocators(String locators) {
+	public void setLocators(@Nullable String locators) {
 		this.locators = locators;
 	}
 
@@ -249,15 +251,15 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 			.filter(StringUtils::hasText);
 	}
 
-	public void setLogLevel(String logLevel) {
+	public void setLogLevel(@Nullable String logLevel) {
 		this.logLevel = logLevel;
 	}
 
-	public String getLogLevel() {
+	public @NonNull String getLogLevel() {
 		return StringUtils.hasText(this.logLevel) ? this.logLevel : DEFAULT_LOG_LEVEL;
 	}
 
-	public void setName(String name) {
+	public void setName(@Nullable String name) {
 		this.name = name;
 	}
 
@@ -267,14 +269,20 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 			.filter(StringUtils::hasText);
 	}
 
-	public void setPort(Integer port) {
-
-		Assert.isTrue(port >= 0 && port < 65536, String.format("Network port [%d] is not valid", port));
-
-		this.port = port;
+	public void setPort(@NonNull Integer port) {
+		this.port = assertPort(nullSafePort(port));
 	}
 
-	public Integer getPort() {
+	private int assertPort(@NonNull int port) {
+		Assert.isTrue(port >= 0 && port < 65536, String.format("Network port [%d] is not valid", port));
+		return port;
+	}
+
+	private int nullSafePort(@Nullable Integer port) {
+		return port != null ? port : DEFAULT_PORT;
+	}
+
+	public @NonNull Integer getPort() {
 		return this.port;
 	}
 
