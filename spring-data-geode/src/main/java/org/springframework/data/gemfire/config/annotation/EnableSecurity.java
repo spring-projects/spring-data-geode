@@ -40,6 +40,8 @@ import org.springframework.context.annotation.Import;
  * @see org.apache.geode.security.PostProcessor
  * @see org.springframework.context.annotation.Import
  * @see org.springframework.data.gemfire.config.annotation.ApacheShiroSecurityConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.AuthenticationBeanConfiguration
+ * @see org.springframework.data.gemfire.config.annotation.AutoConfiguredAuthenticationConfiguration
  * @see org.springframework.data.gemfire.config.annotation.GeodeIntegratedSecurityConfiguration
  * @since 1.0.0
  */
@@ -49,6 +51,7 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import({
 	ApacheShiroSecurityConfiguration.class,
+	AuthenticationBeanConfiguration.class,
 	AutoConfiguredAuthenticationConfiguration.class,
 	GeodeIntegratedSecurityConfiguration.class
 })

@@ -122,9 +122,17 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 	@Bean
 	public BeanFactoryPostProcessor shiroGemFireBeanFactoryPostProcessor() {
 
-		return configurableListableBeanFactory ->
-			SpringUtils.addDependsOn(configurableListableBeanFactory.getBeanDefinition("gemfireCache"),
-				"shiroSecurityManager");
+		return configurableListableBeanFactory -> {
+
+			if (configurableListableBeanFactory.containsBean("gemfireCache")) {
+				SpringUtils.addDependsOn(configurableListableBeanFactory.getBeanDefinition("gemfireCache"),
+					"shiroSecurityManager");
+			}
+			else if (configurableListableBeanFactory.containsBean("locatorApplication")) {
+				SpringUtils.addDependsOn(configurableListableBeanFactory.getBeanDefinition("locatorApplication"),
+					"shiroSecurityManager");
+			}
+		};
 	}
 
 	/**
@@ -251,9 +259,6 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 			return environment.getProperty(SPRING_DATA_GEMFIRE_SECURITY_SHIRO_ENABLED, Boolean.class, true);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 			return isEnabled(context.getEnvironment()) && isApacheShiroPresent(context);

@@ -19,6 +19,7 @@ package org.springframework.data.gemfire.support;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheCallback;
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.Declarable;
@@ -31,20 +32,22 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.data.gemfire.util.SpringExtensions;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * The {@link LazyWiringDeclarableSupport} class is an implementation of GemFire's {@link Declarable} interface
- * that enables support for wiring GemFire components with Spring bean dependencies defined in
- * a Spring {@link ApplicationContext}.
+ * Implementation of Apache Geode's {@link Declarable} interface that enables support for wiring Apache Geode components
+ * with Spring bean dependencies defined in a Spring {@link ApplicationContext}.
  *
  * @author John Blum
  * @see java.util.Properties
+ * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.CacheCallback
  * @see org.apache.geode.cache.Declarable
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.DisposableBean
- * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationListener
  * @see org.springframework.context.event.ContextRefreshedEvent
@@ -56,8 +59,8 @@ import org.springframework.util.Assert;
 public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSupport
 		implements ApplicationListener<ContextRefreshedEvent>, DisposableBean {
 
-	// atomic reference to the parameters passed by GemFire when this Declarable object
-	// was constructed, configured and its init method called
+	// Atomic reference to the parameters passed by Apache Geode when this Declarable object
+	// was constructed, configured and its initialize(..) method called
 	private final AtomicReference<Properties> parametersReference = new AtomicReference<>();
 
 	// condition to determine the initialized state of this Declarable object
@@ -155,16 +158,14 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see java.util.Properties
 	 */
 	@Override
-	public final void init(Properties parameters) {
+	public final void initialize(@Nullable Cache cache, @NonNull Properties parameters) {
 
+		// Set a reference to the Apache Geode (configuration) Properties
 		setParameters(parameters);
 
-		try {
-			doInit(locateBeanFactory(), nullSafeGetParameters());
-		}
-		catch (IllegalStateException ignore) {
-			// BeanFactory does not exist, has been closed or the GemfireBeanFactoryLocator is not in use
-		}
+		// A Throwable maybe thrown iff the BeanFactory does not exist, has been closed
+		// or the GemfireBeanFactoryLocator is not in use.
+		SpringExtensions.safeDoOperation(() -> doInit(locateBeanFactory(), nullSafeGetParameters()));
 	}
 
 	/**
@@ -182,7 +183,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see #doPostInit(java.util.Properties)
 	 * @see java.util.Properties
 	 */
-	synchronized void doInit(BeanFactory beanFactory, Properties parameters) {
+	synchronized void doInit(@NonNull BeanFactory beanFactory, @NonNull Properties parameters) {
 
 		this.initialized = isInitialized()
 			|| configureThis(beanFactory, parameters.getProperty(TEMPLATE_BEAN_NAME_PROPERTY));
@@ -200,7 +201,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * @see #doInit(BeanFactory, Properties)
 	 * @see java.util.Properties
 	 */
-	protected void doPostInit(Properties parameters) { }
+	protected void doPostInit(@NonNull Properties parameters) { }
 
 	/**
 	 * Null-safe operation to return the parameters passed to this {@link Declarable} object when created by GemFire
@@ -210,7 +211,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * (e.g. {@literal cache.xml}) and passed to this {@link Declarable} object.
 	 * @see java.util.Properties
 	 */
-	protected Properties nullSafeGetParameters() {
+	protected @NonNull Properties nullSafeGetParameters() {
 
 		Properties parameters = this.parametersReference.get();
 
@@ -224,7 +225,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 * configuration meta-data (e.g. {@literal cache.xml}) and passed to this {@link Declarable} object.
 	 * @see java.util.Properties
 	 */
-	protected void setParameters(Properties parameters) {
+	protected void setParameters(@Nullable Properties parameters) {
 		this.parametersReference.set(parameters);
 	}
 
@@ -240,7 +241,7 @@ public abstract class LazyWiringDeclarableSupport extends WiringDeclarableSuppor
 	 */
 	@Override
 	@SuppressWarnings("all")
-	public final void onApplicationEvent(ContextRefreshedEvent event) {
+	public final void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
 
 		ApplicationContext applicationContext = event.getApplicationContext();
 

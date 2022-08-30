@@ -27,11 +27,14 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.apache.geode.cache.Cache;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.gemfire.repository.sample.User;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.mock.CacheMockObjects;
 import org.springframework.data.gemfire.tests.support.DataSourceAdapter;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 import org.springframework.test.context.ContextConfiguration;
@@ -42,9 +45,12 @@ import org.springframework.util.Assert;
  * Integration Tests for {@link LazyWiringDeclarableSupport}.
  *
  * @author John Blum
+ * @see java.util.Properties
+ * @see javax.sql.DataSource
  * @see org.junit.Test
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport
+ * @see org.springframework.data.gemfire.tests.mock.CacheMockObjects
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.3.4
@@ -66,12 +72,15 @@ public class LazyWiringDeclarableSupportIntegrationTests extends IntegrationTest
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	private final Cache mockCache = CacheMockObjects
+		.mockPeerCache("MockCache", null, null);
+
 	@Test
 	public void autoWiringSuccessful() {
 
 		TestDeclarable declarable = new TestDeclarable();
 
-		declarable.init(createParameters("testParam", "testValue"));
+		declarable.initialize(this.mockCache, createParameters("testParam", "testValue"));
 		declarable.onApplicationEvent(new ContextRefreshedEvent(applicationContext));
 		declarable.assertInitialized();
 
@@ -85,7 +94,7 @@ public class LazyWiringDeclarableSupportIntegrationTests extends IntegrationTest
 
 		TestDeclarable declarable = new TestDeclarable();
 
-		declarable.init(createParameters(TEMPLATE_BEAN_NAME_PROPERTY, "declarableTemplateBean"));
+		declarable.initialize(this.mockCache, createParameters(TEMPLATE_BEAN_NAME_PROPERTY, "declarableTemplateBean"));
 		declarable.onApplicationEvent(new ContextRefreshedEvent(applicationContext));
 		declarable.assertInitialized();
 
@@ -101,7 +110,7 @@ public class LazyWiringDeclarableSupportIntegrationTests extends IntegrationTest
 
 			TestDeclarable declarable = new TestDeclarable();
 
-			declarable.init(createParameters(TEMPLATE_BEAN_NAME_PROPERTY, "nonExistingBeanTemplate"));
+			declarable.initialize(this.mockCache, createParameters(TEMPLATE_BEAN_NAME_PROPERTY, "nonExistingBeanTemplate"));
 			declarable.onApplicationEvent(new ContextRefreshedEvent(applicationContext));
 		}
 		catch (IllegalStateException expected) {

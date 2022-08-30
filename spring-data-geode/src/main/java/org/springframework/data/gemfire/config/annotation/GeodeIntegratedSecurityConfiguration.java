@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Properties;
 
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.config.annotation.support.EmbeddedServiceConfigurationSupport;
 import org.springframework.data.gemfire.util.PropertiesBuilder;
 
@@ -34,11 +35,11 @@ import org.springframework.data.gemfire.util.PropertiesBuilder;
 @SuppressWarnings("unused")
 public class GeodeIntegratedSecurityConfiguration extends EmbeddedServiceConfigurationSupport {
 
-	protected static final String SECURITY_CLIENT_AUTH_INIT = "security-client-auth-init";
-	protected static final String SECURITY_MANAGER = "security-manager";
-	protected static final String SECURITY_PEER_AUTH_INIT = "security-peer-auth-init";
-	protected static final String SECURITY_POST_PROCESSOR = "security-post-processor";
-	protected static final String SECURITY_SHIRO_INIT = "security-shiro-init";
+	protected static final String SECURITY_CLIENT_AUTH_INIT = GemFireProperties.SECURITY_CLIENT_AUTH_INIT.getName();
+	protected static final String SECURITY_MANAGER = GemFireProperties.SECURITY_MANAGER.getName();
+	protected static final String SECURITY_PEER_AUTH_INIT = GemFireProperties.SECURITY_PEER_AUTH_INIT.getName();
+	protected static final String SECURITY_POST_PROCESSOR = GemFireProperties.SECURITY_POST_PROCESSOR.getName();
+	protected static final String SECURITY_SHIRO_INIT = GemFireProperties.SECURITY_SHIRO_INIT.getName();
 
 	/**
 	 * Returns the {@link EnableSecurity} {@link java.lang.annotation.Annotation} {@link Class} type.
@@ -52,11 +53,10 @@ public class GeodeIntegratedSecurityConfiguration extends EmbeddedServiceConfigu
 	}
 
 	/**
-	 * Determines whether Pivotal GemFire/Apache Geode's Apache Shiro Security Framework support is enabled
-	 * or available.
+	 * Determines whether Apache Geode's Apache Shiro Security Framework support is enabled or available.
 	 *
-	 * @return a boolean value indicating whether Pivotal GemFire/Apache Geode's Apache Shiro Security Framework
-	 * support is enabled or available.
+	 * @return a boolean value indicating whether Apache Geode's Apache Shiro Security Framework support
+	 * is enabled or available.
 	 * @see #isShiroSecurityNotConfigured()
 	 */
 	protected boolean isShiroSecurityConfigured() {
@@ -71,11 +71,10 @@ public class GeodeIntegratedSecurityConfiguration extends EmbeddedServiceConfigu
 	}
 
 	/**
-	 * Determines whether Pivotal GemFire/Apache Geode's Apache Shiro Security Framework support is enabled
-	 * or available.
+	 * Determines whether Apache Geode's Apache Shiro Security Framework support is enabled or available.
 	 *
-	 * @return a boolean value indicating whether Pivotal GemFire/Apache Geode's Apache Shiro Security Framework
-	 * support is enabled or available.
+	 * @return a boolean value indicating whether Apache Geode's Apache Shiro Security Framework support
+	 * is enabled or available.
 	 * @see #isShiroSecurityConfigured()
 	 */
 	protected boolean isShiroSecurityNotConfigured() {

@@ -29,6 +29,7 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.test.context.ContextConfiguration;
@@ -84,14 +85,15 @@ public class LocatorApplicationIntegrationTests extends IntegrationTestsSupport 
 
 		try {
 			peerCache = new CacheFactory()
-				.set("name", LocatorApplicationIntegrationTests.class.getSimpleName())
-				.set("bind-address", distributedSystemProperties.getProperty("bind-address"))
-				.set("cache-xml-file", distributedSystemProperties.getProperty("cache-xml-file"))
-				.set("jmx-manager", distributedSystemProperties.getProperty("jmx-manager"))
-				.set("locators", distributedSystemProperties.getProperty("locators"))
+				.set(GemFireProperties.NAME.getName(), LocatorApplicationIntegrationTests.class.getSimpleName())
+				.set(GemFireProperties.BIND_ADDRESS.getName(), distributedSystemProperties.getProperty(GemFireProperties.BIND_ADDRESS.getName()))
+				.set(GemFireProperties.CACHE_XML_FILE.getName(), distributedSystemProperties.getProperty(GemFireProperties.CACHE_XML_FILE.getName()))
+				.set(GemFireProperties.JMX_MANAGER.getName(), distributedSystemProperties.getProperty(GemFireProperties.JMX_MANAGER.getName()))
+				.set(GemFireProperties.LOCATORS.getName(), distributedSystemProperties.getProperty(GemFireProperties.LOCATORS.getName()))
 				//.set("locators", "localhost[0]") // This locators configuration setting causes the test to fail
-				.set("log-file", distributedSystemProperties.getProperty("log-file"))
-				.set("log-level", distributedSystemProperties.getProperty("log-level"))
+				.set(GemFireProperties.LOG_FILE.getName(), distributedSystemProperties.getProperty(GemFireProperties.LOG_FILE.getName()))
+				.set(GemFireProperties.LOG_LEVEL.getName(), distributedSystemProperties.getProperty(GemFireProperties.LOG_LEVEL.getName()))
+				.set(GemFireProperties.USE_CLUSTER_CONFIGURATION.getName(), distributedSystemProperties.getProperty(GemFireProperties.USE_CLUSTER_CONFIGURATION.getName()))
 				.create();
 
 			assertThat(peerCache).isNotNull();
