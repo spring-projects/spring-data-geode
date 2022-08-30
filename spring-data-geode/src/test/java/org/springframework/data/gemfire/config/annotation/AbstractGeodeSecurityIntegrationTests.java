@@ -64,10 +64,12 @@ import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Abstract base test class for implementing Apache Geode Integrated Security Integration Tests.
@@ -177,7 +179,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 			User user = getUser();
 
-			return new PropertiesBuilder()
+			return PropertiesBuilder.create()
 				.setProperty(SECURITY_USERNAME_PROPERTY, user.getName())
 				.setProperty(SECURITY_PASSWORD_PROPERTY, user.getCredentials())
 				.build();
@@ -211,7 +213,6 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 			ClientRegionFactoryBean<String, String> echoRegion = new ClientRegionFactoryBean<>();
 
 			echoRegion.setCache(gemfireCache);
-			echoRegion.setClose(false);
 			echoRegion.setShortcut(ClientRegionShortcut.PROXY);
 
 			return echoRegion;
@@ -277,8 +278,10 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 		private final Set<Role> roles = new HashSet<>();
 
-		@NonNull
+		@lombok.NonNull
 		private final String name;
+
+		@Setter(AccessLevel.PROTECTED)
 		private String credentials;
 
 		public boolean hasPermission(ResourcePermission permission) {
@@ -296,33 +299,23 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 			return this.roles.contains(role);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public Iterator<Role> iterator() {
-			return Collections.unmodifiableSet(this.roles).iterator();
+			return Collections.unmodifiableSet(getRoles()).iterator();
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public String toString() {
 			return getName();
 		}
 
 		public User with(String credentials) {
-
-			this.credentials = credentials;
-
+			setCredentials(credentials);
 			return this;
 		}
 
 		public User with(Role... roles) {
-
-			Collections.addAll(this.roles, roles);
-
+			Collections.addAll(getRoles(), roles);
 			return this;
 		}
 	}
