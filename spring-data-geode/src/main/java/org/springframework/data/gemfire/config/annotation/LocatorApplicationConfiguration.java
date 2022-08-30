@@ -67,6 +67,7 @@ import org.springframework.util.ClassUtils;
 public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSupport implements ImportAware {
 
 	public static final boolean DEFAULT_USE_BEAN_FACTORY_LOCATOR = false;
+	public static final boolean DEFAULT_USE_CLUSTER_CONFIGURATTION_SERVICE = false;
 
 	public static final int DEFAULT_PORT = 10334;
 
@@ -86,6 +87,7 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 		Arrays.asList(CacheFactoryBean.class.getName(), ClientCacheFactoryBean.class.getName());
 
 	private boolean useBeanFactoryLocator = DEFAULT_USE_BEAN_FACTORY_LOCATOR;
+	private boolean useClusterConfigurationService = DEFAULT_USE_CLUSTER_CONFIGURATTION_SERVICE;
 
 	private int port = DEFAULT_PORT;
 
@@ -189,6 +191,9 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 			setUseBeanFactoryLocator(resolveProperty("use-bean-factory-locator", Boolean.class,
 				locatorApplicationAnnotationAttributes.getBoolean("useBeanFactoryLocator")));
+
+			setUseClusterConfigurationService(resolveProperty(locatorProperty("use-cluster-configuration"),
+				Boolean.class, locatorApplicationAnnotationAttributes.getBoolean("useClusterConfiguration")));
 		}
 	}
 
@@ -205,6 +210,7 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 		locatorFactoryBean.setName(getName());
 		locatorFactoryBean.setPort(getPort());
 		locatorFactoryBean.setUseBeanFactoryLocator(isUseBeanFactoryLocator());
+		locatorFactoryBean.setUseClusterConfigurationService(isUseClusterConfigurationService());
 
 		return locatorFactoryBean;
 	}
@@ -271,5 +277,13 @@ public class LocatorApplicationConfiguration extends AbstractAnnotationConfigSup
 
 	public void setUseBeanFactoryLocator(boolean useBeanFactoryLocator) {
 		this.useBeanFactoryLocator = useBeanFactoryLocator;
+	}
+
+	public void setUseClusterConfigurationService(boolean useClusterConfigurationService) {
+		this.useClusterConfigurationService = useClusterConfigurationService;
+	}
+
+	public boolean isUseClusterConfigurationService() {
+		return useClusterConfigurationService;
 	}
 }

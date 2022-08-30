@@ -62,6 +62,7 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 	public static final String LOG_LEVEL_PROPERTY = GemFireProperties.LOG_LEVEL.getName();
 
 	private boolean useBeanFactoryLocator = false;
+	private boolean useClusterConfigurationService = false;
 
 	private Integer port = DEFAULT_PORT;
 
@@ -147,6 +148,9 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 		gemfireProperties.stringPropertyNames().stream()
 			.forEach(propertyName -> locatorBuilder.set(propertyName, gemfireProperties.getProperty(propertyName)));
+
+		locatorBuilder.set(GemFireProperties.USE_CLUSTER_CONFIGURATION.getName(),
+			String.valueOf(isUseClusterConfigurationService()));
 
 		return locatorBuilder;
 	}
@@ -292,5 +296,13 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 	public boolean isUseBeanFactoryLocator() {
 		return this.useBeanFactoryLocator;
+	}
+
+	public void setUseClusterConfigurationService(boolean useClusterConfigurationService) {
+		this.useClusterConfigurationService = useClusterConfigurationService;
+	}
+
+	public boolean isUseClusterConfigurationService() {
+		return this.useClusterConfigurationService;
 	}
 }

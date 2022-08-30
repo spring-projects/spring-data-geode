@@ -35,13 +35,16 @@ import org.springframework.data.gemfire.support.GemfireBeanFactoryLocator;
  * application to become a {@link Locator} based application.
  *
  * @author John Blum
+ * @see java.lang.annotation.Annotation
  * @see java.lang.annotation.Documented
  * @see java.lang.annotation.Inherited
  * @see java.lang.annotation.Retention
  * @see java.lang.annotation.Target
+ * @see org.apache.geode.distributed.Locator
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.context.annotation.Import
  * @see org.springframework.data.gemfire.config.annotation.LocatorApplicationConfiguration
+ * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  * @since 2.2.0
  */
 @Target(ElementType.TYPE)
@@ -122,5 +125,16 @@ public @interface LocatorApplication {
 	 * Use {@literal spring.data.gemfire.use-bean-factory-locator} property in {@literal application.properties}.
 	 */
 	boolean useBeanFactoryLocator() default LocatorApplicationConfiguration.DEFAULT_USE_BEAN_FACTORY_LOCATOR;
+
+	/**
+	 * Configures whether the Spring-based {@link Locator} will pull configuration metadata from the Apache Geode
+	 * cluster-based, Cluster Configuration Service.
+	 *
+	 * Defaults to {@literal false}.
+	 *
+	 * Use {@literal spring.data.gemfire.locator.use-cluster-configuration} property
+	 * in {@literal application.properties}.
+	 */
+	boolean useClusterConfiguration() default LocatorApplicationConfiguration.DEFAULT_USE_CLUSTER_CONFIGURATTION_SERVICE;
 
 }

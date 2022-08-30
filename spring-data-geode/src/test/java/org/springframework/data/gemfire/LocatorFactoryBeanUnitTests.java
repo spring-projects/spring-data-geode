@@ -16,6 +16,8 @@
 package org.springframework.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.InetAddress;
@@ -63,7 +66,6 @@ public class LocatorFactoryBeanUnitTests {
 
 	@Before
 	public void setup() {
-
 		this.locatorFactoryBean = spy(new LocatorFactoryBean());
 	}
 
@@ -169,9 +171,9 @@ public class LocatorFactoryBeanUnitTests {
 
 		Properties gemfireProperties = new Properties();
 
-		gemfireProperties.setProperty("name", "TEST");
-		gemfireProperties.setProperty("log-level", "config");
-		gemfireProperties.setProperty("locators", "localhost[11235],skullbox[12480]");
+		gemfireProperties.setProperty(GemFireProperties.NAME.getName(), "TEST");
+		gemfireProperties.setProperty(GemFireProperties.LOG_LEVEL.getName(), "config");
+		gemfireProperties.setProperty(GemFireProperties.LOCATORS.getName(), "localhost[11235],skullbox[12480]");
 
 		LocatorLauncher.Builder locatorBuilderSpy = spy(new LocatorLauncher.Builder());
 
@@ -181,6 +183,11 @@ public class LocatorFactoryBeanUnitTests {
 		gemfireProperties.stringPropertyNames().forEach(propertyName ->
 			verify(locatorBuilderSpy, times(1))
 				.set(eq(propertyName), eq(gemfireProperties.getProperty(propertyName))));
+
+		verify(locatorBuilderSpy, times(1))
+			.set(eq(GemFireProperties.USE_CLUSTER_CONFIGURATION.getName()), eq("false"));
+
+		verifyNoMoreInteractions(locatorBuilderSpy);
 	}
 
 	@Test
@@ -195,19 +202,13 @@ public class LocatorFactoryBeanUnitTests {
 		verify(this.locatorFactoryBean, times(1)).getLocator();
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void getObjectThrowsIllegalStateException() throws Exception {
 
-		try {
-			this.locatorFactoryBean.getObject();
-		}
-		catch (IllegalStateException expected) {
-
-			assertThat(expected).hasMessage("Locator was not configured and initialized");
-			assertThat(expected).hasNoCause();
-
-			throw expected;
-		}
+		assertThatIllegalStateException()
+			.isThrownBy(() -> this.locatorFactoryBean.getObject())
+			.withMessage("Locator was not configured and initialized")
+			.withNoCause();
 	}
 
 	@Test
@@ -385,33 +386,49 @@ public class LocatorFactoryBeanUnitTests {
 		assertThat(this.locatorFactoryBean.getPort()).isEqualTo(54321);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setPortToOverflowValue() {
 
-		try {
-			this.locatorFactoryBean.setPort(65536);
-		}
-		catch (IllegalArgumentException expected) {
-
-			assertThat(expected).hasMessage("Network port [65536] is not valid");
-			assertThat(expected).hasNoCause();
-
-			throw expected;
-		}
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.locatorFactoryBean.setPort(65536))
+			.withMessage("Network port [65536] is not valid")
+			.withNoCause();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setPortToUnderflowValue() {
 
-		try {
-			this.locatorFactoryBean.setPort(-1);
-		}
-		catch (IllegalArgumentException expected) {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.locatorFactoryBean.setPort(-1))
+			.withMessage("Network port [-1] is not valid")
+			.withNoCause();
+	}
 
-			assertThat(expected).hasMessage("Network port [-1] is not valid");
-			assertThat(expected).hasNoCause();
+	@Test
+	public void locatorFactoryBeanUseOfBeanFactoryLocator() {
 
-			throw expected;
-		}
+		assertThat(this.locatorFactoryBean.isUseBeanFactoryLocator()).isFalse();
+
+		this.locatorFactoryBean.setUseBeanFactoryLocator(true);
+
+		assertThat(this.locatorFactoryBean.isUseBeanFactoryLocator()).isTrue();
+
+		this.locatorFactoryBean.setUseBeanFactoryLocator(false);
+
+		assertThat(this.locatorFactoryBean.isUseBeanFactoryLocator()).isFalse();
+	}
+
+	@Test
+	public void locatorFactoryBeanUseOfClusterConfigurationService() {
+
+		assertThat(this.locatorFactoryBean.isUseClusterConfigurationService()).isFalse();
+
+		this.locatorFactoryBean.setUseClusterConfigurationService(true);
+
+		assertThat(this.locatorFactoryBean.isUseClusterConfigurationService()).isTrue();
+
+		this.locatorFactoryBean.setUseClusterConfigurationService(false);
+
+		assertThat(this.locatorFactoryBean.isUseClusterConfigurationService()).isFalse();
 	}
 }

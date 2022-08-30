@@ -67,6 +67,7 @@ public class LocatorApplicationConfigurationIntegrationTests extends Integration
 		assertThat(this.locatorFactoryBean.getName().orElse(null)).isEqualTo("MockLocator");
 		assertThat(this.locatorFactoryBean.getPort()).isEqualTo(9876);
 		assertThat(this.locatorFactoryBean.isUseBeanFactoryLocator()).isTrue();
+		assertThat(this.locatorFactoryBean.isUseClusterConfigurationService()).isTrue();
 	}
 
 	@EnableGemFireMockObjects
@@ -77,7 +78,8 @@ public class LocatorApplicationConfigurationIntegrationTests extends Integration
 		logLevel = "WARN",
 		name = "MockLocator",
 		port = 9876,
-		useBeanFactoryLocator = true
+		useBeanFactoryLocator = true,
+		useClusterConfiguration = true
 	)
 	static class TestConfiguration {
 
