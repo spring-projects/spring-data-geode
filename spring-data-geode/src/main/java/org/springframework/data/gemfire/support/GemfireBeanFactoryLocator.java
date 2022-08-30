@@ -32,6 +32,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -41,20 +43,24 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link GemfireBeanFactoryLocator} class stores a reference to the Spring
  * {@link org.springframework.context.ApplicationContext} / {@link BeanFactory} needed to auto-wire
- * user application GemFire objects implementing the {@link org.apache.geode.cache.Declarable} interface
- * and defined in GemFire's native configuration format (e.g. {@literal cache.xml}.
+ * user application Apache Geode objects implementing the {@link org.apache.geode.cache.Declarable} interface
+ * and defined in Apache Geode's native configuration format (e.g. {@literal cache.xml}.
  *
- * In most cases, a developer does not need to use this class directly as it is registered by the
- * {@link org.springframework.data.gemfire.CacheFactoryBean} when the {@literal useBeanFactoryLocator} property
- * is set, and used internally by bothe the {@link WiringDeclarableSupport} and {@link LazyWiringDeclarableSupport}
- * SDG classes.
+ * In most cases, a developer does not need to use this class directly as it is registered by
+ * the {@link org.springframework.data.gemfire.CacheFactoryBean} or {@link org.springframework.data.gemfire.LocatorFactoryBean}
+ * when the {@literal useBeanFactoryLocator} property is set, and used internally by both
+ * the {@link WiringDeclarableSupport} and {@link LazyWiringDeclarableSupport} SDG classes.
  *
  * @author Costin Leau
  * @author John Blum
- * @see LazyWiringDeclarableSupport
- * @see WiringDeclarableSupport
+ * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.beans.factory.BeanFactoryAware
+ * @see org.springframework.beans.factory.BeanNameAware
+ * @see org.springframework.beans.factory.DisposableBean
+ * @see org.springframework.beans.factory.InitializingBean
+ * @see org.springframework.data.gemfire.support.LazyWiringDeclarableSupport
+ * @see org.springframework.data.gemfire.support.WiringDeclarableSupport
  */
-@SuppressWarnings("all")
 public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAware, DisposableBean, InitializingBean {
 
 	// Bean alias/name <-> BeanFactory mapping
@@ -69,21 +75,23 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 	private String associatedBeanName;
 
 	/**
-	 * Cleans up all {@link BeanFactory} references tracked by this locator.
+	 * Cleans up all {@link BeanFactory} references tracked by this {@literal locator}.
 	 */
 	public static void clear() {
 		BEAN_FACTORIES.clear();
 	}
 
 	/**
-	 * Factory method to construct a new, initialized instance of {@link GemfireBeanFactoryLocator}.
+	 * Factory method used to construct a new instance of {@link GemfireBeanFactoryLocator}.
+	 *
+	 * The {@link #afterPropertiesSet()} will be called after construction to initialize this {@literal locator}.
 	 *
 	 * @return a new, initialized instance of the {@link GemfireBeanFactoryLocator}.
-	 * @see GemfireBeanFactoryLocator
-	 * @see #GemfireBeanFactoryLocator()
+	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
+	 * @see GemfireBeanFactoryLocator()
 	 * @see #afterPropertiesSet()
 	 */
-	public static GemfireBeanFactoryLocator newBeanFactoryLocator() {
+	public static @NonNull GemfireBeanFactoryLocator newBeanFactoryLocator() {
 
 		GemfireBeanFactoryLocator beanFactoryLocator = new GemfireBeanFactoryLocator();
 
@@ -93,22 +101,25 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 	}
 
 	/**
-	 * Factory method to construct a new, initialized instance of {@link GemfireBeanFactoryLocator} with the given
-	 * default Spring {@link BeanFactory} and associated Spring bean name.
+	 * Factory method used to construct a new instance of {@link GemfireBeanFactoryLocator} initialized with
+	 * the given, default Spring {@link BeanFactory} and associated Spring {@link String bean name}.
 	 *
-	 * @param beanFactory reference to the {@link BeanFactory} used to resolve Spring bean references.
-	 * @param associatedBeanName {@link String} contain the name of the Spring bean associated with
+	 * The {@link #afterPropertiesSet()} will be called after construction to initialize this {@literal locator}.
+	 *
+	 * @param beanFactory reference to the Spring {@link BeanFactory} used to resolve Spring bean references.
+	 * @param associatedBeanName {@link String} containing the {@literal name} of the Spring bean associated with
 	 * the Spring {@link BeanFactory}.
-	 * @return a new, initialized instance of {@link GemfireBeanFactoryLocator} with the given default
-	 * Spring {@link BeanFactory} and associated Spring bean name.
+	 * @return a new {@link GemfireBeanFactoryLocator} initialized with the given, default Spring {@link BeanFactory}
+	 * and associated Spring {@link String bean name}.
+	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
 	 * @see org.springframework.beans.factory.BeanFactory
-	 * @see GemfireBeanFactoryLocator
-	 * @see #GemfireBeanFactoryLocator()
+	 * @see GemfireBeanFactoryLocator()
 	 * @see #setBeanFactory(BeanFactory)
 	 * @see #setBeanName(String)
 	 * @see #afterPropertiesSet()
 	 */
-	public static GemfireBeanFactoryLocator newBeanFactoryLocator(BeanFactory beanFactory, String associatedBeanName) {
+	public static @NonNull GemfireBeanFactoryLocator newBeanFactoryLocator(BeanFactory beanFactory,
+			String associatedBeanName) {
 
 		Assert.isTrue(beanFactory == null || StringUtils.hasText(associatedBeanName),
 			"associatedBeanName must be specified when BeanFactory is not null");
@@ -123,15 +134,15 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 	}
 
 	/**
-	 * Resolves the {@link BeanFactory} mapped to the given {@code beanFactoryKey}.
+	 * Resolves the {@link BeanFactory} mapped to the given {@link String beanFactoryKey}.
 	 *
-	 * @param beanFactoryKey {@link String} value containing the key used to lookup the {@link BeanFactory}.
+	 * @param beanFactoryKey {@link String} containing a key used to lookup the {@link BeanFactory}.
 	 * @return the {@link BeanFactory} mapped to the given key.
 	 * @throws IllegalArgumentException if a Spring {@link BeanFactory} could not be found
-	 * for the given {@code beanFactoryKey}.
+	 * for the given {@link String beanFactoryKey}.
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
-	protected static BeanFactory resolveBeanFactory(String beanFactoryKey) {
+	protected static @Nullable BeanFactory resolveBeanFactory(@NonNull String beanFactoryKey) {
 
 		BeanFactory beanFactory = BEAN_FACTORIES.get(beanFactoryKey);
 
@@ -142,18 +153,18 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 	}
 
 	/**
-	 * Resolves a single Spring {@link BeanFactory} from the mapping of registered bean factories.
+	 * Resolves a single Spring {@link BeanFactory} from the mapping of registered {@link BeanFactory BeanFactories}.
 	 *
 	 * This class method is synchronized because it contains a "compound action", even though separate actions
 	 * are performed on a {@link ConcurrentMap}, the actions are not independent and therefore must operate
 	 * atomically.
 	 *
 	 * @return a single Spring {@link BeanFactory} from the registry.
-	 * @throws IllegalStateException if the registry contains more than 1, or no
-	 * Spring {@link BeanFactory bean factories}.
+	 * @throws IllegalStateException if the registry contains more than 1 registered Spring {@link BeanFactory},
+	 * or no Spring {@link BeanFactory BeanFactories}.
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
-	protected static synchronized BeanFactory resolveSingleBeanFactory() {
+	protected static synchronized @Nullable BeanFactory resolveSingleBeanFactory() {
 
 		if (!BEAN_FACTORIES.isEmpty()) {
 
@@ -173,7 +184,7 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 
 			Assert.state(allTheSameBeanFactory,
 				String.format("BeanFactory key must be specified when more than one BeanFactory %s is registered",
-					new TreeSet(BEAN_FACTORIES.keySet()).toString()));
+					new TreeSet<>(BEAN_FACTORIES.keySet())));
 
 			return BEAN_FACTORIES.values().iterator().next();
 		}
@@ -218,9 +229,6 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 		return BEAN_FACTORIES.keySet().removeAll(names);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public void afterPropertiesSet() {
 
@@ -257,9 +265,6 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 		return this.associatedBeanNameWithAliases;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public void destroy() {
 		unregisterAliases(getAssociatedBeanNameWithAliases());
@@ -379,7 +384,7 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 		 * @param beanFactory {@link BeanFactory} reference to store.
 		 * @return a new instance of {@link BeanFactoryReference} initialized with the given {@link BeanFactory}.
 		 * @see org.springframework.beans.factory.BeanFactory
-		 * @see #GemfireBeanFactoryLocator.BeanFactoryReference(BeanFactory)
+		 * @see GemfireBeanFactoryLocator.BeanFactoryReference(BeanFactory)
 		 */
 		protected static BeanFactoryReference newBeanFactoryReference(BeanFactory beanFactory) {
 			return new BeanFactoryReference(beanFactory);
