@@ -1136,6 +1136,7 @@ public abstract class AbstractAnnotationConfigSupport
 				String resolvedPropertyName = environment.resolveRequiredPlaceholders(propertyName);
 
 				return environment.getProperty(resolvedPropertyName, targetType, defaultValue);
+
 			})
 			.orElse(defaultValue);
 	}
