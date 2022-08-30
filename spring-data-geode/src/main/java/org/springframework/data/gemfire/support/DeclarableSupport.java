@@ -25,19 +25,21 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.data.gemfire.PeerRegionFactoryBean;
 
 /**
- * Convenience class for Spring aware, Apache Geode {@link Declarable} components.  Provides subclasses with a reference
- * to the current Spring {@link BeanFactory} in order to perform Spring bean lookups or resource loading.
+ * Abstract base class for implementing Spring aware, Apache Geode {@link Declarable} components.
  *
- * Note, in most cases, the developer should just declare the same components as Spring beans in the Spring container,
- * through {@link PeerRegionFactoryBean}, which gives access to the full Spring container capabilities and does not
- * enforce the {@link Declarable} interface to be implemented.
+ * Provides subclasses with a reference to the current Spring {@link BeanFactory} in order to
+ * perform Spring bean lookups or resource loading.
+ *
+ * Note, in most cases, the developer should just declare the same Apache Geode components as Spring beans
+ * in the Spring container through the {@link PeerRegionFactoryBean}, which gives full access to the Spring container
+ * capabilities and does not enforce the {@link Declarable} interface to be implemented.
  *
  * @author Costin Leau
  * @author John Blum
- * @see org.springframework.beans.factory.BeanFactory
- * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  * @see org.apache.geode.cache.CacheCallback
  * @see org.apache.geode.cache.Declarable
+ * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  */
 @SuppressWarnings("unused")
 public abstract class DeclarableSupport implements CacheCallback, Declarable {
@@ -98,9 +100,6 @@ public abstract class DeclarableSupport implements CacheCallback, Declarable {
 		return newBeanFactoryLocator().useBeanFactory(beanFactoryKey);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public void close() { }
 

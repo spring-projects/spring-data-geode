@@ -15,7 +15,6 @@
  */
 package org.springframework.data.gemfire.config.annotation;
 
-import static org.springframework.data.gemfire.config.annotation.TestSecurityManager.TestPrincipal.newPrincipal;
 import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
 import java.security.Principal;
@@ -27,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.geode.security.AuthenticationFailedException;
+import org.apache.geode.security.SecurityManager;
 
 import org.springframework.util.StringUtils;
 
@@ -46,8 +46,8 @@ public final class TestSecurityManager implements org.apache.geode.security.Secu
 	public static final String SECURITY_USERNAME = "testUser";
 	public static final String SECURITY_PASSWORD = "&t35t9@55w0rd!";
 
-	public static final String SECURITY_USERNAME_PROPERTY = "security-username";
-	public static final String SECURITY_PASSWORD_PROPERTY = "security-password";
+	public static final String SECURITY_USERNAME_PROPERTY = SecurityManager.USER_NAME;
+	public static final String SECURITY_PASSWORD_PROPERTY = SecurityManager.PASSWORD;
 
 	private final ConcurrentMap<String, String> authorizedUsers;
 
@@ -56,7 +56,7 @@ public final class TestSecurityManager implements org.apache.geode.security.Secu
 		this.authorizedUsers.putIfAbsent(SECURITY_USERNAME, SECURITY_PASSWORD);
 	}
 
-	protected Map<String, String> getAuthorizedUsers() {
+	private Map<String, String> getAuthorizedUsers() {
 		return Collections.unmodifiableMap(this.authorizedUsers);
 	}
 
@@ -71,7 +71,7 @@ public final class TestSecurityManager implements org.apache.geode.security.Secu
 	}
 
 	private Principal identify(String username, String password) {
-		return isIdentified(username, password) ? newPrincipal(username) : null;
+		return isIdentified(username, password) ? TestPrincipal.newPrincipal(username) : null;
 	}
 
 	private boolean isIdentified(String username, String password) {
@@ -93,7 +93,8 @@ public final class TestSecurityManager implements org.apache.geode.security.Secu
 		}
 
 		public TestPrincipal(String name) {
-			this.name = Optional.ofNullable(name).filter(StringUtils::hasText)
+			this.name = Optional.ofNullable(name)
+				.filter(StringUtils::hasText)
 				.orElseThrow(() -> newIllegalArgumentException("Name is required"));
 		}
 

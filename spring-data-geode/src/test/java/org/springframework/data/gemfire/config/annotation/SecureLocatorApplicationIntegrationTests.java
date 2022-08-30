@@ -84,8 +84,8 @@ public class SecureLocatorApplicationIntegrationTests extends IntegrationTestsSu
 	}
 
 	@LocatorApplication(port = 0)
-	//@EnableSecurity(securityManagerClass = TestSecurityManager.class)
-	@EnableSecurity(securityManagerClassName = "org.springframework.data.gemfire.config.annotation.TestSecurityManager")
+	@EnableSecurity(securityManagerClass = TestSecurityManager.class)
+	//@EnableSecurity(securityManagerClassName = "org.springframework.data.gemfire.config.annotation.TestSecurityManager")
 	static class TestConfiguration { }
 
 	static final class MockSecurityManager implements org.apache.geode.security.SecurityManager {

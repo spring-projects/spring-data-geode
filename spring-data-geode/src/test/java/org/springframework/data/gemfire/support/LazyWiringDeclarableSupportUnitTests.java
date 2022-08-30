@@ -17,10 +17,15 @@
 package org.springframework.data.gemfire.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.newBeanFactoryLocator;
 
@@ -30,6 +35,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import org.apache.geode.cache.Cache;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -42,14 +52,16 @@ import org.springframework.data.gemfire.util.PropertiesBuilder;
  * Unit Tests for {@link LazyWiringDeclarableSupport}.
  *
  * @author John Blum
- * @see org.junit.Rule
+ * @see java.util.Properties
  * @see org.junit.Test
  * @see org.mockito.Mockito
+ * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
  * @see org.springframework.data.gemfire.support.LazyWiringDeclarableSupport
  * @since 1.3.4
  */
+@RunWith(MockitoJUnitRunner.class)
 public class LazyWiringDeclarableSupportUnitTests {
 
 	private static void assertParameters(Properties parameters, String expectedKey, String expectedValue) {
@@ -63,56 +75,54 @@ public class LazyWiringDeclarableSupportUnitTests {
 		return PropertiesBuilder.create().setProperty(parameter, value).build();
 	}
 
+	@Mock
+	private Cache mockCache;
+
 	@After
 	public void tearDown() {
 		SpringContextBootstrappingInitializer.destroy();
+		verifyNoInteractions(this.mockCache);
 	}
 
 	@Test
 	public void assertInitialized() {
 
-		LazyWiringDeclarableSupport declarable = new TestLazyWiringDeclarableSupport() {
+		LazyWiringDeclarableSupport declarable = spy(new TestLazyWiringDeclarableSupport());
 
-			@Override
-			protected boolean isInitialized() {
-				return true;
-			}
-		};
+		doReturn(true).when(declarable).isInitialized();
 
 		try {
 			declarable.assertInitialized();
 		}
 		finally {
 			SpringContextBootstrappingInitializer.unregister(declarable);
+
+			verify(declarable, times(1)).assertInitialized();
+			verify(declarable, times(1)).isInitialized();
+			verifyNoMoreInteractions(declarable);
 		}
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void assertInitializedWhenUninitialized() {
 
-		LazyWiringDeclarableSupport declarable = new TestLazyWiringDeclarableSupport() {
+		LazyWiringDeclarableSupport declarable = spy(new TestLazyWiringDeclarableSupport());
 
-			@Override
-			protected boolean isInitialized() {
-				return false;
-			}
-		};
+		doReturn(false).when(declarable).isInitialized();
 
 		try {
-			declarable.assertInitialized();
-		}
-		catch (IllegalStateException expected) {
-
-			assertThat(expected)
-				.hasMessage("This Declarable object [%s] has not been properly configured and initialized",
-					declarable.getClass().getName());
-
-			assertThat(expected).hasNoCause();
-
-			throw expected;
+			assertThatIllegalStateException()
+				.isThrownBy(() -> declarable.assertInitialized())
+				.withMessage("This Declarable object [%s] has not been properly configured and initialized",
+					declarable.getClass().getName())
+				.withNoCause();
 		}
 		finally {
 			SpringContextBootstrappingInitializer.unregister(declarable);
+
+			verify(declarable, times(1)).assertInitialized();
+			verify(declarable, times(1)).isInitialized();
+			verifyNoMoreInteractions(declarable);
 		}
 	}
 
@@ -129,48 +139,43 @@ public class LazyWiringDeclarableSupportUnitTests {
 		}
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void assertUninitializedWhenInitialized() {
 
-		LazyWiringDeclarableSupport declarable = new TestLazyWiringDeclarableSupport() {
+		LazyWiringDeclarableSupport declarable = spy(new TestLazyWiringDeclarableSupport());
 
-			@Override
-			protected boolean isInitialized() {
-				return true;
-			}
-		};
+		doReturn(true).when(declarable).isInitialized();
 
 		try {
-			declarable.assertUninitialized();
-		}
-		catch (IllegalStateException expected) {
-
-			assertThat(expected)
-				.hasMessage("This Declarable object [%s] has already been configured and initialized",
-					declarable.getClass().getName());
-
-			assertThat(expected).hasNoCause();
-
-			throw expected;
+			assertThatIllegalStateException()
+				.isThrownBy(() -> declarable.assertUninitialized())
+				.withMessage("This Declarable object [%s] has already been configured and initialized",
+					declarable.getClass().getName())
+				.withNoCause();
 		}
 		finally {
 			SpringContextBootstrappingInitializer.unregister(declarable);
+
+			verify(declarable, times(1)).assertUninitialized();
+			verify(declarable, times(1)).isNotInitialized();
+			verify(declarable, times(1)).isInitialized();
+			verifyNoMoreInteractions(declarable);
 		}
 	}
 
 	@Test
-	public void init() {
+	public void initialize() {
 
 		LazyWiringDeclarableSupport declarable = new TestLazyWiringDeclarableSupport();
 
 		try {
 			assertThat(declarable.isInitialized()).isFalse();
 
-			declarable.init(createParameters("param", "value"));
+			declarable.initialize(this.mockCache, createParameters("param", "value"));
 
 			assertParameters(declarable.nullSafeGetParameters(), "param", "value");
 
-			declarable.init(createParameters("newParam", "newValue"));
+			declarable.initialize(this.mockCache, createParameters("newParam", "newValue"));
 
 			assertParameters(declarable.nullSafeGetParameters(), "newParam", "newValue");
 			assertThat(declarable.isInitialized()).isFalse();
@@ -216,7 +221,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 		LazyWiringDeclarableSupport declarable = new TestLazyWiringDeclarableSupport();
 
 		try {
-			declarable.init(null);
+			declarable.initialize(this.mockCache, null);
 
 			Properties parameters = declarable.nullSafeGetParameters();
 
@@ -252,7 +257,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 		Properties parameters = createParameters("param", "value");
 
 		try {
-			declarable.init(parameters);
+			declarable.initialize(this.mockCache, parameters);
 			declarable.onApplicationEvent(new ContextRefreshedEvent(mockApplicationContext));
 			declarable.assertBeanFactory(mockBeanFactory);
 			declarable.assertParameters(parameters);
@@ -323,7 +328,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 		Properties parameters = createParameters("param", "value");
 
 		try {
-			declarable.init(parameters);
+			declarable.initialize(this.mockCache, parameters);
 
 			assertThat(declarable.isInitialized()).isFalse();
 			assertThat(declarable.nullSafeGetParameters()).isSameAs(parameters);
@@ -357,7 +362,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 	}
 
 	@Test
-	public void initThenOnApplicationEventThenInitWhenInitialized() {
+	public void initializeThenOnApplicationEventThenInitializedWhenAlreadyInitialized() {
 
 		BeanFactory mockBeanFactory = mock(BeanFactory.class);
 
@@ -395,7 +400,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 			assertThat(declarable.nullSafeGetParameters()).isNotSameAs(parameters);
 			assertThat(doPostInitCalled.get()).isFalse();
 
-			declarable.init(parameters);
+			declarable.initialize(this.mockCache, parameters);
 			declarable.assertBeanFactory(mockBeanFactory);
 			declarable.assertParameters(parameters);
 
@@ -417,7 +422,7 @@ public class LazyWiringDeclarableSupportUnitTests {
 			expectedValue.set("mockValue");
 			parameters = createParameters("mockKey", "mockValue");
 
-			declarable.init(parameters);
+			declarable.initialize(this.mockCache, parameters);
 			declarable.assertBeanFactory(mockBeanFactory);
 			declarable.assertParameters(parameters);
 

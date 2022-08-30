@@ -19,91 +19,65 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.gemfire.config.annotation.TestSecurityManager.SECURITY_PASSWORD;
 import static org.springframework.data.gemfire.config.annotation.TestSecurityManager.SECURITY_USERNAME;
 
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.apache.geode.cache.CacheLoader;
 import org.apache.geode.cache.CacheLoaderException;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.LoaderHelper;
-import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientRegionShortcut;
 
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
+import org.springframework.data.gemfire.GemfireTemplate;
+import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.LocalRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.mock.env.MockPropertySource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Integration Tests for auto-configured authentication configuration.
+ * Integration Tests for {@link AutoConfiguredAuthenticationConfiguration}.
  *
  * @author John Blum
  * @see org.junit.Test
  * @see org.apache.geode.cache.GemFireCache
- * @see org.apache.geode.cache.Region
+ * @see org.springframework.data.gemfire.GemfireTemplate
+ * @see org.springframework.data.gemfire.config.annotation.AutoConfiguredAuthenticationConfiguration
  * @see org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringRunner
  * @since 1.9.0
  */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(
+	classes = AutoConfiguredAuthenticationConfigurationIntegrationTests.TestGemFireClientConfiguration.class
+)
 @SuppressWarnings("unused")
 public class AutoConfiguredAuthenticationConfigurationIntegrationTests
 		extends ForkingClientServerIntegrationTestsSupport {
-
-	private ConfigurableApplicationContext applicationContext;
 
 	@BeforeClass
 	public static void setupGemFireServer() throws Exception {
 		startGemFireServer(TestGemFireServerConfiguration.class);
 	}
 
-	@After
-	public void tearDown() {
-		closeApplicationContext(this.applicationContext);
-	}
-
-	private ConfigurableApplicationContext newApplicationContext(PropertySource<?> testPropertySource,
-			Class<?>... annotatedClasses) {
-
-		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-
-		MutablePropertySources propertySources = applicationContext.getEnvironment().getPropertySources();
-
-		propertySources.addFirst(testPropertySource);
-
-		applicationContext.registerShutdownHook();
-		applicationContext.register(annotatedClasses);
-		applicationContext.refresh();
-
-		return applicationContext;
-	}
+	@Autowired
+	private GemfireTemplate echoTemplate;
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void clientAuthenticatesWithServer() {
 
-		MockPropertySource testPropertySource = new MockPropertySource()
-			.withProperty("spring.data.gemfire.security.username", SECURITY_USERNAME)
-			.withProperty("spring.data.gemfire.security.password", SECURITY_PASSWORD);
-
-		this.applicationContext = newApplicationContext(testPropertySource, TestGemFireClientConfiguration.class);
-
-		assertThat(this.applicationContext).isNotNull();
-		assertThat(this.applicationContext.containsBean("Echo")).isTrue();
-
-		Region<Object, Object> echo = this.applicationContext.getBean("Echo", Region.class);
-
-		assertThat(echo.get("Hello")).isEqualTo("Hello");
-		assertThat(echo.get("TEST")).isEqualTo("TEST");
-		assertThat(echo.get("Good-Bye")).isEqualTo("Good-Bye");
+		assertThat(this.echoTemplate.<String, String>get("Hello")).isEqualTo("Hello");
+		assertThat(this.echoTemplate.<String, String>get("TEST")).isEqualTo("TEST");
+		assertThat(this.echoTemplate.<String, String>get("Good-Bye")).isEqualTo("Good-Bye");
 	}
 
 	@ClientCacheApplication
-	@EnableSecurity
+	@EnableSecurity(securityUsername = SECURITY_USERNAME, securityPassword = SECURITY_PASSWORD)
 	static class TestGemFireClientConfiguration {
 
 		@Bean("Echo")
@@ -112,15 +86,19 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests
 			ClientRegionFactoryBean<Object, Object> echoRegion = new ClientRegionFactoryBean<>();
 
 			echoRegion.setCache(gemfireCache);
-			echoRegion.setClose(false);
 			echoRegion.setShortcut(ClientRegionShortcut.PROXY);
 
 			return echoRegion;
 		}
+
+		@Bean
+		GemfireTemplate echoTemplate(GemFireCache cache) {
+			return new GemfireTemplate(cache.getRegion(GemfireUtils.toRegionPath("Echo")));
+		}
 	}
 
 	@CacheServerApplication
-	@EnableSecurity(securityManagerClassName = "org.springframework.data.gemfire.config.annotation.TestSecurityManager")
+	@EnableSecurity(securityManagerClass = TestSecurityManager.class)
 	static class TestGemFireServerConfiguration {
 
 		public static void main(String[] args) {
@@ -134,7 +112,6 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests
 
 			echoRegion.setCache(gemfireCache);
 			echoRegion.setCacheLoader(newEchoCacheLoader());
-			echoRegion.setClose(false);
 			echoRegion.setPersistent(false);
 
 			return echoRegion;
@@ -150,8 +127,8 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests
 				}
 
 				@Override
-				public void close() {
-				}
+				public void close() { }
+
 			};
 		}
 	}

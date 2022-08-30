@@ -109,7 +109,7 @@ public class UsingAnnotationConfigWithBeanDefinitionOverridingDisabledIntegratio
 		assertThat(gemfireProperties).isNotEmpty();
 
 		assertThat(gemfireProperties.getProperty(GemFireProperties.SECURITY_MANAGER.getName()))
-			.isEqualTo(String.valueOf(TestSecurityManager.class));
+			.isEqualTo(String.valueOf(TestSecurityManager.class.getName()));
 
 		assertThat(gemfireProperties.getProperty(GemFireProperties.SSL_KEYSTORE.getName()))
 			.isEqualTo("/path/to/test/keystore.jks");
