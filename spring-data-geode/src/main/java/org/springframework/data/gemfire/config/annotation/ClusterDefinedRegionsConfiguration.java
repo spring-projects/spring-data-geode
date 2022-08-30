@@ -87,7 +87,7 @@ public class ClusterDefinedRegionsConfiguration extends AbstractAnnotationConfig
 	}
 
 	@Bean
-	@Order(Ordered.HIGHEST_PRECEDENCE + 1000000)
+	@Order(Ordered.HIGHEST_PRECEDENCE + 1_000_000)
 	public GemfireDataSourcePostProcessor gemfireDataSourcePostProcessor() {
 		return new GemfireDataSourcePostProcessor().using(getBeanFactory()).using(resolveClientRegionShortcut());
 	}
