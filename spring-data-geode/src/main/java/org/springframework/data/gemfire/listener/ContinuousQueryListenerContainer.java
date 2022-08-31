@@ -62,7 +62,7 @@ import org.springframework.data.gemfire.config.annotation.ContinuousQueryListene
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ErrorHandler;
@@ -219,7 +219,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 			.filter(StringUtils::hasText)
 			.orElseGet(() ->
 				Optional.ofNullable(getBeanFactory())
-					.filter(it -> SpringUtils.isMatchingBean(it, GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME, Pool.class))
+					.filter(it -> SpringExtensions.isMatchingBean(it, GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME, Pool.class))
 					.map(it -> GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
 					.orElse(GemfireUtils.DEFAULT_POOL_NAME));
 	}
@@ -246,7 +246,7 @@ public class ContinuousQueryListenerContainer implements BeanFactoryAware, BeanN
 		};
 
 		return Optional.ofNullable(getBeanFactory())
-			.filter(it -> SpringUtils.isMatchingBean(it, poolName, Pool.class))
+			.filter(it -> SpringExtensions.isMatchingBean(it, poolName, Pool.class))
 			.map(it -> {
 				try {
 					it.getBean(poolName, Pool.class);

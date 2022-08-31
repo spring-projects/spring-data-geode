@@ -36,7 +36,7 @@ import org.springframework.data.gemfire.fork.CqCacheServerProcess;
 import org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * @author Costin Leau
@@ -87,7 +87,7 @@ public class ListenerContainerIntegrationTests extends ForkingClientServerIntegr
 	public void closeGemFireClient() {
 
 		Optional.ofNullable(this.gemfireCache)
-			.ifPresent(cache -> SpringUtils.safeDoOperation(() -> cache.close()));
+			.ifPresent(cache -> SpringExtensions.safeDoOperation(() -> cache.close()));
 	}
 
 	@Test

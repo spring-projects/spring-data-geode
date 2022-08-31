@@ -18,7 +18,7 @@ package org.springframework.data.gemfire.function.config;
 
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 
 /**
@@ -65,7 +65,7 @@ class FunctionExecutionConfiguration  {
 		boolean valid = this.functionExecutionInterface != null && this.functionExecutionInterface.isInterface();
 
 		Assert.isTrue(valid, String.format("The annotation [%1$s] only applies to an interface; It is not valid for type [%2$s]",
-			annotationType, SpringUtils.nullSafeName(this.functionExecutionInterface)));
+			annotationType, SpringExtensions.nullSafeName(this.functionExecutionInterface)));
 	}
 
 	String getAnnotationType() {

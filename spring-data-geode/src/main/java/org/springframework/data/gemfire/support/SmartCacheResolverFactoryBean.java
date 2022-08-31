@@ -36,7 +36,7 @@ import org.springframework.data.gemfire.CacheResolver;
 import org.springframework.data.gemfire.client.support.ClientCacheFactoryCacheResolver;
 import org.springframework.data.gemfire.util.CacheUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -272,7 +272,7 @@ public class SmartCacheResolverFactoryBean extends AbstractFactoryBeanSupport<Ca
 				CompositionStrategy.class.getSimpleName(), CompositionStrategy.USER_DEFINED.name()));
 
 		List<CacheResolver> orderedCacheResolvers =
-			SpringUtils.getOrderedStreamOfBeansByType(beanFactory, CacheResolver.class)
+			SpringExtensions.getOrderedStreamOfBeansByType(beanFactory, CacheResolver.class)
 				.collect(Collectors.toList());
 
 		setConfiguredCacheResolvers(orderedCacheResolvers);

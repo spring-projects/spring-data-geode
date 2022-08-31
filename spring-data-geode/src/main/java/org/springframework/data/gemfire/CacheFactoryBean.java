@@ -38,7 +38,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.gemfire.config.annotation.PeerCacheConfigurer;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -278,7 +278,7 @@ public class CacheFactoryBean extends AbstractResolvableCacheFactoryBean {
 
 			jndiDataSource.getAttributes().put("type", jndiDataSourceType.getName());
 
-			SpringUtils.safeRunOperation(() ->
+			SpringExtensions.safeRunOperation(() ->
 				JNDIInvoker.mapDatasource(jndiDataSource.getAttributes(), jndiDataSource.getProps()));
 		});
 

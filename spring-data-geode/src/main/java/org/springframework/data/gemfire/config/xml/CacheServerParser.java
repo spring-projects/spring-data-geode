@@ -23,7 +23,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
@@ -70,7 +70,7 @@ class CacheServerParser extends AbstractSimpleBeanDefinitionParser {
 
 		String cacheRefAttribute = element.getAttribute(ParsingUtils.CACHE_REF_ATTRIBUTE_NAME);
 
-		builder.addPropertyReference("cache", SpringUtils.defaultIfEmpty(
+		builder.addPropertyReference("cache", SpringExtensions.defaultIfEmpty(
 			cacheRefAttribute, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME));
 
 		String groupsAttribute = element.getAttribute("groups");

@@ -29,7 +29,7 @@ import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * {@link ClientRegionPoolBeanFactoryPostProcessor} is a Spring {@link BeanFactoryPostProcessor} implementation
@@ -77,7 +77,7 @@ public class ClientRegionPoolBeanFactoryPostProcessor extends AbstractDependency
 			String poolName = getPoolName(clientRegionBean);
 
 			if (poolBeanNames.contains(poolName)) {
-				SpringUtils.addDependsOn(clientRegionBean, poolName);
+				SpringExtensions.addDependsOn(clientRegionBean, poolName);
 			}
 		});
 	}

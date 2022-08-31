@@ -43,7 +43,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.gemfire.ResolvableRegionFactoryBean;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.StringUtils;
 
 /**
@@ -134,7 +134,7 @@ public class CompressionConfiguration extends AbstractAnnotationConfigSupport im
 			stream(nullSafeArray(beanFactory.getBeanDefinitionNames(), String.class)).forEach(beanName ->
 				Optional.of(beanFactory.getBeanDefinition(beanName))
 					.filter(beanDefinition -> isTargetedRegionBean(beanName, beanDefinition, beanFactory))
-					.ifPresent(beanDefinition -> SpringUtils.setPropertyReference(
+					.ifPresent(beanDefinition -> SpringExtensions.setPropertyReference(
 						beanDefinition, "compressor", resolvedCompressorBeanName)));
 	}
 

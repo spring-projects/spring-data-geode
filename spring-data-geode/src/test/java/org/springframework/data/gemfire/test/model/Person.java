@@ -28,7 +28,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.gemfire.mapping.annotation.Indexed;
 import org.springframework.data.gemfire.mapping.annotation.Region;
 import org.springframework.data.gemfire.tests.support.IdentifierSequence;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -172,7 +172,7 @@ public class Person implements Comparable<Person>, Serializable {
 
 		Person that = (Person) obj;
 
-		return SpringUtils.equalsIgnoreNull(this.getId(), that.getId())
+		return SpringExtensions.equalsIgnoreNull(this.getId(), that.getId())
 			&& (ObjectUtils.nullSafeEquals(this.getBirthDate(), that.getBirthDate()))
 			&& (ObjectUtils.nullSafeEquals(this.getFirstName(), that.getFirstName())
 			&& (ObjectUtils.nullSafeEquals(this.getGender(), that.getGender()))

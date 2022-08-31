@@ -29,7 +29,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.data.gemfire.util.ArrayUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 
 /**
@@ -145,6 +145,6 @@ public class PdxDiskStoreAwareBeanFactoryPostProcessor implements BeanFactoryPos
 	 * @see org.springframework.beans.factory.config.BeanDefinition#getDependsOn()
 	 */
 	private String[] getDependsOn(BeanDefinition beanDefinition) {
-		return SpringUtils.defaultIfNull(beanDefinition.getDependsOn(), EMPTY_STRING_ARRAY);
+		return SpringExtensions.defaultIfNull(beanDefinition.getDependsOn(), EMPTY_STRING_ARRAY);
 	}
 }

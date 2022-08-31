@@ -59,7 +59,7 @@ import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.RegionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -535,7 +535,7 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 	 */
 	boolean isUserSpecifiedEvictionAttributes(RegionAttributes<?, ?> regionAttributes) {
 
-		SpringUtils.ValueReturningThrowableOperation<Boolean> hasEvictionAttributes = () ->
+		SpringExtensions.ValueReturningThrowableOperation<Boolean> hasEvictionAttributes = () ->
 			Optional.ofNullable(regionAttributes)
 				.map(Object::getClass)
 				.map(type -> ReflectionUtils.findMethod(type, "hasEvictionAttributes"))
@@ -543,7 +543,7 @@ public abstract class PeerRegionFactoryBean<K, V> extends ConfigurableRegionFact
 				.map(Boolean.TRUE::equals)
 				.orElse(false);
 
-		return SpringUtils.safeGetValue(hasEvictionAttributes, false);
+		return SpringExtensions.safeGetValue(hasEvictionAttributes, false);
 	}
 
 	/*

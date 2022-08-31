@@ -47,7 +47,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -125,11 +125,11 @@ public class ApacheShiroSecurityConfiguration extends AbstractAnnotationConfigSu
 		return configurableListableBeanFactory -> {
 
 			if (configurableListableBeanFactory.containsBean("gemfireCache")) {
-				SpringUtils.addDependsOn(configurableListableBeanFactory.getBeanDefinition("gemfireCache"),
+				SpringExtensions.addDependsOn(configurableListableBeanFactory.getBeanDefinition("gemfireCache"),
 					"shiroSecurityManager");
 			}
 			else if (configurableListableBeanFactory.containsBean("locatorApplication")) {
-				SpringUtils.addDependsOn(configurableListableBeanFactory.getBeanDefinition("locatorApplication"),
+				SpringExtensions.addDependsOn(configurableListableBeanFactory.getBeanDefinition("locatorApplication"),
 					"shiroSecurityManager");
 			}
 		};

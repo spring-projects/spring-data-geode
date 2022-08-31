@@ -35,7 +35,7 @@ import org.springframework.data.gemfire.ReplicatedRegionFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -56,11 +56,11 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractDependencyStructuringBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
 	protected BeanDefinition addDependsOn(BeanDefinition beanDefinition, String... beanNames) {
-		return SpringUtils.addDependsOn(beanDefinition, beanNames);
+		return SpringExtensions.addDependsOn(beanDefinition, beanNames);
 	}
 
 	protected Optional<Object> getPropertyValue(BeanDefinition beanDefinition, String propertyName) {
-		return SpringUtils.getPropertyValue(beanDefinition, propertyName);
+		return SpringExtensions.getPropertyValue(beanDefinition, propertyName);
 	}
 
 	protected boolean isBeanDefinitionOfType(BeanDefinition beanDefinition, Class<?> type) {

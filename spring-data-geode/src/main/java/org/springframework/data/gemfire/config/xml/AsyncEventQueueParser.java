@@ -22,7 +22,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.data.gemfire.wan.AsyncEventQueueFactoryBean;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -128,7 +128,7 @@ class AsyncEventQueueParser extends AbstractSingleBeanDefinitionParser {
 	private void parseCache(Element element, BeanDefinitionBuilder builder) {
 
 		String cacheRefAttribute = element.getAttribute("cache-ref");
-		String cacheName = SpringUtils.defaultIfEmpty(cacheRefAttribute, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+		String cacheName = SpringExtensions.defaultIfEmpty(cacheRefAttribute, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 
 		builder.addConstructorArgReference(cacheName);
 	}

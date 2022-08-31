@@ -31,7 +31,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.gemfire.client.ClientRegionFactoryBean;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
 import org.springframework.data.gemfire.support.GemfireFunctions;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -178,13 +178,13 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 
 		if (snapshot != null) {
 
-			SpringUtils.VoidReturningThrowableOperation operation =
+			SpringExtensions.VoidReturningThrowableOperation operation =
 				() -> region.loadSnapshot(snapshot.getInputStream());
 
 			Function<Throwable, RuntimeException> exceptionHandler =
 				cause -> newRuntimeException(cause, "Failed to load snapshot [%s]", snapshot);
 
-			SpringUtils.safeRunOperation(operation, exceptionHandler);
+			SpringExtensions.safeRunOperation(operation, exceptionHandler);
 		}
 
 		return region;

@@ -22,7 +22,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.data.gemfire.config.xml.GemfireConstants;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * The ClientCachePoolBeanFactoryPostProcessor class...
@@ -40,7 +40,7 @@ public class ClientCachePoolBeanFactoryPostProcessor extends AbstractDependencyS
 			BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
 
 			if (isPoolBean(beanDefinition)) {
-				SpringUtils.addDependsOn(beanDefinition, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
+				SpringExtensions.addDependsOn(beanDefinition, GemfireConstants.DEFAULT_GEMFIRE_CACHE_NAME);
 			}
 		});
 	}
