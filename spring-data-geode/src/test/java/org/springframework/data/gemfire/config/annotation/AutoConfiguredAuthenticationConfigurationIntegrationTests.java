@@ -119,7 +119,7 @@ public class AutoConfiguredAuthenticationConfigurationIntegrationTests
 
 		private CacheLoader<Object, Object> newEchoCacheLoader() {
 
-			return new CacheLoader<>() {
+			return new CacheLoader<Object, Object>() {
 
 				@Override
 				public Object load(LoaderHelper<Object, Object> loaderHelper) throws CacheLoaderException {
