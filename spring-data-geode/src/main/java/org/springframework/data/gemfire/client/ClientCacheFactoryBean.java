@@ -52,7 +52,7 @@ import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.support.ConnectionEndpointList;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -360,7 +360,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 			if (pool == null && isPoolNameResolvable(poolName)) {
 
-				String dereferencedPoolName = SpringUtils.dereferenceBean(poolName);
+				String dereferencedPoolName = SpringExtensions.dereferenceBean(poolName);
 
 				PoolFactoryBean poolFactoryBean =
 					getBeanFactory().getBean(dereferencedPoolName, PoolFactoryBean.class);
@@ -768,7 +768,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 		Boolean readyForEvents = getReadyForEvents();
 
 		return readyForEvents != null ? Boolean.TRUE.equals(readyForEvents)
-			: SpringUtils.safeGetValue(() -> GemfireUtils.isDurable(fetchCache()), false);
+			: SpringExtensions.safeGetValue(() -> GemfireUtils.isDurable(fetchCache()), false);
 	}
 
 	public void setRetryAttempts(Integer retryAttempts) {

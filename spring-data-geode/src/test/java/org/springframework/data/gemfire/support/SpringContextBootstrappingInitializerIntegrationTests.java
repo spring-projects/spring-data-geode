@@ -48,7 +48,7 @@ import org.springframework.data.gemfire.support.sample.TestUserDao;
 import org.springframework.data.gemfire.support.sample.TestUserService;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.support.DataSourceAdapter;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 
 /**
@@ -84,7 +84,7 @@ public class SpringContextBootstrappingInitializerIntegrationTests extends Integ
 	@Before @After
 	public void testSetupAndTearDown() {
 
-		SpringUtils.safeDoOperation(() ->
+		SpringExtensions.safeDoOperation(() ->
 			closeApplicationContext(SpringContextBootstrappingInitializer.getApplicationContext()));
 
 		UserDataStoreCacheLoader.INSTANCE.set(null);

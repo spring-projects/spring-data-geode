@@ -23,7 +23,7 @@ import org.apache.geode.cache.Region;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * Integration Tests for multiple Apache Geode {@link GemFireCache caches}.
@@ -78,8 +78,8 @@ public class MultipleCacheIntegrationTests extends IntegrationTestsSupport {
 			final ConfigurableApplicationContext applicationContextOneRef = applicationContextOne;
 			final ConfigurableApplicationContext applicationContextTwoRef = applicationContextTwo;
 
-			SpringUtils.safeDoOperation(() -> closeApplicationContext(applicationContextOneRef));
-			SpringUtils.safeDoOperation(() -> closeApplicationContext(applicationContextTwoRef));
+			SpringExtensions.safeDoOperation(() -> closeApplicationContext(applicationContextOneRef));
+			SpringExtensions.safeDoOperation(() -> closeApplicationContext(applicationContextTwoRef));
 		}
 	}
 }

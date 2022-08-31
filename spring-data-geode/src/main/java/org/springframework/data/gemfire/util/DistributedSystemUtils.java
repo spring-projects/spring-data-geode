@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  * @since 1.7.0
  */
 @SuppressWarnings("unused")
-public abstract class DistributedSystemUtils extends SpringUtils {
+public abstract class DistributedSystemUtils extends SpringExtensions {
 
 	public static final int DEFAULT_CACHE_SERVER_PORT = CacheServer.DEFAULT_PORT;
 	public static final int DEFAULT_LOCATOR_PORT = 10334;

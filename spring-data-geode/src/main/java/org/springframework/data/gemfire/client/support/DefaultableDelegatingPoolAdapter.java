@@ -26,7 +26,7 @@ import org.apache.geode.cache.client.SocketFactory;
 import org.apache.geode.cache.query.QueryService;
 
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 
 /**
@@ -69,7 +69,7 @@ public abstract class DefaultableDelegatingPoolAdapter {
 
 	protected <T> T defaultIfNull(T defaultValue, Supplier<T> valueProvider) {
 
-		return prefersPool() ? SpringUtils.defaultIfNull(valueProvider.get(), defaultValue)
+		return prefersPool() ? SpringExtensions.defaultIfNull(valueProvider.get(), defaultValue)
 			: defaultValue != null ? defaultValue
 			: valueProvider.get();
 	}

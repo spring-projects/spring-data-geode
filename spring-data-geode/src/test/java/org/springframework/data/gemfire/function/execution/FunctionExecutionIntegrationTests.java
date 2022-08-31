@@ -31,7 +31,7 @@ import org.springframework.data.gemfire.client.PoolResolver;
 import org.springframework.data.gemfire.client.support.PoolManagerPoolResolver;
 import org.springframework.data.gemfire.fork.FunctionCacheServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * Integration Tests for SDG Function support.
@@ -85,7 +85,7 @@ public class FunctionExecutionIntegrationTests extends ForkingClientServerIntegr
 
 	@After
 	public void tearDownGemFireClient() {
-		Optional.ofNullable(this.gemfireCache).ifPresent(cache -> SpringUtils.safeDoOperation(() -> cache.close()));
+		Optional.ofNullable(this.gemfireCache).ifPresent(cache -> SpringExtensions.safeDoOperation(() -> cache.close()));
 	}
 
 	@Test

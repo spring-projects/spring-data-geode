@@ -24,7 +24,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.data.gemfire.function.FunctionServiceFactoryBean;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.xml.DomUtils;
 
 /**
@@ -71,6 +71,6 @@ class FunctionServiceParser extends AbstractSimpleBeanDefinitionParser {
 
 		String resolvedId = super.resolveId(element, beanDefinition, parserContext);
 
-		return SpringUtils.defaultIfEmpty(resolvedId, GemfireConstants.DEFAULT_GEMFIRE_FUNCTION_SERVICE_NAME);
+		return SpringExtensions.defaultIfEmpty(resolvedId, GemfireConstants.DEFAULT_GEMFIRE_FUNCTION_SERVICE_NAME);
 	}
 }

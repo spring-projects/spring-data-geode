@@ -33,7 +33,7 @@ import org.springframework.data.gemfire.GemfireQueryException;
 import org.springframework.data.gemfire.config.annotation.ClientCacheApplication;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.mock.annotation.EnableGemFireMockObjects;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -60,7 +60,7 @@ public class GemfirePersistenceExceptionTranslationIntegrationTests extends Inte
 	private TestGemFireRepository gemfireRepository;
 
 	@SuppressWarnings("all")
-	private void handleExceptionThrowingCall(SpringUtils.VoidReturningThrowableOperation operation) {
+	private void handleExceptionThrowingCall(SpringExtensions.VoidReturningThrowableOperation operation) {
 
 		try {
 			operation.run();

@@ -42,7 +42,7 @@ import org.springframework.data.gemfire.mapping.GemfirePersistentProperty;
 import org.springframework.data.gemfire.repository.query.GemfireRepositoryQuery;
 import org.springframework.data.gemfire.repository.query.QueryPostProcessor;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.RepositoryDefinition;
@@ -257,7 +257,7 @@ public class GemfireRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 	 * @see org.springframework.data.mapping.context.MappingContext
 	 */
 	protected MappingContext<? extends GemfirePersistentEntity<?>, GemfirePersistentProperty> resolveGemfireMappingContext() {
-		return SpringUtils.requireObject(this::getGemfireMappingContext, "GemfireMappingContext must not be null");
+		return SpringExtensions.requireObject(this::getGemfireMappingContext, "GemfireMappingContext must not be null");
 	}
 
 	protected class QueryPostProcessorRegistrationOnQueryCreationListener

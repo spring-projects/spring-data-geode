@@ -50,7 +50,7 @@ import org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean;
 import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.support.SmartLifecycleSupport;
 import org.springframework.data.gemfire.util.RegionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -300,7 +300,7 @@ public class ClientRegionFactoryBean<K, V> extends ConfigurableRegionFactoryBean
 		return Optional.ofNullable(getPoolResolver().resolve(poolName))
 			.map(it -> true)
 			.orElseGet(() ->
-				SpringUtils.safeGetValue(() ->
+				SpringExtensions.safeGetValue(() ->
 					getBeanFactory().getBean(poolName, Pool.class) != null, false));
 	}
 

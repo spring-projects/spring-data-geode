@@ -18,7 +18,7 @@ package org.springframework.data.gemfire.support;
 
 import static org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.BeanFactoryReference.newBeanFactoryReference;
 import static org.springframework.data.gemfire.util.CollectionUtils.nullSafeSet;
-import static org.springframework.data.gemfire.util.SpringUtils.nullOrEquals;
+import static org.springframework.data.gemfire.util.SpringExtensions.nullOrEquals;
 
 import java.util.Collections;
 import java.util.Set;

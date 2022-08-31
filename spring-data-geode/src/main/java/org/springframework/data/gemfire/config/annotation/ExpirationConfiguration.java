@@ -54,7 +54,7 @@ import org.springframework.data.gemfire.expiration.ExpirationActionType;
 import org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean;
 import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -602,7 +602,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 
 				AttributesMutator<?, ?> regionAttributesMutator = region.getAttributesMutator();
 
-				if (SpringUtils.areNotNull(regionAttributes, regionAttributesMutator)) {
+				if (SpringExtensions.areNotNull(regionAttributes, regionAttributesMutator)) {
 
 					CustomExpiry<?, ?> customEntryIdleTimeout = regionAttributes.getCustomEntryIdleTimeout();
 					CustomExpiry<?, ?> customEntryTimeToLive = regionAttributes.getCustomEntryTimeToLive();

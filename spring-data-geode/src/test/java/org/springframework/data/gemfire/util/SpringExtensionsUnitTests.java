@@ -54,10 +54,10 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.gemfire.test.model.Person;
-import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowableOperation;
+import org.springframework.data.gemfire.util.SpringExtensions.ValueReturningThrowableOperation;
 
 /**
- * Unit Tests for {@link SpringUtils}.
+ * Unit Tests for {@link SpringExtensions}.
  *
  * @author John Blum
  * @see java.util.function.Function
@@ -68,36 +68,36 @@ import org.springframework.data.gemfire.util.SpringUtils.ValueReturningThrowable
  * @see org.mockito.junit.MockitoJUnitRunner
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.config.BeanDefinition
- * @see org.springframework.data.gemfire.util.SpringUtils
+ * @see SpringExtensions
  * @since 1.9.0
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SpringUtilsUnitTests {
+public class SpringExtensionsUnitTests {
 
 	@Mock
 	private BeanDefinition mockBeanDefinition;
 
 	@Test
 	public void areNotNullIsNullSafe() {
-		assertThat(SpringUtils.areNotNull((Object[]) null)).isTrue();
+		assertThat(SpringExtensions.areNotNull((Object[]) null)).isTrue();
 	}
 
 	@Test
 	public void areNotNullWithAllNullValuesReturnsFalse() {
-		assertThat(SpringUtils.areNotNull(null, null, null)).isFalse();
+		assertThat(SpringExtensions.areNotNull(null, null, null)).isFalse();
 	}
 
 	@Test
 	public void areNotNullWithNoNullValuesReturnsTrue() {
-		assertThat(SpringUtils.areNotNull(1, 2, 3)).isTrue();
+		assertThat(SpringExtensions.areNotNull(1, 2, 3)).isTrue();
 	}
 
 	@Test
 	public void areNotNullWithOneNullValueIsFalse() {
 
-		assertThat(SpringUtils.areNotNull(null, 2, 3)).isFalse();
-		assertThat(SpringUtils.areNotNull(1, null, 3)).isFalse();
-		assertThat(SpringUtils.areNotNull(1, 2, null)).isFalse();
+		assertThat(SpringExtensions.areNotNull(null, 2, 3)).isFalse();
+		assertThat(SpringExtensions.areNotNull(1, null, 3)).isFalse();
+		assertThat(SpringExtensions.areNotNull(1, 2, null)).isFalse();
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class SpringUtilsUnitTests {
 		when(mockBeanFactory.containsBean(anyString())).thenReturn(true);
 		when(mockBeanFactory.isTypeMatch(anyString(), any(Class.class))).thenReturn(true);
 
-		assertThat(SpringUtils.isMatchingBean(mockBeanFactory, "TestPool", Pool.class)).isTrue();
+		assertThat(SpringExtensions.isMatchingBean(mockBeanFactory, "TestPool", Pool.class)).isTrue();
 
 		verify(mockBeanFactory, times(1)).containsBean(eq("TestPool"));
 		verify(mockBeanFactory, times(1)).isTypeMatch(eq("TestPool"), eq(Pool.class));
@@ -121,7 +121,7 @@ public class SpringUtilsUnitTests {
 
 		when(mockBeanFactory.containsBean(anyString())).thenReturn(false);
 
-		assertThat(SpringUtils.isMatchingBean(mockBeanFactory, "TestPool", Pool.class)).isFalse();
+		assertThat(SpringExtensions.isMatchingBean(mockBeanFactory, "TestPool", Pool.class)).isFalse();
 
 		verify(mockBeanFactory, times(1)).containsBean(eq("TestPool"));
 		verify(mockBeanFactory, never()).isTypeMatch(anyString(), any(Class.class));
@@ -135,7 +135,7 @@ public class SpringUtilsUnitTests {
 		when(mockBeanFactory.containsBean(anyString())).thenReturn(true);
 		when(mockBeanFactory.isTypeMatch(anyString(), any(Class.class))).thenReturn(false);
 
-		assertThat(SpringUtils.isMatchingBean(mockBeanFactory, "TestPool", Pool.class)).isFalse();
+		assertThat(SpringExtensions.isMatchingBean(mockBeanFactory, "TestPool", Pool.class)).isFalse();
 
 		verify(mockBeanFactory, times(1)).containsBean(eq("TestPool"));
 		verify(mockBeanFactory, times(1)).isTypeMatch(eq("TestPool"), eq(Pool.class));
@@ -147,7 +147,7 @@ public class SpringUtilsUnitTests {
 		when(this.mockBeanDefinition.getDependsOn())
 			.thenReturn(asArray("testBeanNameOne", "testBeanNameTwo"));
 
-		assertThat(SpringUtils.addDependsOn(this.mockBeanDefinition, "testBeanNameThree"))
+		assertThat(SpringExtensions.addDependsOn(this.mockBeanDefinition, "testBeanNameThree"))
 			.isSameAs(this.mockBeanDefinition);
 
 		verify(this.mockBeanDefinition, times(1)).getDependsOn();
@@ -160,7 +160,7 @@ public class SpringUtilsUnitTests {
 
 		when(this.mockBeanDefinition.getDependsOn()).thenReturn(null);
 
-		assertThat(SpringUtils.addDependsOn(this.mockBeanDefinition, "testBeanName"))
+		assertThat(SpringExtensions.addDependsOn(this.mockBeanDefinition, "testBeanName"))
 			.isSameAs(this.mockBeanDefinition);
 
 		verify(this.mockBeanDefinition, times(1)).getDependsOn();
@@ -172,7 +172,7 @@ public class SpringUtilsUnitTests {
 
 		when(this.mockBeanDefinition.getDependsOn()).thenReturn(asArray("testBeanNameOne", "testBeanNameTwo"));
 
-		assertThat(SpringUtils.addDependsOn(this.mockBeanDefinition, "testBeanNameThree", "testBeanNameFour"))
+		assertThat(SpringExtensions.addDependsOn(this.mockBeanDefinition, "testBeanNameThree", "testBeanNameFour"))
 			.isSameAs(this.mockBeanDefinition);
 
 		verify(this.mockBeanDefinition, times(1)).getDependsOn();
@@ -188,7 +188,7 @@ public class SpringUtilsUnitTests {
 
 		when(this.mockBeanDefinition.getPropertyValues()).thenReturn(propertyValues);
 
-		assertThat(SpringUtils.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
+		assertThat(SpringExtensions.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
 			.isEqualTo("testValue");
 
 		verify(this.mockBeanDefinition, times(1)).getPropertyValues();
@@ -204,7 +204,7 @@ public class SpringUtilsUnitTests {
 		when(this.mockBeanDefinition.getPropertyValues()).thenReturn(testPropertyValues);
 		doReturn(testPropertyValue).when(testPropertyValues).getPropertyValue(anyString());
 
-		assertThat(SpringUtils.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
+		assertThat(SpringExtensions.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
 			.isNull();
 
 		verify(this.mockBeanDefinition, times(1)).getPropertyValues();
@@ -219,7 +219,7 @@ public class SpringUtilsUnitTests {
 
 		when(this.mockBeanDefinition.getPropertyValues()).thenReturn(testPropertyValues);
 
-		assertThat(SpringUtils.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
+		assertThat(SpringExtensions.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
 			.isNull();
 
 		verify(this.mockBeanDefinition, times(1)).getPropertyValues();
@@ -231,7 +231,7 @@ public class SpringUtilsUnitTests {
 
 		when(this.mockBeanDefinition.getPropertyValues()).thenReturn(null);
 
-		assertThat(SpringUtils.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
+		assertThat(SpringExtensions.getPropertyValue(this.mockBeanDefinition, "testProperty").orElse(null))
 			.isNull();
 
 		verify(this.mockBeanDefinition, times(1)).getPropertyValues();
@@ -239,7 +239,7 @@ public class SpringUtilsUnitTests {
 
 	@Test
 	public void getPropertyValueWithNullBeanDefinitionReturnsNull() {
-		assertThat(SpringUtils.getPropertyValue(null, "testProperty").orElse(null))
+		assertThat(SpringExtensions.getPropertyValue(null, "testProperty").orElse(null))
 			.isNull();
 	}
 
@@ -252,7 +252,7 @@ public class SpringUtilsUnitTests {
 
 		assertThat(mutablePropertyValues.size()).isEqualTo(0);
 
-		SpringUtils.setPropertyReference(this.mockBeanDefinition, "testProperty", "testBean");
+		SpringExtensions.setPropertyReference(this.mockBeanDefinition, "testProperty", "testBean");
 
 		assertThat(mutablePropertyValues.size()).isEqualTo(1);
 		assertThat(mutablePropertyValues.getPropertyValue("testProperty")).isNotNull();
@@ -271,7 +271,7 @@ public class SpringUtilsUnitTests {
 
 		assertThat(mutablePropertyValues.size()).isEqualTo(0);
 
-		SpringUtils.setPropertyValue(this.mockBeanDefinition, "testProperty", "testValue");
+		SpringExtensions.setPropertyValue(this.mockBeanDefinition, "testProperty", "testValue");
 
 		assertThat(mutablePropertyValues.size()).isEqualTo(1);
 		assertThat(mutablePropertyValues.getPropertyValue("testProperty")).isNotNull();
@@ -282,42 +282,42 @@ public class SpringUtilsUnitTests {
 	@Test
 	public void defaultIfEmptyReturnsValue() {
 
-		assertThat(SpringUtils.defaultIfEmpty("test", "DEFAULT")).isEqualTo("test");
-		assertThat(SpringUtils.defaultIfEmpty("abc123", "DEFAULT")).isEqualTo("abc123");
-		assertThat(SpringUtils.defaultIfEmpty("123", "DEFAULT")).isEqualTo("123");
-		assertThat(SpringUtils.defaultIfEmpty("X", "DEFAULT")).isEqualTo("X");
-		assertThat(SpringUtils.defaultIfEmpty("$", "DEFAULT")).isEqualTo("$");
-		assertThat(SpringUtils.defaultIfEmpty("_", "DEFAULT")).isEqualTo("_");
-		assertThat(SpringUtils.defaultIfEmpty("nil", "DEFAULT")).isEqualTo("nil");
-		assertThat(SpringUtils.defaultIfEmpty("null", "DEFAULT")).isEqualTo("null");
+		assertThat(SpringExtensions.defaultIfEmpty("test", "DEFAULT")).isEqualTo("test");
+		assertThat(SpringExtensions.defaultIfEmpty("abc123", "DEFAULT")).isEqualTo("abc123");
+		assertThat(SpringExtensions.defaultIfEmpty("123", "DEFAULT")).isEqualTo("123");
+		assertThat(SpringExtensions.defaultIfEmpty("X", "DEFAULT")).isEqualTo("X");
+		assertThat(SpringExtensions.defaultIfEmpty("$", "DEFAULT")).isEqualTo("$");
+		assertThat(SpringExtensions.defaultIfEmpty("_", "DEFAULT")).isEqualTo("_");
+		assertThat(SpringExtensions.defaultIfEmpty("nil", "DEFAULT")).isEqualTo("nil");
+		assertThat(SpringExtensions.defaultIfEmpty("null", "DEFAULT")).isEqualTo("null");
 	}
 
 	@Test
 	public void defaultIfEmptyReturnsDefault() {
 
-		assertThat(SpringUtils.defaultIfEmpty("  ", "DEFAULT")).isEqualTo("DEFAULT");
-		assertThat(SpringUtils.defaultIfEmpty("", "DEFAULT")).isEqualTo("DEFAULT");
-		assertThat(SpringUtils.defaultIfEmpty(null, "DEFAULT")).isEqualTo("DEFAULT");
+		assertThat(SpringExtensions.defaultIfEmpty("  ", "DEFAULT")).isEqualTo("DEFAULT");
+		assertThat(SpringExtensions.defaultIfEmpty("", "DEFAULT")).isEqualTo("DEFAULT");
+		assertThat(SpringExtensions.defaultIfEmpty(null, "DEFAULT")).isEqualTo("DEFAULT");
 	}
 
 	@Test
 	public void defaultIfNullReturnsValue() {
 
-		assertThat(SpringUtils.defaultIfNull(true, false)).isTrue();
-		assertThat(SpringUtils.defaultIfNull('x', 'A')).isEqualTo('x');
-		assertThat(SpringUtils.defaultIfNull(1, 2)).isEqualTo(1);
-		assertThat(SpringUtils.defaultIfNull(Math.PI, 2.0d)).isEqualTo(Math.PI);
-		assertThat(SpringUtils.defaultIfNull("test", "DEFAULT")).isEqualTo("test");
+		assertThat(SpringExtensions.defaultIfNull(true, false)).isTrue();
+		assertThat(SpringExtensions.defaultIfNull('x', 'A')).isEqualTo('x');
+		assertThat(SpringExtensions.defaultIfNull(1, 2)).isEqualTo(1);
+		assertThat(SpringExtensions.defaultIfNull(Math.PI, 2.0d)).isEqualTo(Math.PI);
+		assertThat(SpringExtensions.defaultIfNull("test", "DEFAULT")).isEqualTo("test");
 	}
 
 	@Test
 	public void defaultIfNullReturnsDefault() {
 
-		assertThat(SpringUtils.defaultIfNull(null, false)).isFalse();
-		assertThat(SpringUtils.defaultIfNull(null, 'A')).isEqualTo('A');
-		assertThat(SpringUtils.defaultIfNull(null, 2)).isEqualTo(2);
-		assertThat(SpringUtils.defaultIfNull(null, 2.0d)).isEqualTo(2.0d);
-		assertThat(SpringUtils.defaultIfNull(null, "DEFAULT")).isEqualTo("DEFAULT");
+		assertThat(SpringExtensions.defaultIfNull(null, false)).isFalse();
+		assertThat(SpringExtensions.defaultIfNull(null, 'A')).isEqualTo('A');
+		assertThat(SpringExtensions.defaultIfNull(null, 2)).isEqualTo(2);
+		assertThat(SpringExtensions.defaultIfNull(null, 2.0d)).isEqualTo(2.0d);
+		assertThat(SpringExtensions.defaultIfNull(null, "DEFAULT")).isEqualTo("DEFAULT");
 	}
 
 	@Test
@@ -326,7 +326,7 @@ public class SpringUtilsUnitTests {
 
 		Supplier<String> mockSupplier = mock(Supplier.class);
 
-		assertThat(SpringUtils.defaultIfNull("value", mockSupplier)).isEqualTo("value");
+		assertThat(SpringExtensions.defaultIfNull("value", mockSupplier)).isEqualTo("value");
 
 		verify(mockSupplier, never()).get();
 	}
@@ -339,137 +339,137 @@ public class SpringUtilsUnitTests {
 
 		when(mockSupplier.get()).thenReturn("supplier");
 
-		assertThat(SpringUtils.defaultIfNull(null, mockSupplier)).isEqualTo("supplier");
+		assertThat(SpringExtensions.defaultIfNull(null, mockSupplier)).isEqualTo("supplier");
 
 		verify(mockSupplier, times(1)).get();
 	}
 
 	@Test
 	public void dereferenceBean() {
-		assertThat(SpringUtils.dereferenceBean("example")).isEqualTo("&example");
+		assertThat(SpringExtensions.dereferenceBean("example")).isEqualTo("&example");
 	}
 
 	@Test
 	public void equalsIgnoreNullIsTrue() {
 
-		assertThat(SpringUtils.equalsIgnoreNull(null, null)).isTrue();
-		assertThat(SpringUtils.equalsIgnoreNull(true, true)).isTrue();
-		assertThat(SpringUtils.equalsIgnoreNull('x', 'x')).isTrue();
-		assertThat(SpringUtils.equalsIgnoreNull(1, 1)).isTrue();
-		assertThat(SpringUtils.equalsIgnoreNull(Math.PI, Math.PI)).isTrue();
-		assertThat(SpringUtils.equalsIgnoreNull("null", "null")).isTrue();
-		assertThat(SpringUtils.equalsIgnoreNull("test", "test")).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull(null, null)).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull(true, true)).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull('x', 'x')).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull(1, 1)).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull(Math.PI, Math.PI)).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull("null", "null")).isTrue();
+		assertThat(SpringExtensions.equalsIgnoreNull("test", "test")).isTrue();
 	}
 
 	@Test
 	public void equalsIgnoreNullIsFalse() {
 
-		assertThat(SpringUtils.equalsIgnoreNull(null, "null")).isFalse();
-		assertThat(SpringUtils.equalsIgnoreNull(true, false)).isFalse();
-		assertThat(SpringUtils.equalsIgnoreNull('x', 'X')).isFalse();
-		assertThat(SpringUtils.equalsIgnoreNull(1, 2)).isFalse();
-		assertThat(SpringUtils.equalsIgnoreNull(3.14159d, Math.PI)).isFalse();
-		assertThat(SpringUtils.equalsIgnoreNull("nil", "null")).isFalse();
+		assertThat(SpringExtensions.equalsIgnoreNull(null, "null")).isFalse();
+		assertThat(SpringExtensions.equalsIgnoreNull(true, false)).isFalse();
+		assertThat(SpringExtensions.equalsIgnoreNull('x', 'X')).isFalse();
+		assertThat(SpringExtensions.equalsIgnoreNull(1, 2)).isFalse();
+		assertThat(SpringExtensions.equalsIgnoreNull(3.14159d, Math.PI)).isFalse();
+		assertThat(SpringExtensions.equalsIgnoreNull("nil", "null")).isFalse();
 	}
 
 	@Test
 	public void nullOrEqualsWithEqualObjectsIsTrue() {
-		assertThat(SpringUtils.nullOrEquals("test", "test")).isTrue();
+		assertThat(SpringExtensions.nullOrEquals("test", "test")).isTrue();
 	}
 
 	@Test
 	public void nullOrEqualsWithNonNullObjectAndNullIsFalse() {
-		assertThat(SpringUtils.nullOrEquals("test", null)).isFalse();
+		assertThat(SpringExtensions.nullOrEquals("test", null)).isFalse();
 	}
 
 	@Test
 	public void nullOrEqualsWithNullIsTrue() {
-		assertThat(SpringUtils.nullOrEquals(null, "test")).isTrue();
+		assertThat(SpringExtensions.nullOrEquals(null, "test")).isTrue();
 	}
 
 	@Test
 	public void nullOrEqualsWithUnequalObjectsIsFalse() {
-		assertThat(SpringUtils.nullOrEquals("test", "mock")).isFalse();
+		assertThat(SpringExtensions.nullOrEquals("test", "mock")).isFalse();
 	}
 
 	@Test
 	public void nullSafeEqualsWithEqualObjectsIsTrue() {
-		assertThat(SpringUtils.nullSafeEquals("test", "test")).isTrue();
+		assertThat(SpringExtensions.nullSafeEquals("test", "test")).isTrue();
 	}
 
 	@Test
 	public void nullSafeEqualsWithNullObjectsIsFalse() {
-		assertThat(SpringUtils.nullSafeEquals(null, "test")).isFalse();
-		assertThat(SpringUtils.nullSafeEquals("test", null)).isFalse();
+		assertThat(SpringExtensions.nullSafeEquals(null, "test")).isFalse();
+		assertThat(SpringExtensions.nullSafeEquals("test", null)).isFalse();
 	}
 
 	@Test
 	public void nullSafeEqualsWithUnequalObjectsIsFalse() {
-		assertThat(SpringUtils.nullSafeEquals("test", "mock")).isFalse();
+		assertThat(SpringExtensions.nullSafeEquals("test", "mock")).isFalse();
 	}
 
 	@Test
 	public void nullSafeNameWithType() {
 
-		assertThat(SpringUtils.nullSafeName(Boolean.class)).isEqualTo(Boolean.class.getName());
-		assertThat(SpringUtils.nullSafeName(Integer.class)).isEqualTo(Integer.class.getName());
-		assertThat(SpringUtils.nullSafeName(Double.class)).isEqualTo(Double.class.getName());
-		assertThat(SpringUtils.nullSafeName(String.class)).isEqualTo(String.class.getName());
-		assertThat(SpringUtils.nullSafeName(Time.class)).isEqualTo(Time.class.getName());
-		assertThat(SpringUtils.nullSafeName(Person.class)).isEqualTo(Person.class.getName());
+		assertThat(SpringExtensions.nullSafeName(Boolean.class)).isEqualTo(Boolean.class.getName());
+		assertThat(SpringExtensions.nullSafeName(Integer.class)).isEqualTo(Integer.class.getName());
+		assertThat(SpringExtensions.nullSafeName(Double.class)).isEqualTo(Double.class.getName());
+		assertThat(SpringExtensions.nullSafeName(String.class)).isEqualTo(String.class.getName());
+		assertThat(SpringExtensions.nullSafeName(Time.class)).isEqualTo(Time.class.getName());
+		assertThat(SpringExtensions.nullSafeName(Person.class)).isEqualTo(Person.class.getName());
 	}
 
 	@Test
 	public void nullSafeNameWithNull() {
-		assertThat(SpringUtils.nullSafeName(null)).isNull();
+		assertThat(SpringExtensions.nullSafeName(null)).isNull();
 	}
 
 	@Test
 	public void nullSafeSimpleNameWithType() {
 
-		assertThat(SpringUtils.nullSafeSimpleName(Boolean.class)).isEqualTo(Boolean.class.getSimpleName());
-		assertThat(SpringUtils.nullSafeSimpleName(Integer.class)).isEqualTo(Integer.class.getSimpleName());
-		assertThat(SpringUtils.nullSafeSimpleName(Double.class)).isEqualTo(Double.class.getSimpleName());
-		assertThat(SpringUtils.nullSafeSimpleName(String.class)).isEqualTo(String.class.getSimpleName());
-		assertThat(SpringUtils.nullSafeSimpleName(Time.class)).isEqualTo(Time.class.getSimpleName());
-		assertThat(SpringUtils.nullSafeSimpleName(Person.class)).isEqualTo(Person.class.getSimpleName());
+		assertThat(SpringExtensions.nullSafeSimpleName(Boolean.class)).isEqualTo(Boolean.class.getSimpleName());
+		assertThat(SpringExtensions.nullSafeSimpleName(Integer.class)).isEqualTo(Integer.class.getSimpleName());
+		assertThat(SpringExtensions.nullSafeSimpleName(Double.class)).isEqualTo(Double.class.getSimpleName());
+		assertThat(SpringExtensions.nullSafeSimpleName(String.class)).isEqualTo(String.class.getSimpleName());
+		assertThat(SpringExtensions.nullSafeSimpleName(Time.class)).isEqualTo(Time.class.getSimpleName());
+		assertThat(SpringExtensions.nullSafeSimpleName(Person.class)).isEqualTo(Person.class.getSimpleName());
 	}
 
 	@Test
 	public void nullSafeSimpleNameWithNull() {
-		assertThat(SpringUtils.nullSafeSimpleName(null)).isNull();
+		assertThat(SpringExtensions.nullSafeSimpleName(null)).isNull();
 	}
 
 	@Test
 	public void nullSafeTypeWithObject() {
-		assertThat(SpringUtils.nullSafeType(new Object())).isEqualTo(Object.class);
+		assertThat(SpringExtensions.nullSafeType(new Object())).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void nullSafeTypeWithObjectAndDefaultType() {
-		assertThat(SpringUtils.nullSafeType("test", Person.class)).isEqualTo(String.class);
+		assertThat(SpringExtensions.nullSafeType("test", Person.class)).isEqualTo(String.class);
 	}
 
 	@Test
 	public void nullSafeTypeWithNull() {
-		assertThat(SpringUtils.nullSafeType(null)).isNull();
+		assertThat(SpringExtensions.nullSafeType(null)).isNull();
 	}
 
 	@Test
 	public void nullSafeTypeWithNullAndDefaultType() {
-		assertThat(SpringUtils.nullSafeType(null, Person.class)).isEqualTo(Person.class);
+		assertThat(SpringExtensions.nullSafeType(null, Person.class)).isEqualTo(Person.class);
 	}
 
 	@Test
 	public void requireObjectReturnsObject() {
-		assertThat(SpringUtils.requireObject("TEST", "Test Object must not be null")).isEqualTo("TEST");
+		assertThat(SpringExtensions.requireObject("TEST", "Test Object must not be null")).isEqualTo("TEST");
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void requireObjectWithNullObjectThrowsIllegalStateException() {
 
 		try {
-			SpringUtils.requireObject(null, "Test Object must not be null");
+			SpringExtensions.requireObject(null, "Test Object must not be null");
 		}
 		catch (IllegalStateException expected) {
 
@@ -485,13 +485,13 @@ public class SpringUtilsUnitTests {
 
 		AtomicReference<Object> operationValue = new AtomicReference<>();
 
-		assertThat(SpringUtils.safeDoOperation(() -> operationValue.set("TEST"))).isTrue();
+		assertThat(SpringExtensions.safeDoOperation(() -> operationValue.set("TEST"))).isTrue();
 		assertThat(operationValue.get()).isEqualTo("TEST");
 	}
 
 	@Test
 	public void safeDoOperationWithThrowingOperation() {
-		assertThat(SpringUtils.safeDoOperation(() -> { throw new RuntimeException("TEST"); })).isFalse();
+		assertThat(SpringExtensions.safeDoOperation(() -> { throw new RuntimeException("TEST"); })).isFalse();
 	}
 
 	@Test
@@ -501,7 +501,7 @@ public class SpringUtilsUnitTests {
 
 		Runnable mockRunnable = mock(Runnable.class);
 
-		assertThat(SpringUtils.safeDoOperation(() -> operationValue.set("MOCK"), mockRunnable)).isTrue();
+		assertThat(SpringExtensions.safeDoOperation(() -> operationValue.set("MOCK"), mockRunnable)).isTrue();
 		assertThat(operationValue.get()).isEqualTo("MOCK");
 
 		verifyNoInteractions(mockRunnable);
@@ -512,7 +512,7 @@ public class SpringUtilsUnitTests {
 
 		Runnable mockRunnable = mock(Runnable.class);
 
-		assertThat(SpringUtils.safeDoOperation(() -> { throw new RuntimeException("TEST"); }, mockRunnable)).isFalse();
+		assertThat(SpringExtensions.safeDoOperation(() -> { throw new RuntimeException("TEST"); }, mockRunnable)).isFalse();
 
 		verify(mockRunnable, times(1)).run();
 		verifyNoMoreInteractions(mockRunnable);
@@ -520,17 +520,17 @@ public class SpringUtilsUnitTests {
 
 	@Test
 	public void safeGetValueReturnsSuppliedValue() {
-		assertThat(SpringUtils.safeGetValue(() -> "test")).isEqualTo("test");
+		assertThat(SpringExtensions.safeGetValue(() -> "test")).isEqualTo("test");
 	}
 
 	@Test
 	public void safeGetValueReturnsNull() {
-		assertThat(SpringUtils.<Object>safeGetValue(() -> { throw newRuntimeException("error"); })).isNull();
+		assertThat(SpringExtensions.<Object>safeGetValue(() -> { throw newRuntimeException("error"); })).isNull();
 	}
 
 	@Test
 	public void safeGetValueReturnsDefaultValue() {
-		assertThat(SpringUtils.safeGetValue(() -> { throw newRuntimeException("error"); },  "test"))
+		assertThat(SpringExtensions.safeGetValue(() -> { throw newRuntimeException("error"); },  "test"))
 			.isEqualTo("test");
 	}
 
@@ -542,7 +542,7 @@ public class SpringUtilsUnitTests {
 
 		Supplier<String> defaultValueSupplier = () -> "test";
 
-		assertThat(SpringUtils.safeGetValue(exceptionThrowingOperation, defaultValueSupplier)).isEqualTo("test");
+		assertThat(SpringExtensions.safeGetValue(exceptionThrowingOperation, defaultValueSupplier)).isEqualTo("test");
 	}
 
 	@Test
@@ -560,7 +560,7 @@ public class SpringUtilsUnitTests {
 			return "test";
 		};
 
-		assertThat(SpringUtils.safeGetValue(exceptionThrowingOperation, exceptionHandler)).isEqualTo("test");
+		assertThat(SpringExtensions.safeGetValue(exceptionThrowingOperation, exceptionHandler)).isEqualTo("test");
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -579,7 +579,7 @@ public class SpringUtilsUnitTests {
 		};
 
 		try {
-			SpringUtils.safeGetValue(exceptionThrowingOperation, exceptionHandler);
+			SpringExtensions.safeGetValue(exceptionThrowingOperation, exceptionHandler);
 		}
 		catch (IllegalStateException expected) {
 
@@ -597,7 +597,7 @@ public class SpringUtilsUnitTests {
 
 		AtomicBoolean operationRan = new AtomicBoolean(false);
 
-		SpringUtils.safeRunOperation(() -> operationRan.set(true));
+		SpringExtensions.safeRunOperation(() -> operationRan.set(true));
 
 		assertThat(operationRan.get()).isTrue();
 	}
@@ -606,7 +606,7 @@ public class SpringUtilsUnitTests {
 	public void safeRunOperationThrowsInvalidDataAccessApiUsageException() {
 
 		try {
-			SpringUtils.safeRunOperation(() -> { throw new Exception("TEST"); });
+			SpringExtensions.safeRunOperation(() -> { throw new Exception("TEST"); });
 		}
 		catch (InvalidDataAccessApiUsageException expected) {
 
@@ -623,7 +623,7 @@ public class SpringUtilsUnitTests {
 	public void safeRunOperationThrowsCustomRuntimeException() {
 
 		try {
-			SpringUtils.safeRunOperation(() -> { throw new Exception("TEST"); },
+			SpringExtensions.safeRunOperation(() -> { throw new Exception("TEST"); },
 				cause -> new IllegalStateException("FOO", cause));
 		}
 		catch (IllegalStateException expected) {

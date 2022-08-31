@@ -69,7 +69,7 @@ import org.springframework.data.gemfire.mapping.annotation.LocalRegion;
 import org.springframework.data.gemfire.mapping.annotation.PartitionRegion;
 import org.springframework.data.gemfire.mapping.annotation.ReplicateRegion;
 import org.springframework.data.gemfire.support.CompositeTypeFilter;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -286,7 +286,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	 */
 	private String[] nullSafeGetPatterns(AnnotationAttributes filterAttributes) {
 
-		return SpringUtils.<String[]>safeGetValue(() ->
+		return SpringExtensions.<String[]>safeGetValue(() ->
 			nullSafeArray(filterAttributes.getStringArray("pattern"), String.class), () -> new String[0]);
 	}
 
@@ -315,17 +315,12 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	 */
 	protected GemfireMappingContext resolveMappingContext() {
 
-		return Optional.ofNullable(this.mappingContext).orElseGet(() -> {
+		if (this.mappingContext == null) {
+			this.mappingContext = SpringExtensions.<GemfireMappingContext>safeGetValue(() ->
+				getBeanFactory().getBean(GemfireMappingContext.class), GemfireMappingContext::new);
+		}
 
-			try {
-				this.mappingContext = getBeanFactory().getBean(GemfireMappingContext.class);
-			}
-			catch (Throwable ignore) {
-				this.mappingContext = new GemfireMappingContext();
-			}
-
-			return this.mappingContext;
-		});
+		return this.mappingContext;
 	}
 
 	/**
@@ -356,8 +351,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 
 		return Optional.ofNullable(this.regionConfigurers)
 			.filter(regionConfigurers -> !regionConfigurers.isEmpty())
-			.orElseGet(() ->
-				Collections.singletonList(LazyResolvingComposableRegionConfigurer.create(getBeanFactory())));
+			.orElseGet(() -> Collections.singletonList(LazyResolvingComposableRegionConfigurer.create(getBeanFactory())));
 	}
 
 	protected BeanDefinitionBuilder setRegionAttributes(BeanDefinitionBuilder regionFactoryBeanBuilder,
@@ -599,7 +593,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 
 		private ClientRegionShortcut clientRegionShortcut;
 
-		private GemfirePersistentEntity<?> persistentEntity;
+		private final GemfirePersistentEntity<?> persistentEntity;
 
 		private RegionShortcut serverRegionShortcut;
 
@@ -643,7 +637,7 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 		protected Class<?> getRegionKeyConstraint() {
 
 			return Optional.ofNullable(resolvePersistentEntity().getIdProperty())
-				.map(idProperty -> ((GemfirePersistentProperty) idProperty).getActualType())
+				.map(GemfirePersistentProperty::getActualType)
 				.orElse((Class) Object.class);
 		}
 

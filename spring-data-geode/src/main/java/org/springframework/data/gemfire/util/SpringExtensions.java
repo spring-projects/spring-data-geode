@@ -66,7 +66,7 @@ import org.springframework.util.StringUtils;
  * @since 1.8.0
  */
 @SuppressWarnings("unused")
-public abstract class SpringUtils {
+public abstract class SpringExtensions {
 
 	/**
 	 * Determines whether all the {@link Object} values in the array are {@literal non-null}
@@ -173,7 +173,7 @@ public abstract class SpringUtils {
 
 		// Handles @Order annotated beans and beans implementing the Ordered interface
 		List<OrderedBeanWrapper<T>> orderedBeansOfType = beansOfType.entrySet().stream()
-				.map(SpringUtils::toOrderedBeanWrapper)
+				.map(SpringExtensions::toOrderedBeanWrapper)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 
@@ -451,11 +451,8 @@ public abstract class SpringUtils {
 	}
 
 	public interface OrderedBeanWrapper<T> extends Ordered {
-
 		T getBean();
-
 		String getBeanName();
-
 	}
 
 	@FunctionalInterface

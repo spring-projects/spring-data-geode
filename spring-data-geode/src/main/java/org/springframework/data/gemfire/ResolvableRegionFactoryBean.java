@@ -19,6 +19,7 @@ import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newR
 
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
@@ -28,6 +29,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.Resource;
 import org.springframework.data.gemfire.support.AbstractFactoryBeanSupport;
+import org.springframework.data.gemfire.util.SpringExtensions;
+import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -154,16 +157,20 @@ public abstract class ResolvableRegionFactoryBean<K, V> extends AbstractFactoryB
 	 * @throws RuntimeException if the snapshot load fails.
 	 * @see org.apache.geode.cache.Region#loadSnapshot(InputStream)
 	 */
-	protected Region<K, V> loadSnapshot(Region<K, V> region) {
+	protected @NonNull Region<K, V> loadSnapshot(@NonNull Region<K, V> region) {
 
-		Optional.ofNullable(this.snapshot).ifPresent(snapshot -> {
-			try {
-				region.loadSnapshot(snapshot.getInputStream());
-			}
-			catch (Exception cause) {
-				throw newRuntimeException(cause, "Failed to load snapshot [%s]", snapshot);
-			}
-		});
+		Resource snapshot = this.snapshot;
+
+		if (snapshot != null) {
+
+			SpringExtensions.VoidReturningThrowableOperation operation =
+				() -> region.loadSnapshot(snapshot.getInputStream());
+
+			Function<Throwable, RuntimeException> exceptionHandler =
+				cause -> newRuntimeException(cause, "Failed to load snapshot [%s]", snapshot);
+
+			SpringExtensions.safeRunOperation(operation, exceptionHandler);
+		}
 
 		return region;
 	}

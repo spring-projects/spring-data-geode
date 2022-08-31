@@ -43,7 +43,7 @@ import org.springframework.data.gemfire.repository.query.QueryString;
 import org.springframework.data.gemfire.repository.query.support.PagingUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.RegionUtils;
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.core.EntityInformation;
@@ -333,7 +333,7 @@ public class SimpleGemfireRepository<T, ID> implements GemfireRepository<T, ID> 
 				doRegionClear(region);
 			}
 			else {
-				SpringUtils.safeDoOperation(() -> region.clear(), () -> doRegionClear(region));
+				SpringExtensions.safeDoOperation(() -> region.clear(), () -> doRegionClear(region));
 			}
 
 			return null;

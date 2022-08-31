@@ -25,7 +25,7 @@ import org.apache.geode.cache.RegionFactory;
 import org.apache.geode.cache.RegionShortcut;
 import org.apache.geode.cache.server.CacheServer;
 
-import org.springframework.data.gemfire.util.SpringUtils;
+import org.springframework.data.gemfire.util.SpringExtensions;
 
 /**
  * @author Costin Leau
@@ -79,7 +79,7 @@ public class CqCacheServerProcess {
 
 	private static Cache registerShutdownHook(Cache gemfireCache) {
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> SpringUtils.safeDoOperation(() -> gemfireCache.close())));
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> SpringExtensions.safeDoOperation(() -> gemfireCache.close())));
 
 		return gemfireCache;
 	}
