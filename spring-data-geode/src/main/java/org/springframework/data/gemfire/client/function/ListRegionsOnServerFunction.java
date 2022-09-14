@@ -16,7 +16,6 @@
  */
 package org.springframework.data.gemfire.client.function;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +34,10 @@ import org.springframework.lang.NonNull;
  *
  * @author David Turanski
  * @author John Blum
- * @see java.io.Serial
  * @see org.apache.geode.cache.execute.Function
  */
 public class ListRegionsOnServerFunction implements Function<Object> {
 
-	@Serial
 	private static final long serialVersionUID = 867530169L;
 
 	public static final String ID = ListRegionsOnServerFunction.class.getName();

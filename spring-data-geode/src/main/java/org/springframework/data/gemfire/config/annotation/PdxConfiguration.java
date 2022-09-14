@@ -265,8 +265,8 @@ public class PdxConfiguration extends AbstractAnnotationConfigSupport implements
 			.map(beanName -> beanFactory.getBean(beanName, PdxSerializer.class))
 			.orElseGet(this::newPdxSerializer);
 
-		if (serializer instanceof MappingPdxSerializer mappingSerializer) {
-			mappingSerializer.setIncludeTypeFilters(buildIncludeTypeFilters());
+		if (serializer instanceof MappingPdxSerializer) {
+			((MappingPdxSerializer) serializer).setIncludeTypeFilters(buildIncludeTypeFilters());
 		}
 
 		return serializer;

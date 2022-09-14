@@ -1000,7 +1000,7 @@ public abstract class AbstractAnnotationConfigSupport
 			.map(BeanDefinition::getBeanClassName)
 			.filter(StringUtils::hasText);
 
-		boolean beanClassNameNotPresent = beanClassName.isEmpty();
+		boolean beanClassNameNotPresent = !beanClassName.isPresent();
 
 		if (beanClassNameNotPresent) {
 			beanClassName = optionalBeanDefinition

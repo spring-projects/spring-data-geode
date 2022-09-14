@@ -136,7 +136,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 		}
 	}
 
-	@ClientCacheApplication(logLevel = "error", subscriptionEnabled = true)
+	@ClientCacheApplication(subscriptionEnabled = true)
 	static class GeodeClientConfiguration {
 
 		@Bean
@@ -163,7 +163,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 
 		private CacheListener<Long, TemperatureReading> temperatureReadingCounterListener() {
 
-			return new CacheListenerAdapter<>() {
+			return new CacheListenerAdapter<Long, TemperatureReading>() {
 
 				@Override
 				public void afterCreate(EntryEvent<Long, TemperatureReading> event) {
@@ -198,7 +198,7 @@ public class EnableContinuousQueriesConfigurationIntegrationTests extends Forkin
 
 		private CacheLoader<Long, TemperatureReading> temperatureReadingsLoader() {
 
-			return new CacheLoader<>() {
+			return new CacheLoader<Long, TemperatureReading>() {
 
 				@Override
 				public TemperatureReading load(LoaderHelper<Long, TemperatureReading> helper) throws CacheLoaderException {
