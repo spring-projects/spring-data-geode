@@ -16,8 +16,8 @@
  */
 package org.springframework.data.gemfire.repository.cdi;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Produces;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
@@ -30,12 +30,12 @@ import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.util.Assert;
 
 /**
- * The {@link GemfireCacheRegionProducer} class is an application scoped CDI context bean that is responsible
- * for creating the {@link GemFireCache} {@literal People} {@link Region} used to store {@link Person} instances.
+ * The {@link GemfireCacheRegionProducer} class is an application scoped CDI context bean that is responsible for
+ * creating the {@link GemFireCache} {@literal People} {@link Region} used to store {@link Person} instances.
  *
  * @author John Blum
- * @see jakarta.enterprise.context.ApplicationScoped
- * @see jakarta.enterprise.inject.Produces
+ * @see javax.enterprise.context.ApplicationScoped
+ * @see javax.enterprise.inject.Produces
  * @see org.apache.geode.cache.Cache
  * @see org.apache.geode.cache.CacheFactory
  * @see org.apache.geode.cache.GemFireCache
@@ -62,9 +62,8 @@ public class GemfireCacheRegionProducer {
 
 		Region<Long, Person> peopleRegion = peopleRegionFactory.create("People");
 
-		Assert.notNull(peopleRegion);
+		Assert.notNull(peopleRegion, "People Region was null");
 
 		return peopleRegion;
 	}
-
 }

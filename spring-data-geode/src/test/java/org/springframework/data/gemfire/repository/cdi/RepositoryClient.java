@@ -18,7 +18,7 @@ package org.springframework.data.gemfire.repository.cdi;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.util.Assert;
@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
  * {@link RepositoryClient} is a user/consumer of the {@link SamplePersonRepository} bean in a CDI context.
  *
  * @author John Blum
- * @see jakarta.inject.Inject
+ * @see javax.inject.Inject
  * @see org.springframework.data.gemfire.repository.cdi.SamplePersonRepository
  * @since 1.8.0
  */
@@ -36,6 +36,7 @@ public class RepositoryClient {
 	private static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
 
 	@Inject
+	@SuppressWarnings("all")
 	private SamplePersonRepository personRepository;
 
 	protected SamplePersonRepository getPersonRepository() {

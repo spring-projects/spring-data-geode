@@ -31,11 +31,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.ProcessBean;
-import jakarta.inject.Qualifier;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.ProcessBean;
+import javax.inject.Qualifier;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,8 +50,8 @@ import org.springframework.data.gemfire.repository.GemfireRepository;
  * Integration Tests for the {@link GemfireRepositoryExtension} class and functionality in a Java EE CDI context.
  *
  * @author John Blum
- * @see jakarta.enterprise.inject.spi.Bean
- * @see jakarta.enterprise.inject.spi.BeanManager
+ * @see javax.enterprise.inject.spi.Bean
+ * @see javax.enterprise.inject.spi.BeanManager
  * @see org.junit.Test
  * @see org.mockito.Mockito
  * @see org.apache.geode.cache.Region

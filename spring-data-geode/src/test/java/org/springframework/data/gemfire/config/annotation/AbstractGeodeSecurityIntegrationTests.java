@@ -28,7 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -249,7 +249,7 @@ public abstract class AbstractGeodeSecurityIntegrationTests extends ForkingClien
 
 		CacheLoader<String, String> echoCacheLoader() {
 
-			return new CacheLoader<>() {
+			return new CacheLoader<String, String>() {
 
 				@Override
 				public String load(LoaderHelper<String, String> helper) throws CacheLoaderException {

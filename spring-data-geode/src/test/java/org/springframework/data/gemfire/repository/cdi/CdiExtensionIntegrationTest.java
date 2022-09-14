@@ -18,8 +18,8 @@ package org.springframework.data.gemfire.repository.cdi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import jakarta.enterprise.inject.se.SeContainer;
-import jakarta.enterprise.inject.se.SeContainerInitializer;
+import javax.enterprise.inject.se.SeContainer;
+import javax.enterprise.inject.se.SeContainerInitializer;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -47,10 +47,10 @@ public class CdiExtensionIntegrationTest {
 	@BeforeClass
 	public static void setUp() {
 
-		container = SeContainerInitializer.newInstance() //
-				.disableDiscovery() //
-				.addPackages(RepositoryClient.class) //
-				.initialize();
+		container = SeContainerInitializer.newInstance()
+			.disableDiscovery()
+			.addPackages(RepositoryClient.class)
+			.initialize();
 	}
 
 	@AfterClass

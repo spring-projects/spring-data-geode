@@ -24,11 +24,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.ProcessBean;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.ProcessBean;
 
 import org.apache.geode.cache.Region;
 
@@ -65,8 +65,8 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 	 *
 	 * @param <X> class type of the bean instance.
 	 * @param processBean annotated type as defined by CDI.
-	 * @see jakarta.enterprise.inject.spi.ProcessBean
-	 * @see jakarta.enterprise.event.Observes
+	 * @see javax.enterprise.inject.spi.ProcessBean
+	 * @see javax.enterprise.event.Observes
 	 */
 	@SuppressWarnings("unchecked")
 	<X> void processBean(@Observes ProcessBean<X> processBean) {
@@ -105,9 +105,9 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 	 * Repository beans are associated to the appropriate GemfireMappingContexts based on their qualifiers.
 	 *
 	 * @param beanManager the BeanManager instance.
-	 * @see jakarta.enterprise.inject.spi.AfterBeanDiscovery
-	 * @see jakarta.enterprise.inject.spi.BeanManager
-	 * @see jakarta.enterprise.event.Observes
+	 * @see javax.enterprise.inject.spi.AfterBeanDiscovery
+	 * @see javax.enterprise.inject.spi.BeanManager
+	 * @see javax.enterprise.event.Observes
 	 */
 	void afterBeanDiscovery(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
