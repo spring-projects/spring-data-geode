@@ -49,7 +49,7 @@
 		<log4j.version>2.18.0</log4j.version>
 		<multithreadedtc.version>1.01</multithreadedtc.version>
 		<snappy.version>0.4</snappy.version>
-		<springdata.commons>3.0.0-SNAPSHOT</springdata.commons>
+		<springdata.commons>2.7.3-SNAPSHOT</springdata.commons>
 		<spring-shell.version>1.2.0.RELEASE</spring-shell.version>
 	</properties>
 
