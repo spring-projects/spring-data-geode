@@ -66,7 +66,14 @@ public class CdiExtensionIntegrationTest {
 		catch (CacheClosedException ignore) {}
 	}
 
-	protected void assertIsExpectedPerson(Person actual, Person expected) {
+	private void assertPerson(Person person, Long id, String name) {
+
+		assertThat(person).isNotNull();
+		assertThat(person.getId()).isGreaterThan(id);
+		assertThat(person.getName()).isEqualTo(name);
+	}
+
+	private void assertPerson(Person actual, Person expected) {
 
 		assertThat(actual.getId()).isEqualTo(expected.getId());
 		assertThat(actual.getFirstname()).isEqualTo(expected.getFirstname());
@@ -78,24 +85,23 @@ public class CdiExtensionIntegrationTest {
 
 		RepositoryClient repositoryClient = container.select(RepositoryClient.class).get();
 
+		assertThat(repositoryClient).isNotNull();
 		assertThat(repositoryClient.getPersonRepository()).isNotNull();
 
 		Person expectedJonDoe = repositoryClient.newPerson("Jon", "Doe");
 
-		assertThat(expectedJonDoe).isNotNull();
-		assertThat(expectedJonDoe.getId()).isGreaterThan(0L);
-		assertThat(expectedJonDoe.getName()).isEqualTo("Jon Doe");
+		assertPerson(expectedJonDoe, 0L, "Jon Doe");
 
 		Person savedJonDoe = repositoryClient.save(expectedJonDoe);
 
-		assertIsExpectedPerson(savedJonDoe, expectedJonDoe);
+		assertPerson(savedJonDoe, expectedJonDoe);
 
-		Person foundJonDoe = repositoryClient.find(expectedJonDoe.getId());
+		Person queriedJonDoe = repositoryClient.find(expectedJonDoe.getId());
 
-		assertIsExpectedPerson(foundJonDoe, expectedJonDoe);
+		assertPerson(queriedJonDoe, expectedJonDoe);
 
-		assertThat(repositoryClient.delete(foundJonDoe)).isTrue();
-		assertThat(repositoryClient.find(foundJonDoe.getId())).isNull();
+		assertThat(repositoryClient.delete(queriedJonDoe)).isTrue();
+		assertThat(repositoryClient.find(queriedJonDoe.getId())).isNull();
 	}
 
 	@Test // DATAGEODE-42

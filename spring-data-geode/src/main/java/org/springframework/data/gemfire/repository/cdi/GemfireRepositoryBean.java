@@ -16,6 +16,8 @@
  */
 package org.springframework.data.gemfire.repository.cdi;
 
+import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalStateException;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -30,21 +32,25 @@ import javax.enterprise.inject.spi.BeanManager;
 import org.apache.geode.cache.Region;
 
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
+import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.data.gemfire.repository.support.GemfireRepositoryFactory;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.cdi.CdiRepositoryBean;
 import org.springframework.data.repository.config.CustomRepositoryImplementationDetector;
 
 /**
- * A CDI-based bean that represents a GemFire Repository.
+ * A CDI-based bean that represents an Apache Geode {@link Repository}.
  *
  * @author John Blum
  * @author Mark Paluch
- * @param <T> class type of the Repository.
+ * @param <T> {@link Class type} of the {@link Repository}.
  * @see javax.enterprise.context.spi.CreationalContext
  * @see javax.enterprise.inject.spi.Bean
  * @see javax.enterprise.inject.spi.BeanManager
  * @see org.springframework.data.gemfire.mapping.GemfireMappingContext
+ * @see org.springframework.data.gemfire.repository.GemfireRepository
  * @see org.springframework.data.gemfire.repository.support.GemfireRepositoryFactory
+ * @see org.springframework.data.repository.Repository
  * @see org.springframework.data.repository.cdi.CdiRepositoryBean
  * @see org.springframework.data.repository.config.CustomRepositoryImplementationDetector
  * @see org.apache.geode.cache.Region
@@ -110,9 +116,8 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 			}
 		}
 
-		throw new IllegalStateException(String.format(
-			"unable to resolve bean instance of type [%1$s] from bean definition [%2$s]",
-				targetType, bean));
+		throw newIllegalStateException("unable to resolve bean instance of type [%1$s] from bean definition [%2$s]",
+			targetType, bean);
 	}
 
 	Iterable<Region<?, ?>> resolveGemfireRegions() {
@@ -127,9 +132,10 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 	}
 
 	GemfireMappingContext resolveGemfireMappingContext() {
-		return (gemfireMappingContextBean != null
-			? getDependencyInstance(gemfireMappingContextBean, GemfireMappingContext.class)
-				: DEFAULT_GEMFIRE_MAPPING_CONTEXT);
+
+		return this.gemfireMappingContextBean != null
+			? getDependencyInstance(this.gemfireMappingContextBean, GemfireMappingContext.class)
+			: DEFAULT_GEMFIRE_MAPPING_CONTEXT;
 	}
 
 	GemfireRepositoryFactory newGemfireRepositoryFactory() {
@@ -137,11 +143,12 @@ class GemfireRepositoryBean<T> extends CdiRepositoryBean<T> {
 	}
 
 	/**
-	 * Creates an instance of the given Repository type as a bean instance in the CDI container.
+	 * Creates an instance of the given {@link Repository} {@link Class type} as a bean instance in the CDI container.
 	 *
 	 * @param creationalContext operations used by the {@link javax.enterprise.context.spi.Contextual} implementation
 	 * during creation of the bean instance.
-	 * @param repositoryType the actual class type of the SD (GemFire) Repository.
+	 * @param repositoryType the actual {@link Class type} of the Spring Data {@link Repository};
+	 * for example {@link GemfireRepository}.
 	 * @see javax.enterprise.context.spi.Contextual#create(javax.enterprise.context.spi.CreationalContext)
 	 * @see #newGemfireRepositoryFactory()
 	 */

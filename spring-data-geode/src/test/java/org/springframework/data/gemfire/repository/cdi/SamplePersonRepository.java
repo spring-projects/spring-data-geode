@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
 import org.springframework.data.gemfire.mapping.annotation.Region;
@@ -22,8 +21,8 @@ import org.springframework.data.gemfire.repository.GemfireRepository;
 import org.springframework.data.gemfire.repository.sample.Person;
 
 /**
- * The SamplePersonRepository class is a {@link GemfireRepository} implementation for performing data access (CRUD)
- * operations on instances of {@link Person}.
+ * {@link GemfireRepository} implementation used to perform basic data access operations (CRUD)
+ * and simple {@literal OQL queries} on instances of {@link Person}.
  *
  * @author John Blum
  * @see org.springframework.data.gemfire.repository.GemfireRepository

@@ -14,12 +14,11 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
 /**
- * The SamplePersonRepositoryImpl class is an implementation of the {@link CustomPersonRepository} extension interface
- * supporting additional data access (CRUD) operations on people.
+ * Implementation of the {@link CustomPersonRepository} extension interface supporting additional data access operations
+ * (CRUD) on people.
  *
  * @author John Blum
  * @author Mark Paluch
@@ -31,5 +30,4 @@ public class CustomPersonRepositoryImpl implements CustomPersonRepository {
 	public int returnOne() {
 		return 1;
 	}
-
 }

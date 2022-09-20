@@ -35,13 +35,13 @@ public class RepositoryClient {
 
 	private static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
 
-	@Inject
 	@SuppressWarnings("all")
+	@Inject
 	private SamplePersonRepository personRepository;
 
 	protected SamplePersonRepository getPersonRepository() {
-		Assert.state(personRepository != null, "PersonRepository was not properly initialized");
-		return personRepository;
+		Assert.state(this.personRepository != null, "PersonRepository was not properly initialized");
+		return this.personRepository;
 	}
 
 	public Person newPerson(String firstName, String lastName) {
@@ -58,6 +58,6 @@ public class RepositoryClient {
 
 	public boolean delete(Person person) {
 		getPersonRepository().delete(person);
-		return (find(person.getId()) == null);
+		return find(person.getId()) == null;
 	}
 }

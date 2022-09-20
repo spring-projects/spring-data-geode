@@ -33,6 +33,8 @@ import javax.enterprise.inject.spi.ProcessBean;
 import org.apache.geode.cache.Region;
 
 import org.springframework.data.gemfire.mapping.GemfireMappingContext;
+import org.springframework.data.gemfire.repository.GemfireRepository;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.cdi.CdiRepositoryBean;
 import org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport;
 
@@ -40,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The GemfireRepositoryExtension class...
+ * {@link CdiRepositoryExtensionSupport} to process declared Apache Geode {@link GemfireRepository} beans.
  *
  * @author John Blum
  * @see org.springframework.data.repository.cdi.CdiRepositoryExtensionSupport
@@ -60,8 +62,9 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 	}
 
 	/**
-	 * Implementation of an observer that captures GemFire Region beans defined in the CDI container, storing them
-	 * along with any defined GemfireMappingContexts for later construction of the Repository beans.
+	 * Implementation of an {@literal Observer} that captures Apache Geode {@link Region} beans defined in
+	 * the CDI container, storing them along with any defined {@link GemfireMappingContext} for later construction
+	 * of the {@link GemfireRepository} beans.
 	 *
 	 * @param <X> class type of the bean instance.
 	 * @param processBean annotated type as defined by CDI.
@@ -75,7 +78,9 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 
 		for (Type type : bean.getTypes()) {
 
-			Type resolvedType = type instanceof ParameterizedType ? ((ParameterizedType) type).getRawType() : type;
+			Type resolvedType = type instanceof ParameterizedType
+				? ((ParameterizedType) type).getRawType()
+				: type;
 
 			if (resolvedType instanceof Class<?>) {
 
@@ -99,12 +104,13 @@ public class GemfireRepositoryExtension extends CdiRepositoryExtensionSupport {
 	}
 
 	/**
-	 * Implementation of an observer that registers beans in the CDI container for the detected Spring Data
-	 * Repositories.
+	 * Implementation of an {@literal Observer} that registers beans in the CDI container for the detected Spring Data
+	 * {@link Repository Repositories}.
 	 *
-	 * Repository beans are associated to the appropriate GemfireMappingContexts based on their qualifiers.
+	 * {@link Repository} beans are associated to the appropriate {@link GemfireMappingContext}
+	 * based on their qualifiers.
 	 *
-	 * @param beanManager the BeanManager instance.
+	 * @param beanManager reference to the {@link BeanManager} instance.
 	 * @see javax.enterprise.inject.spi.AfterBeanDiscovery
 	 * @see javax.enterprise.inject.spi.BeanManager
 	 * @see javax.enterprise.event.Observes

@@ -14,12 +14,12 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.repository.cdi;
 
+import org.springframework.data.repository.Repository;
+
 /**
- * The CustomPersonRepository interface is an Spring Data Repository extension type specifying additional, "custom"
- * data access operations on people.
+ * Spring Data {@link Repository} extension type specifying additional, "custom" data access operations (CRUD) on people.
  *
  * @author John Blum
  * @since 1.8.0
