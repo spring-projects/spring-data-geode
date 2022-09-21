@@ -1,0 +1,106 @@
+plugins {
+	id "io.freefair.lombok" version "6.5.0.3"
+}
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'io.spring.convention.docs'
+apply plugin: 'io.spring.convention.spring-test'
+
+description = "Generate Javadoc and Reference Documentation on Spring Data for Apache Geode"
+
+repositories {
+	maven { url "https://repo.spring.io/release" }
+}
+
+dependencies {
+
+}
+
+def versions = dependencyManagement.managedVersions
+
+asciidoctor {
+	clearSources()
+	sources {
+		include "index.adoc"
+		include "guides/*.adoc"
+	}
+}
+
+asciidoctorj {
+
+	def javaVersion = JavaVersion.current()
+	def apacheGeodeDocVersion = resolveApacheGeodeDocVersion("${apacheGeodeVersion}")
+	def githubBaseUrl = "https://github.com/spring-projects/spring-data-geode"
+	def githubTag = snapshotBuild ? 'main' : project.version
+	def githubUrl = "$githubBaseUrl/tree/$githubTag"
+
+	attributes 'version' : project.version,
+	    'version-snapshot': snapshotBuild,
+		'version-milestone': milestoneBuild,
+		'version-release': releaseBuild,
+		'download-url' : "${githubBaseUrl}/archive/${githubTag}.zip",
+		'github-url': githubUrl,
+		'highlightjsdir@': "js/highlight",
+		'docinfodir@': ".",
+		'java-version' : "$javaVersion",
+		'apache-geode-artifact-version' : "${apacheGeodeVersion}",
+		'apache-geode-doc-version' : apacheGeodeDocVersion,
+		'apache-geode-src' : "https://github.com/apache/geode/blob/rel/v${apacheGeodeVersion}",
+		'spring-version' : versions['org.springframework:spring-core'],
+		'spring-data-commons-version' : "${springDataCommonsVersion}",
+		'spring-data-geode-version' : "$version",
+		'spring-test-data-geode-version' : "${springDataGeodeTestVersion}",
+		'docs-dir' : rootProject.projectDir.path + '/spring-data-geode-docs',
+		'docs-src-dir' : rootProject.projectDir.path + '/spring-data-geode-docs/src/main/java',
+		'docs-resources-dir' : rootProject.projectDir.path + '/spring-data-geode-docs/src/main/resources'
+}
+
+asciidoctorPdf {
+	clearSources()
+	sources {
+		include "index.adoc"
+//		include "guides/*.adoc"
+	}
+}
+
+javadoc {
+	configure(options) {
+		links = [
+			"https://docs.spring.io/spring/docs/current/javadoc-api/",
+			"https://docs.spring.io/spring-boot/docs/current/api/",
+			"https://docs.spring.io/spring-boot-data-geode/docs/${project.version}/api/",
+			"https://docs.spring.io/spring-data/commons/docs/current/api/",
+			"https://docs.spring.io/spring-data/geode/docs/current/api/",
+			"https://geode.apache.org/releases/latest/javadoc/",
+		]
+	}
+}
+
+processResources {
+	eachFile { file ->
+		if (!file.name.endsWith(".jks")) {
+			file.filter ReplaceTokens, tokens: [
+				'project-dir' : rootProject.projectDir.path,
+				'project-version' : project.version,
+				'docs-dir' : rootProject.projectDir.path + '/spring-data-geode-docs'
+			]
+		}
+	}
+}
+
+String resolveApacheGeodeDocVersion(String apacheGeodeVersion) {
+
+	def apacheGeodeDocVersion = ''
+	def index = apacheGeodeVersion.lastIndexOf(".")
+
+	apacheGeodeVersion = index > -1 ? apacheGeodeVersion.substring(0, index) : apacheGeodeVersion
+
+	for (char character : apacheGeodeVersion.toCharArray()) {
+		if (Character.isDigit(character)) {
+			apacheGeodeDocVersion += character
+		}
+	}
+
+	return apacheGeodeDocVersion
+}

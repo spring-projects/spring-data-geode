@@ -1,0 +1,69 @@
+plugins {
+	id "io.freefair.lombok" version "6.5.0.3"
+}
+
+apply plugin: 'io.spring.convention.spring-module'
+
+description = "Spring Data for Apache Geode"
+
+dependencies {
+
+	// Apache Geode dependencies
+	api("org.apache.geode:geode-core") {
+		exclude group: "org.apache.logging.log4j", module: "log4j-jcl"
+		exclude group: "org.apache.logging.log4j", module: "log4j-jul"
+		exclude group: "org.apache.logging.log4j", module: "log4j-slf4j-impl"
+	}
+
+	api "org.apache.geode:geode-cq"
+	api "org.apache.geode:geode-lucence"
+	api "org.apache.geode:geode-wan"
+
+	provided "org.apache.geode:geode-gfsh"
+
+	// Java & Javax
+	optional "javax.cache:cache-api"
+
+	// Spring Framework (core) dependencies
+	api "org.springframework:spring-context-support"
+	api "org.springframework:spring-tx"
+	api "org.springframework:spring-web"
+
+	// Spring Data Commons dependencies
+	api "org.springframework.data:spring-data-commons"
+
+	// Spring Data for Apache Geode & VMware Tanzu (Pivotal) GemFire shared dependencies
+	runtimeOnly "antlr:antlr"
+	implementation "org.apache.shiro:shiro-spring"
+	implementation "org.aspectj:aspectjweaver"
+	implementation "com.fasterxml.jackson.core:jackson-annotations"
+	implementation "com.fasterxml.jackson.core:jackson-databind"
+
+	compileOnly "com.google.code.findbugs:jsr305"
+
+	// Test CDI dependencies (dependency declaration order matters)
+	testImplementation "org.apache.geronimo.specs:geronimo-jcdi_2.0_spec:1.0.1"
+	testImplementation "javax.interceptor:javax.interceptor-api:1.2.1"
+	testImplementation "javax.el:el-api:2.2"
+	testImplementation "javax.enterprise:cdi-api:1.0"
+	testImplementation "javax.annotation:javax.annotation-api:1.3.2"
+	testImplementation "org.apache.openwebbeans:openwebbeans-se:2.0.27"
+
+	// Unit & Integration Test dependencies
+	testImplementation "junit:junit"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "edu.umd.cs.mtc:multithreadedtc"
+	testImplementation "org.springframework.data:spring-data-geode-test"
+	testImplementation "org.testcontainers:testcontainers"
+
+	testRuntimeOnly("org.apache.derby:derbyLocale_zh_TW:10.9.1.0") {
+		exclude group: "org.springframework.data", module: "spring-data-geode"
+	}
+
+	testRuntimeOnly "ch.qos.logback:logback-classic"
+	testRuntimeOnly "org.apache.logging.log4j:log4j-to-slf4j"
+	testRuntimeOnly "org.iq80.snappy:snappy"
+	testRuntimeOnly "org.springframeork.shell:spring-shell"
+
+}

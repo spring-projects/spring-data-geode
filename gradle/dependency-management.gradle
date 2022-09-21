@@ -1,0 +1,59 @@
+// Build-time dependency versions
+ext['assertjVersion'] = "3.23.1"
+ext['findbugsVersion'] = "3.0.2"
+ext['junitVersion'] = "4.13.2"
+ext['junitBomVersion'] = "5.9.1"
+ext['lombokVersion'] = "1.18.24"
+ext['mockitoBomVersion'] = "4.8.0"
+ext['multithreadedtcVersion'] = "1.01"
+ext['testcontainersVersion'] = "1.17.3"
+
+dependencyManagement {
+	imports {
+
+		// Declared and managed JUnit Platform BOM version
+		mavenBom "org.junit:junit-bom:$junitBomVersion"
+
+		// Declared and managed Mockito BOM version
+		mavenBom "org.mockito:mockito-bom:$mockitoBomVersion"
+
+		// Declared and managed Spring Framework BOM version
+		mavenBom "org.springframework:spring-framework-bom:$springVersion"
+
+		// Declared and managed Spring Data BOM version
+		mavenBom "org.springframework.data:spring-data-bom:$springDataBomVersion"
+
+		// Declared and managed Spring Data Build Parent version
+		//mavenBom "org.springframework.data.build:spring-data-parent:$springDataBuildParentVersion"
+
+		mavenBom "com.fasterxml.jackson:jackson-bom:$jacksonVersion"
+
+		// Declared and managed Micrometer (BOM) version based on Apache Geode 1.14.3's declared, required Micrometer
+		// version (1.6.3). Spring Boot 3.0 declares and depends on Micrometer 2.0.
+		//mavenBom "io.micrometer:micrometer-bom:$micrometerVersion"
+
+		// Declared and managed Testcontainers libraries version.
+		mavenBom "org.testcontainers:testcontainers-bom:$testcontainersVersion"
+
+	}
+	dependencies {
+		dependency "antlr:antlr:$antlrVersion"
+		dependency "ch.qos.logback:logback-classic:$logbackVersion"
+		dependency "com.google.code.findbugs:jsr305:$findbugsVersion"
+		dependency "edu.umd.cs.mtc:multithreadedtc:$multithreadedtcVersion"
+		dependency "org.iq80.snappy:snappy:$snappyVersion"
+		dependency "junit:junit:$junitVersion"
+		dependency "org.apache.geode:geode-core:$apacheGeodeVersion"
+		dependency "org.apache.geode:geode-cq:$apacheGeodeVersion"
+		dependency "org.apache.geode:geode-lucene:$apacheGeodeVersion"
+		dependency "org.apache.geode:geode-wan:$apacheGeodeVersion"
+		dependency "org.apache.logging.log4j:log4j-bom:$apacheLog4jBomVersion"
+		dependency "org.apache.shiro:shiro-spring:$apacheShiroVersion"
+		dependency "org.aspectj:aspectjweaver:$aspectjVersion"
+		dependency "org.assertj:assertj-core:$assertjVersion"
+		dependency "org.projectlombok:lombok:$lombokVersion"
+		dependency "org.springframework.data:spring-data-commons:$springDataCommonsVersion"
+		dependency "org.springframework.data:spring-data-geode-test:$springDataGeodeTestVersion"
+		dependency "org.springframework.shell:spring-shell:$springShellVersion"
+	}
+}
