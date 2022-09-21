@@ -8,7 +8,7 @@
 			targetNamespace="http://www.springframework.org/schema/data/geode"
 			elementFormDefault="qualified"
 			attributeFormDefault="unqualified"
-			version="3.0">
+			version="2.8">
 
 	<xsd:import namespace="http://www.springframework.org/schema/context"
 				schemaLocation="https://www.springframework.org/schema/context/spring-context.xsd" />
