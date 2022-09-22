@@ -37,6 +37,7 @@ dependencyManagement {
 
 	}
 	dependencies {
+		dependency "javax.cache:cache-api:$cacheApiVersion"
 		dependency "antlr:antlr:$antlrVersion"
 		dependency "ch.qos.logback:logback-classic:$logbackVersion"
 		dependency "com.google.code.findbugs:jsr305:$findbugsVersion"
