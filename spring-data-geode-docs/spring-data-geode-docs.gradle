@@ -23,7 +23,9 @@ asciidoctor {
 	clearSources()
 	sources {
 		include "index.adoc"
-		include "guides/*.adoc"
+		include "appendix/*.adoc"
+		include "introduction/*.adoc"
+		include "reference/*.adoc"
 	}
 }
 

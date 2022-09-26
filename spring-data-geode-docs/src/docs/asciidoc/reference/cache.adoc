@@ -61,12 +61,12 @@ or load properties from a properties file, as follows:
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:gfe="{spring-data-schema-namespace}"
+       xmlns:gfe="{spring-geode-schema-namespace}"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location}
+    {spring-geode-schema-namespace} {spring-geode-schema-location}
     http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
 ">
 
@@ -254,12 +254,12 @@ allowing complete configuration through the Spring container, as the following e
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:gfe="{spring-data-schema-namespace}"
+       xmlns:gfe="{spring-geode-schema-namespace}"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location}
+    {spring-geode-schema-namespace} {spring-geode-schema-location}
 ">
 
   <gfe:cache/>

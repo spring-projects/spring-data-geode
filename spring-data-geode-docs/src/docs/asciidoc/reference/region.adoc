@@ -607,11 +607,11 @@ metadata as follows:
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:gfe="{spring-data-schema-namespace}"
+       xmlns:gfe="{spring-geode-schema-namespace}"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location}
+    {spring-geode-schema-namespace} {spring-geode-schema-location}
 ">
 
   <gfe:cache cache-xml-location="classpath:cache.xml"/>

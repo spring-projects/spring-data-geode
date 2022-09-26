@@ -1,38 +1,33 @@
 = Spring Data for {data-store-name} Reference Guide
-Costin Leau; David Turanski; John Blum; Oliver Gierke; Jay Bryant
+Costin Leau; David Turanski; John Blum; Oliver Drotbohm; Jay Bryant
 :revdate: {localdate}
 :revnumber: {version}
 :toclevels: 2
-:apache-geode-version: 19
-:apache-geode-docs: https://geode.apache.org/docs/guide/{apache-geode-version}
+:apache-geode-version: 115
+:apache-geode-docs: https://geode.apache.org/docs/guide/{apache-geode-version}/about_geode.html
 :apache-geode-javadoc: https://geode.apache.org/releases/latest/javadoc
 :apache-geode-website: https://geode.apache.org
 :apache-geode-wiki: https://cwiki.apache.org/confluence/display/GEODE
-:data-store-name-symbolic: geode
 :data-store-name-simple: Geode
+:data-store-name-symbolic: geode
 :data-store-name: Apache {data-store-name-simple}
-:data-store-version: 1.9.0
-:pivotal-gemfire-version: 98
-:pivotal-gemfire-docs: https://gemfire.docs.pivotal.io/{pivotal-gemfire-version}
-:pivotal-gemfire-javadoc: https://gemfire-{pivotal-gemfire-version}-javadocs.docs.pivotal.io/
-:pivotal-gemfire-website: https://pivotal.io/pivotal-gemfire
-:pivotal-gemfire-wiki: https://cwiki.apache.org/confluence/display/GEODE
+:data-store-version: 1.15.0
 :sdg-acronym: SDG
 :sdg-javadoc: https://docs.spring.io/spring-data/{data-store-name-symbolic}/docs/current/api
 :sdg-name: Spring Data for {data-store-name}
-:sdg-website: https://projects.spring.io/spring-data-gemfire
-:spring-data-access-schema-location: https://www.springframework.org/schema/data/geode/spring-data-geode.xsd
-:spring-data-access-schema-namespace: https://www.springframework.org/schema/data/geode
-:spring-data-commons-docs: https://docs.spring.io/spring-data/commons/docs/current/reference
-:spring-data-commons-include: ../../../../spring-data-commons/src/main/asciidoc
-:spring-data-commons-docs-html: {spring-data-commons-docs}/html
-:spring-data-commons-javadoc: https://docs.spring.io/spring-data/commons/docs/current/api
-:spring-data-schema-location: https://www.springframework.org/schema/geode/spring-geode.xsd
-:spring-data-schema-namespace: https://www.springframework.org/schema/geode
+:sdg-website: https://projects.spring.io/spring-data-geode
 :spring-data-website: https://spring.io/projects/spring-data
+:spring-data-commons-docs: https://docs.spring.io/spring-data/commons/docs/current/reference
+:spring-data-commons-docs-html: {spring-data-commons-docs}/html
+:spring-data-commons-include: ../../../../spring-data-commons/src/main/asciidoc
+:spring-data-commons-javadoc: https://docs.spring.io/spring-data/commons/docs/current/api
+:spring-data-geode-schema-location: https://www.springframework.org/schema/data/geode/spring-data-geode.xsd
+:spring-data-geode-schema-namespace: https://www.springframework.org/schema/data/geode
 :spring-framework-docs: https://docs.spring.io/spring/docs/current/spring-framework-reference
 :spring-framework-javadoc: https://docs.spring.io/spring/docs/current/javadoc-api
 :spring-framework-website: https://spring.io/projects/spring-framework
+:spring-geode-schema-location: https://www.springframework.org/schema/geode/spring-geode.xsd
+:spring-geode-schema-namespace: https://www.springframework.org/schema/geode
 :x-data-store-docs: {apache-geode-docs}
 :x-data-store-javadoc: {apache-geode-javadoc}
 :x-data-store-website: {apache-geode-website}
@@ -46,26 +41,26 @@ charge any fee for such copies and further provided that each copy contains this
 whether distributed in print or electronically.
 
 [[preface]]
-include::{basedocdir}/preface.adoc[]
+include::preface.adoc[]
 
-include::{basedocdir}/introduction/introduction.adoc[leveloffset=+1]
-include::{basedocdir}/introduction/requirements.adoc[leveloffset=+1]
-include::{basedocdir}/introduction/new-features.adoc[leveloffset=+1]
+include::introduction/introduction.adoc[leveloffset=+1]
+include::introduction/requirements.adoc[leveloffset=+1]
+include::introduction/new-features.adoc[leveloffset=+1]
 
 [[reference]]
 = Reference Guide
 
-include::{basedocdir}/reference/introduction.adoc[leveloffset=+1]
-include::{basedocdir}/reference/bootstrap.adoc[leveloffset=+1]
-include::{basedocdir}/reference/bootstrap-annotations.adoc[leveloffset=+1]
-include::{basedocdir}/reference/data.adoc[leveloffset=+1]
-include::{basedocdir}/reference/serialization.adoc[leveloffset=+1]
-include::{basedocdir}/reference/mapping.adoc[leveloffset=+1]
-include::{basedocdir}/reference/repositories.adoc[leveloffset=+1]
-include::{basedocdir}/reference/function-annotations.adoc[leveloffset=+1]
-include::{basedocdir}/reference/lucene.adoc[leveloffset=+1]
-include::{basedocdir}/reference/gemfire-bootstrap.adoc[leveloffset=+1]
-include::{basedocdir}/reference/samples.adoc[leveloffset=+1]
+include::reference/introduction.adoc[leveloffset=+1]
+include::reference/bootstrap.adoc[leveloffset=+1]
+include::reference/bootstrap-annotations.adoc[leveloffset=+1]
+include::reference/data.adoc[leveloffset=+1]
+include::reference/serialization.adoc[leveloffset=+1]
+include::reference/mapping.adoc[leveloffset=+1]
+include::reference/repositories.adoc[leveloffset=+1]
+include::reference/function-annotations.adoc[leveloffset=+1]
+include::reference/lucene.adoc[leveloffset=+1]
+include::reference/gemfire-bootstrap.adoc[leveloffset=+1]
+include::reference/samples.adoc[leveloffset=+1]
 
 [[resources]]
 = Resources
@@ -74,7 +69,7 @@ In addition to this reference documentation, there are a number of other resourc
 how to use {data-store-product-name} with the _Spring Framework_. These additional, third-party resources
 are enumerated in this section.
 
-include::{basedocdir}/links.adoc[leveloffset=+1]
+include::links.adoc[leveloffset=+1]
 
 [[appendices]]
 = Appendices
@@ -84,4 +79,4 @@ include::{spring-data-commons-include}/repository-namespace-reference.adoc[level
 include::{spring-data-commons-include}/repository-populator-namespace-reference.adoc[leveloffset=+1]
 include::{spring-data-commons-include}/repository-query-keywords-reference.adoc[leveloffset=+1]
 include::{spring-data-commons-include}/repository-query-return-types-reference.adoc[leveloffset=+1]
-include::{basedocdir}/appendix/appendix-schema.adoc[leveloffset=+1]
+include::appendix/appendix-schema.adoc[leveloffset=+1]

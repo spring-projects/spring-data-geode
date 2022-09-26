@@ -418,7 +418,7 @@ See the *note* above for more details.
 
 :leveloffset: +1
 
-include::{basedocdir}/reference/cq-container.adoc[]
+include::reference/cq-container.adoc[]
 
 :leveloffset: -1
 
@@ -632,13 +632,13 @@ simply add `GemfireCacheManager` to your configuration:
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:gfe="{spring-data-schema-namespace}"
+       xmlns:gfe="{spring-geode-schema-namespace}"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/cache https://www.springframework.org/schema/cache/spring-cache.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location}
+    {spring-geode-schema-namespace} {spring-geode-schema-location}
 ">
 
   <!-- enable declarative caching -->
@@ -686,13 +686,13 @@ XML:
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:gfe="{spring-data-schema-namespace}"
+       xmlns:gfe="{spring-geode-schema-namespace}"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/cache https://www.springframework.org/schema/cache/spring-cache.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location}
+    {spring-geode-schema-namespace} {spring-geode-schema-location}
 ">
 
   <!-- enable declarative caching -->

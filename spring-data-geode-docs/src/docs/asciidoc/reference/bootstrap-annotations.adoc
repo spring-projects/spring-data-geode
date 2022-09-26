@@ -2441,4 +2441,4 @@ as _quickly_ and as _easily_ as possible, especially during development.
 
 We hope you will enjoy these new capabilities!
 
-include::{basedocdir}/reference/bootstrap-annotations-quickstart.adoc[leveloffset=+1]
+include::reference/bootstrap-annotations-quickstart.adoc[leveloffset=+1]

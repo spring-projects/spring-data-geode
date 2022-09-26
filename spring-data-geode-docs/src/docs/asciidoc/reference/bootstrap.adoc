@@ -56,11 +56,11 @@ as the following example shows:
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:gfe="{spring-data-schema-namespace}" <!--1--><!--2-->
+       xmlns:gfe="{spring-geode-schema-namespace}" <!--1--><!--2-->
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location} <!--3-->
+    {spring-geode-schema-namespace} {spring-geode-schema-location} <!--3-->
 ">
 
   <bean id ... >
@@ -85,12 +85,12 @@ shown earlier, as the following example shows:
 [subs="verbatim,attributes"]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="{spring-data-schema-namespace}" <!--1-->
+<beans xmlns="{spring-geode-schema-namespace}" <!--1-->
        xmlns:beans="http://www.springframework.org/schema/beans" <!--2-->
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-    {spring-data-schema-namespace} {spring-data-schema-location}
+    {spring-geode-schema-namespace} {spring-geode-schema-location}
 ">
 
   <beans:bean id ... > <!--3-->
@@ -105,11 +105,11 @@ shown earlier, as the following example shows:
 <4> Bean declaration using the `gfe` namespace. Notice the lack of prefix since `gfe` is the default namespace.
 ====
 
-include::{basedocdir}/reference/data-access.adoc[leveloffset=+1]
-include::{basedocdir}/reference/cache.adoc[leveloffset=+1]
-include::{basedocdir}/reference/region.adoc[leveloffset=+1]
-include::{basedocdir}/reference/indexing.adoc[leveloffset=+1]
-include::{basedocdir}/reference/diskstore.adoc[leveloffset=+1]
-include::{basedocdir}/reference/snapshot.adoc[leveloffset=+1]
-include::{basedocdir}/reference/function.adoc[leveloffset=+1]
-include::{basedocdir}/reference/gateway.adoc[leveloffset=+1]
+include::reference/data-access.adoc[leveloffset=+1]
+include::reference/cache.adoc[leveloffset=+1]
+include::reference/region.adoc[leveloffset=+1]
+include::reference/indexing.adoc[leveloffset=+1]
+include::reference/diskstore.adoc[leveloffset=+1]
+include::reference/snapshot.adoc[leveloffset=+1]
+include::reference/function.adoc[leveloffset=+1]
+include::reference/gateway.adoc[leveloffset=+1]

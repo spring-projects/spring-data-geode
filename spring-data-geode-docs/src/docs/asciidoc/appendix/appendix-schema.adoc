@@ -2,5 +2,5 @@
 [appendix]
 = {sdg-name} Schema
 
-* {spring-data-schema-location}[{sdg-name} Core Schema (`gfe` XML namespace)]
-* {spring-data-access-schema-location}[{sdg-name} Data Access Schema (`gfe-data` XML namespace)]
+* {spring-geode-schema-location}[{sdg-name} Core Schema (`gfe` XML namespace)]
+* {spring-data-geode-schema-location}[{sdg-name} Data Access Schema (`gfe-data` XML namespace)]

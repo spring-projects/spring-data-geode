@@ -17,11 +17,11 @@ as the following example shows:
 [subs="verbatim,attributes"]
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:gfe-data="{spring-data-access-schema-namespace}"
+       xmlns:gfe-data="{spring-data-geode-schema-namespace}"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-    {spring-data-access-schema-namespace} {spring-data-access-schema-location}
+    {spring-data-geode-schema-namespace} {spring-data-geode-schema-location}
 ">
 
   <gfe-data:repositories base-package="com.example.acme.repository"/>
