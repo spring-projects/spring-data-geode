@@ -63,7 +63,20 @@ dependencies {
 	}
 
 	testRuntimeOnly "org.apache.logging.log4j:log4j-to-slf4j"
+	testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
 	testRuntimeOnly "org.iq80.snappy:snappy"
 	testRuntimeOnly "org.springframeork.shell:spring-shell"
 
+}
+
+test {
+	//include "**/*Tests.java", "**/*Test.java"
+	maxParallelForks = 1
+
+	systemProperties['java.util.logging.config.file'] = "${project.projectDir}/src/test/resources/java-util-logging.properties"
+	systemProperties['gemfire.disableShutdownHook'] = "true"
+	systemProperties['logback.log.level'] = "error"
+	systemProperties['spring.profiles.active'] = "apache-geode"
+
+	useJUnitPlatform()
 }
