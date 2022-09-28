@@ -53,9 +53,10 @@ import org.springframework.data.gemfire.wan.OrderPolicyType;
  * @see org.apache.geode.cache.wan.GatewayEventSubstitutionFilter
  * @see org.apache.geode.cache.wan.GatewayReceiver
  * @see org.apache.geode.cache.wan.GatewaySender
- * @see org.apache.geode.cache.wan.GatewaySender.OrderPolicy
  * @see org.apache.geode.cache.wan.GatewayTransportFilter
  * @see org.springframework.data.gemfire.config.annotation.EnableGatewaySender
+ * @see org.springframework.data.gemfire.config.annotation.GatewaySenderConfiguration
+ * @see org.springframework.data.gemfire.config.support.GatewaySenderBeanFactoryPostProcessor
  * @since 2.2.0
  */
 @Target(ElementType.TYPE)
@@ -72,7 +73,7 @@ public @interface EnableGatewaySenders {
 	 *
 	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_ALERT_THRESHOLD}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.alert-threshold} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.alert-threshold} property
 	 * in {@literal application.properties}.
 	 */
 	int alertThreshold() default GatewaySenderConfiguration.DEFAULT_ALERT_THRESHOLD;
@@ -82,9 +83,9 @@ public @interface EnableGatewaySenders {
 	 * entries in each batch. This means, that a batch will never contain duplicate entries, as the batch will always
 	 * only contain the latest value for a key.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_BATCH_CONFLATION_ENABLED}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_BATCH_CONFLATION_ENABLED}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.batch-conflation-enabled} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.batch-conflation-enabled} property
 	 * in {@literal application.properties}.
 	 */
 	boolean batchConflationEnabled() default GatewaySenderConfiguration.DEFAULT_BATCH_CONFLATION_ENABLED;
@@ -97,9 +98,9 @@ public @interface EnableGatewaySenders {
 	 * A {@link GatewaySender} will send when either the {@literal batch-size} or {@literal batch-time-interval}
 	 * is reached.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_BATCH_SIZE}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_BATCH_SIZE}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.batch-size} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.batch-size} property
 	 * in {@literal application.properties}.
 	 */
 	int batchSize() default GatewaySenderConfiguration.DEFAULT_BATCH_SIZE;
@@ -112,22 +113,22 @@ public @interface EnableGatewaySenders {
 	 * A {@link GatewaySender} will send when either the {@literal batch-size} or {@literal batch-time-interval}
 	 * is reached.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_BATCH_TIME_INTERVAL}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_BATCH_TIME_INTERVAL}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.batch-time-interval} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.batch-time-interval} property
 	 * in {@literal application.properties}.
 	 */
 	int batchTimeInterval() default GatewaySenderConfiguration.DEFAULT_BATCH_TIME_INTERVAL;
 
 	/**
-	 * Configures the {@link DiskStore} used by all configured {@link }GatewaySender GatewaySenders} when persisting
+	 * Configures the {@link DiskStore} used by all configured {@link GatewaySender GatewaySenders} when persisting
 	 * the {@link GatewaySender GatewaySenders} queue data.
 	 *
 	 * This setting should be set when the {@link EnableGatewaySender#persistent()} property is set to {@literal true}.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_DISK_STORE_REFERENCE}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_DISK_STORE_REFERENCE}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.diskstore-reference} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.diskstore-reference} property
 	 * in {@literal application.properties}.
 	 */
 	String diskStoreReference() default GatewaySenderConfiguration.DEFAULT_DISK_STORE_REFERENCE;
@@ -136,9 +137,9 @@ public @interface EnableGatewaySenders {
 	 * A {@literal boolean} flag indicating whether all configured {@link GatewaySender GatewaySenders} should use
 	 * synchronous {@link DiskStore} writes.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_DISK_SYNCHRONOUS}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_DISK_SYNCHRONOUS}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.disk-synchronous} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.disk-synchronous} property
 	 * in {@literal application.properties}.
 	 */
 	boolean diskSynchronous() default GatewaySenderConfiguration.DEFAULT_DISK_SYNCHRONOUS;
@@ -147,9 +148,9 @@ public @interface EnableGatewaySenders {
 	 * Configures the number of dispatcher threads that all configured {@link GatewaySender GatewaySenders} will try
 	 * to use to dispatch the queued events.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_DISPATCHER_THREADS}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_DISPATCHER_THREADS}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.dispatcher-threads} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.dispatcher-threads} property
 	 * in {@literal application.properties}.
 	 */
 	int dispatcherThreads() default GatewaySenderConfiguration.DEFAULT_DISPATCHER_THREADS;
@@ -161,9 +162,9 @@ public @interface EnableGatewaySenders {
 	 * {@link GatewayEventFilter GatewayEventFilters} are used to filter out objects from the sending queue before
 	 * dispatching them to remote {@link GatewayReceiver GatewayReceivers}.
 	 *
-	 * Defaults to empty list.
+	 * Defaults to empty {@link String array}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.event-filters} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.event-filters} property
 	 * in {@literal application.properties}.
 	 */
 	String[] eventFilters() default {};
@@ -176,7 +177,7 @@ public @interface EnableGatewaySenders {
 	 *
 	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_EVENT_SUBSTITUTION_FILTER}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.event-substitution-filter} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.event-substitution-filter} property
 	 * in {@literal application.properties}.
 	 */
 	String eventSubstitutionFilter() default GatewaySenderConfiguration.DEFAULT_EVENT_SUBSTITUTION_FILTER;
@@ -184,7 +185,7 @@ public @interface EnableGatewaySenders {
 	/**
 	 * The list of {@link GatewaySender GatewaySenders} to be configured.
 	 *
-	 * If no {@link GatewaySender GatewaySenders) are configured, a default {@link GatewaySender} will be created
+	 * If no {@link GatewaySender GatewaySenders} are configured, a default {@link GatewaySender} will be created
 	 * using the properties provided.
 	 */
 	EnableGatewaySender[] gatewaySenders() default {};
@@ -193,9 +194,9 @@ public @interface EnableGatewaySenders {
 	 * A {@literal boolean} flag indicating whether all configured {@link GatewaySender GatewaySenders} should be
 	 * started automatically.
 	 *
-	 * <p>Defaults to {@value @EnableGatewaySenderConfiguration.DEFAULT_MANUAL_START}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_MANUAL_START}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.manual-start} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.manual-start} property
 	 * in {@literal application.properties}.
 	 */
 	boolean manualStart() default GatewaySenderConfiguration.DEFAULT_MANUAL_START;
@@ -204,9 +205,9 @@ public @interface EnableGatewaySenders {
 	 * Configures the maximum size in megabytes that all configured {@link GatewaySender GatewaySenders} queue may take
 	 * in heap memory before overflowing to disk.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_MAXIMUM_QUEUE_MEMORY}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_MAXIMUM_QUEUE_MEMORY}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.maximum-queue-memory} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.maximum-queue-memory} property
 	 * in {@literal application.properties}.	 */
 	int maximumQueueMemory() default GatewaySenderConfiguration.DEFAULT_MAXIMUM_QUEUE_MEMORY;
 
@@ -224,7 +225,7 @@ public @interface EnableGatewaySenders {
 	 *
 	 * Defaults to {@link OrderPolicyType#KEY}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.order-policy} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.order-policy} property
 	 * in {@literal application.properties}.
 	 */
 	OrderPolicyType orderPolicy() default OrderPolicyType.KEY;
@@ -236,9 +237,9 @@ public @interface EnableGatewaySenders {
 	 * Parallel replication means that each {@link CacheServer} that defines a {@link GatewaySender} will send data
 	 * to a remote {@link GatewayReceiver}.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_PARALLEL}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_PARALLEL}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.parallel} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.parallel} property
 	 * in {@literal application.properties}.
 	 */
 	boolean parallel() default GatewaySenderConfiguration.DEFAULT_PARALLEL;
@@ -249,9 +250,9 @@ public @interface EnableGatewaySenders {
 	 *
 	 * This setting should be used in conjunction with the {@literal disk-store-reference} property.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_PERSISTENT}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_PERSISTENT}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.persistent} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.persistent} property
 	 * in {@literal application.properties}.
 	 */
 	boolean persistent() default GatewaySenderConfiguration.DEFAULT_PERSISTENT;
@@ -261,9 +262,9 @@ public @interface EnableGatewaySenders {
 	 *
 	 * An empty list denotes that ALL {@link Region Regions} are to be replicated to the remote {@link GatewayReceiver}.
 	 *
-	 * Defaults to empty list.
+	 * Defaults to empty {@link String array}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.region-names} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.region-names} property
 	 * in {@literal application.properties}.
 	 */
 	String[] regions() default {};
@@ -272,9 +273,9 @@ public @interface EnableGatewaySenders {
 	 * Configures the id of the remote distributed system (cluster) that all configured
 	 * {@link GatewaySender GatewaySenders} will send their data to.
 	 *
-	 * Defaults to {@value @EnableGatewaySenderConfiguration.DEFAULT_REMOTE_DISTRIBUTED_SYSTEM_ID}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_REMOTE_DISTRIBUTED_SYSTEM_ID}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.remote-distributed-system-id} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.remote-distributed-system-id} property
 	 * in {@literal application.properties}.
 	 */
 	int remoteDistributedSystemId() default GatewaySenderConfiguration.DEFAULT_REMOTE_DISTRIBUTED_SYSTEM_ID;
@@ -282,9 +283,9 @@ public @interface EnableGatewaySenders {
 	/**
 	 * Configures the socket buffer size in bytes for all configured {@link GatewaySender GatewaySenders}.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_SOCKET_BUFFER_SIZE}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_SOCKET_BUFFER_SIZE}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.socket-buffer-size} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.socket-buffer-size} property
 	 * in {@literal application.properties}.
 	 */
 	int socketBufferSize() default GatewaySenderConfiguration.DEFAULT_SOCKET_BUFFER_SIZE;
@@ -293,12 +294,12 @@ public @interface EnableGatewaySenders {
 	 * Configures the amount of time in milliseconds that all configured {@link GatewaySender GatewaySenders} will wait
 	 * to receive an acknowledgment from a remote site.
 	 *
-	 * By default this is set to {@literal 0}, which means there is no timeout. The minimum allowed timeout
+	 * By default, this is set to {@literal 0}, which means there is no timeout. The minimum allowed timeout
 	 * is {@literal 30000 (milliseconds)}.
 	 *
-	 * Defaults to {@value GatewaySenderConfiguration#DEFAULT_SOCKET_READ_TIMEOUT}.
+	 * Defaults to {@link GatewaySenderConfiguration#DEFAULT_SOCKET_READ_TIMEOUT}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.socket-read-timeout} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.socket-read-timeout} property
 	 * in {@literal application.properties}.
 	 */
 	int socketReadTimeout() default GatewaySenderConfiguration.DEFAULT_SOCKET_READ_TIMEOUT;
@@ -307,9 +308,9 @@ public @interface EnableGatewaySenders {
 	 * Configures an in-order list of {@link GatewayTransportFilter} objects to be applied to all configured
 	 * {@link GatewaySender GatewaySenders}.
 	 *
-	 * Defaults to empty list.
+	 * Defaults to empty {@link String array}.
 	 *
-	 * Alternatively use the {@literal spring.data.gemfire.gateway.sender.transport-filters} property
+	 * Use the {@literal spring.data.gemfire.gateway.sender.transport-filters} property
 	 * in {@literal application.properties}.
 	 */
 	String[] transportFilters() default {};

@@ -63,7 +63,7 @@ public @interface CacheServerApplication {
 	/**
 	 * Configures whether the {@link CacheServer} should start automatically at runtime.
 	 *
-	 * Defaults to {@literal true).
+	 * Defaults to {@literal true}.
 	 *
 	 * Use {@literal spring.data.gemfire.cache.server.auto-startup} property in {@literal application.properties}.
 	 */

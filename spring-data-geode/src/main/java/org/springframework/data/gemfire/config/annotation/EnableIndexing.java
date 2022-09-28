@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import java.lang.annotation.Documented;
@@ -28,12 +27,14 @@ import org.apache.geode.cache.lucene.LuceneIndex;
 import org.apache.geode.cache.query.Index;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.gemfire.mapping.annotation.Indexed;
 
 /**
  * The {@link EnableIndexing} annotation marks a Spring {@link Configuration @Configuration} annotated application class
  * to enable the creation of GemFire/Geode {@link Index Indexes} and {@link LuceneIndex LuceneIndexes} based on
- * application persistent entity field/property annotations, such as the {@link @Id}, {@link @Indexed}
- * and {@link @LuceneIndex} annotations.
+ * application persistent entity field/property annotations, such as the {@link Id}, {@link Indexed}
+ * and {@link LuceneIndex} annotations.
  *
  * @author John Blum
  * @see org.apache.geode.cache.lucene.LuceneIndex

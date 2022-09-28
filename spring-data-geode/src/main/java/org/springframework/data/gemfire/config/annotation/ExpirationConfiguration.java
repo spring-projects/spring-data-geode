@@ -56,18 +56,27 @@ import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.data.gemfire.util.SpringExtensions;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * {@link ExpirationConfiguration} is a Spring {@link Configuration} class used to configure expiration policies
- * for GemFire/Geode {@link Region Regions}.
+ * Spring {@link Configuration} class used to configure Expiration policies on cache {@link Region Regions}.
  *
  * @author John Blum
- * @see org.springframework.context.annotation.Configuration
- * @see org.springframework.context.annotation.ImportAware
- * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
+ * @see org.apache.geode.cache.CustomExpiry
  * @see org.apache.geode.cache.ExpirationAttributes
  * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.RegionAttributes
+ * @see org.springframework.context.ApplicationContext
+ * @see org.springframework.context.annotation.Bean
+ * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.context.annotation.ImportAware
+ * @see org.springframework.context.event.EventListener
+ * @see org.springframework.data.gemfire.PeerRegionFactoryBean
+ * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
+ * @see org.springframework.data.gemfire.config.annotation.EnableExpiration
+ * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport
+ * @see org.springframework.data.gemfire.expiration.ExpiringRegionFactoryBean
  * @since 1.9.0
  */
 @Configuration
@@ -75,7 +84,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 
 	protected static final int DEFAULT_TIMEOUT = 0;
 
-	protected static final ExpirationActionType DEFAULT_ACTION = ExpirationActionType.DEFAULT;
+	protected static final ExpirationActionType DEFAULT_EXPIRATION_ACTION = ExpirationActionType.DEFAULT;
 
 	protected static final ExpirationType[] DEFAULT_EXPIRATION_TYPES = {
 		ExpirationType.IDLE_TIMEOUT,
@@ -112,11 +121,11 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 
 				this.expirationPolicyConfigurer =
 					ComposableExpirationPolicyConfigurer.compose(this.expirationPolicyConfigurer,
-						ExpirationPolicyMetaData.from(expirationPolicyAttributes));
+						ExpirationPolicyMetadata.from(expirationPolicyAttributes));
 			}
 
 			this.expirationPolicyConfigurer = Optional.ofNullable(this.expirationPolicyConfigurer)
-				.orElseGet(ExpirationPolicyMetaData::fromDefaults);
+				.orElseGet(ExpirationPolicyMetadata::fromDefaults);
 		}
 	}
 
@@ -206,24 +215,22 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		private final ExpirationPolicyConfigurer two;
 
 		/**
-		 * Factory method to compose an array of {@link ExpirationPolicyConfigurer} objects.
+		 * Factory method used to compose an array of {@link ExpirationPolicyConfigurer} objects.
 		 *
 		 * @param array array of {@link ComposableExpirationPolicyConfigurer} objects to compose.
-		 * @return a composition containing all the {@link ExpirationPolicyConfigurer} objects in the array.
+		 * @return a composite containing all the {@link ExpirationPolicyConfigurer} objects in the array.
 		 * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration.ExpirationPolicyConfigurer
-		 * @see #compose(Iterable)
 		 */
-		protected static ExpirationPolicyConfigurer compose(ExpirationPolicyConfigurer[] array) {
+		protected static ExpirationPolicyConfigurer compose(ExpirationPolicyConfigurer... array) {
 			return compose(Arrays.asList(ArrayUtils.nullSafeArray(array, ExpirationPolicyConfigurer.class)));
 		}
 
 		/**
-		 * Factory method to compose an {@link Iterable} of {@link ExpirationPolicyConfigurer} objects.
+		 * Factory method used to compose an {@link Iterable} of {@link ExpirationPolicyConfigurer} objects.
 		 *
 		 * @param iterable {@link Iterable} of {@link ComposableExpirationPolicyConfigurer} objects to compose.
-		 * @return a composition containing all the {@link ExpirationPolicyConfigurer} objects in the {@link Iterable}.
+		 * @return a composite containing all the {@link ExpirationPolicyConfigurer} objects in the {@link Iterable}.
 		 * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration.ExpirationPolicyConfigurer
-		 * @see #compose(ExpirationPolicyConfigurer, ExpirationPolicyConfigurer)
 		 */
 		protected static ExpirationPolicyConfigurer compose(Iterable<ExpirationPolicyConfigurer> iterable) {
 
@@ -237,15 +244,15 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		}
 
 		/**
-		 * Factory method to compose 2 {@link ExpirationPolicyConfigurer} objects.
+		 * Factory method used to compose two {@link ExpirationPolicyConfigurer} objects.
 		 *
 		 * @param one first {@link ComposableExpirationPolicyConfigurer} to compose.
 		 * @param two second {@link ComposableExpirationPolicyConfigurer} to compose.
-		 * @return a composition of the 2 {@link ExpirationPolicyConfigurer} objects.
+		 * @return a composite of the 2 {@link ExpirationPolicyConfigurer} objects.
 		 * Returns {@code one} if {@code two} is {@literal null} or {@code two} if {@code one} is {@literal null}.
 		 * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration.ExpirationPolicyConfigurer
 		 */
-		protected static ExpirationPolicyConfigurer compose(ExpirationPolicyConfigurer one,
+		private static ExpirationPolicyConfigurer compose(ExpirationPolicyConfigurer one,
 				ExpirationPolicyConfigurer two) {
 
 			return one == null ? two
@@ -286,7 +293,7 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 	}
 
 	/**
-	 * {@link ExpirationPolicyMetaData} is a {@link ExpirationPolicyConfigurer} implementation that encapsulates
+	 * {@link ExpirationPolicyMetadata} is a {@link ExpirationPolicyConfigurer} implementation that encapsulates
 	 * the expiration configuration meta-data (e.g. expiration timeout and action) necessary to configure
 	 * a {@link Region Regions's} expiration policy and behavior.
 	 *
@@ -295,24 +302,23 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 
 	 * @see org.springframework.data.gemfire.config.annotation.ExpirationConfiguration.ExpirationPolicyConfigurer
 	 */
-	protected static class ExpirationPolicyMetaData implements ExpirationPolicyConfigurer {
+	protected static class ExpirationPolicyMetadata implements ExpirationPolicyConfigurer {
 
 		protected static final String[] ALL_REGIONS = new String[0];
 
 		/**
-		 * Factory method to construct an instance of {@link ExpirationPolicyMetaData} initialized with
+		 * Factory method used to construct a new instance of {@link ExpirationPolicyMetadata} initialized with
 		 * the given {@link AnnotationAttributes} from the nested {@link ExpirationPolicy} annotation
-		 * specified in an application-level {@link EnableExpiration} annotation.
+		 * specified in an application declared {@link EnableExpiration} annotation.
 		 *
-		 * @param expirationPolicyAttributes {@link AnnotationAttributes} from a {@link ExpirationPolicy} annotation.
-		 * @return an instance of the {@link ExpirationPolicyMetaData} initialized from
-		 * {@link ExpirationPolicy} {@link AnnotationAttributes}.
+		 * @param expirationPolicyAttributes {@link AnnotationAttributes} from an {@link ExpirationPolicy} annotation.
+		 * @return a new {@link ExpirationPolicyMetadata} initialized from {@link ExpirationPolicy}
+		 * {@link AnnotationAttributes}.
 		 * @throws IllegalArgumentException if {@link AnnotationAttributes#annotationType()} is not assignable to
 		 * {@link ExpirationPolicy}.
-		 * @see #newExpirationPolicyMetaData(int, ExpirationActionType, String[], ExpirationType[])
 		 * @see org.springframework.core.annotation.AnnotationAttributes
 		 */
-		protected static ExpirationPolicyMetaData from(AnnotationAttributes expirationPolicyAttributes) {
+		protected static ExpirationPolicyMetadata from(@NonNull AnnotationAttributes expirationPolicyAttributes) {
 
 			Assert.isAssignable(ExpirationPolicy.class, expirationPolicyAttributes.annotationType());
 
@@ -323,31 +329,28 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		}
 
 		/**
-		 * Factory method to construct an instance of {@link ExpirationPolicyMetaData} initialized with
+		 * Factory method used to construct a new instance of {@link ExpirationPolicyMetadata} initialized with
 		 * the given attribute values from the nested {@link ExpirationPolicy} annotation specified in
-		 * an application-level {@link EnableExpiration} annotation.
+		 * an application declared {@link EnableExpiration} annotation.
 		 *
-		 * @param expirationPolicy {@link ExpirationPolicy} annotation containing the attribute values
-		 * used to initialize the {@link ExpirationPolicyMetaData} instance.
-		 * @return an instance of the {@link ExpirationPolicyMetaData} initialized from
-		 * {@link ExpirationPolicy} attributes values.
+		 * @param expirationPolicy {@link ExpirationPolicy} annotation containing the metadata used to
+		 * initialize the {@link ExpirationPolicyMetadata} instance.
+		 * @return a new {@link ExpirationPolicyMetadata} initialized from {@link ExpirationPolicy} annotation
+		 * attributes values.
 		 * @see org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationPolicy
-		 * @see #newExpirationPolicyMetaData(int, ExpirationActionType, String[], ExpirationType[])
 		 */
-		protected static ExpirationPolicyMetaData from(ExpirationPolicy expirationPolicy) {
+		protected static ExpirationPolicyMetadata from(ExpirationPolicy expirationPolicy) {
 
 			return newExpirationPolicyMetaData(expirationPolicy.timeout(), expirationPolicy.action(),
 				expirationPolicy.regionNames(), expirationPolicy.types());
 		}
 
 		/**
-		 * Factory method to construct an instance of {@link ExpirationPolicyMetaData} using default expiration policy
-		 * settings.
-		 *
-		 * @see #newExpirationPolicyMetaData(int, ExpirationActionType, String[], ExpirationType[])
+		 * Factory method used to construct a new instance of {@link ExpirationPolicyMetadata}
+		 * using default expiration policy settings.
 		 */
-		protected static ExpirationPolicyMetaData fromDefaults() {
-			return newExpirationPolicyMetaData(DEFAULT_TIMEOUT, DEFAULT_ACTION, ALL_REGIONS, DEFAULT_EXPIRATION_TYPES);
+		protected static ExpirationPolicyMetadata fromDefaults() {
+			return newExpirationPolicyMetaData(DEFAULT_TIMEOUT, DEFAULT_EXPIRATION_ACTION, ALL_REGIONS, DEFAULT_EXPIRATION_TYPES);
 		}
 
 		/**
@@ -357,7 +360,21 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		 * @param timeout int value indicating the expiration timeout in seconds.
 		 * @param action expiration action to take when the {@link Region} entry times out.
 		 * @return a new instance of {@link ExpirationAttributes} initialized with the given expiration timeout
-		 * and action.
+		 * and expiration action.
+		 * @see org.apache.geode.cache.ExpirationAttributes
+		 */
+		protected static ExpirationAttributes newExpirationAttributes(int timeout, ExpirationAction action) {
+			return new ExpirationAttributes(timeout, action);
+		}
+
+		/**
+		 * Factory method used to construct a new instance of the {@link ExpirationAttributes} initialized with
+		 * the given expiration timeout and action that is taken when an {@link Region} entry times out.
+		 *
+		 * @param timeout int value indicating the expiration timeout in seconds.
+		 * @param action expiration action to take when the {@link Region} entry times out.
+		 * @return a new instance of {@link ExpirationAttributes} initialized with the given expiration timeout
+		 * and expiration action.
 		 * @see org.apache.geode.cache.ExpirationAttributes
 		 * @see #newExpirationAttributes(int, ExpirationAction)
 		 */
@@ -366,63 +383,50 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		}
 
 		/**
-		 * Factory method used to construct a new instance of the {@link ExpirationAttributes} initialized with
-		 * the given expiration timeout and action that is taken when an {@link Region} entry times out.
+		 * Factory method used to construct a new instance of {@link ExpirationPolicyMetadata} initialized with
+		 * the given Expiration policy metadata.
 		 *
-		 * @param timeout int value indicating the expiration timeout in seconds.
-		 * @param action expiration action to take when the {@link Region} entry times out.
-		 * @return a new instance of {@link ExpirationAttributes} initialized with the given expiration timeout
-		 * and action.
-		 * @see org.apache.geode.cache.ExpirationAttributes
-		 */
-		protected static ExpirationAttributes newExpirationAttributes(int timeout, ExpirationAction action) {
-			return new ExpirationAttributes(timeout, action);
-		}
-
-		/**
-		 * Factory method used to construct an instance of {@link ExpirationPolicyMetaData} initialized with
-		 * the given expiration policy meta-data.
-		 *
-		 * @param timeout int value indicating the expiration timeout in seconds.
-		 * @param action expiration action taken when the {@link Region} entry expires.
-		 * @param regionNames names of {@link Region Regions} configured with the expiration policy meta-data.
-		 * @param types type of expiration algorithm/behavior (TTI/TTL) configured for the {@link Region}.
-		 * @return an instance of {@link ExpirationPolicyMetaData} initialized with the given expiration policy
-		 * meta-data.
+		 * @param timeout {@link Integer value} indicating the expiration timeout in seconds.
+		 * @param action {@link ExpirationAction} taken when the {@link Region} entry expires.
+		 * @param regionNames {@link String names} of {@link Region Regions} configured with
+		 * the expiration policy metadata.
+		 * @param types {@link ExpirationType} specifying the expiration algorithm/behavior (TTI/TTL)
+		 * configured for the {@link Region}.
+		 * @return a new {@link ExpirationPolicyMetadata} object initialized with the given expiration policy metadata.
 		 * @throws IllegalArgumentException if the {@link ExpirationType} array is empty.
 		 * @see org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationType
-		 * @see ExpirationActionType
-		 * @see #ExpirationPolicyMetaData(ExpirationAttributes, Set, Set)
-		 * @see #newExpirationAttributes(int, ExpirationActionType)
+		 * @see org.springframework.data.gemfire.expiration.ExpirationActionType
 		 */
-		protected static ExpirationPolicyMetaData newExpirationPolicyMetaData(int timeout, ExpirationActionType action,
+		protected static ExpirationPolicyMetadata newExpirationPolicyMetaData(int timeout, ExpirationActionType action,
 				String[] regionNames, ExpirationType[] types) {
 
-			return new ExpirationPolicyMetaData(newExpirationAttributes(timeout, action),
+			return new ExpirationPolicyMetadata(newExpirationAttributes(timeout, action),
 				CollectionUtils.asSet(ArrayUtils.nullSafeArray(regionNames, String.class)),
 				CollectionUtils.asSet(ArrayUtils.nullSafeArray(types, ExpirationType.class)));
 		}
 
 		/**
-		 * Resolves the {@link ExpirationAction} used in the expiration policy.  Defaults to
-		 * {@link ExpirationActionType#INVALIDATE} if {@code action} is {@literal null}.
+		 * Resolves the {@link ExpirationAction} used in the expiration policy.
 		 *
-		 * @param action given {@link ExpirationActionType} to evaluate.
+		 * Defaults to {@link ExpirationActionType#INVALIDATE} if {@code action} is {@literal null}.
+		 *
+		 * @param action {@link ExpirationActionType} to evaluate.
 		 * @return the resolved {@link ExpirationActionType} or the default if {@code action} is {@literal null}.
-		 * @see ExpirationActionType
+		 * @see org.springframework.data.gemfire.expiration.ExpirationActionType
 		 */
-		protected static ExpirationActionType resolveAction(ExpirationActionType action) {
-			return action != null ? action : DEFAULT_ACTION;
+		private static @NonNull ExpirationActionType resolveAction(@Nullable ExpirationActionType action) {
+			return action != null ? action : DEFAULT_EXPIRATION_ACTION;
 		}
 
 		/**
-		 * Resolves the expiration timeout used in the expiration policy.  Defaults to {@literal 0} if {@code timeout}
-		 * is less than {@literal 0}.
+		 * Resolves the expiration timeout used in the expiration policy.
 		 *
-		 * @param timeout int value expressing the expiration timeout in seconds.
+		 * Defaults to {@literal 0} if {@code timeout} is less than {@literal 0}.
+		 *
+		 * @param timeout {@link Integer value} expressing the expiration timeout in seconds.
 		 * @return the resolved expiration policy timeout.
 		 */
-		protected static int resolveTimeout(int timeout) {
+		private static int resolveTimeout(int timeout) {
 			return Math.max(timeout, DEFAULT_TIMEOUT);
 		}
 
@@ -433,41 +437,39 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 		private final Set<ExpirationType> types = new HashSet<>();
 
 		/**
-		 * Constructs an instance of {@link ExpirationPolicyMetaData} initialized with the given expiration policy
-		 * configuraiton meta-data and {@link Region} expiration settings.
+		 * Constructs a new instance of {@link ExpirationPolicyMetadata} initialized with the given expiration policy
+		 * configuration metadata and {@link Region} expiration settings.
 		 *
-		 * @param timeout int value indicating the expiration timeout in seconds.
-		 * @param action expiration action taken when the {@link Region} entry expires.
-		 * @param regionNames names of {@link Region Regions} configured with the expiration policy meta-data.
-		 * @param types type of expiration algorithm/behavior (TTI/TTL) configured for the {@link Region}.
+		 * @param timeout {@link Integer value} indicating the expiration timeout in seconds.
+		 * @param action {@link ExpirationActionType} taken when the {@link Region} entry expires.
+		 * @param regionNames {@link String names} of {@link Region Regions} configured with expiration policy metadata.
+		 * @param types {@link ExpirationType} specifying the expiration algorithm/behavior (TTI/TTL) configured for
+		 * the {@link Region}.
 		 * @throws IllegalArgumentException if the {@link ExpirationType} {@link Set} is empty.
 		 * @see org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationType
-		 * @see ExpirationActionType
-		 * @see #ExpirationPolicyMetaData(ExpirationAttributes, Set, Set)
-		 * @see #newExpirationAttributes(int, ExpirationActionType)
-		 * @see #resolveAction(ExpirationActionType)
-		 * @see #resolveTimeout(int)
+		 * @see org.springframework.data.gemfire.expiration.ExpirationActionType
 		 */
 		@SuppressWarnings("unused")
-		protected ExpirationPolicyMetaData(int timeout, ExpirationActionType action, Set<String> regionNames,
+		protected ExpirationPolicyMetadata(int timeout, ExpirationActionType action, Set<String> regionNames,
 				Set<ExpirationType> types) {
 
 			this(newExpirationAttributes(resolveTimeout(timeout), resolveAction(action)), regionNames, types);
 		}
 
 		/**
-		 * Constructs an instance of {@link ExpirationPolicyMetaData} initialized with the given expiration policy
-		 * configuraiton meta-data and {@link Region} expiration settings.
+		 * Constructs a new instance of {@link ExpirationPolicyMetadata} initialized with the given expiration policy
+		 * configuration metadata and {@link Region} expiration settings.
 		 *
 		 * @param expirationAttributes {@link ExpirationAttributes} specifying the expiration timeout in seconds
-		 * and expiration action taken when the {@link Region} entry expires.
-		 * @param regionNames names of {@link Region Regions} configured with the expiration policy meta-data.
-		 * @param types type of expiration algorithm/behaviors (TTI/TTL) configured for the {@link Region}.
+		 * and {@link ExpirationAction expiration action} taken when the {@link Region} entry expires.
+		 * @param regionNames {@link String names} of {@link Region Regions} configured with expiration policy metadata.
+		 * @param types {@link ExpirationType} specifying the expiration algorithm/behaviors (TTI/TTL) configured for
+		 * the {@link Region}.
 		 * @throws IllegalArgumentException if the {@link ExpirationType} {@link Set} is empty.
 		 * @see org.springframework.data.gemfire.config.annotation.EnableExpiration.ExpirationType
 		 * @see org.apache.geode.cache.ExpirationAttributes
 		 */
-		protected ExpirationPolicyMetaData(ExpirationAttributes expirationAttributes, Set<String> regionNames,
+		protected ExpirationPolicyMetadata(ExpirationAttributes expirationAttributes, Set<String> regionNames,
 				Set<ExpirationType> types) {
 
 			Assert.notEmpty(types, "At least one ExpirationPolicy type [TTI, TTL] is required");
@@ -577,9 +579,6 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 			return regionFactoryBean;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public Object configure(Object regionBean) {
 
@@ -588,9 +587,6 @@ public class ExpirationConfiguration extends AbstractAnnotationConfigSupport imp
 				: regionBean;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public Region<?, ?> configure(Region<?, ?> region) {
 

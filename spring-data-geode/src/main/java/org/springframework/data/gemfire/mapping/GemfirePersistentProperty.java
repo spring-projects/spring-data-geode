@@ -110,9 +110,9 @@ public class GemfirePersistentProperty extends AnnotationBasedPersistentProperty
 	}
 
 	/**
-	 * Returns the {@link String name} of this {@link GemfirePersistentProperty's} {@link Class type}.
+	 * Returns the {@link String name} of this {@link GemfirePersistentProperty} {@link Class type}.
 	 *
-	 * @return the {@link String name} of this {@link GemfirePersistentProperty's} {@link Class type}.
+	 * @return the {@link String name} of this {@link GemfirePersistentProperty} {@link Class type}.
 	 * @see java.lang.Class#getName()
 	 * @see #getType()
 	 */

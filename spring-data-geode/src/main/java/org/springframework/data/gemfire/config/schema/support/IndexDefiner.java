@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.schema.support;
 
 import static org.springframework.data.gemfire.util.CollectionUtils.asSet;
@@ -28,7 +27,7 @@ import org.springframework.data.gemfire.config.schema.SchemaObjectType;
 import org.springframework.data.gemfire.config.schema.definitions.IndexDefinition;
 
 /**
- * The {@link {{@link IndexDefiner }} class is responsible for defining an {@link Index} given a reference to
+ * The {@link IndexDefiner } class is responsible for defining an {@link Index} given a reference to
  * an {@link Index} instance.
  *
  * @author John Blum

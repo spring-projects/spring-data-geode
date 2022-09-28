@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.schema;
 
 import java.util.Collections;
@@ -38,12 +37,12 @@ import org.springframework.context.ApplicationContext;
 public interface SchemaObjectCollector<T> {
 
 	/**
-	 * Collects all schema objects of type {@link T} declared in the given {@link ApplicationContext}.
+	 * Collects all schema objects of {@link Class type T} declared in the given {@link ApplicationContext}.
 	 *
 	 * @param applicationContext Spring {@link ApplicationContext} from which to collect schema objects
-	 * of type {@link T}.
-	 * @return a {@link Set} of all schema objects of type {@link T} declared in the {@link ApplicationContext};
-	 * returns an empty {@link Set} if no schema object of type {@link T} could be found.
+	 * of {@link Class type T}.
+	 * @return a {@link Set} of all schema objects of {@link Class type T} declared in the {@link ApplicationContext};
+	 * returns an empty {@link Set} if no schema object of {@link Class type T} could be found.
 	 * @see org.springframework.context.ApplicationContext
 	 * @see java.lang.Iterable
 	 */
@@ -52,11 +51,11 @@ public interface SchemaObjectCollector<T> {
 	}
 
 	/**
-	 * Collects all schema objects of type {@link T} defined in the {@link GemFireCache}.
+	 * Collects all schema objects of {@link Class type T} defined in the {@link GemFireCache}.
 	 *
-	 * @param gemfireCache {@link GemFireCache} from which to collect schema objects of type {@link T}.
-	 * @return a {@link Set} of all schema objects of type {@link T} defined in the {@link GemFireCache};
-	 * returns an empty {@link Set} if no schema object of type {@link T} could be found.
+	 * @param gemfireCache {@link GemFireCache} from which to collect schema objects of {@link Class type T}.
+	 * @return a {@link Set} of all schema objects of {@link Class type T} defined in the {@link GemFireCache};
+	 * returns an empty {@link Set} if no schema object of {@link Class type T} could be found.
 	 * @see org.apache.geode.cache.GemFireCache
 	 * @see java.lang.Iterable
 	 */

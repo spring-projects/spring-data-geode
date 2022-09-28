@@ -60,23 +60,24 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * The {@link EvictionConfiguration} class is a Spring {@link Configuration @Configuration} annotated class to enable
- * Eviction policy configuration on cache {@link Region Regions}.
+ * Spring {@link Configuration} class used to enable Eviction policy configuration on cache {@link Region Regions}.
  *
  * @author John Blum
  * @see org.apache.geode.cache.EvictionAttributes
  * @see org.apache.geode.cache.Region
- * @see org.apache.geode.cache.util.ObjectSizer
+ * @see org.apache.geode.cache.RegionAttributes
  * @see org.springframework.beans.factory.config.BeanPostProcessor
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ApplicationContextAware
  * @see org.springframework.context.annotation.Bean
  * @see org.springframework.context.annotation.Configuration
  * @see org.springframework.context.annotation.ImportAware
+ * @see org.springframework.context.event.EventListener
  * @see org.springframework.data.gemfire.PeerRegionFactoryBean
- * @see org.springframework.data.gemfire.ResolvableRegionFactoryBean
  * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
+ * @see org.springframework.data.gemfire.config.annotation.EnableEviction
  * @see org.springframework.data.gemfire.config.annotation.support.AbstractAnnotationConfigSupport
+ * @see org.springframework.data.gemfire.eviction.EvictingRegionFactoryBean
  * @see org.springframework.data.gemfire.eviction.EvictionActionType
  * @see org.springframework.data.gemfire.eviction.EvictionAttributesFactoryBean
  * @see org.springframework.data.gemfire.eviction.EvictionPolicyType
@@ -132,11 +133,11 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 
 				this.evictionPolicyConfigurer =
 					ComposableEvictionPolicyConfigurer.compose(this.evictionPolicyConfigurer,
-						EvictionPolicyMetaData.from(evictionPolicyAttributes, this.applicationContext));
+						EvictionPolicyMetadata.from(evictionPolicyAttributes, this.applicationContext));
 			}
 
 			this.evictionPolicyConfigurer = Optional.ofNullable(this.evictionPolicyConfigurer)
-				.orElseGet(EvictionPolicyMetaData::fromDefaults);
+				.orElseGet(EvictionPolicyMetadata::fromDefaults);
 		}
 	}
 
@@ -232,29 +233,27 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 	protected static class ComposableEvictionPolicyConfigurer implements EvictionPolicyConfigurer {
 
 		/**
-		 * Composes the array of {@link EvictionPolicyConfigurer} objects into a single
-		 * {@link EvictionPolicyConfigurer} implementation using the Composite Software Design Pattern.
+		 * Composes an array of {@link EvictionPolicyConfigurer} objects into a single {@link EvictionPolicyConfigurer}
+		 * implementation using the {@literal Composite Software Design Pattern}.
 		 *
 		 * @param array array of {@link EvictionPolicyConfigurer} objects to compose.
-		 * @return an {@link EvictionPolicyConfigurer} implementation composed from the array
-		 * of {@link EvictionPolicyConfigurer} objects.
+		 * @return an {@link EvictionPolicyConfigurer} implementation composed of
+		 * the array of {@link EvictionPolicyConfigurer} objects.
 		 * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration.EvictionPolicyConfigurer
-		 * @see #compose(Iterable)
 		 */
 		@SuppressWarnings("unused")
-		protected static @Nullable EvictionPolicyConfigurer compose(EvictionPolicyConfigurer[] array) {
+		protected static @Nullable EvictionPolicyConfigurer compose(EvictionPolicyConfigurer... array) {
 			return compose(Arrays.asList(ArrayUtils.nullSafeArray(array, EvictionPolicyConfigurer.class)));
 		}
 
 		/**
-		 * Composes the {@link Iterable} of {@link EvictionPolicyConfigurer} objects into a single
-		 * {@link EvictionPolicyConfigurer} implementation using the Composite Software Design Pattern.
+		 * Composes an {@link Iterable} of {@link EvictionPolicyConfigurer} objects into a single
+		 * {@link EvictionPolicyConfigurer} implementation using the {@literal Composite Software Design Pattern}.
 		 *
 		 * @param iterable {@link Iterable} of {@link EvictionPolicyConfigurer} objects to compose.
-		 * @return an {@link EvictionPolicyConfigurer} implementation composed from the {@link Iterable}
-		 * of {@link EvictionPolicyConfigurer} objects.
+		 * @return an {@link EvictionPolicyConfigurer} implementation composed of
+		 * an {@link Iterable} of {@link EvictionPolicyConfigurer} objects.
 		 * @see org.springframework.data.gemfire.config.annotation.EvictionConfiguration.EvictionPolicyConfigurer
-		 * @see #compose(EvictionPolicyConfigurer, EvictionPolicyConfigurer)
 		 */
 		protected static @Nullable EvictionPolicyConfigurer compose(Iterable<EvictionPolicyConfigurer> iterable) {
 
@@ -268,15 +267,15 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		}
 
 		/**
-		 * Composes two {@link EvictionPolicyConfigurer} objects into a composition object
+		 * Composes two {@link EvictionPolicyConfigurer} objects into a composite object
 		 * implementing the {@link EvictionPolicyConfigurer} interface.
 		 *
 		 * @param one first {@link EvictionPolicyConfigurer} object to compose.
 		 * @param two second {@link EvictionPolicyConfigurer} object to compose.
 		 * @return an {@link EvictionPolicyConfigurer} object implementation composed of
-		 * multiple {@link EvictionPolicyConfigurer} objects using the Composite Software Design Pattern.
+		 * multiple {@link EvictionPolicyConfigurer} objects using the {@literal Composite Software Design Pattern}.
 		 */
-		protected static @Nullable EvictionPolicyConfigurer compose(@Nullable EvictionPolicyConfigurer one,
+		private static @Nullable EvictionPolicyConfigurer compose(@Nullable EvictionPolicyConfigurer one,
 				@Nullable EvictionPolicyConfigurer two) {
 
 			return one == null ? two
@@ -288,7 +287,7 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		private final EvictionPolicyConfigurer two;
 
 		/**
-		 * Constructs a new instance of the {@link ComposableEvictionPolicyConfigurer} initialized with the two
+		 * Constructs a new instance of {@link ComposableEvictionPolicyConfigurer} initialized with the two
 		 * {@link EvictionPolicyConfigurer} objects.
 		 *
 		 * @param one first {@link EvictionPolicyConfigurer} object to compose.
@@ -300,17 +299,11 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 			this.two = two;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public Object configure(Object regionBean) {
 			return this.two.configure(this.one.configure(regionBean));
 		}
 
-		/**
-		 * @inheritDoc
-		 */
 		@Override
 		public Region<?, ?> configure(Region<?, ?> region) {
 			return this.two.configure(this.one.configure(region));
@@ -318,11 +311,11 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 	}
 
 	@SuppressWarnings("unused")
-	protected static class EvictionPolicyMetaData implements EvictionPolicyConfigurer {
+	protected static class EvictionPolicyMetadata implements EvictionPolicyConfigurer {
 
 		protected static final String[] ALL_REGIONS = new String[0];
 
-		protected static EvictionPolicyMetaData from(@NonNull AnnotationAttributes evictionPolicyAttributes,
+		protected static EvictionPolicyMetadata from(@NonNull AnnotationAttributes evictionPolicyAttributes,
 				@NonNull ApplicationContext applicationContext) {
 
 			Assert.isAssignable(EvictionPolicy.class, evictionPolicyAttributes.annotationType());
@@ -334,14 +327,14 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 				evictionPolicyAttributes.getStringArray("regionNames"));
 		}
 
-		protected static EvictionPolicyMetaData from(EvictionPolicy evictionPolicy,
+		protected static EvictionPolicyMetadata from(EvictionPolicy evictionPolicy,
 				ApplicationContext applicationContext) {
 
 			return from(evictionPolicy.type(), evictionPolicy.maximum(), evictionPolicy.action(),
 				resolveObjectSizer(evictionPolicy.objectSizerName(), applicationContext), evictionPolicy.regionNames());
 		}
 
-		protected static EvictionPolicyMetaData from(EvictionPolicyType type, int maximum, EvictionActionType action,
+		protected static EvictionPolicyMetadata from(EvictionPolicyType type, int maximum, EvictionActionType action,
 				ObjectSizer objectSizer, String... regionNames) {
 
 			EvictionAttributesFactoryBean factoryBean = new EvictionAttributesFactoryBean();
@@ -352,11 +345,11 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 			factoryBean.setType(type);
 			factoryBean.afterPropertiesSet();
 
-			return new EvictionPolicyMetaData(factoryBean.getObject(), regionNames);
+			return new EvictionPolicyMetadata(factoryBean.getObject(), regionNames);
 		}
 
-		protected static EvictionPolicyMetaData fromDefaults() {
-			return new EvictionPolicyMetaData(EvictionAttributes.createLRUEntryAttributes());
+		protected static EvictionPolicyMetadata fromDefaults() {
+			return new EvictionPolicyMetadata(EvictionAttributes.createLRUEntryAttributes());
 		}
 
 		protected static ObjectSizer resolveObjectSizer(String objectSizerName, ApplicationContext applicationContext) {
@@ -388,20 +381,20 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		private final Set<String> regionNames = new HashSet<>();
 
 		/**
-		 * Constructs an instance of {@link EvictionPolicyMetaData} initialized with the given
+		 * Constructs an instance of {@link EvictionPolicyMetadata} initialized with the given
 		 * {@link EvictionAttributes} applying to all {@link Region Regions}.
 		 *
 		 * @param evictionAttributes {@link EvictionAttributes} specifying the Eviction policy configuration
 		 * for a {@link Region}.
 		 * @see org.apache.geode.cache.EvictionAttributes
-		 * @see #EvictionPolicyMetaData(EvictionAttributes, String[])
+		 * @see EvictionPolicyMetadata#EvictionPolicyMetadata(EvictionAttributes, String[])
 		 */
-		protected EvictionPolicyMetaData(EvictionAttributes evictionAttributes) {
+		protected EvictionPolicyMetadata(EvictionAttributes evictionAttributes) {
 			this(evictionAttributes, ALL_REGIONS);
 		}
 
 		/**
-		 * Constructs an instance of {@link EvictionPolicyMetaData} initialized with the given
+		 * Constructs an instance of {@link EvictionPolicyMetadata} initialized with the given
 		 * {@link EvictionAttributes} to apply to the specific {@link Region Regions}.
 		 *
 		 * @param evictionAttributes {@link EvictionAttributes} specifying the Eviction policy configuration
@@ -409,7 +402,7 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @param regionNames names of {@link Region Regions} on which the Eviction policy is applied.
 		 * @see org.apache.geode.cache.EvictionAttributes
 		 */
-		protected EvictionPolicyMetaData(EvictionAttributes evictionAttributes, String[] regionNames) {
+		protected EvictionPolicyMetadata(EvictionAttributes evictionAttributes, String[] regionNames) {
 
 			Assert.notNull(evictionAttributes, "EvictionAttributes must not be null");
 

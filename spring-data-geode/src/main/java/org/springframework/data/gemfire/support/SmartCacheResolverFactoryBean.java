@@ -118,7 +118,7 @@ public class SmartCacheResolverFactoryBean extends AbstractFactoryBeanSupport<Ca
 	 *
 	 * @return the {@link CacheResolver} instance constructed and initialized by this {@link FactoryBean}.
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
-	 * @see CacheResolverProxy
+	 * @see org.springframework.data.gemfire.support.SmartCacheResolverFactoryBean.CacheResolverProxy
 	 */
 	@NonNull
 	public CacheResolver<GemFireCache> getObject() {

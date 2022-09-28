@@ -297,8 +297,8 @@ public class EntityDefinedRegionsConfiguration extends AbstractAnnotationConfigS
 	 * Returns the associated {@link GemfirePersistentEntity persistent entity} for the given application
 	 * domain object type.
 	 *
-	 * @param persistentEntityType {@link Class type} of the application domain object used to lookup
-	 * the {@link GemfirePersistentEntity persistent entity} from the {@link @GemfireMappingContext mapping context}.
+	 * @param persistentEntityType {@link Class type} of the application domain object used to look up
+	 * the {@link GemfirePersistentEntity persistent entity} from the {@link GemfireMappingContext mapping context}.
 	 * @return the {@link GemfirePersistentEntity persistent entity} for the given application domain object type.
 	 * @see org.springframework.data.gemfire.mapping.GemfirePersistentEntity
 	 * @see java.lang.Class

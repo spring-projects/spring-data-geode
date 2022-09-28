@@ -62,16 +62,16 @@ public interface OqlQueryExecutor {
 	}
 
 	/**
-	 * Null-safe composition method to {@literal compose} {@literal this} {@link OqlQueryExecutor} with
+	 * Null-safe composition method to {@literal compose} this {@link OqlQueryExecutor} with
 	 * the given {@link OqlQueryExecutor}.
 	 *
 	 * {@link OqlQueryExecutor} implementations should be {@literal composed} in an order that is most suitable to
-	 * the execution of the OQL query first.  Meaning, the outer most {@link OqlQueryExecutor} should be the most
+	 * the execution of the OQL query first.  Meaning, the outermost {@link OqlQueryExecutor} should be the most
 	 * suitable {@link OqlQueryExecutor} to execute the given OQL query followed by the next most suitable
 	 * {@link OqlQueryExecutor} in the composition (i.e. chain) and so on until the OQL query is either successfully
 	 * executed (handled) or the composition is exhausted, in which case, an {@link Exception} could be thrown.
 	 *
-	 * If an {@link OqlQueryExecutor is unable to execute, or handle, the given OQL query, then it must throw
+	 * If an {@link OqlQueryExecutor} is unable to execute, or handle, the given OQL query, then it must throw
 	 * an {@link UnsupportedQueryExecutionException } to triggger the next {@link OqlQueryExecutor} in the composition.
 	 *
 	 * @param queryExecutor {@link OqlQueryExecutor} to compose with this {@link OqlQueryExecutor};

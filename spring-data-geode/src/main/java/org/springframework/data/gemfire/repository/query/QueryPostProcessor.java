@@ -27,17 +27,16 @@ import org.springframework.lang.Nullable;
 
 /**
  * The {@link QueryPostProcessor} interface defines a contract for implementations to post process
- * a given {@link QUERY query} and possibly return a new or modified version of the same {@link QUERY query}.
+ * a given {@literal QUERY} and possibly return a new or modified version of the same {@literal QUERY}.
  *
- * {@link QueryPostProcessor QueryPostProcessors} are useful for handling and processing {@link QUERY queries}
+ * {@link QueryPostProcessor QueryPostProcessors} are useful for handling and processing {@literal QUERIES}
  * derived from {@link Repository} {@link QueryMethod QueryMethods}, and give a developer the opportunity,
- * via the callback, to further process the generated {@link QUERY query}.
+ * via the callback, to further process the generated {@literal QUERY}.
  *
- * {@link QueryPostProcessor QueryPostProcessors} can be used on both {@literal derived} {@link QUERY queries}
- * and {@literal manual} {@link QUERY queries}.  {@literal Manual} {@link QUERY queries} are defined as
- * {@link QUERY queries} specified using SDG's {@link Query @Query} annotation or by defining a {@literal named}
- * {@link QUERY query} in a module-specific {@link Properties} files
- * (e.g. {@literal META-INF/gemfire-named-queries.properties}).
+ * {@link QueryPostProcessor QueryPostProcessors} can be used on both {@literal derived} {@literal QUERIES}
+ * and {@literal manual} {@literal QUERIES}.  {@literal Manual} {@literal QUERIES} are defined as {@literal QUERIES}
+ * specified using SDG's {@link Query @Query} annotation or by defining a {@literal named} {@literal QUERY}
+ * in a module-specific {@link Properties} files, for example: {@literal META-INF/gemfire-named-queries.properties}).
  *
  * @author John Blum
  * @param <T> {@link Class type} identifying the {@link Repository Repositories} to match on during registration.
@@ -73,14 +72,14 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 
 	/**
 	 * Callback method invoked by the Spring Data (SD) {@link Repository} framework to allow the user to process
-	 * the given {@link QUERY query} and (possibly) return a new or modified version of the {@link QUERY query}.
+	 * the given {@literal QUERY} and (possibly) return a new or modified version of the {@literal QUERY}.
 	 *
 	 * This callback is invoked for {@literal queries} generated from a SD {@link Repository} {@link QueryMethod}
 	 * signature as well as {@literal queries} specified and defined in {@link NamedQueries},
 	 * or even using SDG's {@link Query @Query} annotation.
 	 *
-	 * @param query {@link QUERY query} to process.
-	 * @return a new or modified version of the same {@link QUERY query}.
+	 * @param query {@literal QUERY} to process.
+	 * @return a new or modified version of the same {@literal QUERY}.
 	 * @see org.springframework.data.repository.query.QueryMethod
 	 * @see #postProcess(QueryMethod, Object, Object...)
 	 */
@@ -90,15 +89,15 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 
 	/**
 	 * Callback method invoked by the Spring Data (SD) {@link Repository} framework to allow the user to process
-	 * the given {@link QUERY query} and (possibly) return a new or modified version of the {@link QUERY query}.
+	 * the given {@literal QUERY} and (possibly) return a new or modified version of the {@literal QUERY}.
 	 *
 	 * This callback is invoked for {@literal queries} generated from a SD {@link Repository} {@link QueryMethod}
 	 * signature as well as {@literal queries} specified and defined in {@link NamedQueries},
 	 * or even using SDG's {@link Query @Query} annotation.
 	 *
-	 * @param query {@link QUERY query} to process.
+	 * @param query {@literal QUERY} to process.
 	 * @param arguments array of {@link Object Objects} containing the arguments to the query parameters.
-	 * @return a new or modified version of the same {@link QUERY query}.
+	 * @return a new or modified version of the same {@literal QUERY}.
 	 * @see org.springframework.data.repository.query.QueryMethod
 	 * @see #postProcess(QueryMethod, Object)
 	 */

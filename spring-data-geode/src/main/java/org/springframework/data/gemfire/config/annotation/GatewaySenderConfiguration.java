@@ -162,7 +162,7 @@ public class GatewaySenderConfiguration extends AbstractAnnotationConfigSupport
 
 	/**
 	 * Processes a defined {@link EnableGatewaySender} on the {@link EnableGatewaySenders} annotation.
-	 * Processes properties defined in either the {@link Annotation} or {@literal application.properties{@literal}.
+	 * Processes properties defined in either the {@link Annotation} or {@literal application.properties}.
 	 */
 	protected void registerGatewaySender(String gatewaySenderName, AnnotationAttributes gatewaySenderAnnotation,
 			AnnotationAttributes parentGatewaySenderAnnotation, BeanDefinitionRegistry registry) {

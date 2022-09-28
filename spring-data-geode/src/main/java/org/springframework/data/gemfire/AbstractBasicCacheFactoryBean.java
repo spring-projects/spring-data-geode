@@ -182,7 +182,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * cache factory used to create the cache constructed by this {@link FactoryBean}.
 	 *
 	 * @param cacheFactoryInitializer {@link CacheFactoryInitializer} called to initialize the cache factory.
-	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer
+	 * @see CacheFactoryInitializer
 	 */
 	@SuppressWarnings("rawtypes")
 	public void setCacheFactoryInitializer(@Nullable CacheFactoryInitializer cacheFactoryInitializer) {
@@ -194,7 +194,7 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 * cache factory used to create the cache constructed by this {@link FactoryBean}.
 	 *
 	 * @return the {@link CacheFactoryInitializer} called to initialize the cache factory.
-	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer
+	 * @see CacheFactoryInitializer
 	 */
 	@SuppressWarnings("rawtypes")
 	public @Nullable CacheFactoryInitializer getCacheFactoryInitializer() {
@@ -778,8 +778,8 @@ public abstract class AbstractBasicCacheFactoryBean extends AbstractFactoryBeanS
 	 *
 	 * @param factory {@link CacheFactory} or {@link ClientCacheFactory} to initialize.
 	 * @return the initialized {@link CacheFactory} or {@link ClientCacheFactory}.
-	 * @see org.springframework.data.gemfire.CacheFactoryBean.CacheFactoryInitializer#initialize(Object)
 	 * @see org.apache.geode.cache.client.ClientCacheFactory
+	 * @see CacheFactoryInitializer#initialize(Object)
 	 * @see org.apache.geode.cache.CacheFactory
 	 * @see #getCacheFactoryInitializer()
 	 */

@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import java.lang.annotation.Documented;
@@ -59,7 +58,7 @@ public @interface EnableCacheServer {
 	/**
 	 * Configures whether the {@link CacheServer} should start automatically at runtime.
 	 *
-	 * Defaults to {@literal true).
+	 * Defaults to {@literal true}.
 	 *
 	 * Use either the {@literal spring.data.gemfire.cache.server.<beanName>.auto-startup} property
 	 * or the {@literal spring.data.gemfire.cache.server.auto-startup} property

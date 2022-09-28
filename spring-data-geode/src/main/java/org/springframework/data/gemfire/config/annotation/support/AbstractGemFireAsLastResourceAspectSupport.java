@@ -123,11 +123,11 @@ public class AbstractGemFireAsLastResourceAspectSupport implements Ordered {
 	}
 
 	/**
-	 * Returns the configured, fully-qualified classname of the {@link javax.naming.spi.InitialContextFactory}
+	 * Returns the configured, fully-qualified classname of the {@literal javax.naming.spi.InitialContextFactory}
 	 * used to construct the {@link InitialContext} that is then used to lookup managed objects registered
 	 * in the JNDI context of the managed environment.
 	 *
-	 * @return the configured, fully-qualified classname of the {@link javax.naming.spi.InitialContextFactory}
+	 * @return the configured, fully-qualified classname of the {@literal javax.naming.spi.InitialContextFactory}
 	 * used to construct the {@link InitialContext}.
 	 */
 	public String getInitialContextFactory() {

@@ -87,8 +87,6 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 	 * The {@link #afterPropertiesSet()} will be called after construction to initialize this {@literal locator}.
 	 *
 	 * @return a new, initialized instance of the {@link GemfireBeanFactoryLocator}.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
-	 * @see GemfireBeanFactoryLocator()
 	 * @see #afterPropertiesSet()
 	 */
 	public static @NonNull GemfireBeanFactoryLocator newBeanFactoryLocator() {
@@ -111,9 +109,7 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 	 * the Spring {@link BeanFactory}.
 	 * @return a new {@link GemfireBeanFactoryLocator} initialized with the given, default Spring {@link BeanFactory}
 	 * and associated Spring {@link String bean name}.
-	 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator
 	 * @see org.springframework.beans.factory.BeanFactory
-	 * @see GemfireBeanFactoryLocator()
 	 * @see #setBeanFactory(BeanFactory)
 	 * @see #setBeanName(String)
 	 * @see #afterPropertiesSet()
@@ -383,8 +379,8 @@ public class GemfireBeanFactoryLocator implements BeanFactoryAware, BeanNameAwar
 		 *
 		 * @param beanFactory {@link BeanFactory} reference to store.
 		 * @return a new instance of {@link BeanFactoryReference} initialized with the given {@link BeanFactory}.
+		 * @see org.springframework.data.gemfire.support.GemfireBeanFactoryLocator.BeanFactoryReference
 		 * @see org.springframework.beans.factory.BeanFactory
-		 * @see GemfireBeanFactoryLocator.BeanFactoryReference(BeanFactory)
 		 */
 		protected static BeanFactoryReference newBeanFactoryReference(BeanFactory beanFactory) {
 			return new BeanFactoryReference(beanFactory);

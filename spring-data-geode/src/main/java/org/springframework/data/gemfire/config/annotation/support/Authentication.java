@@ -46,8 +46,8 @@ public interface Authentication<PRINCIPAL, CREDENTIALS> {
 	 * Determines whether {@literal authentication} was actually requested.
 	 *
 	 * The default implementation determines whether {@literal authentication} was requested by
-	 * the presence a {@link PRINCIPAL} and {@link CREDENTIALS}. However, even if {@literal authentication}
-	 * was requested, it does not necessarily mean the {@link PRINCIPAL} successfully authenticated.
+	 * the presence a {@literal PRINCIPAL} and {@literal CREDENTIALS}. However, even if {@literal authentication}
+	 * was requested, it does not necessarily mean the {@literal PRINCIPAL} successfully authenticated.
 	 *
 	 * @return a boolean valuing indicating whether {@literal authentication} was actually requested.
 	 * @see #getCredentials()

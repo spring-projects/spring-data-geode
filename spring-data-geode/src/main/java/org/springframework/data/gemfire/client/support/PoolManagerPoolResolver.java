@@ -53,8 +53,8 @@ public class PoolManagerPoolResolver implements PoolResolver {
 	 * Resolves the {@link Pool} with the given {@link String name} by delegating to {@link PoolManager#find(String)}.
 	 *
 	 * @param poolName {@link String name} of the {@link Pool} to resolve.
-	 * @return the {@link Pool} with the given {@link String name} or {@link null} if no {@link Pool} exists with
-	 * the {@link String name}.
+	 * @return the {@link Pool} with the given {@link String name} or {@literal null} if no {@link Pool} exists
+	 * with the {@link String name}.
 	 * @see org.apache.geode.cache.client.PoolManager#find(String)
 	 * @see org.apache.geode.cache.client.Pool
 	 */

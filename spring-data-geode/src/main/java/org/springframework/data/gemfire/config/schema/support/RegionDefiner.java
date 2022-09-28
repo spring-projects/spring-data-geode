@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.schema.support;
 
 import static org.springframework.data.gemfire.util.CollectionUtils.asSet;
@@ -30,7 +29,7 @@ import org.springframework.data.gemfire.config.schema.definitions.RegionDefiniti
 import org.springframework.data.gemfire.util.RegionUtils;
 
 /**
- * The {@link {RegionDefiner} class is responsible for defining a {@link Region}
+ * The {@link RegionDefiner} class is responsible for defining a {@link Region}
  * given a reference to a {@link Region} instance.
  *
  * @author John Blum
@@ -68,7 +67,7 @@ public class RegionDefiner implements SchemaObjectDefiner {
 
 		return Optional.ofNullable(schemaObject)
 			.filter(this::canDefine)
-			.map(it -> (Region) it)
+			.map(it -> (Region<?, ?>) it)
 			.filter(RegionUtils::isClient)
 			.map(it -> RegionDefinition.from(it).having(getRegionShortcut()));
 	}

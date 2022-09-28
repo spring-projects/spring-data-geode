@@ -128,8 +128,8 @@ public @interface EnableEntityDefinedRegions {
 	 * Further narrows the set of candidate components from everything in {@link #basePackages()}
 	 * or {@link #basePackageClasses()} to everything in the base packages that matches the given filter or filters.
 	 *
-	 * @return an array {@link ComponentScan.Filter} of Filters used to specify application persistent entities
-	 * to be included during the component scan.
+	 * @return an array {@link org.springframework.context.annotation.ComponentScan.Filter ComponentScan Filters}
+	 * used to specify application persistent entities to be included during the component scan.
 	 */
 	ComponentScan.Filter[] includeFilters() default {};
 
