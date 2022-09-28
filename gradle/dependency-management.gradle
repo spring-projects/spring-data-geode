@@ -27,6 +27,7 @@ dependencyManagement {
 		//mavenBom "org.springframework.data.build:spring-data-parent:$springDataBuildParentVersion"
 
 		mavenBom "com.fasterxml.jackson:jackson-bom:$jacksonVersion"
+		mavenBom "org.apache.logging.log4j:log4j-bom:$apacheLog4jBomVersion"
 
 		// Declared and managed Micrometer (BOM) version based on Apache Geode 1.14.3's declared, required Micrometer
 		// version (1.6.3). Spring Boot 3.0 declares and depends on Micrometer 2.0.
@@ -48,7 +49,6 @@ dependencyManagement {
 		dependency "org.apache.geode:geode-cq:$apacheGeodeVersion"
 		dependency "org.apache.geode:geode-lucene:$apacheGeodeVersion"
 		dependency "org.apache.geode:geode-wan:$apacheGeodeVersion"
-		dependency "org.apache.logging.log4j:log4j-bom:$apacheLog4jBomVersion"
 		dependency "org.apache.shiro:shiro-spring:$apacheShiroVersion"
 		dependency "org.aspectj:aspectjweaver:$aspectjVersion"
 		dependency "org.assertj:assertj-core:$assertjVersion"
