@@ -1,5 +1,5 @@
-[[ref-introduction]]
-= Document Structure
+[[overview]]
+= Overview & Document Structure
 
 The following chapters explain the core functionality offered by {sdg-name}:
 

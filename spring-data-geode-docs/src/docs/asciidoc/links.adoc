@@ -1,4 +1,4 @@
-[[sgf-links]]
+[[spring-data-geode-links]]
 = Useful Links
 
 * https://projects.spring.io/spring-data-gemfire[{sdg-name} Project Page]

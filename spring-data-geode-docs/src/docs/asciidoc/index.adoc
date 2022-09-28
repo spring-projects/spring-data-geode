@@ -3,23 +3,23 @@ Costin Leau; David Turanski; John Blum; Oliver Drotbohm; Jay Bryant
 :revdate: {localdate}
 :revnumber: {version}
 :toclevels: 2
-:apache-geode-version: 115
-:apache-geode-docs: https://geode.apache.org/docs/guide/{apache-geode-version}/about_geode.html
+:apache-geode-docs: https://geode.apache.org/docs/guide/{apache-geode-doc-version}/about_geode.html
 :apache-geode-javadoc: https://geode.apache.org/releases/latest/javadoc
 :apache-geode-website: https://geode.apache.org
 :apache-geode-wiki: https://cwiki.apache.org/confluence/display/GEODE
+:data-store-name-id: geode
 :data-store-name-simple: Geode
-:data-store-name-symbolic: geode
 :data-store-name: Apache {data-store-name-simple}
-:data-store-version: 1.15.0
+:data-store-version: {apache-geode-artifact-version}
+:includes-dir: reference
 :sdg-acronym: SDG
-:sdg-javadoc: https://docs.spring.io/spring-data/{data-store-name-symbolic}/docs/current/api
+:sdg-javadoc: https://docs.spring.io/spring-data/{data-store-name-id}/docs/current/api
 :sdg-name: Spring Data for {data-store-name}
 :sdg-website: https://projects.spring.io/spring-data-geode
 :spring-data-website: https://spring.io/projects/spring-data
 :spring-data-commons-docs: https://docs.spring.io/spring-data/commons/docs/current/reference
 :spring-data-commons-docs-html: {spring-data-commons-docs}/html
-:spring-data-commons-include: ../../../../spring-data-commons/src/main/asciidoc
+:spring-data-commons-include: ../../../../../spring-data-commons/src/main/asciidoc
 :spring-data-commons-javadoc: https://docs.spring.io/spring-data/commons/docs/current/api
 :spring-data-geode-schema-location: https://www.springframework.org/schema/data/geode/spring-data-geode.xsd
 :spring-data-geode-schema-namespace: https://www.springframework.org/schema/data/geode
@@ -34,6 +34,7 @@ Costin Leau; David Turanski; John Blum; Oliver Drotbohm; Jay Bryant
 :x-data-store-wiki: {apache-geode-wiki}
 ifdef::backend-epub3[:front-cover-image: image:epub-cover.png[Front Cover,1050,1600]]
 
+
 (C) 2010-2022 The original authors.
 
 NOTE: Copies of this document may be made for your own use and for distribution to others provided that you do not
@@ -41,42 +42,34 @@ charge any fee for such copies and further provided that each copy contains this
 whether distributed in print or electronically.
 
 [[preface]]
-include::preface.adoc[]
-
-include::introduction/introduction.adoc[leveloffset=+1]
-include::introduction/requirements.adoc[leveloffset=+1]
-include::introduction/new-features.adoc[leveloffset=+1]
+include::preface.adoc[leveloffset=+1]
+include::introduction.adoc[leveloffset=+1]
+include::requirements.adoc[leveloffset=+1]
+include::new-features.adoc[leveloffset=+1]
 
 [[reference]]
-= Reference Guide
+== Reference Guide
 
-include::reference/introduction.adoc[leveloffset=+1]
-include::reference/bootstrap.adoc[leveloffset=+1]
-include::reference/bootstrap-annotations.adoc[leveloffset=+1]
-include::reference/data.adoc[leveloffset=+1]
-include::reference/serialization.adoc[leveloffset=+1]
-include::reference/mapping.adoc[leveloffset=+1]
-include::reference/repositories.adoc[leveloffset=+1]
-include::reference/function-annotations.adoc[leveloffset=+1]
-include::reference/lucene.adoc[leveloffset=+1]
-include::reference/gemfire-bootstrap.adoc[leveloffset=+1]
-include::reference/samples.adoc[leveloffset=+1]
+include::{includes-dir}/overview.adoc[leveloffset=+1]
+include::{includes-dir}/bootstrap.adoc[leveloffset=+1]
+include::{includes-dir}/bootstrap-annotations.adoc[leveloffset=+1]
+include::{includes-dir}/data.adoc[leveloffset=+1]
+include::{includes-dir}/serialization.adoc[leveloffset=+1]
+include::{includes-dir}/mapping.adoc[leveloffset=+1]
+include::{includes-dir}/repositories.adoc[leveloffset=+1]
+include::{includes-dir}/function-annotations.adoc[leveloffset=+1]
+include::{includes-dir}/lucene.adoc[leveloffset=+1]
+include::{includes-dir}/gemfire-bootstrap.adoc[leveloffset=+1]
+include::{includes-dir}/samples.adoc[leveloffset=+1]
 
 [[resources]]
-= Resources
+== Resources
 
 In addition to this reference documentation, there are a number of other resources that may help you learn
-how to use {data-store-product-name} with the _Spring Framework_. These additional, third-party resources
+how to use {data-store-name} with the _Spring Framework_. These additional, third-party resources
 are enumerated in this section.
 
 include::links.adoc[leveloffset=+1]
 
-[[appendices]]
-= Appendices
-
 :!sectnums:
-include::{spring-data-commons-include}/repository-namespace-reference.adoc[leveloffset=+1]
-include::{spring-data-commons-include}/repository-populator-namespace-reference.adoc[leveloffset=+1]
-include::{spring-data-commons-include}/repository-query-keywords-reference.adoc[leveloffset=+1]
-include::{spring-data-commons-include}/repository-query-return-types-reference.adoc[leveloffset=+1]
-include::appendix/appendix-schema.adoc[leveloffset=+1]
+include::appendix.adoc[leveloffset=+1]

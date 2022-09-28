@@ -1141,7 +1141,7 @@ cache servers and peer data members in the distributed system and is recommended
 possible to configure the `Pool` to connect directly to one or more cache servers by using the `server` element.
 
 For a full list of options to set on the client and especially on the `Pool`, see
-the {sdg-name} schema ("`<<appendix-schema>>`") and {data-store-name}'s documentation on
+the {sdg-name} schema ("`<<appendix>>`") and {data-store-name}'s documentation on
 {x-data-store-docs}/topologies_and_comm/cs_configuration/chapter_overview.html[Client-Server Configuration].
 
 [[bootstrap:region:client:interests]]

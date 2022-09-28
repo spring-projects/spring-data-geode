@@ -1,0 +1,11 @@
+[[appendix]]
+= Appendix
+
+include::{spring-data-commons-include}/repository-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-include}/repository-populator-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-include}/repository-query-keywords-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-include}/repository-query-return-types-reference.adoc[leveloffset=+1]
+
+== {sdg-name} Schemas
+* {spring-geode-schema-location}[{sdg-name} Core Schema (`gfe` XML namespace)]
+* {spring-data-geode-schema-location}[{sdg-name} Data Access Schema (`gfe-data` XML namespace)]

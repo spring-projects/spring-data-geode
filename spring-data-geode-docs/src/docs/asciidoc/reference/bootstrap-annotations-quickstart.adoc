@@ -1,4 +1,4 @@
-[[bootstap-annotations-quickstart]]
+[[bootstrap-annotations-quickstart]]
 = Annotation-based Configuration Quick Start
 
 The following sections provide an overview to the {sdg-acronym} annotations in order to get started quickly.

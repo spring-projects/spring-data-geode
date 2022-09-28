@@ -416,11 +416,7 @@ However, if you still want to receive transaction events "_before commit_", then
 `applicationEventPublisher.publishEvent(..)` method within your application `@Transactional` `@Service` methods.
 See the *note* above for more details.
 
-:leveloffset: +1
-
-include::reference/cq-container.adoc[]
-
-:leveloffset: -1
+include::cq-container.adoc[leveloffset=+1]
 
 [[apis:declarable]]
 == Wiring `Declarable` Components

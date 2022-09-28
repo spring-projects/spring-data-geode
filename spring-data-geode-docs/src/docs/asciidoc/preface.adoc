@@ -1,3 +1,4 @@
+[[preface]]
 = Preface
 
 {sdg-name} focuses on integrating the Spring Framework's powerful, non-invasive programming model

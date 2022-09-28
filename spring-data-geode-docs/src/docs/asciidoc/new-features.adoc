@@ -1,9 +1,31 @@
 [[new-features]]
-= New Features
+== New Features
 
 NOTE: As of the 1.2.0.RELEASE, this project, formerly known as Spring GemFire, has been renamed to {sdg-name}
 to reflect that it is now a module of the {spring-data-website}[Spring Data] project and built on
 {x-data-store-website}[{data-store-name}].
+
+[[new-in-2-2-0]]
+== New in the 2.2 Release
+
+* Upgraded to {data-store-name} {data-store-version}.
+* Upgraded to Spring Framework 5.2.0.RELEASE.
+* Upgraded to Spring Data Commons 2.2.0.RELEASE.
+* Add Annotation configuration support to configure and bootstrap {data-store-name} Locator applications
+using `@LocatorApplication`.
+* Added Annotation configuration support for GatewayReceivers and GatewaySenders.
+* Updated docs.
+
+[[new-in-2-1-0]]
+== New in the 2.1 Release
+
+* Upgraded to {data-store-name} {data-store-version}.
+* Upgraded to Spring Framework 5.1.0.RELEASE.
+* Upgraded to Spring Data Commons 2.1.0.RELEASE.
+* Added support for parallel cache/Region snapshots along with invoking callbacks when loading snapshots.
+* Added support for registering QueryPostProcessors to customize the OQL generated fro Repository query methods.
+* Added support for include/exclude TypeFilters in o.s.d.g.mapping.MappingPdxSerializer.
+* Updated docs.
 
 [[new-in-2-0-0]]
 == New in the 2.0 Release
@@ -21,25 +43,3 @@ to reflect that it is now a module of the {spring-data-website}[Spring Data] pro
 and server when using JavaConfig.
 * Added support in the Annotation configuration model for Off-Heap, Redis Adapter,
 and {data-store-name}'s new Security framework.
-
-[[new-in-2-1-0]]
-== New in the 2.1 Release
-
-* Upgraded to {data-store-name} {data-store-version}.
-* Upgraded to Spring Framework 5.1.0.RELEASE.
-* Upgraded to Spring Data Commons 2.1.0.RELEASE.
-* Added support for parallel cache/Region snapshots along with invoking callbacks when loading snapshots.
-* Added support for registering QueryPostProcessors to customize the OQL generated fro Repository query methods.
-* Added support for include/exclude TypeFilters in o.s.d.g.mapping.MappingPdxSerializer.
-* Updated docs.
-
-[[new-in-2-2-0]]
-== New in the 2.2 Release
-
-* Upgraded to {data-store-name} {data-store-version}.
-* Upgraded to Spring Framework 5.2.0.RELEASE.
-* Upgraded to Spring Data Commons 2.2.0.RELEASE.
-* Add Annotation configuration support to configure and bootstrap {data-store-name} Locator applications
-using `@LocatorApplication`.
-* Added Annotation configuration support for GatewayReceivers and GatewaySenders.
-* Updated docs.

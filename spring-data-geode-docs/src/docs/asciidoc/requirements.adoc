@@ -1,0 +1,5 @@
+[[requirements]]
+== Requirements
+
+{sdg-name} requires Java 8, {spring-framework-website}[Spring Framework] 5, {spring-data-website}[Spring Data Commons]
+and {x-data-store-website}[{data-store-name}] {data-store-version}.

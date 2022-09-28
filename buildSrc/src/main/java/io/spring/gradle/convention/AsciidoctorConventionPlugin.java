@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.asciidoctor.gradle.base.log.Severity;
 import org.asciidoctor.gradle.jvm.AbstractAsciidoctorTask;
 import org.asciidoctor.gradle.jvm.AsciidoctorJExtension;
 import org.asciidoctor.gradle.jvm.AsciidoctorJPlugin;
@@ -66,6 +67,8 @@ import org.gradle.api.tasks.Sync;
  */
 public class AsciidoctorConventionPlugin implements Plugin<Project> {
 
+	private static final boolean DEBUG_ENABLED = Boolean.getBoolean("gradle.plugins.asciidoctor.debug");
+
 	private static final String SPRING_ASCIIDOCTOR_EXTENSIONS_BLOCK_SWITCH_VERSION = "0.4.2.RELEASE";
 	private static final String SPRING_DOC_RESOURCES_VERSION = "0.2.5";
 
@@ -90,6 +93,7 @@ public class AsciidoctorConventionPlugin implements Plugin<Project> {
 
 				asciidoctorTask.dependsOn(unzipResources);
 				configureAttributes(project, asciidoctorTask);
+				configureDebugging(asciidoctorTask);
 				configureExtensions(project, asciidoctorTask);
 				configureOptions(asciidoctorTask);
 				asciidoctorTask.baseDirFollowsSourceDir();
@@ -181,6 +185,14 @@ public class AsciidoctorConventionPlugin implements Plugin<Project> {
 		attributes.put("today-year", LocalDate.now().getYear());
 
 		asciidoctorTask.attributes(attributes);
+	}
+
+	private void configureDebugging(AbstractAsciidoctorTask asciidoctorTask) {
+
+		if (DEBUG_ENABLED) {
+			asciidoctorTask.setFailureLevel(Severity.FATAL);
+			asciidoctorTask.setLogDocuments(true);
+		}
 	}
 
 	private void configureExtensions(Project project, AbstractAsciidoctorTask asciidoctorTask) {

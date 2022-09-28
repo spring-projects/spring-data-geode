@@ -105,11 +105,11 @@ shown earlier, as the following example shows:
 <4> Bean declaration using the `gfe` namespace. Notice the lack of prefix since `gfe` is the default namespace.
 ====
 
-include::reference/data-access.adoc[leveloffset=+1]
-include::reference/cache.adoc[leveloffset=+1]
-include::reference/region.adoc[leveloffset=+1]
-include::reference/indexing.adoc[leveloffset=+1]
-include::reference/diskstore.adoc[leveloffset=+1]
-include::reference/snapshot.adoc[leveloffset=+1]
-include::reference/function.adoc[leveloffset=+1]
-include::reference/gateway.adoc[leveloffset=+1]
+include::data-access.adoc[leveloffset=+1]
+include::cache.adoc[leveloffset=+1]
+include::region.adoc[leveloffset=+1]
+include::indexing.adoc[leveloffset=+1]
+include::diskstore.adoc[leveloffset=+1]
+include::snapshot.adoc[leveloffset=+1]
+include::function.adoc[leveloffset=+1]
+include::gateway.adoc[leveloffset=+1]

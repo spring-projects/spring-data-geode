@@ -21,11 +21,10 @@ def versions = dependencyManagement.managedVersions
 
 asciidoctor {
 	clearSources()
+	//failureLevel 'error'
+	//logDocuments(true)
 	sources {
 		include "index.adoc"
-		include "appendix/*.adoc"
-		include "introduction/*.adoc"
-		include "reference/*.adoc"
 	}
 }
 
@@ -37,10 +36,11 @@ asciidoctorj {
 	def githubTag = snapshotBuild ? 'main' : project.version
 	def githubUrl = "$githubBaseUrl/tree/$githubTag"
 
-	attributes 'version' : project.version,
+	attributes 'version' : "$version",
 	    'version-snapshot': snapshotBuild,
 		'version-milestone': milestoneBuild,
 		'version-release': releaseBuild,
+		'data-store-name' : "Apache Geode",
 		'download-url' : "${githubBaseUrl}/archive/${githubTag}.zip",
 		'github-url': githubUrl,
 		'highlightjsdir@': "js/highlight",
@@ -56,6 +56,7 @@ asciidoctorj {
 		'docs-dir' : rootProject.projectDir.path + '/spring-data-geode-docs',
 		'docs-src-dir' : rootProject.projectDir.path + '/spring-data-geode-docs/src/main/java',
 		'docs-resources-dir' : rootProject.projectDir.path + '/spring-data-geode-docs/src/main/resources'
+
 }
 
 asciidoctorPdf {
@@ -69,6 +70,7 @@ asciidoctorPdf {
 javadoc {
 	configure(options) {
 		links = [
+			"https://docs.oracle.com/javase/8/docs/api/",
 			"https://docs.spring.io/spring/docs/current/javadoc-api/",
 			"https://docs.spring.io/spring-boot/docs/current/api/",
 			"https://docs.spring.io/spring-boot-data-geode/docs/${project.version}/api/",
@@ -91,7 +93,13 @@ processResources {
 	}
 }
 
-String resolveApacheGeodeDocVersion(String apacheGeodeVersion) {
+/*
+project.tasks.withType(Copy).forEach() {
+	it.duplicatesStrategy DuplicatesStrategy.EXCLUDE
+}
+*/
+
+static String resolveApacheGeodeDocVersion(String apacheGeodeVersion) {
 
 	def apacheGeodeDocVersion = ''
 	def index = apacheGeodeVersion.lastIndexOf(".")

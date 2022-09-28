@@ -1,7 +1,7 @@
 [[bootstrap:diskstore]]
 = Configuring a DiskStore
 
-{sdg-name} supports `DiskStore` configuration and creation through the `disk-store` element,
+{sdg-name} supports `DiskStore` creation and configuration through the `disk-store` element,
 as the following example shows:
 
 [source,xml]

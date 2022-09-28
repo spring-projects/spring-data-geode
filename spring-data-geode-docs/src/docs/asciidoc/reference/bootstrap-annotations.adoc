@@ -11,7 +11,7 @@ and as _easily_ as possible.
 Let's get started!
 
 TIP: If you would like to get started even faster, refer to
-the <<bootstap-annotations-quickstart, Quick Start>> section.
+the <<bootstrap-annotations-quickstart, Quick Start>> section.
 
 [[bootstrap-annotation-config-introduction]]
 == Introduction
@@ -974,7 +974,7 @@ and make it generally available and accessible.
 {data-store-name} organizes data in a cache into {x-data-store-docs}/basic_config/data_regions/chapter_overview.html[Regions].
 You can think of a Region as a table in a relational database. Generally, a Region should only store a single type of object,
 which makes it more conducive for building effective indexes and writing queries. We cover indexing
-<<bootstrap-annotation-config-indexes,later>>.
+<<bootstrap-annotation-config-region-indexes,later>>.
 
 Previously, {sdg-name} users needed to explicitly define and declare the Regions used by their applications to store data
 by writing very verbose Spring configuration metadata, whether using {sdg-acronym}'s `FactoryBeans` from the API
@@ -1074,7 +1074,7 @@ more sophisticated queries by declaring query methods on the repository interfac
 
 Under the hood, {sdg-name} provides an implementation of your application's repository interfaces when
 the Spring container is bootstrapped. {sdg-acronym} even implements the query methods you define so long as you follow
-the <<gemfire-repositories.executing-queries,conventions>>.
+the <<gemfire-repositories.queries.executing,conventions>>.
 
 Now, when you defined the `Book` class, you also specified the Region in which instances of `Book` are mapped (stored)
 by declaring the {sdg-name} mapping annotation, `@Region` on the entity's type. Of course, if the entity type (`Book`,
@@ -2439,6 +2439,4 @@ and `org.springframework.data.gemfire.wan.GatewaySenderFactoryBean` API classes 
 The annotations were not meant to handle every situation. The annotations were meant to help you _get up and running_
 as _quickly_ and as _easily_ as possible, especially during development.
 
-We hope you will enjoy these new capabilities!
-
-include::reference/bootstrap-annotations-quickstart.adoc[leveloffset=+1]
+include::bootstrap-annotations-quickstart.adoc[leveloffset=+1]
