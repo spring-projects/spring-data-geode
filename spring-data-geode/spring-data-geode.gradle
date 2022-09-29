@@ -65,7 +65,7 @@ dependencies {
 	testRuntimeOnly "org.apache.logging.log4j:log4j-to-slf4j"
 	testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
 	testRuntimeOnly "org.iq80.snappy:snappy"
-	testRuntimeOnly "org.springframeork.shell:spring-shell"
+	testRuntimeOnly "org.springframework.shell:spring-shell"
 
 }
 
