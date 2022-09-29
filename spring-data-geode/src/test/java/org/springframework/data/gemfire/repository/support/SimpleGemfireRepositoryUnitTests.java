@@ -566,11 +566,10 @@ public class SimpleGemfireRepositoryUnitTests {
 
 		Region mockRegion = mockRegion("Example");
 
-		SelectResults mockSelectResults = mock(SelectResults.class);
+		SelectResults mockSelectResults = mockSelectResults(results);
 
 		doReturn(mockRegion).when(mockTemplate).getRegion();
 		doReturn(mockSelectResults).when(mockTemplate).find(anyString());
-		doReturn(results).when(mockSelectResults).asList();
 
 		SimpleGemfireRepository repository = new SimpleGemfireRepository(mockTemplate, mockEntityInformation());
 
@@ -595,11 +594,10 @@ public class SimpleGemfireRepositoryUnitTests {
 
 		Region mockRegion = mockRegion("Example");
 
-		SelectResults mockSelectResults = mock(SelectResults.class);
+		SelectResults mockSelectResults = mockSelectResults(results);
 
 		doReturn(mockRegion).when(mockTemplate).getRegion();
 		doReturn(mockSelectResults).when(mockTemplate).find(anyString());
-		doReturn(results).when(mockSelectResults).asList();
 
 		SimpleGemfireRepository repository = new SimpleGemfireRepository(mockTemplate, mockEntityInformation());
 
@@ -617,6 +615,7 @@ public class SimpleGemfireRepositoryUnitTests {
 	}
 
 	// Page Numbers are 0 based indexed
+	@SuppressWarnings("varargs")
 	private void assertPage(Page page, int pageNumber, int pageSize, int total, Sort orderBy, User... content) {
 
 		int totalPages = (total / pageSize) + (total % pageSize > 0 ? 1 : 0);
@@ -1145,9 +1144,7 @@ public class SimpleGemfireRepositoryUnitTests {
 
 		List<User> users = Arrays.asList(User.newUser("Jon Doe"), User.newUser("Jane Doe"));
 
-		SelectResults<User> mockSelectResults = mock(SelectResults.class);
-
-		doReturn(users).when(mockSelectResults).asList();
+		SelectResults<User> mockSelectResults = mockSelectResults(users);
 
 		List<User> userList = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
 			.toList((SelectResults) mockSelectResults);
@@ -1161,11 +1158,22 @@ public class SimpleGemfireRepositoryUnitTests {
 	@Test
 	public void toListFromNullSelectResultsIsNullSafe() {
 
-		List<User> users = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mockEntityInformation())
-			.toList((SelectResults) null);
+		List<User> users = new SimpleGemfireRepository<>(newGemfireTemplate(mockRegion()), mock(EntityInformation.class))
+			.toList(mockSelectResults(null));
 
 		assertThat(users).isNotNull();
 		assertThat(users).isEmpty();
+	}
+
+	private <T> SelectResults<T> mockSelectResults(@Nullable List<T> list) {
+
+		if (list != null) {
+			SelectResults<T> mockSelectResults = mock(SelectResults.class);
+			doReturn(list).when(mockSelectResults).asList();
+			return mockSelectResults;
+		}
+
+		return null;
 	}
 
 	@Test

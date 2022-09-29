@@ -63,6 +63,7 @@ import org.springframework.util.StringUtils;
  * Spring {@link Configuration} class used to enable Eviction policy configuration on cache {@link Region Regions}.
  *
  * @author John Blum
+ * @see org.apache.geode.cache.AttributesMutator
  * @see org.apache.geode.cache.EvictionAttributes
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.RegionAttributes
@@ -387,7 +388,6 @@ public class EvictionConfiguration extends AbstractAnnotationConfigSupport
 		 * @param evictionAttributes {@link EvictionAttributes} specifying the Eviction policy configuration
 		 * for a {@link Region}.
 		 * @see org.apache.geode.cache.EvictionAttributes
-		 * @see EvictionPolicyMetadata#EvictionPolicyMetadata(EvictionAttributes, String[])
 		 */
 		protected EvictionPolicyMetadata(EvictionAttributes evictionAttributes) {
 			this(evictionAttributes, ALL_REGIONS);
