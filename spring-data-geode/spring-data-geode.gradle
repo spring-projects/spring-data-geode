@@ -70,8 +70,10 @@ dependencies {
 }
 
 test {
+
+	forkEvery = 1
+	maxParallelForks = 8
 	//include "**/*Tests.java", "**/*Test.java"
-	maxParallelForks = 1
 
 	systemProperties['java.util.logging.config.file'] = "${project.projectDir}/src/test/resources/java-util-logging.properties"
 	systemProperties['gemfire.disableShutdownHook'] = "true"
@@ -79,4 +81,5 @@ test {
 	systemProperties['spring.profiles.active'] = "apache-geode"
 
 	useJUnitPlatform()
+
 }
