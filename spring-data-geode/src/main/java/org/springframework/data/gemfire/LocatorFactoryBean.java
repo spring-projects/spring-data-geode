@@ -15,6 +15,7 @@
  */
 package org.springframework.data.gemfire;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +64,8 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 	private boolean useBeanFactoryLocator = false;
 	private boolean useClusterConfigurationService = false;
+
+	private File workingDirectory;
 
 	private Integer port = DEFAULT_PORT;
 
@@ -119,6 +122,10 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 			getHostnameForClients().ifPresent(locatorBuilder::setHostnameForClients);
 			getLocators().ifPresent(locators -> locatorBuilder.set(LOCATORS_PROPERTY, locators));
 			getName().ifPresent(locatorBuilder::setMemberName);
+
+			getWorkingDirectory()
+				.map(File::getAbsolutePath)
+				.ifPresent(locatorBuilder::setWorkingDirectory);
 
 			locatorBuilder.set(LOG_LEVEL_PROPERTY, getLogLevel());
 			locatorBuilder.setPort(getPort());
@@ -304,5 +311,50 @@ public class LocatorFactoryBean extends AbstractFactoryBeanSupport<Locator> impl
 
 	public boolean isUseClusterConfigurationService() {
 		return this.useClusterConfigurationService;
+	}
+
+	/**
+	 * Sets the file system {@link File directory} in which the {@link Locator} will write all files to disk.
+	 *
+	 * This configuration setting should not be taken to mean this is the {@link File directory} in which
+	 * the {@link Locator} process will run, or in other words, the {@link Locator} process's actual
+	 * {@link File working directory}. If this {@link LocatorFactoryBean} is used to create and start
+	 * a {@link Locator}, then the {@link Locator} will run in an embedded mode, or the same JVM process
+	 * as the Spring application that called this {@link LocatorFactoryBean} and started the {@link Locator})
+	 * and therefore will inherit the same {@link File working directory} as the parent Spring application process.
+	 *
+	 * This configuration property is named after the same
+	 * {@link LocatorLauncher.Builder#getWorkingDirectory() workingDirectory} configuration property
+	 * on the {@link LocatorLauncher.Builder}.
+	 *
+	 * @param workingDirectory {@link File directory} in which the {@link Locator} will write its files to disk.
+	 * @see org.apache.geode.distributed.LocatorLauncher.Builder#setWorkingDirectory(String)
+	 * @see java.io.File
+	 */
+	public void setWorkingDirectory(@Nullable File workingDirectory) {
+		this.workingDirectory = workingDirectory;
+	}
+
+	/**
+	 * Get the file system {@link File directory} in which the {@link Locator} will write all files to disk.
+	 *
+	 * This configuration setting should not be taken to mean this is the {@link File directory} in which
+	 * the {@link Locator} process will run, or in other words, the {@link Locator} process's actual
+	 * {@link File working directory}. If this {@link LocatorFactoryBean} is used to create and start
+	 * a {@link Locator}, then the {@link Locator} will run in an embedded mode, or the same JVM process
+	 * as the Spring application that called this {@link LocatorFactoryBean} and started the {@link Locator})
+	 * and therefore will inherit the same {@link File working directory} as the parent Spring application process.
+	 *
+	 * This configuration property is named after the same
+	 * {@link LocatorLauncher.Builder#getWorkingDirectory() workingDirectory} configuration property
+	 * on the {@link LocatorLauncher.Builder}.
+	 *
+	 * @return the {@link File directory} in which the {@link Locator} will write its files to disk.
+	 * @see org.apache.geode.distributed.LocatorLauncher.Builder#getWorkingDirectory()
+	 * @see java.util.Optional
+	 * @see java.io.File
+	 */
+	public Optional<File> getWorkingDirectory() {
+		return Optional.ofNullable(this.workingDirectory);
 	}
 }

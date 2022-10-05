@@ -16,8 +16,13 @@
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newRuntimeException;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.UUID;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,11 +34,16 @@ import org.apache.geode.distributed.DistributedSystem;
 import org.apache.geode.distributed.Locator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.GemFireProperties;
 import org.springframework.data.gemfire.GemfireUtils;
+import org.springframework.data.gemfire.LocatorFactoryBean;
 import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
+import org.springframework.data.gemfire.util.SpringExtensions;
+import org.springframework.lang.NonNull;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 
 /**
  * Integration Tests for {@link LocatorApplication} and {@link LocatorApplicationConfiguration} asserting that
@@ -112,6 +122,47 @@ public class LocatorApplicationIntegrationTests extends IntegrationTestsSupport 
 		bindAddress = "localhost",
 		port = 0
 	)
-	static class TestConfiguration { }
+	static class TestConfiguration {
 
+		@Bean
+		LocatorConfigurer workingDirectoryLocatorConfigurer() {
+
+			return (beanName, locatorFactoryBean) -> {
+
+				File workingDirectory = newWorkingDirectory(locatorFactoryBean);
+
+				Function<Throwable, Boolean> workingDirectoryCreationErrorHandler = cause -> {
+					throw newRuntimeException(cause, "Failed to create temporary working directory [%s]", workingDirectory);
+				};
+
+				SpringExtensions.ValueReturningThrowableOperation<Boolean> createWorkingDirectory = () -> {
+					boolean result = workingDirectory.mkdirs();
+					workingDirectory.deleteOnExit();
+					return result;
+				};
+
+				SpringExtensions.safeGetValue(createWorkingDirectory,  workingDirectoryCreationErrorHandler);
+
+				assertThat(workingDirectory).isDirectory();
+
+				locatorFactoryBean.setWorkingDirectory(workingDirectory);
+			};
+		}
+
+		private String fromTemporaryDirectory(String... pathElements) {
+
+			StringBuilder relativePath = new StringBuilder(System.getProperty("java.io.tmpdir"));
+
+			Arrays.stream(pathElements)
+				.filter(StringUtils::hasText)
+				.forEach(pathElement -> relativePath.append(File.separator).append(pathElement));
+
+			return relativePath.toString();
+		}
+
+		private @NonNull File newWorkingDirectory(@NonNull LocatorFactoryBean locatorBean) {
+			return new File(fromTemporaryDirectory("locator",
+				locatorBean.getName().orElse("NO-NAME"), UUID.randomUUID().toString()));
+		}
+	}
 }

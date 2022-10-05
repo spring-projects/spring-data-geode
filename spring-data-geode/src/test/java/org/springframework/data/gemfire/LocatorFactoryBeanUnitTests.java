@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -132,6 +133,12 @@ public class LocatorFactoryBeanUnitTests {
 	@Test
 	public void initBuildsLocator() throws Exception {
 
+		File workingDirectory = new File(System.getProperty("java.io.tmpdir"));
+
+		assertThat(workingDirectory)
+			.describedAs("Working directory [%s] does not exist", workingDirectory.getAbsolutePath())
+			.isDirectory();
+
 		Locator mockLocator = mock(Locator.class);
 
 		LocatorLauncher mockLocatorLauncher = mock(LocatorLauncher.class);
@@ -150,6 +157,7 @@ public class LocatorFactoryBeanUnitTests {
 		this.locatorFactoryBean.setLocators("host1[1234],host2[6789]");
 		this.locatorFactoryBean.setName("TestMember");
 		this.locatorFactoryBean.setPort(54321);
+		this.locatorFactoryBean.setWorkingDirectory(workingDirectory);
 		this.locatorFactoryBean.init();
 
 		assertThat(this.locatorFactoryBean.getLocator()).isEqualTo(mockLocator);
@@ -161,6 +169,7 @@ public class LocatorFactoryBeanUnitTests {
 		verify(locatorBuilderSpy, times(1)).setHostnameForClients(eq("skullbox"));
 		verify(locatorBuilderSpy, times(1)).setMemberName(eq("TestMember"));
 		verify(locatorBuilderSpy, times(1)).setPort(eq(54321));
+		verify(locatorBuilderSpy, times(1)).setWorkingDirectory(eq(workingDirectory.getAbsolutePath()));
 		verify(this.locatorFactoryBean, times(1)).postProcess(eq(locatorBuilderSpy));
 		verify(this.locatorFactoryBean, times(1)).postProcess(eq(mockLocatorLauncher));
 		verify(mockLocatorLauncher, times(1)).start();
@@ -203,7 +212,7 @@ public class LocatorFactoryBeanUnitTests {
 	}
 
 	@Test
-	public void getObjectThrowsIllegalStateException() throws Exception {
+	public void getObjectThrowsIllegalStateException() {
 
 		assertThatIllegalStateException()
 			.isThrownBy(() -> this.locatorFactoryBean.getObject())
