@@ -31,7 +31,7 @@ pipeline {
 			agent {
 				label 'data'
 			}
-			options { timeout(time: 30, unit: 'MINUTES') }
+			options { timeout(time: 60, unit: 'MINUTES') }
 			environment {
 				ARTIFACTORY = credentials("${p['artifactory.credentials']}")
 			}
@@ -44,7 +44,7 @@ pipeline {
 						sh 'rm -Rf `find . -name "newDB"`'
 						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
 						sh 'rm -Rf `find . -name "*.log"`'
-						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./mvnw -s settings.xml clean dependency:list test -Dsort -U -B'
+						sh 'GRADLE_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./gradlew clean check --no-daemon --refresh-dependencies --stacktrace'
 					}
 				}
 			}
@@ -69,21 +69,30 @@ pipeline {
 
 			steps {
 				script {
-					docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
-						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
-						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
-						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
-						sh 'rm -Rf `find . -name "newDB"`'
-						sh 'rm -Rf `find . -name "server" | grep -v "src"`'
-						sh 'rm -Rf `find . -name "*.log"`'
-						sh 'MAVEN_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp	" ./mvnw -s settings.xml -Pci,artifactory ' +
-								'-Dartifactory.server=https://repo.spring.io ' +
-								"-Dartifactory.username=${ARTIFACTORY_USR} " +
-								"-Dartifactory.password=${ARTIFACTORY_PSW} " +
-								"-Dartifactory.staging-repository=libs-snapshot-local " +
-								"-Dartifactory.build-name=spring-data-geode " +
-								"-Dartifactory.build-number=${BUILD_NUMBER} " +
-								'-Dmaven.test.skip=true clean deploy -U -B'
+					docker.image(p['docker.container.image.java.main']).inside(p['docker.container.inside.env.basic']) {
+						withCredentials([file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')]) {
+							withCredentials([string(credentialsId: 'spring-gpg-passphrase', variable: 'SIGNING_PASSWORD')]) {
+								withCredentials([usernamePassword(credentialsId: 'oss-token', usernameVariable: 'OSSRH_USERNAME', passwordVariable: 'OSSRH_PASSWORD')]) {
+									withCredentials([usernamePassword(credentialsId: p['artifactory.credentials'], usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+										sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
+										sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
+										sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
+										sh 'rm -Rf `find . -name "newDB"`'
+										sh 'rm -Rf `find . -name "server" | grep -v "src"`'
+										sh 'rm -Rf `find . -name "*.log"`'
+										sh 'GRADLE_OPTS="-Duser.name=jenkins -Duser.home=/tmp/jenkins-home -Duser.dir=$PWD -Djava.io.tmpdir=/tmp" ./gradlew publishArtifacts releasePublishedArtifacts --no-build-cache --no-configuration-cache --no-daemon --stacktrace ' +
+											"-PartifactoryUsername=${ARTIFACTORY_USERNAME} " +
+											"-PartifactoryPassword=${ARTIFACTORY_PASSWORD} " +
+											"-PossrhUsername=${OSSRH_USERNAME} " +
+											"-PossrhPassword=${OSSRH_PASSWORD} " +
+											"-Psigning.keyId=${SPRING_SIGNING_KEYID} " +
+											"-Psigning.password=${SIGNING_PASSWORD} " +
+											"-Psigning.secretKeyRingFile=${SIGNING_KEYRING_FILE} " +
+											'-x test - x integrationTest'
+									}
+								}
+							}
+						}
 					}
 				}
 			}
