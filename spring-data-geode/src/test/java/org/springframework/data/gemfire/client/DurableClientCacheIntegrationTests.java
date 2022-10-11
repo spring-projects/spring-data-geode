@@ -18,6 +18,7 @@ package org.springframework.data.gemfire.client;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,6 +57,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -100,7 +103,11 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
-		startGemFireServer(ServerProcess.class,
+
+		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(DurableClientCacheIntegrationTests.class)), UUID.randomUUID().toString()));
+
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(DurableClientCacheIntegrationTests.class));
 	}
 

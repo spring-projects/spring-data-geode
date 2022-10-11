@@ -17,7 +17,9 @@ package org.springframework.data.gemfire.function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,6 +34,7 @@ import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.sample.ExceptionThrowingFunctionExecution;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -64,7 +67,11 @@ public class ExceptionThrowingFunctionExecutionIntegrationTests extends ForkingC
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
-		startGemFireServer(ServerProcess.class,
+
+		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(ExceptionThrowingFunctionExecutionIntegrationTests.class)), UUID.randomUUID().toString()));
+
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(ExceptionThrowingFunctionExecutionIntegrationTests.class));
 	}
 

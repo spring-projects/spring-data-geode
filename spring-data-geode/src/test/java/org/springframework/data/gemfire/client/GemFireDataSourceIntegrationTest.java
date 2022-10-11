@@ -17,9 +17,11 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -64,6 +66,10 @@ public class GemFireDataSourceIntegrationTest extends ForkingClientServerIntegra
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
 
+		File serverWorkingDirectory = createDirectory(new File(new File(
+			org.springframework.data.gemfire.tests.util.FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(GemFireDataSourceIntegrationTest.class)), UUID.randomUUID().toString()));
+
 		List<String> arguments = new ArrayList<>();
 
 		arguments.add(String.format("-Dgemfire.name=%s",
@@ -71,7 +77,7 @@ public class GemFireDataSourceIntegrationTest extends ForkingClientServerIntegra
 
 		arguments.add(getServerContextXmlFileLocation(GemFireDataSourceIntegrationTest.class));
 
-		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class, arguments.toArray(new String[0]));
 	}
 
 	@AfterClass

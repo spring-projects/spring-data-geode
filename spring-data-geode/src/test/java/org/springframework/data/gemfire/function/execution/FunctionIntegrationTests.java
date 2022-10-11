@@ -14,11 +14,13 @@ package org.springframework.data.gemfire.function.execution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,6 +36,7 @@ import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.annotation.RegionData;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -58,7 +61,11 @@ public class FunctionIntegrationTests extends ForkingClientServerIntegrationTest
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-		startGemFireServer(ServerProcess.class,
+
+		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(FunctionIntegrationTests.class)), UUID.randomUUID().toString()));
+
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(FunctionIntegrationTests.class));
 	}
 

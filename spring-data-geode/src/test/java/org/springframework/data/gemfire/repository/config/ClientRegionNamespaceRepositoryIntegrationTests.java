@@ -14,6 +14,9 @@ package org.springframework.data.gemfire.repository.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
+import java.util.UUID;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +30,7 @@ import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.objects.geode.cache.RegionDataInitializingPostProcessor;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -53,7 +57,11 @@ public class ClientRegionNamespaceRepositoryIntegrationTests extends ForkingClie
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-		startGemFireServer(ServerProcess.class,
+
+		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(ClientRegionNamespaceRepositoryIntegrationTests.class)), UUID.randomUUID().toString()));
+
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(ClientRegionNamespaceRepositoryIntegrationTests.class));
 	}
 

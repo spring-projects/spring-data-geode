@@ -17,11 +17,13 @@ package org.springframework.data.gemfire.function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,6 +44,7 @@ import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
@@ -81,7 +84,11 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ForkingC
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-		startGemFireServer(ServerProcess.class,
+
+		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(ClientCacheFunctionExecutionWithPdxIntegrationTest.class)), UUID.randomUUID().toString()));
+
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(ClientCacheFunctionExecutionWithPdxIntegrationTest.class));
 	}
 

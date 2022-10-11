@@ -17,11 +17,13 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
@@ -44,6 +46,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -80,13 +83,16 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 		System.setProperty("test.cache.server.port.one", String.valueOf(cacheServerPortOne));
 		System.setProperty("test.cache.server.port.two", String.valueOf(cacheServerPortTwo));
 
+		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(ClientCacheVariableServersIntegrationTests.class)), UUID.randomUUID().toString()));
+
 		List<String> arguments = new ArrayList<>();
 
 		arguments.add(String.format("-Dtest.cache.server.port.one=%d", cacheServerPortOne));
 		arguments.add(String.format("-Dtest.cache.server.port.two=%d", cacheServerPortTwo));
 		arguments.add(getServerContextXmlFileLocation(ClientCacheVariableServersIntegrationTests.class));
 
-		startGemFireServer(ServerProcess.class, arguments.toArray(new String[0]));
+		startGemFireServer(serverWorkingDirectory, ServerProcess.class, arguments.toArray(new String[0]));
 	}
 
 	@AfterClass
