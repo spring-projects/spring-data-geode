@@ -37,7 +37,7 @@ pipeline {
 			}
 			steps {
 				script {
-					docker.image(p['docker.java.main.image']).inside(p['docker.java.inside.basic']) {
+					docker.image(p['docker.container.image.java.main']).inside(p['docker.container.inside.env.basic']) {
 						sh 'rm -Rf `find . -name "BACKUPDEFAULT*"`'
 						sh 'rm -Rf `find . -name "ConfigDiskDir*"`'
 						sh 'rm -Rf `find . -name "locator*" | grep -v "src"`'
