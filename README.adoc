@@ -4,46 +4,102 @@ image:https://spring.io/badges/spring-data-geode/ga.svg[Spring Data Geode,link=h
 
 Spring Data for Apache Geode brings the full power of the Spring Framework to your Apache Geode applications.
 
+[[notice]]
+== NOTICE
+
+As of Spring Data `2022.0.0-RC1` / _Turing_ / `3.0.0-RC1`, the _Spring Data for Apache Geode_ (SDG) module has been removed
+from the Spring Data BOM and Spring Data release train. SDG will no longer continue in the `3.0` generation
+from this point forward.
+
+In short, a http://markmail.org/message/oafksl5iufmqhuyg[decision] was made by VMware to discontinue its contributions
+to the Apache Geode project at the Apache Software Foundation (ASF). VMware has committed to the Apache Geode project
+at ASF up until 2023-October-1. This puts the SDG project at odds with the Apache Geode project, particularly with
+respect to https://spring.io/projects/spring-data-geode#support[support timelines].
+
+While SDG `2.7.x` is already GA and based on Apache Geode `1.14.x`, SDG `3.0` was targeting support for Apache Geode `1.15`
+(see https://geode.apache.org/releases/[releases]). Support of Apache Geode `1.15` will now move into
+_Spring Data for Apache Geode_ (SDG) `2.8`. SDG `2.8` will proceed with a series of milestone releases leading up to
+a final `2.8.0` GA in a relatively compressed timeframe. Release schedule and dates to be determined.
+
+In addition, service releases of SDG `2.8`, for example, a SDG `2.8.1`, will only occur on an as needed basis to address
+any CVEs, bug reports, and to make minor enhancements as necessary in support of our users. No new or significant features,
+or additions will be made to SDG beyond `2.7`. SDG `2.8` will close out more than decade long tenure (since its inception
+in 2010) of the _Spring Data for Apache Geode_ project.
+
+Finally, _Spring Data for VMware Tanzu GemFire_ (SDG) project will be the successor for the _Spring Data for Apache Geode_ project
+and restored as an externally managed and community-led project. SD GemFire will not be part of the Spring Data BOM,
+will not be released as part of the Spring Data release train and will not be maintained by the Spring (Data) team
+any longer. It will be solely managed and maintained by the VMware GemFire team in the VMware data org as
+an externally managed, community-led module.
+
+Specifics of the _Spring Data for VMware Tanzu GemFire_ project and effort are beyond the scope this notice, but more
+details will be provided in a blog post (pending review and approval) and on
+the https://spring.io/projects/spring-data-gemfire[Spring Data for VMware Tanzu GemFire] project page at https://spring.io[spring.io].
+
+
+[[features]]
 == Features
 
-* XML namespace to https://docs.spring.io/spring-data-geode/docs/current/reference/html/#bootstrap[configure and create Apache Geode resources declaratively with Spring]
+* XML namespace to https://docs.spring.io/spring-data-geode/docs/current/reference/html/#bootstrap[configure and initialize Apache Geode resources declaratively with Spring]
 * Annotation model to https://docs.spring.io/spring-data/geode/docs/current/reference/html/#bootstrap-annotation-config[quickly and easily get started with Apache Geode out-of-the-box]
-* Simplifies https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis[working with Apache Geode APIs]
+* Simplifies https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis[development with Apache Geode APIs]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:spring-cache-abstraction[Spring Cache Abstraction backed by Apache Geode]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#mapping[Spring Data Mapping infrastructure applied to POJOs stored in Apache Geode]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#gemfire-repositories[Spring Data Repositories backed by Apache Geode]
-* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:transaction-management[Apache Geode Cache Transactions through Spring's Declarative Transaction Management]
-* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:global-transaction-management[Additional support for using Apache Geode in Global, JTA Transactions through Spring's Declarative Transaction Management]
+* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:transaction-management[Apache Geode Cache Transactions using Spring's Declarative Transaction Management]
+* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:global-transaction-management[Additional support for using Apache Geode in Global, JTA Transactions using Spring's Declarative Transaction Management]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#serialization[Enhanced support for Apache Geode Serialization]
-* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#function-annotations[Annotations for Function Executions]
+* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#function-annotations[Annotations for Function Executions & Implementations]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#apis:continuous-query[Support for Continuous Query]
 * https://docs.spring.io/spring-data/geode/docs/current/reference/html/#bootstrap:lucene[Enhanced support for Apache Lucene Integration]
-* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#gemfire-bootstrap[Bootstrapping a Spring Context with Apache Geode]
+* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#gemfire-bootstrap[Bootstrapping a Spring Context within Apache Geode]
+* https://docs.spring.io/spring-data/geode/docs/current/reference/html/#bootstrap-annotation-config-security[Support for configuring Apache Geode Security with Apache Shiro]
 * Spring Tool Suite https://docs.spring.io/sts/nan/v310/NewAndNoteworthy.html[Spring Project Templates for Apache Geode]
 
+
+[[code-of-conduct]]
 == Code of Conduct
 
-This project is governed by the https://github.com/spring-projects/.github/blob/e3cc2ff230d8f1dca06535aa6b5a4a23815861d4/CODE_OF_CONDUCT.md[Spring Code of Conduct]. By participating, you are expected to uphold this code of conduct. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+This project is governed by the https://github.com/spring-projects/.github/blob/e3cc2ff230d8f1dca06535aa6b5a4a23815861d4/CODE_OF_CONDUCT.md[Spring Code of Conduct].
+By participating, you are expected to uphold this code of conduct. Please report unacceptable behavior to
+spring-code-of-conduct@pivotal.io.
 
+
+[[getting-started]]
 == Getting Started
 
-Here is a quick teaser of an application using Spring Data Repositories in Java:
+Here is a quick teaser of a Spring application using Spring Data Repositories in Java:
 
 [source,java]
 ----
-public interface PersonRepository extends CrudRepository<Person, Long> {
+package com.example.app.model;
 
-  List<Person> findByLastname(String lastname);
+@Region("People")
+public class Customer {
 
-  List<Person> findByFirstnameLike(String firstname);
+	private String firstName;
+	private Strign lastName;
+
+	// Getters and Setter omitted
 }
 
+package com.example.app.repo;
+
+public interface CustomerRepository extends CrudRepository<Customer, Long> {
+
+  List<Person> findByLastnameLike(String lastname);
+
+  List<Person> findByFirstname(String firstname);
+}
+
+package com.example.app.service;
+
 @Service
-public class MyService {
+public class CustomereService {
 
-  private final PersonRepository repository;
+  private final CustomerRepository repository;
 
-  public MyService(PersonRepository repository) {
+  public MyService(CustomereService repository) {
     this.repository = repository;
   }
 
@@ -51,18 +107,19 @@ public class MyService {
 
     repository.deleteAll();
 
-    Person person = new Person();
-    person.setFirstname("John");
-    person.setLastname("Blum");
-    repository.save(person);
+    Customer customer = new Customer();
+    customer.setFirstname("John");
+    customer.setLastname("Blum");
 
-    List<Person> lastNameResults = repository.findByLastname("Blum");
-    List<Person> firstNameResults = repository.findByFirstnameLike("J*");
+    repository.save(customer);
+
+    List<Customer> lastNameResults = repository.findByLastnameLike("B%");
+    List<Customer> firstNameResults = repository.findByFirstname("John");
  }
 }
 ----
 
-Configure a Pivotal Geode cache and Region (REPLICATE, PARTITION and so on):
+Configure an Apache Geode cache and Region (REPLICATE, PARTITION and so on):
 
 [source,xml]
 ----
@@ -75,12 +132,12 @@ Configure a Pivotal Geode cache and Region (REPLICATE, PARTITION and so on):
     http://www.springframework.org/schema/geode https://www.springframework.org/schema/geode/spring-geode.xsd
 	http://www.springframework.org/schema/data/gemfire https://www.springframework.org/schema/data/geode/spring-data-gemfire.xsd">
 
-  <gfe:cache/>
+  <gfe:client-cache/>
 
-  <gfe:partitioned-region id="ExampleRegion" copies="2">
+  <gfe:client-region id="People" shortcut="LOCAL">
 
   <bean id="gemfireTemplate" class="org.springframework.data.gemfire.GemfireTemplate" p:region-ref="ExampleRegion"/>
-	<gfe-data:repositories base-package="com.acme"/>
+	<gfe-data:repositories base-package="example.app"/>
 </beans>
 ----
 
@@ -97,7 +154,8 @@ Add the Maven dependency:
 </dependency>
 ----
 
-If you'd rather like the latest snapshots of the upcoming major version, use our Maven snapshot repository and declare the appropriate dependency version.
+If you'd rather use the latest snapshots of the upcoming major/minor version, use our Maven snapshot repository
+and declare the appropriate dependency version:
 
 [source,xml]
 ----
@@ -108,12 +166,14 @@ If you'd rather like the latest snapshots of the upcoming major version, use our
 </dependency>
 
 <repository>
-  <id>spring-libs-snapshot</id>
+  <id>spring-snapshot</id>
   <name>Spring Snapshot Repository</name>
-  <url>https://repo.spring.io/libs-snapshot</url>
+  <url>https://repo.spring.io/snapshot</url>
 </repository>
 ----
 
+
+[[help]]
 == Getting Help
 
 Having trouble with Spring Data? We’d love to help!
@@ -127,6 +187,8 @@ If you are just starting out with Spring, try one of the https://spring.io/guide
 You can also chat with the community on https://gitter.im/spring-projects/spring-data[Gitter].
 * Report bugs with Spring Data for Apache Geode at https://github.com/spring-projects/spring-data-geode/issues[github.com/spring-projects/spring-data-geode/issues].
 
+
+[[issues]]
 == Reporting Issues
 
 Spring Data uses GitHub Issues as the issue tracking system to record bugs and feature requests. If you want to raise an issue, please follow the recommendations below:
@@ -138,6 +200,8 @@ https://github.com/spring-projects/spring-data-geode/issues[GitHub Issues] to se
 * If you need to paste code, or include a stack trace use markdown {backtick}{backtick}{backtick} escapes before and after your text.
 * If possible try to create a test case or project that reproduces the issue. Attach a link to your code or a compressed file containing your code.
 
+
+[[building-from-source]]
 == Building from Source
 
 You don’t need to build from source to use Spring Data (binaries in https://repo.spring.io[repo.spring.io]), but if you want to try out the latest and greatest, Spring Data can be easily built with the https://github.com/takari/maven-wrapper[maven wrapper].
@@ -152,6 +216,8 @@ If you want to build with the regular `mvn` command, you will need https://maven
 
 _Also see link:CONTRIBUTING.adoc[CONTRIBUTING.adoc] if you wish to submit pull requests, and in particular please sign the https://cla.pivotal.io/sign/spring[Contributor’s Agreement] before your first non-trivial change._
 
+
+[[building-ref-doc]]
 === Building reference documentation
 
 Building the documentation builds also the project without running tests.
@@ -164,6 +230,7 @@ Building the documentation builds also the project without running tests.
 The generated documentation is available from `target/site/reference/html/index.html`.
 
 
+[[license]]
 == License
 
 Spring Data for Apache Geode is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
