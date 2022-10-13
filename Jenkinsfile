@@ -88,7 +88,7 @@ pipeline {
 											"-Psigning.keyId=${SPRING_SIGNING_KEYID} " +
 											"-Psigning.password=${SIGNING_PASSWORD} " +
 											"-Psigning.secretKeyRingFile=${SIGNING_KEYRING_FILE} " +
-											'-x test - x integrationTest'
+											'-x test'
 									}
 								}
 							}
