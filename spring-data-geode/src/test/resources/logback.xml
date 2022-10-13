@@ -18,15 +18,10 @@
     </appender>
 
     <logger name="ch.qos.logback" level="${logback.log.level:-ERROR}"/>
-
     <logger name="org.apache.geode" level="${logback.log.level:-ERROR}"/>
-
     <logger name="org.jgroups" level="${logback.log.level:-ERROR}"/>
-
     <logger name="org.springframework" level="${logback.log.level:-ERROR}"/>
-
     <logger name="org.springframework.data" level="${logback.log.level:-ERROR}"/>
-
     <logger name="org.springframework.data.gemfire" level="${logback.log.level:-ERROR}"/>
 
     <logger name="org.springframework.data.gemfire.config.annotation.support.RegionDataAccessTracingAspect" level="trace" additivity="false">
@@ -34,7 +29,6 @@
     </logger>
 
     <logger name="org.springframework.data.gemfire.listener.adapter.ContinuousQueryListenerAdapter" level="off" additivity="false"/>
-
     <logger name="org.springframework.data.gemfire.support.SpringContextBootstrappingInitializer" level="off" additivity="false"/>
 
     <root level="${logback.log.level:-ERROR}">
