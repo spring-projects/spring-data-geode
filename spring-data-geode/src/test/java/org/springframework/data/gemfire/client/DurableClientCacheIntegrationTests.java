@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -57,6 +58,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
 import org.springframework.test.annotation.DirtiesContext;
@@ -109,6 +111,13 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 
 		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(DurableClientCacheIntegrationTests.class));
+	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	private static boolean isAfterDirtiesContext() {

@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.util.UUID;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ import org.springframework.data.gemfire.repository.sample.Person;
 import org.springframework.data.gemfire.repository.sample.PersonRepository;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.objects.geode.cache.RegionDataInitializingPostProcessor;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -52,9 +54,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class ClientRegionNamespaceRepositoryIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
-	@Autowired
-	private PersonRepository repository;
-
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
 
@@ -64,6 +63,16 @@ public class ClientRegionNamespaceRepositoryIntegrationTests extends ForkingClie
 		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(ClientRegionNamespaceRepositoryIntegrationTests.class));
 	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
+	}
+
+	@Autowired
+	private PersonRepository repository;
 
 	@Test
 	public void findAllAndCountMatch() {

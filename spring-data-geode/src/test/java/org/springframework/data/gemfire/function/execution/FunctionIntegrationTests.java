@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.annotation.RegionData;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
@@ -67,6 +69,13 @@ public class FunctionIntegrationTests extends ForkingClientServerIntegrationTest
 
 		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(FunctionIntegrationTests.class));
+	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	@Autowired

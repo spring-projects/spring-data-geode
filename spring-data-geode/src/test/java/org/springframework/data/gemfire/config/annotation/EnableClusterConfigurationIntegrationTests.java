@@ -17,9 +17,12 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,6 +47,8 @@ import org.springframework.data.gemfire.config.admin.GemfireAdminOperations;
 import org.springframework.data.gemfire.config.admin.remote.RestHttpGemfireAdminTemplate;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -80,7 +85,19 @@ public class EnableClusterConfigurationIntegrationTests extends ForkingClientSer
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-		startGemFireServer(GeodeServerTestConfiguration.class);
+
+		File serverWorkingDirectory = createDirectory(new File(new File(
+			org.springframework.data.gemfire.tests.util.FileSystemUtils.WORKING_DIRECTORY,
+			asDirectoryName(EnableClusterConfigurationIntegrationTests.class)), UUID.randomUUID().toString()));
+
+		startGemFireServer(serverWorkingDirectory, GeodeServerTestConfiguration.class);
+	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	@Before

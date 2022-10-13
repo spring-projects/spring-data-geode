@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,10 +61,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SuppressWarnings("unused")
 public class ExceptionThrowingFunctionExecutionIntegrationTests extends ForkingClientServerIntegrationTestsSupport {
 
-	private static ProcessWrapper gemfireServer;
-
 	@Autowired
 	private ExceptionThrowingFunctionExecution exceptionThrowingFunctionExecution;
+
+	private static ProcessWrapper gemfireServer;
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
@@ -73,6 +74,13 @@ public class ExceptionThrowingFunctionExecutionIntegrationTests extends ForkingC
 
 		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(ExceptionThrowingFunctionExecutionIntegrationTests.class));
+	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	@Test(expected = FunctionException.class)

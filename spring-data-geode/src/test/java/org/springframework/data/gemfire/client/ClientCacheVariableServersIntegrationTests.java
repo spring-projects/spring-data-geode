@@ -46,6 +46,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -93,6 +94,13 @@ public class ClientCacheVariableServersIntegrationTests extends ForkingClientSer
 		arguments.add(getServerContextXmlFileLocation(ClientCacheVariableServersIntegrationTests.class));
 
 		startGemFireServer(serverWorkingDirectory, ServerProcess.class, arguments.toArray(new String[0]));
+	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	@AfterClass

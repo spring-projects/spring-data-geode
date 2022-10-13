@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,7 @@ import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.function.annotation.GemfireFunction;
 import org.springframework.data.gemfire.function.sample.ApplicationDomainFunctionExecutions;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.process.ProcessWrapper;
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -77,10 +79,10 @@ import org.springframework.util.ObjectUtils;
 public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ForkingClientServerIntegrationTestsSupport {
 
 	@Autowired
-	private ClientCache gemfireClientCache;
+	private ApplicationDomainFunctionExecutions functionExecutions;
 
 	@Autowired
-	private ApplicationDomainFunctionExecutions functionExecutions;
+	private ClientCache gemfireClientCache;
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
@@ -90,6 +92,13 @@ public class ClientCacheFunctionExecutionWithPdxIntegrationTest extends ForkingC
 
 		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
 			getServerContextXmlFileLocation(ClientCacheFunctionExecutionWithPdxIntegrationTest.class));
+	}
+
+	@AfterClass
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	private PdxInstance toPdxInstance(Map<String, Object> pdxData) {

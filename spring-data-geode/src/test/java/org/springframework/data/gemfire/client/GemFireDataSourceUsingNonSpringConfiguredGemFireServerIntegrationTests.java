@@ -133,12 +133,8 @@ public class GemFireDataSourceUsingNonSpringConfiguredGemFireServerIntegrationTe
 	public static void stopGemFireServer() {
 
 		stop(gemfireServer);
-
 		System.clearProperty("CACHE_SERVER_PORT");
-
-		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", String.valueOf(true)))) {
-			org.springframework.util.FileSystemUtils.deleteRecursively(gemfireServer.getWorkingDirectory());
-		}
+		org.springframework.util.FileSystemUtils.deleteRecursively(gemfireServer.getWorkingDirectory());
 	}
 
 	@Autowired

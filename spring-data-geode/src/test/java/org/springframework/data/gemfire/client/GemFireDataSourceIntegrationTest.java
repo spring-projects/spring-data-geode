@@ -38,9 +38,9 @@ import org.springframework.data.gemfire.GemfireUtils;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.FileSystemUtils;
 
 /**
  * Integration Tests with test cases testing the contract and functionality of the &lt;gfe-data:datasource&gt; element
@@ -81,13 +81,10 @@ public class GemFireDataSourceIntegrationTest extends ForkingClientServerIntegra
 	}
 
 	@AfterClass
-	public static void stopGemFireServer() {
-
-		if (Boolean.parseBoolean(System.getProperty("spring.gemfire.fork.clean", Boolean.TRUE.toString()))) {
-			getGemFireServerProcess()
-				.map(ProcessWrapper::getWorkingDirectory)
-				.ifPresent(workingDirectory -> FileSystemUtils.deleteRecursively(workingDirectory));
-		}
+	public static void removeServerWorkingDirectory() {
+		getGemFireServerProcess()
+			.map(ProcessWrapper::getWorkingDirectory)
+			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	@Autowired
