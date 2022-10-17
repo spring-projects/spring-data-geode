@@ -17,13 +17,10 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +35,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.process.ProcessWrapper;
-import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -61,9 +56,6 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
 
-		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
-			asDirectoryName(ClientCacheSecurityIntegrationTests.class)), UUID.randomUUID().toString()));
-
 		List<String> arguments = new ArrayList<String>();
 
 		org.springframework.core.io.Resource trustedKeystore = new ClassPathResource("trusted.keystore");
@@ -75,16 +67,9 @@ public class ClientCacheSecurityIntegrationTests extends ForkingClientServerInte
 
 		arguments.add(getServerContextXmlFileLocation(ClientCacheSecurityIntegrationTests.class));
 
-		startGemFireServer(serverWorkingDirectory, ServerProcess.class, arguments.toArray(new String[arguments.size()]));
+		startGemFireServer(ServerProcess.class, arguments.toArray(new String[arguments.size()]));
 
 		System.setProperty("javax.net.ssl.keyStore", trustedKeystore.getFile().getAbsolutePath());
-	}
-
-	@AfterClass
-	public static void removeServerWorkingDirectory() {
-		getGemFireServerProcess()
-			.map(ProcessWrapper::getWorkingDirectory)
-			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	@Autowired

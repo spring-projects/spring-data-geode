@@ -85,19 +85,7 @@ public class EnableClusterConfigurationIntegrationTests extends ForkingClientSer
 
 	@BeforeClass
 	public static void startGemFireServer() throws Exception {
-
-		File serverWorkingDirectory = createDirectory(new File(new File(
-			org.springframework.data.gemfire.tests.util.FileSystemUtils.WORKING_DIRECTORY,
-			asDirectoryName(EnableClusterConfigurationIntegrationTests.class)), UUID.randomUUID().toString()));
-
-		startGemFireServer(serverWorkingDirectory, GeodeServerTestConfiguration.class);
-	}
-
-	@AfterClass
-	public static void removeServerWorkingDirectory() {
-		getGemFireServerProcess()
-			.map(ProcessWrapper::getWorkingDirectory)
-			.ifPresent(FileSystemUtils::deleteRecursive);
+		startGemFireServer(GeodeServerTestConfiguration.class);
 	}
 
 	@Before

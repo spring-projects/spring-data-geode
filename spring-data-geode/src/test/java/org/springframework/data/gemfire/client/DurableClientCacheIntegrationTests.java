@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.client;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,14 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -58,8 +55,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.process.ProcessWrapper;
-import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.util.DistributedSystemUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -105,19 +100,8 @@ public class DurableClientCacheIntegrationTests extends ForkingClientServerInteg
 
 	@BeforeClass
 	public static void startGeodeServer() throws IOException {
-
-		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
-			asDirectoryName(DurableClientCacheIntegrationTests.class)), UUID.randomUUID().toString()));
-
-		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
+		startGemFireServer(ServerProcess.class,
 			getServerContextXmlFileLocation(DurableClientCacheIntegrationTests.class));
-	}
-
-	@AfterClass
-	public static void removeServerWorkingDirectory() {
-		getGemFireServerProcess()
-			.map(ProcessWrapper::getWorkingDirectory)
-			.ifPresent(FileSystemUtils::deleteRecursive);
 	}
 
 	private static boolean isAfterDirtiesContext() {

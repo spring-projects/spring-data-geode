@@ -17,10 +17,6 @@ package org.springframework.data.gemfire.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.File;
-import java.util.UUID;
-
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +29,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.fork.ServerProcess;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
-import org.springframework.data.gemfire.tests.process.ProcessWrapper;
-import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -57,19 +51,7 @@ public class ClientSubRegionIntegrationTests extends ForkingClientServerIntegrat
 
 	@BeforeClass
 	public static void startGeodeServer() throws Exception {
-
-		File serverWorkingDirectory = createDirectory(new File(new File(FileSystemUtils.WORKING_DIRECTORY,
-			asDirectoryName(ClientSubRegionIntegrationTests.class)), UUID.randomUUID().toString()));
-
-		startGemFireServer(serverWorkingDirectory, ServerProcess.class,
-			getServerContextXmlFileLocation(ClientSubRegionIntegrationTests.class));
-	}
-
-	@AfterClass
-	public static void removeServerWorkingDirectory() {
-		getGemFireServerProcess()
-			.map(ProcessWrapper::getWorkingDirectory)
-			.ifPresent(FileSystemUtils::deleteRecursive);
+		startGemFireServer(ServerProcess.class, getServerContextXmlFileLocation(ClientSubRegionIntegrationTests.class));
 	}
 
 	@Autowired
