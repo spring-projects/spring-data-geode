@@ -42,14 +42,9 @@
 
 	<properties>
 		<java-module-name>spring.data.geode</java-module-name>
+		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+		<maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
 		<source.level>17</source.level>
-		<antlr.version>2.7.7</antlr.version>
-		<apache-shiro.version>1.9.1</apache-shiro.version>
-		<cache-api.version>1.1.1</cache-api.version>
-		<multithreadedtc.version>1.01</multithreadedtc.version>
-		<snappy.version>0.4</snappy.version>
-		<springdata.commons>3.0.0-SNAPSHOT</springdata.commons>
-		<spring-shell.version>1.2.0.RELEASE</spring-shell.version>
 	</properties>
 
 	<build>

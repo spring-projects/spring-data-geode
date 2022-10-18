@@ -20,14 +20,19 @@
 
 	<properties>
 		<project.root>${basedir}/..</project.root>
-		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-		<maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
+		<antlr.version>2.7.7</antlr.version>
+		<apache-shiro.version>1.9.1</apache-shiro.version>
+		<cache-api.version>1.1.1</cache-api.version>
+		<log4j.version>2.19.0</log4j.version>
 		<geode.version>1.15.1</geode.version>
 <!--
 		<geode.version>[1.15.0,1.16.0)</geode.version>
-		<geode.version>[1.15.0,1.15.0-build.1038)</geode.version>
 -->
+		<multithreadedtc.version>1.01</multithreadedtc.version>
+		<snappy.version>0.4</snappy.version>
+		<spring-data-commons.version>3.0.0-SNAPSHOT</spring-data-commons.version>
 		<spring-test-data-geode.version>1.0.0-M5</spring-test-data-geode.version>
+		<spring-shell.version>1.2.0.RELEASE</spring-shell.version>
 	</properties>
 
 	<dependencies>
@@ -106,10 +111,10 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-commons</artifactId>
-			<version>${springdata.commons}</version>
+			<version>${spring-data-commons.version}</version>
 		</dependency>
 
-		<!-- Spring Data for Apache Geode & GemFire common dependencies -->
+		<!-- Spring Data for Apache Geode & VMware Tanzu GemFire common dependencies -->
 		<dependency>
 			<groupId>antlr</groupId>
 			<artifactId>antlr</artifactId>
