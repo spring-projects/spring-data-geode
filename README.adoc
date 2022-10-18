@@ -11,7 +11,7 @@ As of Spring Data `2022.0.0-RC1` / _Turing_ / `3.0.0-RC1`, the _Spring Data for 
 from the Spring Data BOM and Spring Data release train. SDG will no longer continue in the `3.0` generation
 from this point forward.
 
-In short, a http://markmail.org/message/oafksl5iufmqhuyg[decision] was made by VMware to discontinue its contributions
+In short, a https://markmail.org/message/oafksl5iufmqhuyg[decision] was made by VMware to discontinue its contributions
 to the Apache Geode project at the Apache Software Foundation (ASF). VMware has committed to the Apache Geode project
 at ASF up until 2023-October-1. This puts the SDG project at odds with the Apache Geode project, particularly with
 respect to https://spring.io/projects/spring-data-geode#support[support timelines].
