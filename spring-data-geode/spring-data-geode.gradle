@@ -72,7 +72,7 @@ dependencies {
 test {
 
 	forkEvery = 1
-	maxParallelForks = 8
+	maxParallelForks = 4
 	//include "**/*Tests.java", "**/*Test.java"
 
 	systemProperties['java.util.logging.config.file'] = "${project.projectDir}/src/test/resources/java-util-logging.properties"
