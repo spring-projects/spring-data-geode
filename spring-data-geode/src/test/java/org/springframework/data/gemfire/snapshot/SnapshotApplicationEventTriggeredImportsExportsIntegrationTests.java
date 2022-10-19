@@ -45,6 +45,7 @@ import org.springframework.data.gemfire.tests.integration.IntegrationTestsSuppor
 import org.springframework.data.gemfire.tests.util.FileSystemUtils;
 import org.springframework.data.gemfire.tests.util.ThreadUtils;
 import org.springframework.data.gemfire.util.ArrayUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -72,9 +73,29 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("unused")
 public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests extends IntegrationTestsSupport {
 
-	protected static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
+	private static final AtomicLong ID_SEQUENCE = new AtomicLong(0L);
 
-	protected static File snapshotsDirectory;
+	private static File snapshotsDirectory;
+
+	@BeforeClass
+	public static void setupSnapshotDirectoryAndFiles() throws Exception {
+
+		snapshotsDirectory = new File(new File(new File(FileSystemUtils.WORKING_DIRECTORY, "gemfire"),
+			"data"), "snapshots");
+
+		assertThat(snapshotsDirectory.isDirectory() || snapshotsDirectory.mkdirs()).isTrue();
+
+		File peopleSnapshotFile = new File(snapshotsDirectory, "people-snapshot.gfd");
+		File nonHandyNonDoeSnapshotFile = new File(snapshotsDirectory, "nonHandyNonDoePeople-snapshot.gfd");
+
+		assertThat(peopleSnapshotFile.isFile() || peopleSnapshotFile.createNewFile()).isTrue();
+		assertThat(nonHandyNonDoeSnapshotFile.isFile() || nonHandyNonDoeSnapshotFile.createNewFile()).isTrue();
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() {
+		//removeRecursiveDirectory(snapshotsDirectory.getParentFile().getParentFile());
+	}
 
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
@@ -95,26 +116,6 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 	@Qualifier("People")
 	private Region<Long, Person> people;
 
-	@BeforeClass
-	public static void setupSnapshotDirectoryAndFiles() throws Exception {
-
-		snapshotsDirectory = new File(new File(new File(FileSystemUtils.WORKING_DIRECTORY, "gemfire"),
-			"data"), "snapshots");
-
-		assertThat(snapshotsDirectory.isDirectory() || snapshotsDirectory.mkdirs()).isTrue();
-
-		File peopleSnapshotFile = new File(snapshotsDirectory, "people-snapshot.gfd");
-		File nonHandyNonDoeSnapshotFile = new File(snapshotsDirectory, "nonHandyNonDoePeople-snapshot.gfd");
-
-		assertThat(peopleSnapshotFile.isFile() || peopleSnapshotFile.createNewFile()).isTrue();
-		assertThat(nonHandyNonDoeSnapshotFile.isFile() || nonHandyNonDoeSnapshotFile.createNewFile()).isTrue();
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() {
-		//FileSystemUtils.deleteRecursive(snapshotsDirectory.getParentFile().getParentFile());
-	}
-
 	private void assertPeople(Region<Long, Person> targetRegion, Person... people) {
 
 		assertThat(targetRegion.size()).isEqualTo(people.length);
@@ -134,11 +135,11 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 		assertThat(actualPerson.getLastname()).isEqualTo(expectedPerson.getLastname());
 	}
 
-	private Person newPerson(String firstName, String lastName) {
+	private @NonNull Person newPerson(String firstName, String lastName) {
 		return new Person(ID_SEQUENCE.incrementAndGet(), firstName, lastName);
 	}
 
-	private Person put(Region<Long, Person> targetRegion, Person person) {
+	private @NonNull Person put(@NonNull Region<Long, Person> targetRegion, @NonNull Person person) {
 
 		targetRegion.putIfAbsent(person.getId(), person);
 
@@ -242,10 +243,10 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 
 	public static class SnapshotImportsMonitor {
 
+		private static final Map<File, Long> snapshotFileLastModifiedMap = new ConcurrentHashMap<>(2);
+
 		@Autowired
 		private ApplicationEventPublisher eventPublisher;
-
-		private static final Map<File, Long> snapshotFileLastModifiedMap = new ConcurrentHashMap<>(2);
 
 		@Scheduled(fixedDelay = 1000)
 		@SuppressWarnings("unchecked")
@@ -261,11 +262,11 @@ public class SnapshotApplicationEventTriggeredImportsExportsIntegrationTests ext
 			}
 
 			if (triggerEvent) {
-				eventPublisher.publishEvent(new ImportSnapshotApplicationEvent<Long, Person>(this));
+				this.eventPublisher.publishEvent(new ImportSnapshotApplicationEvent<Long, Person>(this));
 			}
 		}
 
-		private boolean isUnprocessedSnapshotFile(File snapshotFile) {
+		private boolean isUnprocessedSnapshotFile(@NonNull File snapshotFile) {
 
 			Long lastModified = snapshotFile.lastModified();
 			Long previousLastModified = snapshotFileLastModifiedMap.get(snapshotFile);
