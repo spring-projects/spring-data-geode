@@ -18,7 +18,7 @@ entity or group of individuals who are members of the PMC and are willing to mai
 it forward.
 
 Unfortunately, as of 2022-October-24, the Apache Geode project failed to secure at least 3 voting members on the PMC
-required to maintain and manage the project. So, a http://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] was cast to move
+required to maintain and manage the project. So, a https://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] was cast to move
 the Apache Geode project into the Attic at the Apache Software Foundation. Clearly, this puts the _Spring Data for
 Apache Geode_ (SDG) project at odds with the Apache Geode project, especially with respect to
 https://spring.io/projects/spring-data-geode#support[support timelines].
@@ -34,7 +34,7 @@ it would extend our support timelines significantly past the October 2022 date c
 for Apache Geode `1.15` was going to move into an extended SDG `2.8` release and proceed with a series of milestones
 leading up to a final `2.8.0` GA in a relatively compressed timeframe.
 
-Now that this http://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] has been cast, we have changed our decision and we will
+Now that this https://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] has been cast, we have changed our decision and we will
 no longer proceed with SDG `2.8`. In addition, although we will honor our SDG project commitments and
 https://spring.io/projects/spring-data-geode#support[support timelines], where SDG `2.7.x` OSS EOL ends on 2023-May-05
 and commercial EOL ends on 2024-Sept-01, the SDG project will now go into a minimal maintenance node where only CVEs
