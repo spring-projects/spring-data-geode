@@ -7,34 +7,49 @@ Spring Data for Apache Geode brings the full power of the Spring Framework to yo
 [[notice]]
 == NOTICE
 
-As of Spring Data `2022.0.0-RC1` / _Turing_ / `3.0.0-RC1`, the _Spring Data for Apache Geode_ (SDG) module has been removed
-from the Spring Data BOM and Spring Data release train. SDG will no longer continue in the `3.0` generation
-from this point forward.
+As of Spring Data `2022.0.0-RC1` (_Turing_-RC1) / `3.0.0-RC1`, the _Spring Data for Apache Geode_ (SDG) module
+has been removed from the Spring Data BOM and Spring Data release train. SDG will no longer continue in
+the `3.0` generation from this point forward.
 
-In short, a https://markmail.org/message/oafksl5iufmqhuyg[decision] was made by VMware to discontinue its contributions
+In summary, VMware (VMW) made a https://markmail.org/message/oafksl5iufmqhuyg[decision] to discontinue all contributions
 to the Apache Geode project at the Apache Software Foundation (ASF). VMware has committed to the Apache Geode project
-at ASF up until 2023-October-1. This puts the SDG project at odds with the Apache Geode project, particularly with
-respect to https://spring.io/projects/spring-data-geode#support[support timelines].
+until the end of October 2022. However, the plan is to transition the Apache Geode project responsibilities to another
+entity or group of individuals who are members of the PMC and are willing to maintain and manage the project, moving
+it forward.
 
-While SDG `2.7.x` is already GA and based on Apache Geode `1.14.x`, SDG `3.0` was targeting support for Apache Geode `1.15`
-(see https://geode.apache.org/releases/[releases]). Support of Apache Geode `1.15` will now move into
-_Spring Data for Apache Geode_ (SDG) `2.8`. SDG `2.8` will proceed with a series of milestone releases leading up to
-a final `2.8.0` GA in a relatively compressed timeframe. Release schedule and dates to be determined.
+Unfortunately, as of 2022-October-24, the Apache Geode project failed to secure at least 3 voting members on the PMC
+required to maintain and manage the project. So, a http://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] was cast to move
+the Apache Geode project into the Attic at the Apache Software Foundation. Clearly, this puts the _Spring Data for
+Apache Geode_ (SDG) project at odds with the Apache Geode project, especially with respect to
+https://spring.io/projects/spring-data-geode#support[support timelines].
 
-In addition, service releases of SDG `2.8`, for example, a SDG `2.8.1`, will only occur on an as needed basis to address
-any CVEs, bug reports, and to make minor enhancements as necessary in support of our users. No new or significant features,
-or additions will be made to SDG beyond `2.7`. SDG `2.8` will close out more than decade long tenure (since its inception
-in 2010) of the _Spring Data for Apache Geode_ project.
+_Spring Data for Apache Geode_ (SDG) `2.7.x` is already GA and based on Apache Geode `1.14.x`. Across the Spring
+portfolio there was no plan for a Spring Data `2.8` and a subsequent Spring Boot `2.8` to pick up Spring Data `2.8`.
+SDG `2.8` would have been the earliest opportunity to build support for Apache Geode `1.15`
+(See https://geode.apache.org/releases/[releases]).
 
-Finally, _Spring Data for VMware Tanzu GemFire_ (SDG) project will be the successor for the _Spring Data for Apache Geode_ project
-and restored as an externally managed and community-led project. SD GemFire will not be part of the Spring Data BOM,
-will not be released as part of the Spring Data release train and will not be maintained by the Spring (Data) team
-any longer. It will be solely managed and maintained by the VMware GemFire team in the VMware data org as
-an externally managed, community-led module.
+Since Spring Data / Spring Boot `2.7` were the last minor releases in our `2.x` release series, SDG `3.0` was then
+immediately targeted for Apache Geode `1.15`. Although, given VMW's decision, we decided to cancel SDG `3.0` because
+it would extend our support timelines significantly past the October 2022 date committed to by VMW. As a result, support
+for Apache Geode `1.15` was going to move into an extended SDG `2.8` release and proceed with a series of milestones
+leading up to a final `2.8.0` GA in a relatively compressed timeframe.
 
-Specifics of the _Spring Data for VMware Tanzu GemFire_ project and effort are beyond the scope this notice, but more
-details will be provided in a blog post (pending review and approval) and on
-the https://spring.io/projects/spring-data-gemfire[Spring Data for VMware Tanzu GemFire] project page at https://spring.io[spring.io].
+Now that this http://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] has been cast, we have changed our decision and we will
+no longer proceed with SDG `2.8`. In addition, although we will honor our SDG project commitments and
+https://spring.io/projects/spring-data-geode#support[support timelines], where SDG `2.7.x` OSS EOL ends on 2023-May-05
+and commercial EOL ends on 2024-Sept-01, the SDG project will now go into a minimal maintenance node where only CVEs
+and critical bugs will be addressed. No new features or enhancements to the SDG project will occur.
+
+Finally, VMW has intentions of resurrecting the _Spring Data for VMware GemFire_ (SDG) https://spring.io/projects/spring-data-gemfire[project],
+which will become the eventual successor of the _Spring Data for Apache Geode_ project. However, _Spring Data for VMware GemFire_
+will be managed as an external, community-led project. _Spring Data for VMware GemFire_ will not be included in
+the Spring Data BOM, will not be released as part of the Spring Data release train and will not be maintained by
+the Spring (Data) team any longer.
+
+Specifics of the _Spring Data for VMware GemFire_ project and timeframe are beyond the scope this notice, but more
+details will be provided in a blog post (pending review and approval) on
+the https://spring.io/projects/spring-data-gemfire[Spring Data for VMware GemFire] project page
+at https://spring.io[spring.io].
 
 
 [[features]]
