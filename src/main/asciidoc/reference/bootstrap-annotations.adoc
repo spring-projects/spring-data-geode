@@ -16,9 +16,7 @@ the <<bootstap-annotations-quickstart, Quick Start>> section.
 [[bootstrap-annotation-config-introduction]]
 == Introduction
 
-{data-store-name} can be difficult to setup and use correctly, given all the
-{x-data-store-docs}/reference/topics/gemfire_properties.html[configuration properties]
-and different configuration options:
+{data-store-name}, along with Spring Data for {data-store-name}, offer many configuration options:
 
 * {x-data-store-javadoc}[Java API]
 * {x-data-store-docs}/reference/topics/chapter_overview_cache_xml.html[`cache.xml`]
@@ -26,15 +24,17 @@ and different configuration options:
 with {x-data-store-docs}/configuring/chapter_overview.html[Cluster Configuration]
 * <<bootstrap,Spring XML/Java-based configuration>>
 
-Further complexity arises from the different supported topologies:
+In addition, {data-store-name} and Spring Data for {data-store-name} both support different topologies:
 
-* ({x-data-store-docs}/topologies_and_comm/cs_configuration/chapter_overview.html[client/server]
+* {x-data-store-docs}/topologies_and_comm/cs_configuration/chapter_overview.html[client/server]
 * {x-data-store-docs}/topologies_and_comm/p2p_configuration/chapter_overview.html[P2P]
-* {x-data-store-docs}/topologies_and_comm/multi_site_configuration/chapter_overview.html[WAN])
+* {x-data-store-docs}/topologies_and_comm/multi_site_configuration/chapter_overview.html[WAN]
 * {x-data-store-wiki}/Geode+Internal+Architecture?src=contextnavpagetreemode[distributed system design patterns]
 (such as shared-nothing architecture).
 
-The annotation-based configuration model aims to simplify all this and more.
+All of these configuration options and topology arrangements can pose challenges when setting up and using
+{data-store-name} properly. The Spring Data for {data-store-name} annotation-based configuration model aims to
+simplify configuration in the context of topology, plus more.
 
 The annotation-based configuration model is an alternative to XML-based configuration using {sdg-name}'s XML namespace.
 With XML, you could use the `gfe` XML schema for configuration and the `gfe-data` XML schema for data access.
