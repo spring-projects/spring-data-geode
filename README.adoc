@@ -7,6 +7,28 @@ Spring Data for Apache Geode brings the full power of the Spring Framework to yo
 [[notice]]
 == NOTICE
 
+[[notice-2023-january]]
+*2023-January-17*:
+
+At the end of 2022, VMware https://tanzu.vmware.com/content/blog/spring-for-vmware-gemfire-is-now-available[announced]
+the general availability of the Spring for VMware GemFire portfolio of projects.
+
+While these Spring based projects for VMware GemFire are open source and a succession to the Spring for Apache Geode
+projects, they are not a replacement. VMware GemFire forked from the Apache Geode project and is not open source.
+Additionally, newer Apache Geode and VMware GemFire clients are not backwards compatible with older Apache Geode
+and VMware GemFire servers. You can begin the transition by starting https://docs.vmware.com/en/Spring-Data-for-VMware-GemFire/index.html[here].
+
+Alternatively, the Spring portfolio provides first-class https://docs.spring.io/spring-boot/docs/current/reference/html/io.html#io.caching.provider[integration]
+with other comparable caching providers. Also, see https://docs.spring.io/spring-framework/docs/current/reference/html/integration.html#cache-store-configuration[here]
+and https://docs.spring.io/spring-framework/docs/current/reference/html/integration.html#cache-plug[here].
+
+Finally, keep in mind, the Spring for Apache Geode projects will still be maintained until OSS and commercial support
+ends. Maintenance will only include CVE and critical fixes. No new features or major enhancements will be made.
+The Spring Data for Apache Geode support timelines can be viewed https://spring.io/projects/spring-data-geode#support[here].
+
+[[notice-2022-october]]
+*2022-October-24*:
+
 As of Spring Data `2022.0.0-RC1` (_Turing_-RC1) / `3.0.0-RC1`, the _Spring Data for Apache Geode_ (SDG) module
 has been removed from the Spring Data BOM and Spring Data release train. SDG will no longer continue in
 the `3.0` generation from this point forward.
@@ -14,12 +36,12 @@ the `3.0` generation from this point forward.
 In summary, VMware (VMW) made a https://markmail.org/message/oafksl5iufmqhuyg[decision] to discontinue all contributions
 to the Apache Geode project at the Apache Software Foundation (ASF). VMware has committed to the Apache Geode project
 until the end of October 2022. However, the plan is to transition the Apache Geode project responsibilities to another
-entity or group of individuals who are members of the PMC and are willing to maintain and manage the project, moving
-it forward.
+entity or group of individuals who are members of the PMC and are willing to maintain and manage the project going
+forward.
 
 Unfortunately, as of 2022-October-24, the Apache Geode project failed to secure at least 3 voting members on the PMC
 required to maintain and manage the project. So, a https://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] was cast to move
-the Apache Geode project into the Attic at the Apache Software Foundation. Clearly, this puts the _Spring Data for
+the Apache Geode project to the Attic at the Apache Software Foundation. Clearly, this puts the _Spring Data for
 Apache Geode_ (SDG) project at odds with the Apache Geode project, especially with respect to
 https://spring.io/projects/spring-data-geode#support[support timelines].
 
@@ -28,17 +50,17 @@ portfolio there was no plan for a Spring Data `2.8` and a subsequent Spring Boot
 SDG `2.8` would have been the earliest opportunity to build support for Apache Geode `1.15`
 (See https://geode.apache.org/releases/[releases]).
 
-Since Spring Data / Spring Boot `2.7` were the last minor releases in our `2.x` release series, SDG `3.0` was then
+Since Spring Data / Spring Boot `2.7` are the last minor releases in our `2.x` release series, SDG `3.0` was then
 immediately targeted for Apache Geode `1.15`. Although, given VMW's decision, we decided to cancel SDG `3.0` because
 it would extend our support timelines significantly past the October 2022 date committed to by VMW. As a result, support
 for Apache Geode `1.15` was going to move into an extended SDG `2.8` release and proceed with a series of milestones
-leading up to a final `2.8.0` GA in a relatively compressed timeframe.
+and release candidates leading up to a final `2.8.0` GA in a relatively compressed timeframe.
 
-Now that this https://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] has been cast, we have changed our decision and we will
-no longer proceed with SDG `2.8`. In addition, although we will honor our SDG project commitments and
-https://spring.io/projects/spring-data-geode#support[support timelines], where SDG `2.7.x` OSS EOL ends on 2023-May-05
-and commercial EOL ends on 2024-Sept-01, the SDG project will now go into a minimal maintenance node where only CVEs
-and critical bugs will be addressed. No new features or enhancements to the SDG project will occur.
+Now that this https://markmail.org/message/dfdkfmxcawcl4q7r[VOTE] has been cast, we have changed our decision
+and the Spring team will no longer proceed with SDG `2.8`. In addition, although we will honor our SDG project
+commitments and https://spring.io/projects/spring-data-geode#support[support timelines], where SDG `2.7.x` OSS EOL
+ends on 2023-May-05 and commercial EOL ends on 2024-Sept-01, the SDG project will now go into minimal maintenance
+mode where only CVEs and critical bugs will be addressed. No new features or enhancements to the SDG project will occur.
 
 Finally, VMW has intentions of resurrecting the _Spring Data for VMware GemFire_ (SDG) https://spring.io/projects/spring-data-gemfire[project],
 which will become the eventual successor of the _Spring Data for Apache Geode_ project. However, _Spring Data for VMware GemFire_
@@ -47,9 +69,7 @@ the Spring Data BOM, will not be released as part of the Spring Data release tra
 the Spring (Data) team any longer.
 
 Specifics of the _Spring Data for VMware GemFire_ project and timeframe are beyond the scope this notice, but more
-details will be provided in a blog post (pending review and approval) on
-the https://spring.io/projects/spring-data-gemfire[Spring Data for VMware GemFire] project page
-at https://spring.io[spring.io].
+details will be provided in a blog post in the near future.
 
 
 [[features]]
