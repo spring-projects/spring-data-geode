@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.config.annotation;
 
 import static org.springframework.data.gemfire.config.annotation.DiskStoreConfiguration.DEFAULT_ALLOW_FORCE_COMPACTION;

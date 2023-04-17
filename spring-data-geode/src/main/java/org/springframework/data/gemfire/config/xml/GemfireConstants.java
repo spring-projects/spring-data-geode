@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.xml;
 
 /**
- * The GemfireConstants class define constants for Spring GemFire component bean names.
+ * Spring GemFire component bean names.
  *
  * @author David Turanski
  * @author John Blum
@@ -27,6 +26,7 @@ public interface GemfireConstants {
 	String DEFAULT_GEMFIRE_CACHE_NAME = "gemfireCache";
 	String DEFAULT_GEMFIRE_INDEX_DEFINITION_QUERY_SERVICE = "gemfireIndexDefinitionQueryService";
 	String DEFAULT_GEMFIRE_FUNCTION_SERVICE_NAME = "gemfireFunctionService";
+	String DEFAULT_GEMFIRE_DISK_STORE_NAME = "DEFAULT";
 	String DEFAULT_GEMFIRE_POOL_NAME = "gemfirePool";
 	String DEFAULT_GEMFIRE_TRANSACTION_MANAGER_NAME = "gemfireTransactionManager";
 

@@ -78,6 +78,7 @@ public class DiskStoreConfiguration extends AbstractAnnotationConfigSupport
 	protected static final long DEFAULT_MAX_OPLOG_SIZE = 1024L;
 	protected static final long DEFAULT_TIME_INTERVAL = DiskStoreFactory.DEFAULT_TIME_INTERVAL;
 
+	@SuppressWarnings("all")
 	@Autowired(required = false)
 	private List<DiskStoreConfigurer> diskStoreConfigurers = Collections.emptyList();
 
