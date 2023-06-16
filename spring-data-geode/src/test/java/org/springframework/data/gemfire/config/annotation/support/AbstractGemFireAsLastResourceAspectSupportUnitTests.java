@@ -18,7 +18,6 @@ package org.springframework.data.gemfire.config.annotation.support;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -28,12 +27,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.data.gemfire.util.RuntimeExceptionFactory.newIllegalArgumentException;
 
-import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -42,10 +37,8 @@ import javax.naming.NamingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.internal.matchers.VarargMatcher;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.apache.geode.cache.GemFireCache;
@@ -76,6 +69,10 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 
 	@Spy
 	private AbstractGemFireAsLastResourceAspectSupport aspectSupport;
+
+	private Object[] asArray(Object... array) {
+		return array;
+	}
 
 	@Before
 	@SuppressWarnings("all")
@@ -129,15 +126,7 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 			"debug", "test")) .isSameAs(aspectSupport);
 
 		verify(mockLogger, times(1)).isDebugEnabled();
-		// TODO why the f#&k does this not work Mockito?!
-		//verify(mockLogger, times(1))
-		//	.debug(eq("test debug message"), eq("debug"), eq("test"));
-		// TODO this ridiculous sh!t works
-		//verify(mockLogger, times(1)).debug(eq("test debug message"),
-		//	ArgumentMatchers.<Object[]>any());
-		// TODO and so does this, but what a hack!
-		verify(mockLogger, times(1)).debug(eq("test debug message"),
-			VariableArgumentMatcher.varArgThat("debug", "test"));
+		verify(mockLogger, times(1)).debug(eq("test debug message"));
 	}
 
 	@Test
@@ -163,8 +152,7 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 			.isSameAs(aspectSupport);
 
 		verify(mockLogger, times(1)).isInfoEnabled();
-		verify(mockLogger, times(1)).info(eq("test info message"),
-			VariableArgumentMatcher.varArgThat("info"));
+		verify(mockLogger, times(1)).info(eq("test info message"));
 	}
 
 	@Test
@@ -230,8 +218,7 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 			.isSameAs(aspectSupport);
 
 		verify(mockLogger, times(1)).isWarnEnabled();
-		verify(mockLogger, times(1)).warn(eq("test warning message"),
-			VariableArgumentMatcher.varArgThat("warning"));
+		verify(mockLogger, times(1)).warn(eq("test warning message"));
 	}
 
 	@Test
@@ -258,8 +245,7 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 			.isSameAs(aspectSupport);
 
 		verify(mockLogger, times(1)).isErrorEnabled();
-		verify(mockLogger, times(1)).error(eq("test error message"),
-			VariableArgumentMatcher.varArgThat("error"));
+		verify(mockLogger, times(1)).error(eq("test error message"));
 	}
 
 	@Test
@@ -416,33 +402,5 @@ public class AbstractGemFireAsLastResourceAspectSupportUnitTests {
 		assertThat(aspectSupport.isThrowOnError()).isTrue();
 		assertThat(aspectSupport.<AbstractGemFireAsLastResourceAspectSupport>withThrowOnError(false)).isSameAs(aspectSupport);
 		assertThat(aspectSupport.isThrowOnError()).isFalse();
-	}
-
-	// TODO refactor this BS; damn you Mockito for your inability to match Varargs completely/reliably; WTF!
-	static final class VariableArgumentMatcher<T> implements ArgumentMatcher<T>, VarargMatcher {
-
-		static Object[] varArgThat(Object... expectedArguments) {
-			return argThat(new VariableArgumentMatcher<>(expectedArguments));
-		}
-
-		private final Object[] expectedArguments;
-
-		VariableArgumentMatcher(Object... expectedArguments) {
-			this.expectedArguments = Optional.ofNullable(expectedArguments)
-				.orElseThrow(() -> newIllegalArgumentException("Expected arguments must not be null"));
-		}
-
-		@Override
-		public boolean matches(T actualArgument) {
-			return asList(this.expectedArguments).containsAll(asList(actualArgument));
-		}
-
-		private List<Object> asList(Object argument) {
-			return Arrays.asList(toArray(argument));
-		}
-
-		private Object[] toArray(Object argument) {
-			return (argument instanceof Object[] ? (Object[]) argument : new Object[] { argument });
-		}
 	}
 }

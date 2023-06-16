@@ -262,7 +262,7 @@ public class AbstractGemFireAsLastResourceAspectSupport implements Ordered {
 		Logger logger = getLogger();
 
 		if (logger.isDebugEnabled()) {
-			logger.debug(format(message, args), args);
+			logger.debug(format(message, args));
 		}
 
 		return (T) this;
@@ -286,7 +286,7 @@ public class AbstractGemFireAsLastResourceAspectSupport implements Ordered {
 		Logger logger = getLogger();
 
 		if (logger.isInfoEnabled()) {
-			logger.info(format(message, args), args);
+			logger.info(format(message, args));
 		}
 
 		return (T) this;
@@ -347,7 +347,7 @@ public class AbstractGemFireAsLastResourceAspectSupport implements Ordered {
 		Logger logger = getLogger();
 
 		if (logger.isWarnEnabled()) {
-			logger.warn(format(message, args), args);
+			logger.warn(format(message, args));
 		}
 
 		return (T) this;
@@ -371,7 +371,7 @@ public class AbstractGemFireAsLastResourceAspectSupport implements Ordered {
 		Logger logger = getLogger();
 
 		if (logger.isErrorEnabled()) {
-			logger.error(format(message, args), args);
+			logger.error(format(message, args));
 		}
 
 		return (T) this;
