@@ -17,7 +17,10 @@ package org.springframework.data.gemfire.config.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -30,7 +33,10 @@ import org.apache.geode.distributed.Locator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.gemfire.tests.integration.ForkingClientServerIntegrationTestsSupport;
+import org.springframework.data.gemfire.tests.integration.IntegrationTestsSupport;
 import org.springframework.data.gemfire.tests.process.ProcessWrapper;
+import org.springframework.data.gemfire.tests.util.FileSystemUtils;
+import org.springframework.data.gemfire.util.ArrayUtils;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -64,6 +70,8 @@ public class SecurityManagerSecuredLocatorToLocatorApplicationIntegrationTests
 	@BeforeClass
 	public static void startGeodeLocator() throws IOException {
 
+		cleanupAnyExistingGeodeLocatorFiles();
+
 		int locatorPort = findAndReserveAvailablePort();
 
 		locatorProcess= run(LocatorAuthServer.class,
@@ -75,10 +83,24 @@ public class SecurityManagerSecuredLocatorToLocatorApplicationIntegrationTests
 		System.setProperty("spring.data.gemfire.locators", String.format("localhost[%d]", locatorPort));
 	}
 
+	private static void cleanupAnyExistingGeodeLocatorFiles() {
+
+		FileFilter locatorFiles = file -> file != null && file.getName().startsWith("locator");
+
+		FileFilter configDiskDirFiles = file -> file != null && file.isDirectory()
+			&& file.getName().startsWith("ConfigDiskDir");
+
+		Arrays.stream(ArrayUtils.nullSafeArray(FileSystemUtils.WORKING_DIRECTORY.listFiles(locatorFiles), File.class))
+			.forEach(File::delete);
+
+		Arrays.stream(ArrayUtils.nullSafeArray(FileSystemUtils.WORKING_DIRECTORY.listFiles(configDiskDirFiles), File.class))
+			.forEach(IntegrationTestsSupport::removeRecursiveDirectory);
+	}
+
 	@AfterClass
 	public static void stopGeodeLocator() {
-		stop(locatorProcess);
 		System.clearProperty("spring.data.gemfire.locators");
+		stop(locatorProcess);
 	}
 
 	@Autowired
@@ -98,7 +120,7 @@ public class SecurityManagerSecuredLocatorToLocatorApplicationIntegrationTests
 		assertThat(distributedSystem.getAllOtherMembers()).hasSize(1);
 	}
 
-	@LocatorApplication(name = "LocatorAuthServer")
+	@LocatorApplication(name = "LocatorAuthServer", useClusterConfiguration = false)
 	@EnableSecurity(securityManagerClass = TestSecurityManager.class)
 	@Profile("locator-auth-server")
 	static class LocatorAuthServer {
@@ -109,7 +131,7 @@ public class SecurityManagerSecuredLocatorToLocatorApplicationIntegrationTests
 		}
 	}
 
-	@LocatorApplication(name = "LocatorAuthClient", port = 0)
+	@LocatorApplication(name = "LocatorAuthClient", port = 0, useClusterConfiguration = false)
 	@EnableSecurity(securityUsername = TestSecurityManager.SECURITY_USERNAME, securityPassword = TestSecurityManager.SECURITY_PASSWORD)
 	@Profile("locator-auth-client")
 	static class LocatorAuthClient { }
