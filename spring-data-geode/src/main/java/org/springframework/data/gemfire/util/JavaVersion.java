@@ -60,13 +60,13 @@ public abstract class JavaVersion implements Comparable<JavaVersion> {
 
 	private static final AtomicReference<JavaVersion> CURRENT = new AtomicReference<>(null);
 
-	protected static JavaVersion of(int major, int minor, int patch) {
-		return new JavaVersion(major, minor, patch) { };
-	}
-
 	public static JavaVersion current() {
 		return CURRENT.updateAndGet(currentJavaVersion -> currentJavaVersion != null ? currentJavaVersion
 			: determineCurrentJavaVersion());
+	}
+
+	protected static JavaVersion of(int major, int minor, int patch) {
+		return new JavaVersion(major, minor, patch) { };
 	}
 
 	private static JavaVersion determineCurrentJavaVersion() {
@@ -84,7 +84,11 @@ public abstract class JavaVersion implements Comparable<JavaVersion> {
 			if (javaVersionArray.length > 1) {
 				minor = parseInt(javaVersionArray[1]);
 				if (javaVersionArray.length > 2) {
-					patch = parseInt(javaVersionArray[2]);
+					String tempPatch = javaVersionArray[2];
+					tempPatch = tempPatch.contains("_")
+						? tempPatch.substring(0, tempPatch.indexOf("_"))
+						: tempPatch;
+					patch = parseInt(tempPatch);
 				}
 			}
 		}
@@ -145,7 +149,8 @@ public abstract class JavaVersion implements Comparable<JavaVersion> {
 	}
 
 	public boolean isJava8() {
-		return EIGHT.getMajor().equals(getMajor());
+		return EIGHT.getMajor().equals(getMajor())
+			&& EIGHT.getMinor().equals(getMinor());
 	}
 
 	public boolean isJava11() {
