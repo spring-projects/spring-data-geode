@@ -26,22 +26,23 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 /**
- * The {@link QueryPostProcessor} interface defines a contract for implementations to post process
- * a given {@link QUERY query} and possibly return a new or modified version of the same {@link QUERY query}.
- *
- * {@link QueryPostProcessor QueryPostProcessors} are useful for handling and processing {@link QUERY queries}
- * derived from {@link Repository} {@link QueryMethod QueryMethods}, and give a developer the opportunity,
- * via the callback, to further process the generated {@link QUERY query}.
- *
+ * Interface defining contract for implementations to post process a given {@link QUERY query} and possibly return
+ * a new or modified version of the same {@link QUERY query}.
+ * <p>
+ * {@link QueryPostProcessor QueryPostProcessors} are useful for processing {@link QUERY queries} derived from
+ * {@link Repository} {@link QueryMethod QueryMethods}, and give developers an opportunity, through this callback,
+ * to further process the generated {@link QUERY query}.
+ * <p>
  * {@link QueryPostProcessor QueryPostProcessors} can be used on both {@literal derived} {@link QUERY queries}
- * and {@literal manual} {@link QUERY queries}.  {@literal Manual} {@link QUERY queries} are defined as
- * {@link QUERY queries} specified using SDG's {@link Query @Query} annotation or by defining a {@literal named}
- * {@link QUERY query} in a module-specific {@link Properties} files
- * (e.g. {@literal META-INF/gemfire-named-queries.properties}).
+ * as well as {@literal manual} {@link QUERY queries}.
+ * <p>
+ * {@literal Manual} {@link QUERY queries} are defined as {@link QUERY queries} specified using the {@link Query @Query}
+ * annotation or by defining a {@literal named} {@link QUERY query} in a module-specific {@link Properties} files,
+ * for example: {@literal META-INF/gemfire-named-queries.properties}).
  *
  * @author John Blum
  * @param <T> {@link Class type} identifying the {@link Repository Repositories} to match on during registration.
- * @param <QUERY> {@link Class type} of the query to process.
+ * @param <QUERY> {@link Class type} of the {@literal query} to process.
  * @see java.lang.FunctionalInterface
  * @see org.springframework.core.Ordered
  * @see org.springframework.data.gemfire.repository.Query
@@ -59,7 +60,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	/**
 	 * Defines the {@link Integer order} of this {@link QueryPostProcessor} relative to
 	 * other {@link QueryPostProcessor QueryPostProcessors} in a sort.
-	 *
+	 * <p>
 	 * Defaults to the {@link Ordered#LOWEST_PRECEDENCE}.
 	 *
 	 * @return an {@link Integer} value specifying the order of this {@link QueryPostProcessor} relative to
@@ -74,7 +75,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	/**
 	 * Callback method invoked by the Spring Data (SD) {@link Repository} framework to allow the user to process
 	 * the given {@link QUERY query} and (possibly) return a new or modified version of the {@link QUERY query}.
-	 *
+	 * <p>
 	 * This callback is invoked for {@literal queries} generated from a SD {@link Repository} {@link QueryMethod}
 	 * signature as well as {@literal queries} specified and defined in {@link NamedQueries},
 	 * or even using SDG's {@link Query @Query} annotation.
@@ -91,7 +92,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	/**
 	 * Callback method invoked by the Spring Data (SD) {@link Repository} framework to allow the user to process
 	 * the given {@link QUERY query} and (possibly) return a new or modified version of the {@link QUERY query}.
-	 *
+	 * <p>
 	 * This callback is invoked for {@literal queries} generated from a SD {@link Repository} {@link QueryMethod}
 	 * signature as well as {@literal queries} specified and defined in {@link NamedQueries},
 	 * or even using SDG's {@link Query @Query} annotation.
@@ -102,12 +103,12 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * @see org.springframework.data.repository.query.QueryMethod
 	 * @see #postProcess(QueryMethod, Object)
 	 */
-	QUERY postProcess(@NonNull QueryMethod queryMethod, QUERY query, Object... arguments);
+	QUERY postProcess(QueryMethod queryMethod, QUERY query, Object... arguments);
 
 	/**
 	 * Builder method used to compose this {@link QueryPostProcessor QueryPostProcessor}
 	 * with the given {@link QueryPostProcessor}.
-	 *
+	 * <p>
 	 * This {@link QueryPostProcessor} will process the query before the given {@link QueryPostProcessor}
 	 * in the processing chain.
 	 *
@@ -118,6 +119,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * @see #processAfter(QueryPostProcessor)
 	 */
 	default @NonNull QueryPostProcessor<T, QUERY> processBefore(@Nullable QueryPostProcessor<T, QUERY> queryPostProcessor) {
+
 		return queryPostProcessor == null ? this : (queryMethod, query, arguments) ->
 			queryPostProcessor.postProcess(queryMethod, this.postProcess(queryMethod, query, arguments), arguments);
 	}
@@ -125,7 +127,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	/**
 	 * Builder method used to compose this {@link QueryPostProcessor QueryPostProcessors}
 	 * with the given {@link QueryPostProcessor}.
-	 *
+	 * <p>
 	 * This {@link QueryPostProcessor} will process the query after the given {@link QueryPostProcessor}
 	 * in the processing chain.
 	 *
@@ -136,6 +138,7 @@ public interface QueryPostProcessor<T extends Repository, QUERY> extends Ordered
 	 * @see #processBefore(QueryPostProcessor)
 	 */
 	default @NonNull QueryPostProcessor<T, QUERY> processAfter(@Nullable QueryPostProcessor<T, QUERY> queryPostProcessor) {
+
 		return queryPostProcessor == null ? this : (queryMethod, query, arguments) ->
 			this.postProcess(queryMethod, queryPostProcessor.postProcess(queryMethod, query, arguments), arguments);
 	}

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.admin;
 
 import static java.util.Arrays.stream;
@@ -30,8 +29,7 @@ import org.springframework.data.gemfire.config.schema.definitions.IndexDefinitio
 import org.springframework.data.gemfire.config.schema.definitions.RegionDefinition;
 
 /**
- * The {@link GemfireAdminOperations} interface defines a set of operations to define schema objects in a remote
- * Apache Geode or Pivotal GemFire cluster.
+ * Interface defining a set of operations for defining schema objects in a remote Apache Geode cluster.
  *
  * @author John Blum
  * @see org.apache.geode.cache.DiskStore

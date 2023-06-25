@@ -19,10 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -52,24 +56,29 @@ public class QueryPostProcessorUnitTests {
 		QueryPostProcessor<Repository, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class);
 		QueryPostProcessor<Repository, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class);
 
-		when(mockQueryPostProcessorOne.processAfter(any())).thenCallRealMethod();
-		when(mockQueryPostProcessorOne.postProcess(any(QueryMethod.class), anyString(), any())).thenReturn(query);
-		when(mockQueryPostProcessorTwo.postProcess(any(QueryMethod.class), anyString(), any())).thenReturn(query);
+		doCallRealMethod().when(mockQueryPostProcessorOne).processAfter(any());
+		doReturn(query).when(mockQueryPostProcessorOne).postProcess(any(QueryMethod.class), anyString(), anyString());
+		doReturn(query).when(mockQueryPostProcessorTwo).postProcess(any(QueryMethod.class), anyString(), anyString());
 
 		QueryPostProcessor<?, String> composite = mockQueryPostProcessorOne.processAfter(mockQueryPostProcessorTwo);
 
 		assertThat(composite).isNotNull();
 		assertThat(composite).isNotSameAs(mockQueryPostProcessorOne);
 		assertThat(composite).isNotSameAs(mockQueryPostProcessorTwo);
-		assertThat(composite.postProcess(mockQueryMethod, query)).isEqualTo(query);
+		assertThat(composite.postProcess(mockQueryMethod, query, "arg")).isEqualTo(query);
 
 		InOrder inOrder = inOrder(mockQueryPostProcessorOne, mockQueryPostProcessorTwo);
 
+		inOrder.verify(mockQueryPostProcessorOne, times(1))
+			.processAfter(eq(mockQueryPostProcessorTwo));
+
 		inOrder.verify(mockQueryPostProcessorTwo, times(1))
-			.postProcess(eq(mockQueryMethod), eq(query), any());
+			.postProcess(eq(mockQueryMethod), eq(query), eq("arg"));
 
 		inOrder.verify(mockQueryPostProcessorOne, times(1))
-			.postProcess(eq(mockQueryMethod), eq(query), any());
+			.postProcess(eq(mockQueryMethod), eq(query), eq("arg"));
+
+		verifyNoMoreInteractions(mockQueryPostProcessorOne, mockQueryPostProcessorTwo);
 	}
 
 	@Test
@@ -77,9 +86,12 @@ public class QueryPostProcessorUnitTests {
 
 		QueryPostProcessor<?, ?> mockQueryPostProcessor = mock(QueryPostProcessor.class);
 
-		when(mockQueryPostProcessor.processAfter(any())).thenCallRealMethod();
+		doCallRealMethod().when(mockQueryPostProcessor).processAfter(any());
 
 		assertThat(mockQueryPostProcessor.processAfter(null)).isSameAs(mockQueryPostProcessor);
+
+		verify(mockQueryPostProcessor, times(1)).processAfter(isNull());
+		verifyNoMoreInteractions(mockQueryPostProcessor);
 	}
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -89,27 +101,32 @@ public class QueryPostProcessorUnitTests {
 
 		String query = "SELECT * FROM /Test";
 
-		QueryPostProcessor<Repository, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class);
-		QueryPostProcessor<Repository, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class);
+		QueryPostProcessor<Repository, String> mockQueryPostProcessorOne = mock(QueryPostProcessor.class, "ONE");
+		QueryPostProcessor<Repository, String> mockQueryPostProcessorTwo = mock(QueryPostProcessor.class, "TWO");
 
-		when(mockQueryPostProcessorOne.processBefore(any())).thenCallRealMethod();
-		when(mockQueryPostProcessorOne.postProcess(any(QueryMethod.class), anyString(), any())).thenReturn(query);
-		when(mockQueryPostProcessorTwo.postProcess(any(QueryMethod.class), anyString(), any())).thenReturn(query);
+		doCallRealMethod().when(mockQueryPostProcessorOne).processBefore(any());
+		doReturn(query).when(mockQueryPostProcessorOne).postProcess(any(QueryMethod.class), anyString(), anyString());
+		doReturn(query).when(mockQueryPostProcessorTwo).postProcess(any(QueryMethod.class), anyString(), anyString());
 
 		QueryPostProcessor<?, String> composite = mockQueryPostProcessorOne.processBefore(mockQueryPostProcessorTwo);
 
 		assertThat(composite).isNotNull();
 		assertThat(composite).isNotSameAs(mockQueryPostProcessorOne);
 		assertThat(composite).isNotSameAs(mockQueryPostProcessorTwo);
-		assertThat(composite.postProcess(mockQueryMethod, query)).isEqualTo(query);
+		assertThat(composite.postProcess(mockQueryMethod, query, "arg")).isEqualTo(query);
 
 		InOrder inOrder = inOrder(mockQueryPostProcessorOne, mockQueryPostProcessorTwo);
 
 		inOrder.verify(mockQueryPostProcessorOne, times(1))
-			.postProcess(eq(mockQueryMethod), eq(query), any());
+			.processBefore(eq(mockQueryPostProcessorTwo));
+
+		inOrder.verify(mockQueryPostProcessorOne, times(1))
+			.postProcess(eq(mockQueryMethod), eq(query), eq("arg"));
 
 		inOrder.verify(mockQueryPostProcessorTwo, times(1))
-			.postProcess(eq(mockQueryMethod), eq(query), any());
+			.postProcess(eq(mockQueryMethod), eq(query), eq("arg"));
+
+		verifyNoMoreInteractions(mockQueryPostProcessorOne, mockQueryPostProcessorTwo);
 	}
 
 	@Test
@@ -117,8 +134,11 @@ public class QueryPostProcessorUnitTests {
 
 		QueryPostProcessor<?, ?> mockQueryPostProcessor = mock(QueryPostProcessor.class);
 
-		when(mockQueryPostProcessor.processBefore(any())).thenCallRealMethod();
+		doCallRealMethod().when(mockQueryPostProcessor).processBefore(any());
 
 		assertThat(mockQueryPostProcessor.processBefore(null)).isSameAs(mockQueryPostProcessor);
+
+		verify(mockQueryPostProcessor, times(1)).processBefore(isNull());
+		verifyNoMoreInteractions(mockQueryPostProcessor);
 	}
 }

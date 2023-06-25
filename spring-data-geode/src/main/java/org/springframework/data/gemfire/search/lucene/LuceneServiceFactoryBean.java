@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.springframework.data.gemfire.search.lucene;
 
 import java.util.Optional;
@@ -61,29 +60,23 @@ public class LuceneServiceFactoryBean extends AbstractFactoryBeanSupport<LuceneS
 	}
 
 	/**
-	 * Attempts to resolve the Singleton instance of the {@link GemFireCache} {@link LuceneService}
+	 * Attempts to resolve the single instance of the {@link GemFireCache} {@link LuceneService}
 	 * from given the {@link GemFireCache}.
 	 *
-	 * @param gemFireCache {@link GemFireCache} used to resolve the {@link LuceneService} instance.
-	 * @return a single instance of the GemFire {@link LuceneService}.
-	 * @see org.apache.geode.cache.GemFireCache
+	 * @param gemfireCache {@link GemFireCache} used to resolve the {@link LuceneService}.
+	 * @return a single instance of the {@link GemFireCache} {@link LuceneService}.
 	 * @see org.apache.geode.cache.lucene.LuceneService
+	 * @see org.apache.geode.cache.GemFireCache
 	 */
-	protected LuceneService resolveLuceneService(GemFireCache gemFireCache) {
+	protected LuceneService resolveLuceneService(GemFireCache gemfireCache) {
 		return LuceneServiceProvider.get(gemfireCache);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public LuceneService getObject() throws Exception {
 		return this.luceneService;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	@Override
 	public Class<?> getObjectType() {
 

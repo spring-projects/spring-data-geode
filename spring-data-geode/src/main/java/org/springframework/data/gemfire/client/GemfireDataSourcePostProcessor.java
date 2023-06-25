@@ -25,39 +25,33 @@ import org.apache.geode.cache.execute.Function;
 import org.apache.geode.management.internal.cli.domain.RegionInformation;
 import org.apache.geode.management.internal.cli.functions.GetRegionsFunction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.data.gemfire.client.function.ListRegionsOnServerFunction;
 import org.springframework.data.gemfire.function.execution.GemfireOnServersFunctionTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * A Spring {@link BeanFactoryPostProcessor} used to register a Client Region beans for each Region accessible to
- * an Apache Geode or Pivotal GemFire DataSource. If the Region is already defined, the bean definition
- * will not be overridden.
+ * A Spring {@link BeanPostProcessor} used to register a {@link ClientCache} {@link Region} beans
+ * for each {@link Region} accessible to an Apache Geode DataSource. If the {@link Region} is already
+ * defined as a bean, then the existing bean definition will not be overridden.
  *
  * @author David Turanski
  * @author John Blum
  * @see org.apache.geode.cache.Region
  * @see org.apache.geode.cache.client.ClientCache
  * @see org.apache.geode.cache.client.ClientRegionFactory
- * @see org.apache.geode.cache.client.ClientRegionShortcut
- * @see org.apache.geode.cache.execute.Function
  * @see org.apache.geode.management.internal.cli.functions.GetRegionsFunction
- * @see org.springframework.beans.factory.config.BeanFactoryPostProcessor
- * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @see org.springframework.data.gemfire.client.function.ListRegionsOnServerFunction
- * @see org.springframework.data.gemfire.function.execution.GemfireOnServersFunctionTemplate
- * @see ListRegionsOnServerFunction
  * @since 1.2.0
  */
 public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPostProcessor {
@@ -79,7 +73,7 @@ public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPos
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
 	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+	public void setBeanFactory(@NonNull BeanFactory beanFactory) throws BeansException {
 
 		if (beanFactory instanceof ConfigurableBeanFactory) {
 			this.beanFactory = (ConfigurableBeanFactory) beanFactory;
@@ -106,7 +100,7 @@ public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPos
 	 * used by the client {@link Region}.
 	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
-	public void setClientRegionShortcut(ClientRegionShortcut clientRegionShortcut) {
+	public void setClientRegionShortcut(@Nullable ClientRegionShortcut clientRegionShortcut) {
 		this.clientRegionShortcut = clientRegionShortcut;
 	}
 
@@ -123,13 +117,15 @@ public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPos
 	}
 
 	/**
-	 * Resolves the {@link ClientRegionShortcut} used to configure and create client {@link Region Regions}.
+	 * Resolves the {@link ClientRegionShortcut} used to create and configure client {@link Region Regions}.
+	 * <p>
+	 * Defaults to {@link ClientRegionShortcut#PROXY}.
 	 *
 	 * @return the resolved {@link ClientRegionShortcut}.
 	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 * @see #getClientRegionShortcut()
 	 */
-	protected ClientRegionShortcut resolveClientRegionShortcut() {
+	protected @NonNull ClientRegionShortcut resolveClientRegionShortcut() {
 		return getClientRegionShortcut().orElse(DEFAULT_CLIENT_REGION_SHORTCUT);
 	}
 
@@ -157,7 +153,7 @@ public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPos
 	}
 
 
-	// TODO: remove this logic and delegate to o.s.d.g.config.remote.GemfireAdminOperations
+	// TODO: Remove this logic and delegate to o.s.d.g.config.remote.GemfireAdminOperations
 	Iterable<String> regionNames(ClientCache clientCache) {
 
 		try {
@@ -191,6 +187,7 @@ public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPos
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	<T> T execute(ClientCache clientCache, Function gemfireFunction, Object... arguments) {
 		return new GemfireOnServersFunctionTemplate(clientCache).executeAndExtract(gemfireFunction, arguments);
 	}
@@ -255,17 +252,13 @@ public class GemfireDataSourcePostProcessor implements BeanFactoryAware, BeanPos
 		}
 	}
 
-	public GemfireDataSourcePostProcessor using(ClientRegionShortcut clientRegionShortcut) {
-
+	public @NonNull GemfireDataSourcePostProcessor using(ClientRegionShortcut clientRegionShortcut) {
 		setClientRegionShortcut(clientRegionShortcut);
-
 		return this;
 	}
 
-	public GemfireDataSourcePostProcessor using(BeanFactory beanFactory) {
-
+	public @NonNull GemfireDataSourcePostProcessor using(@NonNull BeanFactory beanFactory) {
 		setBeanFactory(beanFactory);
-
 		return this;
 	}
 }

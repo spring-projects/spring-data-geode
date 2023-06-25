@@ -13,52 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.data.gemfire.config.admin;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.query.Index;
 
 import org.springframework.data.gemfire.config.schema.SchemaObjectDefinition;
-import org.springframework.data.gemfire.config.schema.SchemaObjectType;
 import org.springframework.data.gemfire.config.schema.definitions.IndexDefinition;
 import org.springframework.data.gemfire.config.schema.definitions.RegionDefinition;
 
 /**
- * The GemfireAdminOperationsUnitTests class...
+ * Unit Tests for {@link GemfireAdminOperations}.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.junit.Test
+ * @see org.mockito.Mockito
+ * @see org.springframework.data.gemfire.config.admin.GemfireAdminOperations
+ * @since 1.9.0
  */
-@RunWith(MockitoJUnitRunner.class)
 public class GemfireAdminOperationsUnitTests {
 
-	@Mock
 	private GemfireAdminOperations adminOperations;
+
+	@Before
+	@SuppressWarnings("deprecation")
+	public void setup() {
+		this.adminOperations = mock(GemfireAdminOperations.class, withSettings().lenient());
+	}
 
 	private Index mockIndex(String name) {
 
 		Index mockIndex = mock(Index.class, name);
 
-		when(mockIndex.getName()).thenReturn(name);
+		doReturn(name).when(mockIndex).getName();
 
 		return mockIndex;
 	}
@@ -68,225 +72,227 @@ public class GemfireAdminOperationsUnitTests {
 
 		Region<K, V> mockRegion = mock(Region.class, name);
 
-		when(mockRegion.getName()).thenReturn(name);
+		doReturn(name).when(mockRegion).getName();
 
 		return mockRegion;
 	}
 
-	private SchemaObjectDefinition newGenericSchemaObjectDefinition(String name, SchemaObjectType type) {
+	private SchemaObjectDefinition newGenericSchemaObjectDefinition(String name) {
 		return mock(SchemaObjectDefinition.class, name);
 	}
 
 	@Test
 	public void createRegionsWithArrayCallsCreateRegion() {
 
-		doCallRealMethod().when(adminOperations).createRegions(ArgumentMatchers.<RegionDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations)
+			.createRegions(any(RegionDefinition.class), any(RegionDefinition.class));
+
+		//doCallRealMethod().when(this.adminOperations).createRegions(any(RegionDefinition[].class));
 
 		RegionDefinition definitionOne = RegionDefinition.from(mockRegion("RegionOne"));
 		RegionDefinition definitionTwo = RegionDefinition.from(mockRegion("RegionTwo"));
 
-		adminOperations.createRegions(definitionOne, definitionTwo);
+		this.adminOperations.createRegions(definitionOne, definitionTwo);
 
-		verify(adminOperations, times(1)).createRegion(eq(definitionOne));
-		verify(adminOperations, times(1)).createRegion(eq(definitionTwo));
+		verify(this.adminOperations, times(1)).createRegion(eq(definitionOne));
+		verify(this.adminOperations, times(1)).createRegion(eq(definitionTwo));
 	}
 
 	@Test
 	public void createRegionsWithEmptyArray() {
 
-		doCallRealMethod().when(adminOperations).createRegions(ArgumentMatchers.<RegionDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations).createRegions(ArgumentMatchers.<RegionDefinition[]>any());
 
-		adminOperations.createRegions();
+		this.adminOperations.createRegions();
 
-		verify(adminOperations, never()).createRegion(any(RegionDefinition.class));
+		verify(this.adminOperations, never()).createRegion(any(RegionDefinition.class));
 	}
 
 	@Test
 	public void createRegionsWithNullArray() {
 
-		doCallRealMethod().when(adminOperations).createRegions(ArgumentMatchers.<RegionDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations).createRegions(ArgumentMatchers.<RegionDefinition[]>any());
 
-		adminOperations.createRegions((RegionDefinition[]) null);
+		this.adminOperations.createRegions((RegionDefinition[]) null);
 
-		verify(adminOperations, never()).createRegion(any(RegionDefinition.class));
+		verify(this.adminOperations, never()).createRegion(any(RegionDefinition.class));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createRegionsWithIterableCallsCreateRegion() {
 
-		doCallRealMethod().when(adminOperations).createRegions(any(Iterable.class));
+		doCallRealMethod().when(this.adminOperations).createRegions(any(Iterable.class));
 
 		RegionDefinition definitionOne = RegionDefinition.from(mockRegion("RegionOne"));
 		RegionDefinition definitionTwo = RegionDefinition.from(mockRegion("RegionTwo"));
 
-		adminOperations.createRegions(Arrays.asList(definitionOne, definitionTwo));
+		this.adminOperations.createRegions(Arrays.asList(definitionOne, definitionTwo));
 
-		verify(adminOperations, times(1)).createRegion(eq(definitionOne));
-		verify(adminOperations, times(1)).createRegion(eq(definitionTwo));
+		verify(this.adminOperations, times(1)).createRegion(eq(definitionOne));
+		verify(this.adminOperations, times(1)).createRegion(eq(definitionTwo));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createRegionsWithEmptyIterableCallsCreateRegion() {
 
-		doCallRealMethod().when(adminOperations).createRegions(any(Iterable.class));
+		doCallRealMethod().when(this.adminOperations).createRegions(any(Iterable.class));
 
-		adminOperations.createRegions(Collections.emptyList());
+		this.adminOperations.createRegions(Collections.emptyList());
 
-		verify(adminOperations, never()).createRegion(any(RegionDefinition.class));
+		verify(this.adminOperations, never()).createRegion(any(RegionDefinition.class));
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void createRegionsWithNullIterableCallsCreateRegion() {
 
-		adminOperations.createRegions((Iterable) null);
+		this.adminOperations.createRegions((Iterable<RegionDefinition>) null);
 
-		verify(adminOperations, never()).createRegion(any(RegionDefinition.class));
+		verify(this.adminOperations, never()).createRegion(any(RegionDefinition.class));
 	}
 
 	@Test
 	public void createLuceneIndexesWithArrayCallsCreateLuceneIndex() {
 
-		doCallRealMethod().when(adminOperations).createLuceneIndexes(ArgumentMatchers.<SchemaObjectDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations)
+			.createLuceneIndexes(any(SchemaObjectDefinition.class), any(SchemaObjectDefinition.class));
 
-		SchemaObjectDefinition definitionOne = newGenericSchemaObjectDefinition("LucenIndexOne",
-			SchemaObjectType.LUCENE_INDEX);
+		//doCallRealMethod().when(this.adminOperations).createLuceneIndexes(any(SchemaObjectDefinition[].class));
 
-		SchemaObjectDefinition definitionTwo = newGenericSchemaObjectDefinition("LucenIndexOne",
-			SchemaObjectType.LUCENE_INDEX);
+		SchemaObjectDefinition definitionOne = newGenericSchemaObjectDefinition("LucenIndexOne");
+		SchemaObjectDefinition definitionTwo = newGenericSchemaObjectDefinition("LucenIndexOne");
 
-		adminOperations.createLuceneIndexes(definitionOne, definitionTwo);
+		this.adminOperations.createLuceneIndexes(definitionOne, definitionTwo);
 
-		verify(adminOperations, times(1)).createLuceneIndex(eq(definitionOne));
-		verify(adminOperations, times(1)).createLuceneIndex(eq(definitionTwo));
+		verify(this.adminOperations, times(1)).createLuceneIndex(eq(definitionOne));
+		verify(this.adminOperations, times(1)).createLuceneIndex(eq(definitionTwo));
 	}
 
 	@Test
 	public void createLuceneIndexesWithEmptyArray() {
 
-		doCallRealMethod().when(adminOperations).createLuceneIndexes(ArgumentMatchers.<SchemaObjectDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations)
+			.createLuceneIndexes(ArgumentMatchers.<SchemaObjectDefinition[]>any());
 
-		adminOperations.createLuceneIndexes();
+		this.adminOperations.createLuceneIndexes();
 
-		verify(adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
+		verify(this.adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
 	}
 
 	@Test
 	public void createLuceneIndexesWithNullArray() {
 
-		doCallRealMethod().when(adminOperations).createLuceneIndexes(ArgumentMatchers.<SchemaObjectDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations)
+			.createLuceneIndexes(ArgumentMatchers.<SchemaObjectDefinition[]>any());
 
-		adminOperations.createLuceneIndexes((SchemaObjectDefinition) null);
+		this.adminOperations.createLuceneIndexes((SchemaObjectDefinition[]) null);
 
-		verify(adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
+		verify(this.adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createLuceneIndexesWithIterableCallsCreateLuceneIndex() {
 
-		doCallRealMethod().when(adminOperations).createLuceneIndexes(any(Iterable.class));
+		doCallRealMethod().when(this.adminOperations).createLuceneIndexes(any(Iterable.class));
 
-		SchemaObjectDefinition definitionOne = newGenericSchemaObjectDefinition("LucenIndexOne",
-			SchemaObjectType.LUCENE_INDEX);
+		SchemaObjectDefinition definitionOne = newGenericSchemaObjectDefinition("LucenIndexOne");
+		SchemaObjectDefinition definitionTwo = newGenericSchemaObjectDefinition("LucenIndexOne");
 
-		SchemaObjectDefinition definitionTwo = newGenericSchemaObjectDefinition("LucenIndexOne",
-			SchemaObjectType.LUCENE_INDEX);
+		this.adminOperations.createLuceneIndexes(Arrays.asList(definitionOne, definitionTwo));
 
-		adminOperations.createLuceneIndexes(Arrays.asList(definitionOne, definitionTwo));
-
-		verify(adminOperations, times(1)).createLuceneIndex(eq(definitionOne));
-		verify(adminOperations, times(1)).createLuceneIndex(eq(definitionTwo));
+		verify(this.adminOperations, times(1)).createLuceneIndex(eq(definitionOne));
+		verify(this.adminOperations, times(1)).createLuceneIndex(eq(definitionTwo));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createLuceneIndexesWithEmptyIterableCallsCreateLuceneIndex() {
 
-		doCallRealMethod().when(adminOperations).createLuceneIndexes(any(Iterable.class));
+		doCallRealMethod().when(this.adminOperations).createLuceneIndexes(any(Iterable.class));
 
-		adminOperations.createLuceneIndexes(Collections.emptyList());
+		this.adminOperations.createLuceneIndexes(Collections.emptyList());
 
-		verify(adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
+		verify(this.adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void createLuceneIndexesWithNullIterableCallsCreateLuceneIndex() {
 
-		adminOperations.createLuceneIndexes((Iterable) null);
+		this.adminOperations.createLuceneIndexes((Iterable<SchemaObjectDefinition>) null);
 
-		verify(adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
+		verify(this.adminOperations, never()).createLuceneIndex(any(SchemaObjectDefinition.class));
 	}
 
 	@Test
 	public void createIndexesWithArrayCallsCreateIndex() {
 
-		doCallRealMethod().when(adminOperations).createIndexes(ArgumentMatchers.<IndexDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations)
+			.createIndexes(any(IndexDefinition.class), any(IndexDefinition.class));
+
+		//doCallRealMethod().when(this.adminOperations).createIndexes(any(IndexDefinition[].class));
 
 		IndexDefinition definitionOne = IndexDefinition.from(mockIndex("IndexOne"));
 		IndexDefinition definitionTwo = IndexDefinition.from(mockIndex("IndexTwo"));
 
-		adminOperations.createIndexes(definitionOne, definitionTwo);
+		this.adminOperations.createIndexes(definitionOne, definitionTwo);
 
-		verify(adminOperations, times(1)).createIndex(eq(definitionOne));
-		verify(adminOperations, times(1)).createIndex(eq(definitionTwo));
+		verify(this.adminOperations, times(1)).createIndex(eq(definitionOne));
+		verify(this.adminOperations, times(1)).createIndex(eq(definitionTwo));
 	}
 
 	@Test
 	public void createIndexesWithEmptyArray() {
 
-		doCallRealMethod().when(adminOperations).createIndexes(ArgumentMatchers.<IndexDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations).createIndexes(ArgumentMatchers.<IndexDefinition[]>any());
 
-		adminOperations.createIndexes();
+		this.adminOperations.createIndexes();
 
-		verify(adminOperations, never()).createIndex(any(IndexDefinition.class));
+		verify(this.adminOperations, never()).createIndex(any(IndexDefinition.class));
 	}
 
 	@Test
 	public void createIndexesWithNullArray() {
 
-		doCallRealMethod().when(adminOperations).createIndexes(ArgumentMatchers.<IndexDefinition[]>any());
+		doCallRealMethod().when(this.adminOperations).createIndexes(ArgumentMatchers.<IndexDefinition[]>any());
 
-		adminOperations.createIndexes();
+		this.adminOperations.createIndexes();
 
-		verify(adminOperations, never()).createIndex(any(IndexDefinition.class));
+		verify(this.adminOperations, never()).createIndex(any(IndexDefinition.class));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createIndexesWithIterableCallsCreateIndex() {
 
-		doCallRealMethod().when(adminOperations).createIndexes(any(Iterable.class));
+		doCallRealMethod().when(this.adminOperations).createIndexes(any(Iterable.class));
 
 		IndexDefinition definitionOne = IndexDefinition.from(mockIndex("IndexOne"));
 		IndexDefinition definitionTwo = IndexDefinition.from(mockIndex("IndexTwo"));
 
-		adminOperations.createIndexes(Arrays.asList(definitionOne, definitionTwo));
+		this.adminOperations.createIndexes(Arrays.asList(definitionOne, definitionTwo));
 
-		verify(adminOperations, times(1)).createIndex(eq(definitionOne));
-		verify(adminOperations, times(1)).createIndex(eq(definitionTwo));
+		verify(this.adminOperations, times(1)).createIndex(eq(definitionOne));
+		verify(this.adminOperations, times(1)).createIndex(eq(definitionTwo));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void createIndexesWithEmptyIterable() {
 
-		doCallRealMethod().when(adminOperations).createIndexes(any(Iterable.class));
+		doCallRealMethod().when(this.adminOperations).createIndexes(any(Iterable.class));
 
-		adminOperations.createIndexes(Collections.emptyList());
+		this.adminOperations.createIndexes(Collections.emptyList());
 
-		verify(adminOperations, never()).createIndex(any(IndexDefinition.class));
+		verify(this.adminOperations, never()).createIndex(any(IndexDefinition.class));
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void createIndexesWithNullIterable() {
 
-		adminOperations.createIndexes((Iterable) null);
+		this.adminOperations.createIndexes((Iterable<IndexDefinition>) null);
 
-		verify(adminOperations, never()).createIndex(any(IndexDefinition.class));
+		verify(this.adminOperations, never()).createIndex(any(IndexDefinition.class));
 	}
 }

@@ -53,10 +53,10 @@ import org.springframework.util.StringUtils;
 
 /**
  * Spring {@link FactoryBean} used to construct, configure and initialize a {@link Pool}.
- *
+ * <p>
  * If a new {@link Pool} is created, its lifecycle is bound to that of this declaring {@link FactoryBean}
  * and indirectly, the Spring container.
- *
+ * <p>
  * If a {@link Pool} having the configured {@link String name} already exists, then the existing {@link Pool}
  * will be returned as is without any modifications and its lifecycle will be unaffected by this {@link FactoryBean}.
  *

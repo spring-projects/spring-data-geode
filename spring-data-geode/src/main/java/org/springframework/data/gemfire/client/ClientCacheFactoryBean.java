@@ -685,7 +685,7 @@ public class ClientCacheFactoryBean extends CacheFactoryBean implements Applicat
 
 	/**
 	 * Sets (configures) the {@link PoolResolver} used by this {@link ClientCache} to resolve {@link Pool} objects.
-	 *
+	 * <p>
 	 * The {@link Pool} objects may be managed or un-managed depending on the {@link PoolResolver} implementation.
 	 *
 	 * @param poolResolver {@link PoolResolver} used to resolve the configured {@link Pool}.
