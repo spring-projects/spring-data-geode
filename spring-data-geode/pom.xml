@@ -283,7 +283,7 @@
 
 	<profiles>
 		<profile>
-			<id>local-java16</id>
+			<id>local-java17</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -296,7 +296,7 @@
 								<include>**/*Test.java</include>
 							</includes>
 							<jdkToolchain>
-								<version>16</version>
+								<version>17</version>
 								<vendor>oracle</vendor>
 							</jdkToolchain>
 							<reuseForks>false</reuseForks>
@@ -322,7 +322,7 @@
 						<configuration>
 							<toolchains>
 								<jdk>
-									<version>16</version>
+									<version>17</version>
 									<vendor>oracle</vendor>
 								</jdk>
 							</toolchains>
@@ -333,6 +333,9 @@
 		</profile>
 		<profile>
 			<id>remote-java17</id>
+			<activation>
+				<jdk>[17,)</jdk>
+			</activation>
 			<build>
 				<plugins>
 					<plugin>
