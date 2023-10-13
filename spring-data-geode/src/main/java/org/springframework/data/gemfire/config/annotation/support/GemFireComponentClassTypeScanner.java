@@ -33,6 +33,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -55,6 +56,9 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("unused")
 public class GemFireComponentClassTypeScanner implements Iterable<String> {
+
+	protected static final String GEMFIRE_COMPONENT_CLASSPATH_SCAN_PARALLEL_PROPERTY =
+		"spring.data.gemfire.classpath.scan.parallel";
 
 	/**
 	 * Factory method to construct an instance of the {@link GemFireComponentClassTypeScanner} initialized with
@@ -208,7 +212,10 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 		ClassPathScanningCandidateComponentProvider componentProvider =
 			newClassPathScanningCandidateComponentProvider();
 
-		stream(this.spliterator(), true)
+		boolean streamInParallel = getEnvironment()
+			.getProperty(GEMFIRE_COMPONENT_CLASSPATH_SCAN_PARALLEL_PROPERTY, Boolean.class, Boolean.FALSE);
+
+		stream(this.spliterator(), streamInParallel)
 			.flatMap(packageName -> componentProvider.findCandidateComponents(packageName).stream())
 			.forEach(beanDefinition ->
 				Optional.ofNullable(beanDefinition.getBeanClassName())
@@ -257,6 +264,8 @@ public class GemFireComponentClassTypeScanner implements Iterable<String> {
 
 		this.excludes.forEach(componentProvider::addExcludeFilter);
 		this.includes.forEach(componentProvider::addIncludeFilter);
+
+		componentProvider.setResourceLoader(new DefaultResourceLoader(getEntityClassLoader()));
 
 		return componentProvider;
 	}
